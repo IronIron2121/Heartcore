@@ -1,0 +1,3 @@
+local CloseButton = {}
+
+return CloseButton
