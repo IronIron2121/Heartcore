@@ -1,0 +1,3 @@
+local OutfitViewController = {}
+
+return OutfitViewController

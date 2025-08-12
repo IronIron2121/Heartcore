@@ -9,13 +9,8 @@ local StarterPlayerScripts = StarterPlayer:WaitForChild("StarterPlayerScripts")
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
-local OutfitCatalogGui = FusionComponents:WaitForChild("OutfitCatalogGui")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
-
--- GUI Components
---local ImageLabelButton = require(OutfitCatalogGui:WaitForChild("ImageLabelButton"))
---local OutfitAvatarContainer = require(OutfitCatalogGui:WaitForChild("OutfitAvatarContainer"))
 
 -- GUI Controllers
 local WardrobeGuiController = require(FusionComponents:WaitForChild("WardrobeGuiController"))
