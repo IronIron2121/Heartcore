@@ -4,4 +4,5 @@
 # Roblox Studio lock files
 /*.rbxlx.lock
 /*.rbxl.lock
-src\Tastemaker_shared.rbxl.lock
+/src/Tastemaker_shared.rbxl.lock
+src/Tastemaker_shared.rbxl.lock
