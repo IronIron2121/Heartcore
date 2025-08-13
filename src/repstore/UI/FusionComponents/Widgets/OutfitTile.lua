@@ -23,7 +23,6 @@ local OutfitClientService = require(Utility:WaitForChild("OutfitClientService"))
 -- Remotes
 local PlayerPurchasedOutfit = Remotes:WaitForChild("PlayerPurchasedOutfit")
 
-
 -- Fusion
 local Out = Fusion.Out
 local OnEvent = Fusion.OnEvent
@@ -138,7 +137,6 @@ function OutfitTile(
 						},
 						
 						[OnEvent "Activated"] = function()
-							-- TODO: Better to pass this in from the outside.
 							if props.onDelete then
 								props.onDelete()
 							end
