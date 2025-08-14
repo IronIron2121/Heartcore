@@ -18,7 +18,6 @@ local RemotesFolder 			= ReplicatedStorage:WaitForChild("Remotes")
 local UIFolder 					= ReplicatedStorage:WaitForChild("UI")
 local Bindables 				= ReplicatedStorage:WaitForChild("Bindables")
 local UIComponentsFolder		= UIFolder:WaitForChild("Components")
-local ShopButtonsFolder 		= UIFolder:WaitForChild("ShopButtons")
 
 -- GUI elements
 local PlayerGui					= localPlayer.PlayerGui
@@ -65,6 +64,7 @@ local SELECTED_TEXT_COLOUR		= Color3.new(0.360784, 0.376471, 0.839216)
 local UNSELECTED_BACKGROUND_TRANSPARENCY 	= 1
 local SELECTED_BACKGROUND_TRANSPARENCY 		= 0
 
+
 local function getHoverColour(buttonColour : Color3)
 	return buttonColour:Lerp(Color3.new(1, 1, 1), 0.2)
 end
@@ -103,19 +103,26 @@ local function showCategoryButton(category: string)
 end
 
 local function populateItemFrame()
+	warn("populating item frame")
 	for itemName, itemDetails in pairs(BuyableShopItems) do
+		print("item here", itemDetails)
 		local newTile = AddTile(itemDetails) 
 		newTile.Parent = ItemFrame
 	end 
+	warn("finished populating item frame")
+
 end
 
 local function populateCategories()
+	warn("Populating categories")
 	for index, category in ipairs(ShopItemStoreCategories) do
+		print(category)
 		local newButton = CategoryButton(category)
 		newButton.Button.Parent = CategoryFrame
 		newButton.Button.LayoutOrder = index
 		categoryButtons[newButton.GetText()] = newButton
 	end
+	warn("finished populating categories")
 end
 
 -- Remove all populated options
@@ -178,6 +185,7 @@ end
 
 local function onShopItemStoreButtonClicked()
 	ShopGuiFSM.setState("FurnitureStore")
+	print("button clicked!")
 end
 
 -- Connections

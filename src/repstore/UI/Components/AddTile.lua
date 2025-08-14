@@ -7,10 +7,13 @@
 	This is used both for the shop as well as the mannequin inspect UI.
 --]]
 
+print("add tile 1")
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetManager 		= game:GetService("AssetService")
 local Players 			= game:GetService("Players")
+
+print("add tile 2")
 
 -- s
 local DataTables	= ReplicatedStorage:WaitForChild("DataTables")
@@ -26,6 +29,8 @@ local Components	= Ui:WaitForChild("Components")
 local Objects		= Ui:WaitForChild("Objects")
 local Bindables	= ReplicatedStorage:WaitForChild("Bindables")
 
+print("add tile 3")
+
 -- Instances
 local localPlayer = Players.LocalPlayer
 
@@ -39,11 +44,15 @@ local ShopGuiFsm				= require(Utility:WaitForChild("ShopGuiFSM"))
 -- UI Components
 local addTileTemplate 	= Objects:WaitForChild("AddTile")
 
+print("add tile 4")
+
 -- PlayerGUI
 local PlayerGui				= localPlayer.PlayerGui
 local ClaimedShopGui 		= PlayerGui:WaitForChild("ClaimedShopGui")
 local ShopItemStoreFrame 	= ClaimedShopGui:WaitForChild("ShopItemStoreFrame")
 local ShopItemFocusFrame 	= ClaimedShopGui:WaitForChild("ShopItemFocusFrame")
+
+print("add tile 5")
 
 
 -- Remotes | Bindables
@@ -52,7 +61,10 @@ local PlayerClickedAddToShopAsync = Bindables:WaitForChild("PlayerClickedAddToSh
 local GetPlayerOwnedItems = Remotes:WaitForChild("GetPlayerOwnedItems")
 local SetPlayerOwnedItems = Remotes:WaitForChild("SetPlayerOwnedItems")
 
+print("add tile 6")
+
 local function AddTile(itemDetails: {}): Frame
+	warn("Beginning add tile")
 	-- Create a new tile for this item and initialise all features
 	local addTile = addTileTemplate:Clone()
 	local thumbnailUri = getThumbnailFromId(itemDetails["ThumbnailId"])
@@ -60,12 +72,18 @@ local function AddTile(itemDetails: {}): Frame
 	addTile.NameLabel.Text = itemDetails["Name"]
 	addTile.BuyFrame.CostButton.Text = itemDetails["Price"]
 	
+	print("add tile 7")
+
+	
 	local itemTags = itemDetails["Tags"]
 	addTile:SetAttribute("Tags", arrayOfStringsToString(itemTags))
 	
 	-- Function
 	local function update()
+		print("updating")
 		local playerOwnedItems = GetPlayerOwnedItems:InvokeServer(localPlayer.UserId)
+		print("got player owned items")
+
 		if playerOwnedItems[itemDetails["Name"]] == "true" then
 			addTile.BuyFrame.Visible = false
 			addTile.AddButton.Visible = true
@@ -75,6 +93,8 @@ local function AddTile(itemDetails: {}): Frame
 		end
 	end
 	
+	print("add tile 8")
+
 	local function onBuyItemClicked()
 		if addTile.BuyFrame.CostButton.Text == "Free" then
 			SetPlayerOwnedItems:InvokeServer(addTile.NameLabel.Text, "true")
@@ -88,6 +108,9 @@ local function AddTile(itemDetails: {}): Frame
 		
 	end
 	
+	print("add tile 9")
+
+
 	local function onAddToShopClicked()
 		ShopGuiFsm.setState("None")
 		PlayerClickedAddToShopAsync:Fire(addTile.NameLabel.Text, itemDetails["ItemType"], Constants.PLACE_COMMAND)
@@ -97,8 +120,11 @@ local function AddTile(itemDetails: {}): Frame
 	addTile.BuyFrame.CostButton.Activated:Connect(onBuyItemClicked)
 	addTile.Thumbnail.Activated:Connect(onThumbnailClicked)
 	addTile.AddButton.Activated:Connect(onAddToShopClicked)
+	print("add tile 10")
 
 	update()
+	warn("finished with add tile")
+
 	return addTile
 end
 

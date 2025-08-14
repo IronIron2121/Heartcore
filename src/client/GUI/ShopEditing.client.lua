@@ -50,6 +50,8 @@ local inEditGui: boolean = false
 -- TODO: This ALL has to be made more sensible, it is utterly incoherent right now
 -- TODO: MERGE THIS INTO MAINHUD SCRIPT
 
+print("ShopEditing!")
+
 local function onEditButtonClicked()
 	if ShopGuiFSM.CurrentState ~= "EditingBase" then
 		print("Into edit mode")
@@ -58,10 +60,6 @@ local function onEditButtonClicked()
 		print("Out of edit mode")
 		ShopGuiFSM.setState("None")
 	end
-end
-
-local function onOwnShopEntered()
-	editShopButton.Visible = true
 end
 
 local function onOwnShopExited()
@@ -77,20 +75,11 @@ local function onShopClaimed()
 end
 
 local function onCloseShopButtonClicked()
-	print("Closing!")
 	closeClaimedShopGui()
 	CloseShopButtonClickedAsync:FireServer()
 	playerClosedShopBindable:Fire()
 	ShopGuiFSM.setState("None")
 	CloseShopButton.Visible = false
-end
-
-local function onOtherShopEntered()
-	print("Not scripted yet (Entrance Other)")
-end
-
-local function onOtherShopExited()
-	print("Not scripted yet (Exit Other)")
 end
 
 local function enterEditGui(x, y)
