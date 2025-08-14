@@ -40,6 +40,7 @@ function localPlayerDetails.getShopDetails() : Types.ShopDetails?
 end
 
 function localPlayerDetails.playerHasShop()
+	print(localPlayerDetails)
 	return localPlayerDetails.details.shop ~= nil
 end
 

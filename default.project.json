@@ -8,6 +8,11 @@
         "$path": "src/repstore"
     },
 
+    "StarterGui": {
+        "$className": "StarterGui",
+        "$path": "src/starterGui"
+    },
+
     "ServerScriptService": {
       "$className": "ServerScriptService",
       "$path": "src/server"
@@ -15,6 +20,7 @@
 
     "StarterPlayer": {
       "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
         "$path": "src/client"
       }
     },
