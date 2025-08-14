@@ -1,8 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Constants = require(ReplicatedStorage.Constants)
-local shopsFolder = workspace:WaitForChild(Constants.SHOP_FOLDER_NAME)
+--local shopsFolder = workspace:WaitForChild(Constants.SHOP_FOLDER_NAME)
 
-
+--[[
 -- Grabs the shop object from workspace given the shop name
 function isShopClaimed(shopName: string): boolean ?
 	for _, shop: Part in shopsFolder:GetChildren() do
@@ -16,3 +16,5 @@ function isShopClaimed(shopName: string): boolean ?
 end
 
 return isShopClaimed
+
+]]

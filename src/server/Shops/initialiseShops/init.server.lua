@@ -1,4 +1,10 @@
 --!strict
+
+--[[
+	Initialises our shop class over all shop floor instances
+
+	This is disabled until we integrate this into the main game
+]]
 -- Services
 local ReplicatedStorage   		= game:GetService("ReplicatedStorage")
 local DataStoreService 	  		= game:GetService("DataStoreService")
@@ -10,7 +16,7 @@ local UtilityFolder 			= ReplicatedStorage:WaitForChild("Utility")
 local RemotesFolder 		 	= ReplicatedStorage:WaitForChild("Remotes")
 local Classes 					= ReplicatedStorage:WaitForChild("Classes")
 
-local playerShops 		  		= workspace:WaitForChild("PlayerShops")
+--local playerShops 		  		= workspace:WaitForChild("PlayerShops")
 
 -- Module Scripts
 local waitForShops 		  		= require(UtilityFolder:WaitForChild("waitForShops"))
@@ -50,4 +56,4 @@ local function initialise()
 	end 
 end
 
-initialise()
+--initialise()
