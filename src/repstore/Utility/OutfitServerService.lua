@@ -59,9 +59,7 @@ end
 
 function OutfitServerService.DeleteOutfit(outfitId: number)
 	AvatarEditorService:PromptDeleteOutfit(outfitId)
-	AvatarEditorService.PromptDeleteOutfitCompleted:Wait()
+	AvatarEditorService.PromptDeleteOutfitCompleted:Wait() 
 end
-
-
 
 return OutfitServerService

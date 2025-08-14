@@ -51,6 +51,9 @@ local mouseClickConnection: RBXScriptSignal? = nil
 local UNSELECTED_HIGHLIGHT_COLOUR = Color3.new(0, 0.984314, 1)
 local SELECTED_HIGHLIGHT_COLOUR	= Color3.new(0.0666667, 1, 0)
 
+-- Cache
+local shopDetails = nil
+
 hoverHighlight.FillColor = UNSELECTED_HIGHLIGHT_COLOUR
 selectedHighlight.FillColor = SELECTED_HIGHLIGHT_COLOUR
 
@@ -151,7 +154,13 @@ function ItemSelection.mouseTargetChanged()
 	end
 	
 	local targetParent = target.Parent
-	local shopDetails = localPlayerDetails.getShopDetails() :: Types.ShopDetails
+	-- TODO: We need to make this compatible with claiming a new shop
+	shopDetails = shopDetails or localPlayerDetails.getShopDetails() :: Types.ShopDetails? 	
+	if not shopDetails then
+		assert(shopDetails, "Error: No shop details for player! This should not be possible in edit mode")
+	else
+		print("Shop details found")
+	end
 	local playerShop = shopDetails.instance
 	
 	if not(targetParent:IsA("Model") and target:IsDescendantOf(playerShop)) then
