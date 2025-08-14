@@ -111,7 +111,7 @@ function OutfitsFrame(
 					return
 				end
 			else
-				print("Access already ")
+				print("Access already granted")
 			end
 			
 			updatePlayerOutfits()
