@@ -9,10 +9,12 @@ local Players = game:GetService("Players")
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
+local Checkers = ReplicatedStorage:WaitForChild("Checkers")
 
 -- Modules
 local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
 local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessoryTypeFromAssetType"))
+local PlayerHasMaxOfAccessoryTypeEquipped = require(Checkers:WaitForChild("PlayerHasMaxOfAccessoryTypeEquipped"))
 
 -- Constants
 local DEFAULT_BODY_COLOR = Color3.fromRGB(200, 200, 200)
@@ -67,14 +69,32 @@ function AvatarCustomisationService.RemoveAllAccessories(player: Player)
 	end
 
 	AvatarCustomisationService.applyDescription(player, clonedDescription)
-end
+end  
 
 function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId: number, assetType: string)
+
+
 	local clonedDescription = getClonedDescription(player)
 
 	local accessoryDescription = Instance.new("AccessoryDescription")
 	accessoryDescription.AssetId = itemId
 	accessoryDescription.AccessoryType = Enum.AccessoryType[GetAccessoryTypeFromAssetType(assetType)]
+
+	if PlayerHasMaxOfAccessoryTypeEquipped(player, accessoryDescription.AccessoryType) then
+		if accessoryDescription.AccessoryType == Enum.AccessoryType.Hat then
+			warn("Cannot equip more than 3 hats!")
+		else
+			warn("Maxxed out! Deleting previous one...`")
+			for _, description in ipairs(clonedDescription:GetChildren()) do
+				if description:IsA("AccessoryDescription") and description.AccessoryType == accessoryDescription.AccessoryType then
+					description:Destroy()
+				end
+			end
+		end
+	else
+		print("Equipping ", itemId)
+	end
+	
 	accessoryDescription.IsLayered = true
 	accessoryDescription.Order = 1
 	accessoryDescription.Parent = clonedDescription
@@ -99,6 +119,7 @@ end
 
 function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: number, bundleType: string)
 	-- Clear existing accessories first
+	
 	AvatarCustomisationService.RemoveAllAccessories(player)
 
 	local success, bundleInfo = pcall(function()
