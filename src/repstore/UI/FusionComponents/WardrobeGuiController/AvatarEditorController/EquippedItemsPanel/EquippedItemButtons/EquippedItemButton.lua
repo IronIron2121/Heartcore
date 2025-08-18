@@ -30,11 +30,20 @@ local BUY_BUTTON_DISPLAY_TIME = 5
 
 function EquippedItemButton(
 	scope: Fusion.Scope,
-	buttonSize: UsedAs<UDim2>,
-	itemDescription: AccessoryDescription | BodyPartDescription
-)
+	props: {
+		buttonSize: UsedAs<UDim2>,
+		itemDescription: AccessoryDescription | BodyPartDescription?,
+		visible: boolean
+	}
+): Frame
+	if not props.itemDescription then
+		return scope:New "Frame"{
+			Name = "DummyFrame",
+			Visible = props.visible
+		} :: Frame
+	end
 	-- Get product info
-	local productInfo = MarketplaceService:GetProductInfo(itemDescription.AssetId, Enum.InfoType.Asset)
+	local productInfo = MarketplaceService:GetProductInfo(props.itemDescription.AssetId, Enum.InfoType.Asset)
 
 	-- State management
 	local isHovering = scope:Value(false)
@@ -51,6 +60,18 @@ function EquippedItemButton(
 		1
 	)
 
+	local backgroundTransparencySpring = scope:Spring(
+		scope:Computed(function(use)
+			if use(props.visible) then
+				return 0
+			else
+				return 1
+			end
+		end),
+		10,
+		1
+	)	
+
 	-- Buy button toggle logic
 	local function toggleBuyButton()
 		isToggled:set(true)
@@ -62,7 +83,9 @@ function EquippedItemButton(
 
 	return scope:New "Frame" {
 		Name = productInfo.Name,
-		Size = buttonSize,
+		Size = props.buttonSize,
+		Visible = props.visible,
+		BackgroundTransparency = backgroundTransparencySpring,
 
 		[Children] = {
 			scope:New "UICorner" {
@@ -79,6 +102,7 @@ function EquippedItemButton(
 			scope:New "ImageButton" {
 				Size = UDim2.fromScale(1, 1),
 				BackgroundTransparency = 1,
+				ImageTransparency = backgroundTransparencySpring,
 				Active = true,
 
 				[OnEvent "Activated"] = function()
@@ -101,8 +125,9 @@ function EquippedItemButton(
 				Name = "ItemThumbnail",
 				Size = UDim2.fromScale(1, 1),
 				BackgroundTransparency = 1,
+				ImageTransparency = backgroundTransparencySpring,
 				ImageColor3 = imageColor,
-				Image = "rbxthumb://type=Asset&id=" .. itemDescription.AssetId .. "&w=420&h=420",
+				Image = "rbxthumb://type=Asset&id=" .. props.itemDescription.AssetId .. "&w=420&h=420",
 				Active = false
 			},
 
@@ -118,11 +143,11 @@ function EquippedItemButton(
 				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 				TextStrokeTransparency = 0,
 				BackgroundColor3 = Color3.new(1, 1, 1),
-				BackgroundTransparency = 0,
+				BackgroundTransparency = backgroundTransparencySpring,
 				BorderSizePixel = 0,
 
 				[OnEvent "Activated"] = function()
-					MarketplaceService:PromptPurchase(Players.LocalPlayer, itemDescription.AssetId)
+					MarketplaceService:PromptPurchase(Players.LocalPlayer, props.itemDescription.AssetId)
 				end,
 
 				[Children] = {
@@ -138,7 +163,7 @@ function EquippedItemButton(
 				}
 			},
 
-			-- Remove button
+			-- Remove button TODO: Create an "image button" component so we can do reactive stuff
 			scope:New "ImageButton" {
 				Name = "RemoveButton",
 				AnchorPoint = Vector2.new(0.5, 0.5),
@@ -146,15 +171,17 @@ function EquippedItemButton(
 				Size = UDim2.fromScale(0.5, 0.5),
 				ZIndex = 3,
 				BackgroundTransparency = 1,
+				ImageTransparency = backgroundTransparencySpring,
 				Image = ImageUris.CloseButton,
 				Active = true,
 
 				[OnEvent "Activated"] = function()
-					PlayerRemovedItem:FireServer(itemDescription.AssetId)
+					PlayerRemovedItem:FireServer(props.itemDescription.AssetId)
+					props.visible:set(false)
 				end,
 			}
 		}
-	}
+	} :: Frame
 end
 
 return EquippedItemButton
