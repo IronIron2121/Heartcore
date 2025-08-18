@@ -83,6 +83,7 @@ function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 	if PlayerHasMaxOfAccessoryTypeEquipped(player, accessoryDescription.AccessoryType) then
 		if accessoryDescription.AccessoryType == Enum.AccessoryType.Hat then
 			warn("Cannot equip more than 3 hats!")
+			return
 		else
 			warn("Maxxed out! Deleting previous one...`")
 			for _, description in ipairs(clonedDescription:GetChildren()) do
