@@ -29,17 +29,44 @@ local EquippedItemButtons = require(script:WaitForChild("EquippedItemButtons"))
 function EquippedItemsPanel(
 	scope: Fusion.Scope
 )
-	local loading = scope:Value(false)
-	local buttonSize = scope:Value(UDim2.fromScale(0.8, 0.8))
-	
-	local equippedItemButtons = EquippedItemButtons(scope, buttonSize)
+	local equipItemButtonsVisible = scope:Value(true)
+
+	local backgroundTransparencySpring = scope:Spring(
+		scope:Computed(function(use)
+			if use(equipItemButtonsVisible) then
+				return UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT
+			else
+				return 0
+			end
+		end),
+		20,
+		1
+	)	
+
+	local backgroundColourSpring = scope:Spring(
+		scope:Computed(function(use)
+			if use(equipItemButtonsVisible) then
+				return UI_CONSTANTS.TASTEMAKER_PURPLE
+			else
+				return UI_CONSTANTS.COLOUR_BLACK
+			end
+		end),
+		20,
+		1
+	)	
+
+
+	local equippedItemButtons = EquippedItemButtons(scope, {
+		buttonSize = scope:Value(UDim2.fromScale(0.8, 0.8)),
+		equipItemButtonsVisible = equipItemButtonsVisible
+	})
 
 	local scrollFrame = scope:New "ScrollingFrame" {
 		Size = UDim2.fromScale(1, 1),
 		Position = UDim2.fromScale(0, 0),
 
-		BackgroundTransparency = UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
-		BackgroundColor3 = peek(loading) and UI_CONSTANTS.LOADING_GREY or UI_CONSTANTS.TASTEMAKER_PURPLE,
+		BackgroundTransparency = backgroundTransparencySpring,
+		BackgroundColor3 = backgroundColourSpring,
 
 		-- Canvas
 		CanvasSize = UDim2.fromScale(0,0),

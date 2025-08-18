@@ -80,6 +80,7 @@ function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 	accessoryDescription.AssetId = itemId
 	accessoryDescription.AccessoryType = Enum.AccessoryType[GetAccessoryTypeFromAssetType(assetType)]
 
+	-- TODO: Give this a cleaner implementation
 	if PlayerHasMaxOfAccessoryTypeEquipped(player, accessoryDescription.AccessoryType) then
 		if accessoryDescription.AccessoryType == Enum.AccessoryType.Hat then
 			warn("Cannot equip more than 3 hats!")
