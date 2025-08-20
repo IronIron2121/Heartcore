@@ -2,8 +2,6 @@
 -- CatalogSearchController.lua
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
@@ -12,7 +10,6 @@ local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local AvatarModelFactory = require(Utility:WaitForChild("AvatarModelFactory"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
@@ -23,8 +20,6 @@ local CategoryFrame = require(script:WaitForChild("CategoryFrame"))
 local OutfitsFrame = require(script:WaitForChild("OutfitsFrame"))
 local SearchFrame = require(script:WaitForChild("SearchFrame"))
 
--- Constants
-local DEFAULT_VIEW = "Catalog"
 
 --
 

@@ -1,30 +1,13 @@
 --!strict
 
--- Services
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
--- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
-
 -- FusionComponents
 local WardrobeGui = require(script:WaitForChild("WardrobeGui"))
 local MainHudGui = require(script:WaitForChild("MainHudGui"))
-local OpenWardrobeButton = require(FusionComponents:WaitForChild("OpenWardrobeButton"))
 
 -- Controllers
 local AvatarEditorController = require(script:WaitForChild("AvatarEditorController")) 
 local CatalogSearchController = require(script:WaitForChild("CatalogSearchController")) 
 local OutfitViewController = require(script:WaitForChild("OutfitViewController"))
-
--- Instances
-local localPlayer = Players.LocalPlayer
-local localPlayerGui = localPlayer:WaitForChild("PlayerGui")
-
--- Fusion
-local Fusion = require(Utility:WaitForChild("Fusion"))
 
 --
 

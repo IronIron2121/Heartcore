@@ -6,6 +6,8 @@ local Players = game:GetService("Players")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
+local UI = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents = UI:WaitForChild("FusionComponents")
 
 -- Instances
 local votingBooth = workspace:WaitForChild("VotingBooth")
@@ -17,6 +19,7 @@ local PlayerGui = localPlayer.PlayerGui
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local VotingGuiController = require(FusionComponents:WaitForChild("VotingGuiController"))
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -26,7 +29,6 @@ local OnEvent = Fusion.OnEvent
 
 -- Variables
 local VoteGuiVisible = scope:Value(false)
-
 
 --
 
@@ -41,7 +43,7 @@ local function onVotePromptActivated()
 end
 
 local function initialiseVoteGui()
-    local VotePrompt = scope:New "ProximityPrompt" {
+    local _VotePrompt = scope:New "ProximityPrompt" {
         Parent = promptHolder,
         MaxActivationDistance = 20,
         ActionText = "Vote Here!",
@@ -51,16 +53,8 @@ local function initialiseVoteGui()
         end
     }
 
-    local VoteGui = scope:New "ScreenGui" {
-        Enabled = VoteGuiVisible,
-        Parent = PlayerGui,
+    VotingGuiController.Initialise(VoteGuiVisible)
 
-        [Children] = {
-            scope:New "TextButton" {
-                Size = UDim2.fromScale(1, 1)
-            }
-        }
-    }
 end
 
 initialiseVoteGui()
