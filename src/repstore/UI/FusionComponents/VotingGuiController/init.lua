@@ -6,6 +6,9 @@ local Players = game:GetService("Players")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
+local UI = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents = UI:WaitForChild("FusionComponents")
+local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -20,6 +23,9 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local scope = Fusion:scoped()
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
+
+-- GUI Modules
+local BaseButton = require(Widgets:WaitForChild("BaseButton"))
 
 -- Constants
 local maxDisplayedOutfits = 6
@@ -140,7 +146,8 @@ function VotingGuiController.Initialise(visibilityBoolean: UsedAs<boolean>)
 										FillDirection = Enum.FillDirection.Vertical,
 										SortOrder = Enum.SortOrder.LayoutOrder,
 										HorizontalAlignment = Enum.HorizontalAlignment.Center,
-										VerticalAlignment = Enum.VerticalAlignment.Center
+										VerticalAlignment = Enum.VerticalAlignment.Center,
+										Padding = UDim.new(0.05, 0)
 									},
 
 									scope:New "TextLabel" {
@@ -150,20 +157,14 @@ function VotingGuiController.Initialise(visibilityBoolean: UsedAs<boolean>)
 										TextScaled = true,
 									},
 
-									scope:New "TextButton" {
-										Name = "SubmitButton",
-										Text = "Submit Votes",
-										TextScaled = true,
-										Size = UDim2.fromScale(0.8, 0.1),
-										BackgroundColor3 = Color3.new(0.031373, 0.301961, 0),
+									BaseButton(scope, {
+										name = "SubmitButton",
+										text = "Submit Votes",
+										textScaled = true,
+										size = UDim2.fromScale(0.8, 0.1),
+										backgroundColor = Color3.new(0.031373, 0.301961, 0),
 
-										[Children] = {
-											scope:New "UICorner" {
-												CornerRadius = UDim.new(0.2, 0)
-											}
-										}
-
-									}
+									}),
 								}
 							}
 						}

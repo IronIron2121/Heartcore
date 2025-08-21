@@ -2,7 +2,6 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -12,10 +11,6 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 -- Instances
 local votingBooth = workspace:WaitForChild("VotingBooth")
 local promptHolder = votingBooth:WaitForChild("PromptHolder")
-local localPlayer = Players.LocalPlayer
-
--- GUI
-local PlayerGui = localPlayer.PlayerGui
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -24,7 +19,6 @@ local VotingGuiController = require(FusionComponents:WaitForChild("VotingGuiCont
 -- Fusion Modules
 local scope = Fusion:scoped()
 local peek = Fusion.peek
-local Children = Fusion.Children
 local OnEvent = Fusion.OnEvent
 
 -- Variables
