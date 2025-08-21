@@ -1,21 +1,15 @@
 --!strict
 
 local AvatarEditorService = game:GetService("AvatarEditorService")
-local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DatastoreService = game:GetService("DataStoreService")
-local Players = game:GetService("Players")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
-
--- Remotes
-local PlayerSavedOutfitWithUnownedAssets = Remotes:WaitForChild("PlayerSavedOutfitWithUnownedAssets")
 
 -- Datastores
 local PlayerOutfitsDatastore = DatastoreService:GetDataStore(Constants.PLAYER_OUTFITS_DATASTORE)

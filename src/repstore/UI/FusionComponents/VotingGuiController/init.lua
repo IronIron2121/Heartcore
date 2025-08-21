@@ -163,7 +163,6 @@ function VotingGuiController.Initialise(visibilityBoolean: UsedAs<boolean>)
 										textScaled = true,
 										size = UDim2.fromScale(0.8, 0.1),
 										backgroundColor = Color3.new(0.031373, 0.301961, 0),
-
 									}),
 								}
 							}
