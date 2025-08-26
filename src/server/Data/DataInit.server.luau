@@ -1,12 +1,14 @@
 --!strict
 -- Services
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
 
 -- Folders
 local Libraries = ServerScriptService:WaitForChild("Libraries")
 local Data = ServerScriptService:WaitForChild("Data")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local ProfileStore = require(Libraries:WaitForChild("ProfileStore"))
@@ -16,8 +18,6 @@ local DataManager = require(Data:WaitForChild("DataManager"))
 local function GetStoreName()
     return RunService:IsStudio() and "Test" or "Live"
 end
-
-
 
 -- ProfileStore
 local PlayerStore = ProfileStore.New(GetStoreName(), Template)
@@ -31,6 +31,13 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
     local Gold = Instance.new("NumberValue", leaderstats)
     Gold.Name = "Gold"
     Gold.Value = profile.Data.Gold
+
+    local Gems = Instance.new("NumberValue", leaderstats)
+    Gems.Name = "Gems"
+    Gems.Value = profile.Data.Gems 
+
+    -- Sync player data
+    --ReplicatedStorage
 end
 
 
@@ -69,5 +76,20 @@ local function PlayerAdded(player: Player)
 
 end
 
+local function PlayerRemoved(player: Player)
+    local profile = DataManager.Profiles[player]
+    if not profile then
+        return
+    end
+
+    profile:EndSession()
+    DataManager.Profiles[player] = nil
+
+end
+
+for _, player in Players:GetPlayers() do
+    task.spawn(PlayerAdded, player)
+end
 
 Players.PlayerAdded:Connect(PlayerAdded)
+Players.PlayerRemoving:Connect(PlayerRemoved)

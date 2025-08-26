@@ -34,16 +34,23 @@ end
 prompt.Triggered:Connect(function(player)
 	-- Get the player character
 	local char = player.Character; if not char then SubmissionResultRE:FireClient(player,{ok=false,msg="Character not loaded"}) return end
-	local hum = char:FindFirstChildOfClass("Humanoid"); if not hum then SubmissionResultRE:FireClient(player,{ok=false,msg="No Humanoid"}) return end
+	local hum = char:FindFirstChildOfClass("Humanoid"); 
+	
+	if not hum then
+		warn("No Humanoid") 
+		SubmissionResultRE:FireClient(player,{ok=false,msg="No Humanoid"}) 
+		return 
+	end
 
 	-- Get all of the contests that exist
 	local okC, contests = pcall(function() 
 		return ThemeStore:GetAsync("contests_v1") 
 	end)
 	
-	-- See if the player already has a submission
-	local currentSubmission = okC and contests and contests.CurrentSubmission
+	-- Get the current submission contest
+	local currentSubmission = okC and contests and contests.CurrentSubmission 
 	if not currentSubmission then 
+		warn("No current submission")
 		SubmissionResultRE:FireClient(player, {
 			ok = false,
 			msg = "No submission contest"
