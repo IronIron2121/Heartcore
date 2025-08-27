@@ -5,23 +5,26 @@
 local DataStoreService = game:GetService("DataStoreService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MemoryStoreService = game:GetService("MemoryStoreService")
 
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = 	ServerScriptService:WaitForChild("Voting")
 
--- Datastores
-local ThemeStore = DataStoreService:GetDataStore("StaggeredContests_v1")
+
+-- Remotes
+SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
 
 -- Modules
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
-local EntryStore = require(Voting:WaitForChild("EntryStore"))
+local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
+local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
--- Remotes
-local SubmissionResultRE = Remotes:WaitForChild("SubmissionResult")
+-- Memory Stores
+local CurrentSubmissionsMemoryStore = MemoryStoreService:GetSortedMap()
+local CurrentThemeMemoryStore = MemoryStoreService:GetSortedMap(Constants.CURRENT_THEME_MEMORYSTORE_NAME)
 
-EntryStore:Init(true)
 
 local SubmitBooth = workspace:WaitForChild("SubmitBooth")
 local promptHolder = SubmitBooth:WaitForChild("PromptHolder")
@@ -31,7 +34,41 @@ if not prompt then
 	prompt.ActionText = "Submit Outfit"; prompt.HoldDuration = 0.5
 end
 
+local function onOutfitSubmitted(player: Player)
+	-- Get the player character
+	local char = player.Character; if not char then SubmissionResultRE:FireClient(player,{ok=false,msg="Character not loaded"}) return end
+	local hum = char:FindFirstChildOfClass("Humanoid"); 
+	
+	if not hum then
+		warn("No Humanoid") 
+		return 
+	end
+
+	-- Get all of the contests that exist
+	local okC, contests = callWithRetry(function() 
+		return ThemeStore:GetAsync("contests_v1") 
+	end)
+	
+
+	-- Get the current submission contest
+	local currentSubmission = okC and contests and contests.CurrentSubmission 
+	if not currentSubmission then 
+		warn("No current submission")
+		SubmissionResultRE:FireClient(player, {
+			ok = false,
+			msg = "No submission contest"
+		}) 
+		return
+	end
+ 
+
+
+end
+
+
+--[[
 prompt.Triggered:Connect(function(player)
+	
 	-- Get the player character
 	local char = player.Character; if not char then SubmissionResultRE:FireClient(player,{ok=false,msg="Character not loaded"}) return end
 	local hum = char:FindFirstChildOfClass("Humanoid"); 
@@ -84,3 +121,4 @@ prompt.Triggered:Connect(function(player)
 		SubmissionResultRE:FireClient(player, {ok=false, msg="Failed: "..tostring(err)})
 	end
 end)
+]]

@@ -1,71 +1,139 @@
 -- ThemeManager.lua
 -- Manages staggered contests: one submission & one voting active.
 
-local DataStoreService = game:GetService("DataStoreService")
-local ThemeStore = DataStoreService:GetDataStore("StaggeredContests_v1")
+-- Services
+local MemoryStoreService = game:GetService("MemoryStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local ContestUpdatedRE = Remotes:WaitForChild("ContestUpdated")
+local DataStoreService = game:GetService("DataStoreService")
 
-local ContestManager = require(game.ServerScriptService:WaitForChild("ContestManager"))
+-- Folders
+local Utility = ReplicatedStorage:WaitForChild("Utility")
+
+-- Modules
+local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
+local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
+
+-- Memory Stores
+local CurrentThemeMemoryStore = MemoryStoreService:GetSortedMap(Constants.CURRENT_THEME_MEMORYSTORE_NAME)
+local CurrentTheme = nil -- To be initialised later
+
+-- Constants
+local CHECK_TIME_LAPSE_INTERVAL = 10
+local DEBUG_SECONDS_BETWEEN_THEME_CHANGE = 60
+local SECONDS_BETWEEN_THEME_CHANGE = 3880000
 
 local Themes = {
-	"Cyberpunk Streetwear","Medieval Knight","Beach Party","Winter Wonderland",
-	"Space Explorer","Royal Ball","Sports Day"
+	"Cyberpunk Streetwear",
+	"Medieval Knight",
+	"Beach Party",
+	"Winter Wonderland",
+	"Space Explorer",
+	"Royal Ball",
+	"Sports Day"
 }
-local function pickTheme() return Themes[math.random(1,#Themes)] end
 
-
---local PHASE_SECONDS = 24 * 60 * 60   <- 1day
-local PHASE_SECONDS = 60 -- For quick testing
-
-local contests = nil
-
-local function save()
-	pcall(function() ThemeStore:SetAsync("contests_v1", contests) end)
+local function getCurrentUniversalTime()
+	return DateTime.now().UnixTimestamp
 end
 
-local function loadOrInitialise()
-	local success, data = pcall(function() return ThemeStore:GetAsync("contests_v1") end)
-	if success and data then
-		contests = data
-	else
-		local now = os.time()
-		contests = {
-			CurrentSubmission = { theme = pickTheme(), start = now, id = tostring(now), entries = {} },
-			CurrentVoting     = { theme = pickTheme(), start = now, id = tostring(now+1), entries = {}, votes = {} },
-			LastShift = now
-		}
-		save()
+local function getLastTimeChanged()
+	return CurrentTheme and CurrentTheme.TimeChanged or nil
+end
+
+local function currentThemeHasExpired()
+	local currentTime = getCurrentUniversalTime()
+	local lastChanged = getLastTimeChanged()
+	
+	if not lastChanged then
+		return true -- No theme set yet
 	end
-	ContestUpdatedRE:FireAllClients(contests)
+	
+	return (currentTime - lastChanged) >= DEBUG_SECONDS_BETWEEN_THEME_CHANGE
 end
 
-local function shiftIfNeeded()
-	local now = os.time()
-	if now - (contests.LastShift or 0) >= PHASE_SECONDS then
-		-- finalize voting
-		if contests.CurrentVoting then
-			pcall(function() ContestManager:FinalizeVoting(contests.CurrentVoting) end)
+local function pickTheme()
+	return Themes[math.random(1,#Themes)] 
+end
+
+local function setNewTheme()
+	local newTheme = {
+		Theme = pickTheme(),
+		TimeChanged = getCurrentUniversalTime()
+	}
+	return newTheme
+end
+
+local function initialiseTheme()
+	local currentThemeData, success = callWithRetry(
+		function()
+			return CurrentThemeMemoryStore:GetAsync(Constants.CURRENT_THEME_KEY)
+		end, 
+		5
+	)
+
+	if not success then
+		-- TODO: shutdown the server
+		warn("Failed to initialise themes!")
+		return
+	end
+
+	if not currentThemeData or not currentThemeData["Theme"] then
+		warn("No current theme! Initialising...")
+		local newTheme = setNewTheme()
+		local _, setSuccess = callWithRetry(
+			function()
+				return CurrentThemeMemoryStore:SetAsync(
+					Constants.CURRENT_THEME_KEY,
+					newTheme,
+					3888000 -- 45 days max
+				)
+			end,
+			5
+		)
+		
+		if setSuccess then
+			CurrentTheme = newTheme
+			print("Initialized new theme: " .. newTheme.Theme)
+		else
+			warn("Failed to set new theme!")
 		end
-		-- promote submission -> voting
-		contests.CurrentVoting = {
-			theme = contests.CurrentSubmission.theme, start = now, id = tostring(now),
-			entries = contests.CurrentSubmission.entries, votes = {}
-		}
-		-- new submission
-		contests.CurrentSubmission = { theme = pickTheme(), start = now, id = tostring(now+1), entries = {} }
-		contests.LastShift = now
-		save()
-		ContestUpdatedRE:FireAllClients(contests)
+	else
+		warn("Memory store already existent!")
+		CurrentTheme = currentThemeData
+		print("Loaded existing theme: " .. currentThemeData.Theme)
 	end
 end
 
-loadOrInitialise()
+initialiseTheme()
 
 task.spawn(function()
 	while true do
-		shiftIfNeeded()
-		task.wait(30)
+		task.wait(CHECK_TIME_LAPSE_INTERVAL)
+		warn("Checking theme expiry...")
+		
+		if currentThemeHasExpired() then
+			print("Theme has expired, updating...")
+			local newTheme = setNewTheme()
+			local _, success = callWithRetry(
+				function()
+					return CurrentThemeMemoryStore:SetAsync(
+						Constants.CURRENT_THEME_KEY,
+						newTheme,
+						3888000 -- TODO: This can be more like 2 days or 4 days or whatever
+					)
+				end,
+				5
+			)
+			
+			if success then
+				CurrentTheme = newTheme
+				print("Updated to new theme: " .. newTheme.Theme)
+			else
+				warn("Failed to update theme!")
+			end
+		else
+			print("Theme is still valid!")
+			print(CurrentTheme)
+		end
 	end
 end)

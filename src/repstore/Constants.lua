@@ -1,7 +1,5 @@
 --!strict
 
-local ServerStorage = game:GetService("ServerStorage")
-
 local Constants = {
 	-- Mannequin Names
 	FULL_MANNEQUIN_NAME = "FullMannequin",
@@ -14,6 +12,12 @@ local Constants = {
 	--
 	DEFAULT_NUDGE = 1,
 	DEFAULT_ROTATE = 45,	
+
+	-- Voting Constants
+	CURRENT_SUBMISSIONS_MEMORY_STORE_NAME = "CurrentSubmissionsMemoryStore",
+	CURRENT_THEME_MEMORYSTORE_NAME = "CurrentThemeMemoryStore",
+	CURRENT_THEME_KEY = "CurrentTheme",
+
 	
 	
 	-- Datastore names
