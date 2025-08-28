@@ -14,8 +14,8 @@ local Constants = {
 	DEFAULT_ROTATE = 45,	
 
 	-- Voting Constants
-	CURRENT_SUBMISSIONS_MEMORY_STORE_NAME = "CurrentSubmissionsMemoryStore",
-	CURRENT_THEME_MEMORYSTORE_NAME = "CurrentThemeMemoryStore",
+	CURRENT_SUBMISSIONS_MEMORYSTORE_NAME = "CurrentSubmissionsMemoryStore",
+	CURRENT_CONTEST_MEMORYSTORE_NAME = "CurrentContestMemoryStore",
 	CURRENT_THEME_KEY = "CurrentTheme",
 
 	

@@ -1,4 +1,4 @@
--- SubmissionServer.lua
+-- SubmissionServer.lua 
 -- Players submit outfit for the CURRENT SUBMISSION contest.
 
 -- Services
@@ -10,115 +10,99 @@ local MemoryStoreService = game:GetService("MemoryStoreService")
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Voting = 	ServerScriptService:WaitForChild("Voting")
-
+local Voting = ServerScriptService:WaitForChild("Voting")
 
 -- Remotes
-SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
+local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
 
 -- Modules
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
+local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
 
 -- Memory Stores
-local CurrentSubmissionsMemoryStore = MemoryStoreService:GetSortedMap()
-local CurrentThemeMemoryStore = MemoryStoreService:GetSortedMap(Constants.CURRENT_THEME_MEMORYSTORE_NAME)
-
+local CurrentContestMemoryStore = MemoryStoreService:GetSortedMap(Constants.CURRENT_CONTEST_MEMORYSTORE_NAME)
 
 local SubmitBooth = workspace:WaitForChild("SubmitBooth")
 local promptHolder = SubmitBooth:WaitForChild("PromptHolder")
 local prompt = promptHolder:FindFirstChildOfClass("ProximityPrompt")
 if not prompt then
 	prompt = Instance.new("ProximityPrompt", promptHolder)
-	prompt.ActionText = "Submit Outfit"; prompt.HoldDuration = 0.5
+	prompt.ActionText = "Submit Outfit"
+	prompt.HoldDuration = 0.5
+end
+
+local function printAllHashMapPages(hashPages: MemoryStoreHashMapPages)
+	local currentPageNumber = 1
+	local processedPages = {}
+
+	while not hashPages.IsFinished do
+		local page = hashPages:GetCurrentPage()
+		print(#page)
+		if #page > 0 then
+			print(page)
+		end
+		hashPages:AdvanceToNextPageAsync()
+		currentPageNumber += 1
+	end
 end
 
 local function onOutfitSubmitted(player: Player)
+	local CurrentSubmissionsMemoryStore = SubmissionStoreManager.getCurrentSubmissionsMemoryStore()
 	-- Get the player character
-	local char = player.Character; if not char then SubmissionResultRE:FireClient(player,{ok=false,msg="Character not loaded"}) return end
-	local hum = char:FindFirstChildOfClass("Humanoid"); 
+	local char = player.Character or player.CharacterAdded:Wait()
 	
-	if not hum then
-		warn("No Humanoid") 
-		return 
-	end
-
-	-- Get all of the contests that exist
-	local okC, contests = callWithRetry(function() 
-		return ThemeStore:GetAsync("contests_v1") 
-	end)
-	
-
-	-- Get the current submission contest
-	local currentSubmission = okC and contests and contests.CurrentSubmission 
-	if not currentSubmission then 
-		warn("No current submission")
-		SubmissionResultRE:FireClient(player, {
-			ok = false,
-			msg = "No submission contest"
-		}) 
+	if not char then
+		SubmissionResultRE:FireClient(player, {ok=false, msg="Character not loaded"})
 		return
 	end
- 
+
+	local humanoid = char:FindFirstChildOfClass("Humanoid")
+	if not humanoid then
+		warn("No Humanoid")
+		SubmissionResultRE:FireClient(player, {ok=false, msg = "Humanoid not loaded"})
+		return
+	end
+
+	local humanoidDescription = humanoid:FindFirstChildOfClass("HumanoidDescription")
+	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
+
+	local success = callWithRetry(function()
+		return CurrentSubmissionsMemoryStore:SetAsync(
+			tostring(player.UserId),
+			serialisedHumanoidDescription,
+			86400
+		)
+	end, 5)
+
+	if success then
+		print("Successfully submitted outfit for player:", player.Name)
+
+		task.spawn(function()
+			local pages = CurrentSubmissionsMemoryStore:ListItemsAsync(1)
+			printAllHashMapPages(pages)
+		end)
 
 
+		SubmissionResultRE:FireClient(player, {
+			ok = true,
+			msg = "Outfit submitted successfully!"
+		})
+	else
+		warn("Failed to submit outfit for player:", player.Name)
+		SubmissionResultRE:FireClient(player, {
+			ok = false,
+			msg = "Failed to submit outfit. Please try again."
+		})
+	end
 end
 
+prompt.Triggered:Connect(onOutfitSubmitted)
 
---[[
-prompt.Triggered:Connect(function(player)
-	
-	-- Get the player character
-	local char = player.Character; if not char then SubmissionResultRE:FireClient(player,{ok=false,msg="Character not loaded"}) return end
-	local hum = char:FindFirstChildOfClass("Humanoid"); 
-	
-	if not hum then
-		warn("No Humanoid") 
-		SubmissionResultRE:FireClient(player,{ok=false,msg="No Humanoid"}) 
-		return 
-	end
+Remotes.ClientPrintSubmissions.OnServerEvent:Connect(function()
+	local CurrentSubmissionsMemoryStore = SubmissionStoreManager.getCurrentSubmissionsMemoryStore()
+	local pages = CurrentSubmissionsMemoryStore:ListItemsAsync(20)
+	printAllHashMapPages(pages)
 
-	-- Get all of the contests that exist
-	local okC, contests = pcall(function() 
-		return ThemeStore:GetAsync("contests_v1") 
-	end)
-	
-	-- Get the current submission contest
-	local currentSubmission = okC and contests and contests.CurrentSubmission 
-	if not currentSubmission then 
-		warn("No current submission")
-		SubmissionResultRE:FireClient(player, {
-			ok = false,
-			msg = "No submission contest"
-		}) 
-		return
-	end
-
-	local themeId = currentSubmission.id
-	local desc = hum:GetAppliedDescription()
-	local serialized = SerialisationService.SerialiseHumanoidDescription(desc)
-	local entryId = tostring(player.UserId) -- one submission per player; change to unique ids if needed
-
-	local okS, err = EntryStore:SubmitEntry(entryId, player.Name, serialized, themeId)
-	if okS then
-		pcall(function()
-			ThemeStore:UpdateAsync("contests_v1", function(old)
-				local c = old or contests
-				if c and c.CurrentSubmission then
-					c.CurrentSubmission.entries = c.CurrentSubmission.entries or {}
-					for _,v in ipairs(c.CurrentSubmission.entries) do if v==entryId then return c end end
-					table.insert(c.CurrentSubmission.entries, entryId)
-				end
-				print(c)
-				return c
-			end)
-		end)
-		print("successfully submitted")
-		SubmissionResultRE:FireClient(player, {ok=true, msg="Submitted for "..(currentSubmission.theme or "theme")})
-	else
-		warn("Failed to submit")
-		SubmissionResultRE:FireClient(player, {ok=false, msg="Failed: "..tostring(err)})
-	end
 end)
-]]

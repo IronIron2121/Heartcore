@@ -90,7 +90,4 @@ function CatalogSearchController:Cleanup()
 	end
 end
 
-warn("Done search controller")
-
-
 return CatalogSearchController

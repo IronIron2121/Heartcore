@@ -1,6 +1,5 @@
 --!strict
 -- OutfitsFrame.lua
-print("start of")
 -- Services
 local AvatarEditorService = game:GetService("AvatarEditorService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
