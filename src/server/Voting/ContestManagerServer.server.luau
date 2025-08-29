@@ -7,11 +7,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
+local Controllers = ReplicatedStorage:WaitForChild("Controllers")
+
 
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
-local ThemeManager = require(ReplicatedStorage:WaitForChild("Controllers"):WaitForChild("ThemeManager"))
+local ThemeManager = require(Controllers:WaitForChild("ContestManager"))
 
 -- Memory Stores
 local CurrentThemeMemoryStore = MemoryStoreService:GetSortedMap(Constants.CURRENT_CONTEST_MEMORYSTORE_NAME)
@@ -59,7 +61,7 @@ local function setNewTheme()
 end
 
 local function initialiseTheme()
-	local currentThemeData, success = callWithRetry(
+	local success, currentThemeData = callWithRetry(
 		function()
 			return CurrentThemeMemoryStore:GetAsync(Constants.CURRENT_THEME_KEY)
 		end, 
@@ -67,7 +69,7 @@ local function initialiseTheme()
 	)
 
 	if not success then
-		warn("Failed to initialise themes!")
+		warn("Failed to initialise themes!", currentThemeData)
 		return false
 	end
 

@@ -38,7 +38,7 @@ end
 
 function SubmissionStoreManager.getCurrentSubmissionsMemoryStore()
     print(SubmissionStoreManager.getCurrentMemoryStoreName())
-    local result, success = callWithRetry(function()
+    local success, result = callWithRetry(function()
         return MemoryStoreService:GetHashMap(SubmissionStoreManager.getCurrentMemoryStoreName())
     end)
     
@@ -46,8 +46,8 @@ function SubmissionStoreManager.getCurrentSubmissionsMemoryStore()
         return result 
     else 
         warn("Failed to get memorystore!")
-        warn(result, success)
-        return false
+        warn(success, result)
+        return success
     end
 end
 
