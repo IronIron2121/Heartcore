@@ -2,28 +2,24 @@
 -- Players submit outfit for the CURRENT SUBMISSION contest.
 
 -- Services
-local DataStoreService = game:GetService("DataStoreService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local MemoryStoreService = game:GetService("MemoryStoreService")
 
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
+local Getters = ReplicatedStorage:WaitForChild("Getters")
 
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
 
 -- Modules
-local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
-local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
-local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
+local getHumanoidDescriptionFromPlayer = require(Getters:WaitForChild("getHumanoidDescriptionFromPlayer"))
 local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
+local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 
--- Memory Stores
-local CurrentContestMemoryStore = MemoryStoreService:GetSortedMap(Constants.CURRENT_CONTEST_MEMORYSTORE_NAME)
-
+-- Prompt
 local SubmitBooth = workspace:WaitForChild("SubmitBooth")
 local promptHolder = SubmitBooth:WaitForChild("PromptHolder")
 local prompt = promptHolder:FindFirstChildOfClass("ProximityPrompt")
@@ -33,76 +29,27 @@ if not prompt then
 	prompt.HoldDuration = 0.5
 end
 
-local function printAllHashMapPages(hashPages: MemoryStoreHashMapPages)
-	local currentPageNumber = 1
-	local processedPages = {}
-
-	while not hashPages.IsFinished do
-		local page = hashPages:GetCurrentPage()
-		print(#page)
-		if #page > 0 then
-			print(page)
-		end
-		hashPages:AdvanceToNextPageAsync()
-		currentPageNumber += 1
-	end
-end
+--
 
 local function onOutfitSubmitted(player: Player)
-	local CurrentSubmissionsMemoryStore = SubmissionStoreManager.getCurrentSubmissionsMemoryStore()
-	-- Get the player character
-	local char = player.Character or player.CharacterAdded:Wait()
-	
-	if not char then
-		SubmissionResultRE:FireClient(player, {ok=false, msg="Character not loaded"})
+	-- Get humanoid description
+	local humanoidDescription = getHumanoidDescriptionFromPlayer(player)
+	if not humanoidDescription then
+		warn("No Humanoid Description")
+		SubmissionResultRE:FireClient(player, {ok=false, msg = "humanoidDescription not loaded"})
 		return
 	end
 
-	local humanoid = char:FindFirstChildOfClass("Humanoid")
-	if not humanoid then
-		warn("No Humanoid")
-		SubmissionResultRE:FireClient(player, {ok=false, msg = "Humanoid not loaded"})
-		return
-	end
-
-	local humanoidDescription = humanoid:FindFirstChildOfClass("HumanoidDescription")
+	-- Serialise it
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
 
-	local success = callWithRetry(function()
-		return CurrentSubmissionsMemoryStore:SetAsync(
-			tostring(player.UserId),
-			serialisedHumanoidDescription,
-			86400
-		)
-	end, 5)
+	SubmissionStoreManager:AddEntry(player, serialisedHumanoidDescription)
 
-	if success then
-		print("Successfully submitted outfit for player:", player.Name)
-
-		task.spawn(function()
-			local pages = CurrentSubmissionsMemoryStore:ListItemsAsync(1)
-			printAllHashMapPages(pages)
-		end)
-
-
-		SubmissionResultRE:FireClient(player, {
-			ok = true,
-			msg = "Outfit submitted successfully!"
-		})
-	else
-		warn("Failed to submit outfit for player:", player.Name)
-		SubmissionResultRE:FireClient(player, {
-			ok = false,
-			msg = "Failed to submit outfit. Please try again."
-		})
-	end
 end
 
 prompt.Triggered:Connect(onOutfitSubmitted)
 
 Remotes.ClientPrintSubmissions.OnServerEvent:Connect(function()
-	local CurrentSubmissionsMemoryStore = SubmissionStoreManager.getCurrentSubmissionsMemoryStore()
+	local CurrentSubmissionsMemoryStore = SubmissionStoreManager.getCurrentSubmissionMemoryStore()
 	local pages = CurrentSubmissionsMemoryStore:ListItemsAsync(20)
-	printAllHashMapPages(pages)
-
 end)

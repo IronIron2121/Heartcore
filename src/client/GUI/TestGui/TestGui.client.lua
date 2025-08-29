@@ -11,7 +11,7 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
-local ThemeManager = require(Controllers:WaitForChild("ContestManager"))
+local ThemeManager = require(Controllers:WaitForChild("ThemeManager"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion

@@ -14,11 +14,10 @@ local Constants = {
 	DEFAULT_ROTATE = 45,	
 
 	-- Voting Constants
-	CURRENT_SUBMISSIONS_MEMORYSTORE_NAME = "CurrentSubmissionsMemoryStore",
+	SUBMISSION_MEMORYSTORE_NAME = "CurrentSubmissionsMemoryStore",
 	CURRENT_CONTEST_MEMORYSTORE_NAME = "CurrentContestMemoryStore",
 	CURRENT_THEME_KEY = "CurrentTheme",
-
-	
+	GAME_TIMER_MEMORYSTORE_NAME = "GameTimer",
 	
 	-- Datastore names
 	PLAYER_SHOPS_DATA_STORE_NAME = "PlayerShops",

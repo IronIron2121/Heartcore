@@ -3,40 +3,33 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MemoryStoreService = game:GetService("MemoryStoreService")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
+local Voting = ServerScriptService:WaitForChild("Voting")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+
+-- Remotes
+local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
 
 -- Modules
+local printAllHashMapPages = require(Utility:WaitForChild("printAllHashMapStorePages"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
+local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
 local SubmissionStoreManager = {}
 
--- Cache for entries to avoid repeated Memory Store calls
-local entriesCache: {[string]: any} = {}
-local lastCacheUpdate = 0
-local lastCacheStoreName = ""
-local CACHE_DURATION = 30 -- Cache for 30 seconds
-
-local function getDateTimePrefix(): string
-    local timeNow = DateTime.now()
-    local UTC_now = timeNow:ToUniversalTime() :: {
-        
-    }
-
-    local debug_dayPrefix = UTC_now["Month"] .. UTC_now["Day"] .. UTC_now["Minute"]
-    local dayPrefix = UTC_now["Month"] .. UTC_now["Day"]
-
-    return debug_dayPrefix
-    --return dayPrefix
-end
-
 function SubmissionStoreManager.getCurrentMemoryStoreName(): string
-    return getDateTimePrefix() .. Constants.CURRENT_SUBMISSIONS_MEMORYSTORE_NAME
+    return GameTimer.getTodayDateTimePrefix() .. Constants.SUBMISSION_MEMORYSTORE_NAME
 end
 
-function SubmissionStoreManager.getCurrentSubmissionsMemoryStore()
+function SubmissionStoreManager.getYesterdaysSubmissionMemoryStore()
+
+end
+
+function SubmissionStoreManager.getCurrentSubmissionMemoryStore()
     print(SubmissionStoreManager.getCurrentMemoryStoreName())
     local success, result = callWithRetry(function()
         return MemoryStoreService:GetHashMap(SubmissionStoreManager.getCurrentMemoryStoreName())
@@ -51,7 +44,7 @@ function SubmissionStoreManager.getCurrentSubmissionsMemoryStore()
     end
 end
 
--- Helper function to parse all pages from a HashMap (from your printAllHashMapPages)
+-- Gets all entries from a given hash map
 local function getAllHashMapEntries(hashPages: MemoryStoreHashMapPages): {[string]: any}
     local allEntries: {[string]: any} = {}
     
@@ -79,29 +72,13 @@ local function getAllHashMapEntries(hashPages: MemoryStoreHashMapPages): {[strin
     return allEntries
 end
 
--- Get all cached entries (main function used by BalancedSelector)
-function SubmissionStoreManager:GetCachedEntries(): {[string]: any}
-    local currentTime = tick()
-    local currentStoreName = self.getCurrentMemoryStoreName()
-    
-    -- Clear cache if we've switched to a different store (new day/minute)
-    if currentStoreName ~= lastCacheStoreName then
-        entriesCache = {}
-        lastCacheUpdate = 0
-        lastCacheStoreName = currentStoreName
-    end
-    
-    -- Return cached entries if they're still fresh
-    if currentTime - lastCacheUpdate < CACHE_DURATION then
-        return entriesCache
-    end
-    
-    -- Fetch fresh entries from Memory Store
-    local currentStore = self.getCurrentSubmissionsMemoryStore()
+-- Get all entries from the current submission store
+function SubmissionStoreManager:GetEntries(): {[string]: any}
+    local currentStore = self.getCurrentSubmissionMemoryStore()
     
     if not currentStore then
         warn("Could not get current submissions store")
-        return entriesCache -- Return existing cache
+        return {}
     end
     
     local success, pages = callWithRetry(function()
@@ -109,26 +86,54 @@ function SubmissionStoreManager:GetCachedEntries(): {[string]: any}
     end, 3)
     
     if success and pages then
-        entriesCache = getAllHashMapEntries(pages)
-        lastCacheUpdate = currentTime
-        print("Updated submission cache with", self:GetSubmissionCount(), "entries from store:", currentStoreName)
+        return getAllHashMapEntries(pages)
     else
         warn("Failed to fetch submissions from Memory Store")
-        -- Return existing cache even if stale, rather than empty table
+        return {}
     end
-    
-    return entriesCache
 end
 
--- Force refresh the cache (useful when you know data has changed)
-function SubmissionStoreManager:RefreshCache()
-    lastCacheUpdate = 0 -- Force cache to be considered stale
-    return self:GetCachedEntries()
+function SubmissionStoreManager:AddEntry(player: Player, serialisedHumanoidDescription: {}): ()
+    -- Get the submissions memory store
+    local CurrentSubmissionsMemoryStore = self:getCurrentSubmissionMemoryStore()
+    if not CurrentSubmissionsMemoryStore then 
+        warn("Failed to get submissions memory store") 
+        return 
+    end
+
+    -- Add the serialised humanoid description to the submissions memory store
+    local success = callWithRetry(function()
+        return CurrentSubmissionsMemoryStore:SetAsync(
+            tostring(player.UserId),
+            serialisedHumanoidDescription,
+            86400
+        )
+    end, 5)
+
+    if success then
+        print("Successfully submitted outfit for player:", player.Name)
+
+        task.spawn(function()
+            local pages = CurrentSubmissionsMemoryStore:ListItemsAsync(1)
+            printAllHashMapPages(pages)
+        end)
+
+        SubmissionResultRE:FireClient(player, {
+            ok = true,
+            msg = "Outfit submitted successfully!"
+        })
+    else
+        warn("Failed to submit outfit for player:", player.Name)
+        SubmissionResultRE:FireClient(player, {
+            ok = false,
+            msg = "Failed to submit outfit. Please try again."
+        })
+    end
 end
 
 -- Get total count of submissions
 function SubmissionStoreManager:GetSubmissionCount(): number
-    local entries = self:GetCachedEntries()
+    local entries = self:GetEntries()
     local count = 0
     for _ in pairs(entries) do
         count = count + 1
@@ -136,9 +141,9 @@ function SubmissionStoreManager:GetSubmissionCount(): number
     return count
 end
 
--- Debug function to print all entries (similar to your printAllHashMapPages)
+-- Debug function to print all entries
 function SubmissionStoreManager:PrintAllEntries()
-    local entries = self:GetCachedEntries()
+    local entries = self:GetEntries()
     print("=== All Submission Entries ===")
     for key, value in pairs(entries) do
         print("Key:", key)

@@ -13,10 +13,10 @@ local Controllers = ReplicatedStorage:WaitForChild("Controllers")
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
-local ThemeManager = require(Controllers:WaitForChild("ContestManager"))
+local ThemeManager = require(Controllers:WaitForChild("ThemeManager"))
 
 -- Memory Stores
-local CurrentThemeMemoryStore = MemoryStoreService:GetSortedMap(Constants.CURRENT_CONTEST_MEMORYSTORE_NAME)
+local CurrentThemeMemoryStore = MemoryStoreService:GetSortedMap(Constants.CONTEST_MEMORYSTORE_NAME)
 
 -- Constants
 local CHECK_TIME_LAPSE_INTERVAL = 10
@@ -106,6 +106,11 @@ end
 
 local function updateTheme()
 	print("Theme has expired, updating...")
+	-- BEFORE getting a new theme, we need to port over all of our submissions to the contest store
+	-- Means figuring out some more stuff...
+
+
+	-- BEFORE the below, we need to move the current 
 	local newTheme = setNewTheme()
 	local _, success = callWithRetry(
 		function()
@@ -117,6 +122,7 @@ local function updateTheme()
 		end,
 		5
 	)
+
 	
 	if success then
 		-- TODO: Make a datastore that only says if we're currently changing the theme
@@ -152,4 +158,3 @@ task.spawn(function()
 		end
 	end
 end)
-
