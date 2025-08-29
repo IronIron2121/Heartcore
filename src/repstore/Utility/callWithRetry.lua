@@ -6,7 +6,7 @@ local DEFAULT_RETRIES = 3
 local function callWithRetry(
     functionToTry: () -> any, 
     maxRetries: number?
-)
+): (boolean, any)
     local maxRetries = maxRetries or DEFAULT_RETRIES
     local success = false
     local result = nil
@@ -24,7 +24,7 @@ local function callWithRetry(
         end
     end
 
-    return result, success
+    return success, result
 end
 
 return callWithRetry
