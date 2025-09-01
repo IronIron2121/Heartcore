@@ -10,6 +10,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
+local centralPond = workspace:WaitForChild("centralPond")
 
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
@@ -19,15 +20,18 @@ local getHumanoidDescriptionFromPlayer = require(Getters:WaitForChild("getHumano
 local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 
+-- Instances
+local SubmissionPad = centralPond:WaitForChild("SubmissionPad")
+
 -- Prompt
-local SubmitBooth = workspace:WaitForChild("SubmitBooth")
-local promptHolder = SubmitBooth:WaitForChild("PromptHolder")
-local prompt = promptHolder:FindFirstChildOfClass("ProximityPrompt")
-if not prompt then
-	prompt = Instance.new("ProximityPrompt", promptHolder)
-	prompt.ActionText = "Submit Outfit"
-	prompt.HoldDuration = 0.5
-end
+local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
+local prompt = Instance.new("ProximityPrompt") :: ProximityPrompt
+prompt.Parent = promptHolder
+prompt.ActionText = "Submit Outfit"
+prompt.HoldDuration = 0.5
+prompt.RequiresLineOfSight = false
+prompt.MaxActivationDistance = 16
+
 
 --
 
@@ -50,6 +54,5 @@ end
 prompt.Triggered:Connect(onOutfitSubmitted)
 
 Remotes.ClientPrintSubmissions.OnServerEvent:Connect(function()
-	local CurrentSubmissionsMemoryStore = SubmissionStoreManager.getCurrentSubmissionMemoryStore()
-	local pages = CurrentSubmissionsMemoryStore:ListItemsAsync(20)
+	local CurrentSubmissionsMemoryStore = SubmissionStoreManager.GetEntries()
 end)

@@ -33,20 +33,6 @@ local function getCurrentUniversalTime()
 	return DateTime.now().UnixTimestamp
 end
 
-local function getLastTimeChanged()
-	return ThemeManager.CurrentTheme and ThemeManager.CurrentTheme.TimeChanged or nil
-end
-
-local function currentThemeHasExpired()
-	local currentTime = getCurrentUniversalTime()
-	local lastChanged = getLastTimeChanged()
-	
-	if not lastChanged then
-		return true -- No theme set yet
-	end
-	
-	return (currentTime - lastChanged) >= DEBUG_SECONDS_BETWEEN_THEME_CHANGE
-end
 
 local function pickTheme()
 	return ThemeManager.Themes[math.random(1, #ThemeManager.Themes)] 
@@ -93,7 +79,7 @@ local function initialiseTheme()
 			return true
 		else
 			warn("Failed to set new theme!")
-			return false
+			return setSuccess
 		end
 	else
 		warn("Memory store already existent!")
@@ -109,7 +95,6 @@ local function updateTheme()
 	-- BEFORE getting a new theme, we need to port over all of our submissions to the contest store
 	-- Means figuring out some more stuff...
 
-
 	-- BEFORE the below, we need to move the current 
 	local newTheme = setNewTheme()
 	local _, success = callWithRetry(
@@ -123,7 +108,6 @@ local function updateTheme()
 		5
 	)
 
-	
 	if success then
 		-- TODO: Make a datastore that only says if we're currently changing the theme
 		ThemeManager:_updateThemeData(newTheme)
@@ -143,18 +127,3 @@ local success = initialiseTheme()
 if not success then
 	error("Failed to initialize theme system")
 end
-
--- Start the monitoring loop
-task.spawn(function()
-	while true do
-		task.wait(CHECK_TIME_LAPSE_INTERVAL)
-		warn("Checking theme expiry...")
-		
-		if currentThemeHasExpired() then
-			updateTheme()
-		else
-			print("Theme is still valid!")
-			print(ThemeManager:getCurrentTheme())
-		end
-	end
-end)

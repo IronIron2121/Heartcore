@@ -7,10 +7,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
+local votingZone = workspace:WaitForChild("votingZone")
 
 -- Instances
-local votingBooth = workspace:WaitForChild("VotingBooth")
-local promptHolder = votingBooth:WaitForChild("PromptHolder")
+local VotingPad = votingZone:WaitForChild("VotingPad")
+local promptHolder = VotingPad:WaitForChild("PromptHolder")
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -40,6 +41,7 @@ local function initialiseVoteGui()
     local _VotePrompt = scope:New "ProximityPrompt" {
         Parent = promptHolder,
         MaxActivationDistance = 20,
+        RequiresLineOfSight = false,
         ActionText = "Vote Here!",
 
         [OnEvent "Triggered"] = function()

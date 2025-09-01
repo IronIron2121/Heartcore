@@ -43,12 +43,48 @@ function ContestStoreManager.initialiseNewContest(): ()
     local allSubmissions = SubmissionStoreManager:GetEntries()
 
     for key, entry in allSubmissions do
-            -- add the 
-            local contestSubmission = {
-                id = entry.Id,
-                description = entry.humanoidDescription,
-                votes = 0
-            }
+        local contestSubmission = {
+            id = entry.Id,
+            description = entry.humanoidDescription,
+            votes = 0,
+            views = 0
+        }
+        
+        -- Add the contest submission at the key of the corresponding submission
+        callWithRetry(function()
+            currentMemoryStore:SetAsync(key, contestSubmission)
+        end)
     end
-
 end
+
+function ContestStoreManager.addViews(entryKey: string, viewAmount: number): ()
+    local contestStoreName = ContestStoreManager.getCurrentMemoryStoreName()
+    local currentMemoryStore = MemoryStoreService:GetHashMap(contestStoreName)
+    
+    callWithRetry(function()
+        local currentEntry = currentMemoryStore:GetAsync(entryKey)
+        if currentEntry then
+            currentEntry.views += viewAmount
+            currentMemoryStore:SetAsync(entryKey, currentEntry)
+        else
+            warn("Entry not found for key:", entryKey)
+        end
+    end)
+end
+
+function ContestStoreManager.addVotes(entryKey: string, voteAmount: number): ()
+    local contestStoreName = ContestStoreManager.getCurrentMemoryStoreName()
+    local currentMemoryStore = MemoryStoreService:GetHashMap(contestStoreName)
+    
+    callWithRetry(function()
+        local currentEntry = currentMemoryStore:GetAsync(entryKey)
+        if currentEntry then
+            currentEntry.votes += voteAmount
+            currentMemoryStore:SetAsync(entryKey, currentEntry)
+        else
+            warn("Entry not found for key:", entryKey)
+        end
+    end)
+end
+
+return ContestStoreManager

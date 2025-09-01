@@ -19,28 +19,69 @@ local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
+-- Memory Stores
+local GameTimerMemoryStore = MemoryStoreService:GetHashMap(Constants.GAME_TIMER_MEMORYSTORE_NAME)
+
+-- Cache
+local SubmissionStoreCache = {}
+
 local SubmissionStoreManager = {}
+
+local function getLastTransition()
+    return SubmissionStoreCache.lastPhaseTransition
+end
+
+local function initializeSubmissionStoreCache()
+    local success, data = callWithRetry(function()
+        return GameTimerMemoryStore:GetAsync("lastPhaseTransition")
+    end, 3)
+    
+    if success and data then
+        SubmissionStoreCache.lastPhaseTransition = data
+        print("Loaded last transition time for submissions:", data)
+    else
+        SubmissionStoreCache.lastPhaseTransition = nil
+        print("No previous transition found for submissions")
+    end
+end
 
 function SubmissionStoreManager.getCurrentMemoryStoreName(): string
     return GameTimer.getTodayDateTimePrefix() .. Constants.SUBMISSION_MEMORYSTORE_NAME
 end
 
-function SubmissionStoreManager.getYesterdaysSubmissionMemoryStore()
+function SubmissionStoreManager.getLastTransitionMemoryStoreName(): string
+    return GameTimer.getLastTransitionDateTimePrefix() .. Constants.SUBMISSION_MEMORYSTORE_NAME
+end
 
+function SubmissionStoreManager.getLastSubmissionMemoryStore()
+    local lastTransitionStoreName = SubmissionStoreManager.getLastTransitionMemoryStoreName()
+    print("Getting last transition submission store:", lastTransitionStoreName)
+    
+    local success, result = callWithRetry(function()
+        return MemoryStoreService:GetHashMap(lastTransitionStoreName)
+    end, 3)
+    
+    if success then 
+        return result 
+    else 
+        warn("Failed to get last transition memorystore!")
+        warn(success, result)
+        return nil
+    end
 end
 
 function SubmissionStoreManager.getCurrentSubmissionMemoryStore()
     print(SubmissionStoreManager.getCurrentMemoryStoreName())
     local success, result = callWithRetry(function()
         return MemoryStoreService:GetHashMap(SubmissionStoreManager.getCurrentMemoryStoreName())
-    end)
+    end, 3)
     
     if success then 
         return result 
     else 
         warn("Failed to get memorystore!")
         warn(success, result)
-        return success
+        return nil
     end
 end
 
@@ -93,9 +134,30 @@ function SubmissionStoreManager:GetEntries(): {[string]: any}
     end
 end
 
+-- Get all entries from last transition's submission store
+function SubmissionStoreManager:GetPreviousPhaseEntries(): {[string]: any}
+    local lastTransitionStore = self.getLastSubmissionMemoryStore()
+    
+    if not lastTransitionStore then
+        warn("Could not get last transition submissions store")
+        return {}
+    end
+    
+    local success, pages = callWithRetry(function()
+        return lastTransitionStore:ListItemsAsync(100) -- Get up to 100 items per page
+    end, 3)
+    
+    if success and pages then
+        return getAllHashMapEntries(pages)
+    else
+        warn("Failed to fetch last transition submissions from Memory Store")
+        return {}
+    end
+end
+
 function SubmissionStoreManager:AddEntry(player: Player, serialisedHumanoidDescription: {}): ()
     -- Get the submissions memory store
-    local CurrentSubmissionsMemoryStore = self:getCurrentSubmissionMemoryStore()
+    local CurrentSubmissionsMemoryStore = self.getCurrentSubmissionMemoryStore()
     if not CurrentSubmissionsMemoryStore then 
         warn("Failed to get submissions memory store") 
         return 
@@ -104,8 +166,10 @@ function SubmissionStoreManager:AddEntry(player: Player, serialisedHumanoidDescr
     -- Add the serialised humanoid description to the submissions memory store
     local success = callWithRetry(function()
         return CurrentSubmissionsMemoryStore:SetAsync(
-            tostring(player.UserId),
-            serialisedHumanoidDescription,
+            tostring(player.UserId), {
+                id = player.UserId,
+                humanoidDescription = serialisedHumanoidDescription,
+            },
             86400
         )
     end, 5)
@@ -152,5 +216,8 @@ function SubmissionStoreManager:PrintAllEntries()
     end
     print("Total entries:", self:GetSubmissionCount())
 end
+
+-- Initialize cache
+initializeSubmissionStoreCache()
 
 return SubmissionStoreManager
