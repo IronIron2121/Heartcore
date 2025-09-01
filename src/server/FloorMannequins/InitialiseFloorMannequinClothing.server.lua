@@ -19,7 +19,16 @@ local setDescriptionSkinColor = require(Utility:WaitForChild("setDescriptionSkin
 local stringOfNumbersToArray = require(Utility:WaitForChild("stringOfNumbersToArray"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
+local function makeMannequinInvisible(mannequin: Instance)
+	for _, part in mannequin:GetDescendants() do
+		if part:IsA("BasePart") then
+			part.Transparency = 1
+		end
+	end
+end
+
 local function setupMannequinAsync(mannequin: Instance)
+	makeMannequinInvisible(mannequin)
 	-- Get the list of accessories, bundles, and skin color to apply to the mannequin
 	local accessoryIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_ACCESSORY_IDS_ATTRIBUTE)
 	local bundleIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE)

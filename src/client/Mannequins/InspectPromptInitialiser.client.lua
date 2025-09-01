@@ -93,6 +93,7 @@ local function initialise()
 		onMannequinAdded(mannequin)
 	end
 
+
 	-- Connect prompt visibility controls
 	PlayerCreatedPreview.Event:Connect(hideAllPrompts)
 	PlayerDestroyedPreview.Event:Connect(showAllPrompts)
