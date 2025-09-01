@@ -20,6 +20,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Remotes
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
+local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 local AvatarCustomisationService = require(Utility:WaitForChild("AvatarCustomisationService"))
 -- Module Scripts
 local ItemContainer 	= require(ReplicatedStorage.Utility.ItemContainer)
@@ -28,53 +29,32 @@ local TryOn 			= require(ReplicatedStorage.Libraries.TryOn)
 
 local itemButtonTemplate = ReplicatedStorage.UI.Objects.ItemButton
 
-local function ItemButton(itemId: number, itemType: Enum.MarketplaceProductType): ImageButton
-	local icon = getItemIcon(itemId, itemType)
-	
-	--local isTryingOn = TryOn.getItem(itemId, itemType) ~= nil
+local function ItemButton(itemId: number, productType: Enum.MarketplaceProductType, assetType: string, itemType: string): ImageButton
 
+	local icon = getItemIcon(itemId, productType)
+	
 	local itemButton = itemButtonTemplate:Clone()
 	itemButton.Image = icon
-	--itemButton.TryOnFrame.Visible = isTryingOn
+
+	local function refresh()
+		itemButton.TryOnFrame.Visible = AvatarCustomisationService.IsWearingItem(LocalPlayer, itemId)
+	end
 
 	local function onActivated()
-		--[[
-		if TryOn.getItem(itemId, itemType) then
-			TryOn.removeItem(itemId, itemType)
-		else
-			TryOn.addItemAsync(itemId, itemType)
-			warn("Trying on a singular item")
-		end
-		]]
 		if AvatarCustomisationService.IsWearingItem(LocalPlayer, itemId) then
 			PlayerRemovedItem:FireServer(itemId)
-		else
-			AvatarCustomisationService.AddItemToAvatar(LocalPlayer, itemId)
-		end
-		
-	end
-
-	local function onItemAdded(tryOnItem: ItemContainer.ContainedItem)
-		if tryOnItem.id == itemId and tryOnItem.type == itemType then
-			itemButton.TryOnFrame.Visible = true
-		end
-	end
-
-	local function onItemRemoved(tryOnItem: ItemContainer.ContainedItem)
-		if tryOnItem.id == itemId and tryOnItem.type == itemType then
 			itemButton.TryOnFrame.Visible = false
+		else
+			PlayerEquippedItem:FireServer(itemId, assetType, itemType)
+			itemButton.TryOnFrame.Visible = true
+
 		end
+		print(itemButton.TryOnFrame.Visible)
 	end
 
 	itemButton.Activated:Connect(onActivated)
-	local itemAddedConnection 	= TryOn.itemAdded:Connect(onItemAdded)
-	local itemRemovedConnection = TryOn.itemRemoved:Connect(onItemRemoved)
 
-	itemButton.Destroying:Once(function()
-		itemAddedConnection:Disconnect()
-		itemRemovedConnection:Disconnect()
-	end)
-
+	refresh()
 	return itemButton
 end
 

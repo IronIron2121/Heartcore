@@ -27,7 +27,7 @@ local playerShopsDataStore 	= DataStoreService:GetDataStore(Constants.PLAYER_SHO
 local MannequinUtilities = {}
 
 function MannequinUtilities.getBundleIdArray(instance : Model) : {number} ?
-	local bundleIdsString = instance:GetAttribute(Constants.BUNDLE_IDS_ATTRIBUTE) :: string
+	local bundleIdsString = instance:GetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE) :: string
 	local bundleIdArray = stringOfNumbersToArray(bundleIdsString)
 	return bundleIdArray
 end

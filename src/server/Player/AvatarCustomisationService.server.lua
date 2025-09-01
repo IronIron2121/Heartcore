@@ -17,47 +17,67 @@ local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
 local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
 
-
 -- Variables
-local isCurrentlyEquipping = false
+local equippingCache = {}
+
+-- Cache management functions
+local function setPlayerEquipping(player: Player, isEquipping: boolean)
+	equippingCache[player.UserId] = isEquipping
+end
+
+local function isPlayerEquipping(player: Player): boolean
+	return equippingCache[player.UserId] == true
+end
+
+local function clearPlayerFromCache(player: Player)
+	equippingCache[player.UserId] = nil
+end
 
 --
 
 local function onPlayerAdded(player: Player)
-	
+	-- Initialize player in cache as not equipping
+	setPlayerEquipping(player, false)
+end
+
+local function onPlayerRemoving(player: Player)
+	-- Clean up cache when player leaves
+	clearPlayerFromCache(player)
 end
 
 local function playerRemovedItem(player: Player, itemId: number)
-	if isCurrentlyEquipping then return end
-	isCurrentlyEquipping = true
+	if isPlayerEquipping(player) then return end
+	setPlayerEquipping(player, true)
 	AvatarCustomisationService.RemoveItemFromAvatar(player, itemId)
-	isCurrentlyEquipping = false
+	setPlayerEquipping(player, false)
 end
 
 local function playerEquippedItem(player: Player, itemId: number, assetType: string, itemType: string)
-	if isCurrentlyEquipping then return end
-	isCurrentlyEquipping = true
+	if isPlayerEquipping(player) then return end
+	setPlayerEquipping(player, true)
+	print(player, itemId, assetType, itemType)
 	AvatarCustomisationService.AddItemToAvatar(player, itemId, assetType, itemType)
-	isCurrentlyEquipping = false
+	setPlayerEquipping(player, false)
 end
 
 local function playerEquippedOutfit(player: Player, outfitId: number)
 	warn("Equipping on server side!")
-	if isCurrentlyEquipping then warn("Already equipping") return end
-	isCurrentlyEquipping = true
+	if isPlayerEquipping(player) then warn("Already equipping") return end
+	setPlayerEquipping(player, true)
 	AvatarCustomisationService.ApplyOutfitToAvatar(player, outfitId) 
-	isCurrentlyEquipping = false
+	setPlayerEquipping(player, false)
 end
 
 local function playerEquippedTastemakerOutfit(player: Player, tastemakerOutfit: {})
-	if isCurrentlyEquipping then return end
-	isCurrentlyEquipping = true
+	if isPlayerEquipping(player) then return end
+	setPlayerEquipping(player, true)
 	local description = SerialisationService.UnserialiseHumanoidDescription(tastemakerOutfit)
 	AvatarCustomisationService.applyDescription(player, description)
-	isCurrentlyEquipping = false
+	setPlayerEquipping(player, false)
 end
 
 Plrs.PlayerAdded:Connect(onPlayerAdded)
+Plrs.PlayerRemoving:Connect(onPlayerRemoving)
 PlayerEquippedOutfit.OnServerEvent:Connect(playerEquippedOutfit)
 PlayerEquippedItem.OnServerEvent:Connect(playerEquippedItem)
 PlayerRemovedItem.OnServerEvent:Connect(playerRemovedItem)

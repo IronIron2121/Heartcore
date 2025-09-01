@@ -31,9 +31,6 @@ local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 -- Fusion
 local Children = Fusion.Children
 local OnEvent = Fusion.OnEvent
-local ForValues = Fusion.ForValues
-local peek = Fusion.peek
-local Value = Fusion.Value
 
 -- Colors
 local COLOUR_WHITE = UI_CONSTANTS.COLOUR_WHITE

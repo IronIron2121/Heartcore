@@ -11,7 +11,15 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players 			= game:GetService("Players")
 
+<<<<<<< HEAD
 -- Folders
+=======
+
+-- s
+local DataTables	= ReplicatedStorage:WaitForChild("DataTables")
+local Thumbnails	= ReplicatedStorage:WaitForChild("Thumbnails")
+local Constants			= ReplicatedStorage:WaitForChild("Constants")
+>>>>>>> 69a988f81669b1386503363e7171ee0e8bfb1430
 local Libraries	= ReplicatedStorage:WaitForChild("Libraries")
 local Utility 	= ReplicatedStorage:WaitForChild("Utility")
 local Getters		= ReplicatedStorage:WaitForChild("Getters")
@@ -33,8 +41,19 @@ local ShopGuiFsm				= require(Utility:WaitForChild("ShopGuiFSM"))
 -- UI Components
 local addTileTemplate 	= Objects:WaitForChild("AddTile")
 
+<<<<<<< HEAD
 -- PlayerGUI
 local PlayerGui				= localPlayer.PlayerGui
+=======
+
+-- PlayerGUI
+local PlayerGui				= localPlayer.PlayerGui
+local ClaimedShopGui 		= PlayerGui:WaitForChild("ClaimedShopGui")
+local ShopItemStoreFrame 	= ClaimedShopGui:WaitForChild("ShopItemStoreFrame")
+local ShopItemFocusFrame 	= ClaimedShopGui:WaitForChild("ShopItemFocusFrame")
+
+
+>>>>>>> 69a988f81669b1386503363e7171ee0e8bfb1430
 
 -- Remotes | Bindables
 local PlayerClickedShopItemThumbnailAsync = Bindables:WaitForChild("PlayerClickedShopItemThumbnail")
@@ -52,6 +71,11 @@ local function AddTile(itemDetails: {}): Frame
 	addTile.NameLabel.Text = itemDetails["Name"]
 	addTile.BuyFrame.CostButton.Text = itemDetails["Price"]
 	
+<<<<<<< HEAD
+=======
+
+	
+>>>>>>> 69a988f81669b1386503363e7171ee0e8bfb1430
 	local itemTags = itemDetails["Tags"]
 	addTile:SetAttribute("Tags", arrayOfStringsToString(itemTags))
 	
@@ -68,6 +92,10 @@ local function AddTile(itemDetails: {}): Frame
 		end
 	end
 	
+<<<<<<< HEAD
+=======
+
+>>>>>>> 69a988f81669b1386503363e7171ee0e8bfb1430
 	local function onBuyItemClicked()
 		if addTile.BuyFrame.CostButton.Text == "Free" then
 			SetPlayerOwnedItems:InvokeServer(addTile.NameLabel.Text, "true")
@@ -80,6 +108,11 @@ local function AddTile(itemDetails: {}): Frame
 		ShopGuiFsm.setState("ShopItemFocus")
 		
 	end
+<<<<<<< HEAD
+=======
+	
+
+>>>>>>> 69a988f81669b1386503363e7171ee0e8bfb1430
 
 	local function onAddToShopClicked()
 		ShopGuiFsm.setState("None")

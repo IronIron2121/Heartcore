@@ -7,7 +7,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 local Checkers = ReplicatedStorage:WaitForChild("Checkers")
 
@@ -34,6 +33,7 @@ local function findItemDescription(description: HumanoidDescription, itemId: num
 			return child
 		end
 	end
+
 	return nil
 end
 
@@ -111,9 +111,7 @@ function AvatarCustomisationService.ApplyOutfitToAvatar(player: Player, outfitId
 	end)
 
 	if success then
-		warn("About to apply!")
 		AvatarCustomisationService.applyDescription(player, outfitDescription)
-		warn("Just applied!")
 	else
 		warn("Failed to get outfit description for ID:", outfitId)
 	end

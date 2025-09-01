@@ -23,7 +23,7 @@ BaseMannequin.__index = BaseMannequin
 
 
 function BaseMannequin:_getBundleIdArray() : {number} ?
-	local bundleIdsString = self.instance:GetAttribute(Constants.BUNDLE_IDS_ATTRIBUTE) :: string
+	local bundleIdsString = self.instance:GetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE) :: string
 	local bundleIdArray = stringOfNumbersToArray(bundleIdsString)
 	return bundleIdArray
 end
@@ -40,7 +40,7 @@ function BaseMannequin.new(shopItemRecipe : Types.ShopItemRecipe)
 	setmetatable(newMannequin, BaseMannequin)
 	
 	newMannequin[Constants.MANNEQUIN_ACCESSORY_IDS_ATTRIBUTE] = {}
-	newMannequin[Constants.BUNDLE_IDS_ATTRIBUTE] = {}
+	newMannequin[Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE] = {}
 	
 	--local inspectPrompt = newMannequin:_initialiseInspectPrompt()
 	--inspectPrompt.Parent = newMannequin.instance
@@ -52,7 +52,7 @@ function BaseMannequin:getAllAssetIds()
 	-- return combined accessory and bundle ids
 	local allIds = {
 		[Constants.MANNEQUIN_ACCESSORY_IDS_ATTRIBUTE] = {self[Constants.ACCESSORY_IDS_ATTRIBUTE]},
-		[Constants.BUNDLE_IDS_ATTRIBUTE] = {self[Constants.BUNDLE_IDS_ATTRIBUTE]}
+		[Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE] = {self[Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE]}
 	}
 	
 	return allIds
@@ -108,10 +108,10 @@ function BaseMannequin:_addAssetIdToInstance(assetId : number)
 			table.insert(bundleIdArray, assetId)
 		end
 
-		self[Constants.BUNDLE_IDS_ATTRIBUTE] = bundleIdArray
+		self[Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE] = bundleIdArray
 		
 		local bundleIdsString = arrayOfNumbersToString(bundleIdArray) 
-		self.instance:SetAttribute(Constants.BUNDLE_IDS_ATTRIBUTE, bundleIdsString)
+		self.instance:SetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE, bundleIdsString)
 
 	elseif assetType == Constants.ASSET_TYPE_ID then
 		local accessoryIdArray = self:_getAccessoryIdArray()
@@ -149,7 +149,7 @@ function BaseMannequin:_removeAssetIdFromInstance(accessoryId : number)
 	end
 
 	local accessoryIdsString = self.instance:GetAttribute(Constants.MANNEQUIN_ACCESSORY_IDS_ATTRIBUTE)
-	local bundleIdsString = self.instance:GetAttribute(Constants.BUNDLE_IDS_ATTRIBUTE)
+	local bundleIdsString = self.instance:GetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE)
 
 	if productType == Constants.BUNDLE_TYPE_ID then
 		local bundleIds = stringOfNumbersToArray(bundleIdsString)
@@ -160,8 +160,8 @@ function BaseMannequin:_removeAssetIdFromInstance(accessoryId : number)
 		end
 		-- Convert the bundle IDs array back into a string
 		bundleIdsString = arrayOfNumbersToString(bundleIds) 
-		self[Constants.BUNDLE_IDS_ATTRIBUTE] = bundleIds
-		self.instance:SetAttribute(Constants.BUNDLE_IDS_ATTRIBUTE, bundleIdsString)
+		self[Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE] = bundleIds
+		self.instance:SetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE, bundleIdsString)
 
 	elseif productType == Constants.ASSET_TYPE_ID then
 		local accessoryIds: {number} = stringOfNumbersToArray(accessoryIdsString)

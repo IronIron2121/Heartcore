@@ -35,6 +35,7 @@ local Constants = {
 	BUNDLE_TYPE_ID = Enum.MarketplaceProductType.AvatarBundle.Value,
 	-- Tags
 	MANNEQUIN_TAG = "Mannequin",
+	FLOOR_MANNEQUIN_TAG = "FloorMannequin",
 	BLANK_SHOP_TAG = "BlankShop",
 	UI_BUTTON_TAG = "UIButton",
 	INSPECT_PROMPT_TAG = "InspectPrompt",
@@ -42,7 +43,7 @@ local Constants = {
 	-- Attributes
 	ITEM_ID_ATTRIBUTE = "Id",
 	ITEM_COLOUR_ATTRIBUTE = "itemColour",
-	BUNDLE_IDS_ATTRIBUTE = "bundleIds",
+	MANNEQUIN_BUNDLE_IDS_ATTRIBUTE = "bundleIds",
 	MANNEQUIN_ACCESSORY_IDS_ATTRIBUTE = "accessoryIds",
 	ACCESSORY_ID_ATTRIBUTE = "accessoryId",
 	SKIN_COLOR_ATTRIBUTE = "skinColor",
