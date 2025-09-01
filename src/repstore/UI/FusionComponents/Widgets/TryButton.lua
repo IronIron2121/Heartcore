@@ -82,7 +82,7 @@ function TryButton(
 				props.onPurchaseCallback()
 			end
 		end,
-		
+		 
 		[OnEvent "MouseButton1Down"] = function()
 			isHeldDown:set(true)
 		end,
