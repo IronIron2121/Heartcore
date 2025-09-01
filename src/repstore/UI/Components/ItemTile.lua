@@ -33,7 +33,7 @@ local purchaseRemote = RemotesFolder:WaitForChild("Purchase")
 
 
 -- Creates an 'ItemTile' from an AssetDetails / BundleDetails object, which contain all relevant details for a given asset or bundle
-local function ItemTile(itemDetails: Types.AssetDetails | Types.BundleDetails, mannequinId: number?): Frame
+local function ItemTile(itemDetails: Types.AssetDetails | Types.BundleDetails, mannequinId: number): Frame
 
 	local productType = Enum.MarketplaceProductType[`Avatar{itemDetails.ItemType}`]
 	local price = itemDetails.LowestPrice or itemDetails.Price
@@ -42,7 +42,7 @@ local function ItemTile(itemDetails: Types.AssetDetails | Types.BundleDetails, m
 	itemTile.NameLabel.Text = itemDetails.Name
 	itemTile.PriceLabel.Text = itemDetails.PriceStatus or `{Constants.ROBUX_CHAR}{price}`
 	
-	local itemButton = ItemButton(itemDetails.Id, productType)
+	local itemButton = ItemButton(itemDetails.Id, productType, itemDetails.AssetType, itemDetails.ItemType)
 	itemButton.Parent = itemTile
 
 	local addToCartButton = itemTile.ButtonsFrame.AddToCartButton

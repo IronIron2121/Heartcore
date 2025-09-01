@@ -34,6 +34,7 @@ local function findItemDescription(description: HumanoidDescription, itemId: num
 			return child
 		end
 	end
+	
 	return nil
 end
 

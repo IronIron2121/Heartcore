@@ -20,6 +20,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Remotes
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
+local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 local AvatarCustomisationService = require(Utility:WaitForChild("AvatarCustomisationService"))
 -- Module Scripts
 local ItemContainer 	= require(ReplicatedStorage.Utility.ItemContainer)
@@ -28,18 +29,22 @@ local TryOn 			= require(ReplicatedStorage.Libraries.TryOn)
 
 local itemButtonTemplate = ReplicatedStorage.UI.Objects.ItemButton
 
-local function ItemButton(itemId: number, itemType: Enum.MarketplaceProductType): ImageButton
+local function ItemButton(itemId: number, itemType: Enum.MarketplaceProductType, assetType: string, itemType: string): ImageButton
+
 	local icon = getItemIcon(itemId, itemType)
 	
 	local itemButton = itemButtonTemplate:Clone()
 	itemButton.Image = icon
-	itemButton.TryOnFrame.Visible = AvatarCustomisationService.IsWearingItem(LocalPlayer, itemId)
+
+	local function refresh()
+		itemButton.TryOnFrame.Visible = AvatarCustomisationService.IsWearingItem(LocalPlayer, itemId)
+	end
 
 	local function onActivated()
 		if AvatarCustomisationService.IsWearingItem(LocalPlayer, itemId) then
 			PlayerRemovedItem:FireServer(itemId)
 		else
-			AvatarCustomisationService.AddItemToAvatar(LocalPlayer, itemId)
+			PlayerEquippedItem:FireServer(itemId, assetType, itemType)
 		end
 	end
 
@@ -64,6 +69,7 @@ local function ItemButton(itemId: number, itemType: Enum.MarketplaceProductType)
 		itemRemovedConnection:Disconnect()
 	end)
 
+	refresh()
 	return itemButton
 end
 

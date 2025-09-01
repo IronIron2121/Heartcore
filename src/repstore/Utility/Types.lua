@@ -6,6 +6,7 @@
 --]]
 
 export type ItemDetails = {
+	AssetType: string,
 	CreatorHasVerifiedBadge: boolean,
 	CreatorName: string,
 	CreatorTargetId: number,
@@ -32,7 +33,7 @@ export type ItemDetails = {
 export type AssetDetails = ItemDetails & {
 	ItemType: "Asset",
 	AssetType: string,
-}
+} 
 
 export type BundledItemDetails = {
 	Id: number,

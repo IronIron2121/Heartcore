@@ -37,6 +37,7 @@ end
 local function playerEquippedItem(player: Player, itemId: number, assetType: string, itemType: string)
 	if isCurrentlyEquipping then return end
 	isCurrentlyEquipping = true
+	print(player, itemId, assetType, itemType)
 	AvatarCustomisationService.AddItemToAvatar(player, itemId, assetType, itemType)
 	isCurrentlyEquipping = false
 end
