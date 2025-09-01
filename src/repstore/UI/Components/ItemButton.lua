@@ -29,9 +29,9 @@ local TryOn 			= require(ReplicatedStorage.Libraries.TryOn)
 
 local itemButtonTemplate = ReplicatedStorage.UI.Objects.ItemButton
 
-local function ItemButton(itemId: number, itemType: Enum.MarketplaceProductType, assetType: string, itemType: string): ImageButton
+local function ItemButton(itemId: number, productType: Enum.MarketplaceProductType, assetType: string, itemType: string): ImageButton
 
-	local icon = getItemIcon(itemId, itemType)
+	local icon = getItemIcon(itemId, productType)
 	
 	local itemButton = itemButtonTemplate:Clone()
 	itemButton.Image = icon
@@ -43,31 +43,16 @@ local function ItemButton(itemId: number, itemType: Enum.MarketplaceProductType,
 	local function onActivated()
 		if AvatarCustomisationService.IsWearingItem(LocalPlayer, itemId) then
 			PlayerRemovedItem:FireServer(itemId)
+			itemButton.TryOnFrame.Visible = false
 		else
 			PlayerEquippedItem:FireServer(itemId, assetType, itemType)
-		end
-	end
-
-	local function onItemAdded(tryOnItem: ItemContainer.ContainedItem)
-		if tryOnItem.id == itemId and tryOnItem.type == itemType then
 			itemButton.TryOnFrame.Visible = true
-		end
-	end
 
-	local function onItemRemoved(tryOnItem: ItemContainer.ContainedItem)
-		if tryOnItem.id == itemId and tryOnItem.type == itemType then
-			itemButton.TryOnFrame.Visible = false
 		end
+		print(itemButton.TryOnFrame.Visible)
 	end
 
 	itemButton.Activated:Connect(onActivated)
-	local itemAddedConnection 	= TryOn.itemAdded:Connect(onItemAdded)
-	local itemRemovedConnection = TryOn.itemRemoved:Connect(onItemRemoved)
-
-	itemButton.Destroying:Once(function()
-		itemAddedConnection:Disconnect()
-		itemRemovedConnection:Disconnect()
-	end)
 
 	refresh()
 	return itemButton
