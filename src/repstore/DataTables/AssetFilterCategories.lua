@@ -1,9 +1,12 @@
+local Players = game:GetService("Players")
 --!strict
 --[[
 AssetFilterCategories
 These are the main categories that can be sorted by in catalog searches.
 Each category has a display name, asset type enum, and description.
 ]]
+
+-- I'm adding this line to test how pushing a new branch works
 
 type CategoryInfo = {
 	name: string,

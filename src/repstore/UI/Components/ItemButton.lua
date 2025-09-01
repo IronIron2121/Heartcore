@@ -31,27 +31,16 @@ local itemButtonTemplate = ReplicatedStorage.UI.Objects.ItemButton
 local function ItemButton(itemId: number, itemType: Enum.MarketplaceProductType): ImageButton
 	local icon = getItemIcon(itemId, itemType)
 	
-	--local isTryingOn = TryOn.getItem(itemId, itemType) ~= nil
-
 	local itemButton = itemButtonTemplate:Clone()
 	itemButton.Image = icon
-	--itemButton.TryOnFrame.Visible = isTryingOn
+	itemButton.TryOnFrame.Visible = AvatarCustomisationService.IsWearingItem(LocalPlayer, itemId)
 
 	local function onActivated()
-		--[[
-		if TryOn.getItem(itemId, itemType) then
-			TryOn.removeItem(itemId, itemType)
-		else
-			TryOn.addItemAsync(itemId, itemType)
-			warn("Trying on a singular item")
-		end
-		]]
 		if AvatarCustomisationService.IsWearingItem(LocalPlayer, itemId) then
 			PlayerRemovedItem:FireServer(itemId)
 		else
 			AvatarCustomisationService.AddItemToAvatar(LocalPlayer, itemId)
 		end
-		
 	end
 
 	local function onItemAdded(tryOnItem: ItemContainer.ContainedItem)

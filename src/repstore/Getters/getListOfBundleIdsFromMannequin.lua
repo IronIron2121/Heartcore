@@ -12,7 +12,7 @@ local stringOfNumbersToArray = require(UtilityFolder:WaitForChild("stringOfNumbe
 
 function getListOfBundleIdsFromMannequin(player: Player, mannequinId: number)
 	local mannequin = getMannequinFromId(player, mannequinId)
-	local bundleIdsString = mannequin:GetAttribute(Constants.BUNDLE_IDS_ATTRIBUTE)
+	local bundleIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE)
 	local bundleIdsList = stringOfNumbersToArray(bundleIdsString)
 	return bundleIdsList
 end

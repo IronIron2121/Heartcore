@@ -3,9 +3,6 @@
 --[[
 	Gets the humanoid description from a given player
 ]]
-local ReplicatedStorage 			= game:GetService("ReplicatedStorage")
-
-local HumanoidDescriptionsFolder 	= ReplicatedStorage:WaitForChild("HumanoidDescriptions")
 
 function getHumanoidDescriptionFromPlayer(player: Player): HumanoidDescription?
 	local character = player.Character or player.CharacterAdded:Wait()
