@@ -2,20 +2,19 @@
 
 --[[
 	This script handles initializing proximity prompts on mannequins and managing their lifecycle.
+	CLIENT-SIDE: Handles UI interaction only.
 --]]
 
 -- Services
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 
 -- Folders
 local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
-
--- Local references
---local inspectPromptTemplate = script:WaitForChild("InspectPrompt")
 
 -- Bindables
 local PlayerCreatedPreview = BindablesFolder:WaitForChild("PlayerCreatedPreview")
@@ -57,7 +56,7 @@ local function showAllPrompts()
 end
 
 local function onMannequinAdded(mannequin: Model)
-	print("Mannequin Added:", mannequin.Name)
+	print("Adding inspect prompt to mannequin:", mannequin.Name)
 	local base = mannequin:WaitForChild("Base", 1)
 
 	-- Create a new ProximityPrompt in the mannequin
@@ -83,13 +82,14 @@ local function onMannequinRemoved(mannequin: Instance)
 end
 
 local function initialise()
+	warn("Initialising inspect prompts")
 	-- Set up mannequin tracking
 	CollectionService:GetInstanceAddedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(onMannequinAdded)
 	CollectionService:GetInstanceRemovedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(onMannequinRemoved)
 
-	-- initialise existing mannequins
+	-- Initialise existing mannequins
 	for _, mannequin in CollectionService:GetTagged(Constants.FLOOR_MANNEQUIN_TAG) do
-		print("Initialising:", mannequin.Name)
+		warn("Initialising inspect prompt for:", mannequin.Name)
 		onMannequinAdded(mannequin)
 	end
 
@@ -100,4 +100,5 @@ local function initialise()
 	ShowAllPromptsBindable.Event:Connect(showAllPrompts)
 end
 
+task.wait(2)
 initialise()

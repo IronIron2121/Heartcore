@@ -33,7 +33,7 @@ FullMannequin.__index = FullMannequin
 local function initialiseRigDescription(mannequin: Instance)
 	-- Get list of items to apply to mannequin
 	local accessoryIdsString 	= mannequin:GetAttribute(Constants.MANNEQUIN_ACCESSORY_IDS_ATTRIBUTE)
-	local bundleIdsString 		= mannequin:GetAttribute(Constants.BUNDLE_IDS_ATTRIBUTE)
+	local bundleIdsString 		= mannequin:GetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE)
 	local skinColor 			= mannequin:GetAttribute(Constants.SKIN_COLOR_ATTRIBUTE)
 
 	local accessoryIds 	= stringOfNumbersToArray(accessoryIdsString)
