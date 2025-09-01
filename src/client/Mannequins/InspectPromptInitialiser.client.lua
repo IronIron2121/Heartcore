@@ -30,11 +30,11 @@ local function getInspectPrompt(): ProximityPrompt
 	local inspectPrompt = Instance.new("ProximityPrompt")
 	inspectPrompt.Enabled = true
 	inspectPrompt.ClickablePrompt = true
-	inspectPrompt.Exclusivity = Enum.ProximityPromptExclusivity.OnePerButton
+	inspectPrompt.Exclusivity = Enum.ProximityPromptExclusivity.AlwaysShow
 	inspectPrompt.GamepadKeyCode = Enum.KeyCode.ButtonX
 	inspectPrompt.HoldDuration = 0
 	inspectPrompt.KeyboardKeyCode = Enum.KeyCode.E
-	inspectPrompt.MaxActivationDistance = 8
+	inspectPrompt.MaxActivationDistance = 16
 	inspectPrompt.MaxIndicatorDistance = 0
 	inspectPrompt.Name = "InspectPrompt"
 	inspectPrompt.ActionText = "Inspect"
