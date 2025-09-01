@@ -21,9 +21,3 @@ local function onSubmissionResult(
 end
 
 SubmissionResultRE.OnClientEvent:Connect(onSubmissionResult)
-
-UIS.InputBegan:Connect(function(inputObject, processed)
-    if inputObject.KeyCode == Enum.KeyCode.H then
-        ClientPrintSubmissions:FireServer()
-    end
-end)

@@ -8,14 +8,19 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local votingZone = workspace:WaitForChild("votingZone")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Instances
 local VotingPad = votingZone:WaitForChild("VotingPad")
 local promptHolder = VotingPad:WaitForChild("PromptHolder")
 
 -- Modules
-local Fusion = require(Utility:WaitForChild("Fusion"))
 local VotingGuiController = require(FusionComponents:WaitForChild("VotingGuiController"))
+local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
+local Fusion = require(Utility:WaitForChild("Fusion"))
+
+-- Remotes
+local GetContestSubmissionsCache = Remotes:WaitForChild("GetContestSubmissionsCache")
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -32,9 +37,12 @@ local function onVotePromptActivated()
         VoteGuiVisible:set(false)
     else
         VoteGuiVisible:set(true)
+        print(
+            callWithRetry(function()
+                return GetContestSubmissionsCache:InvokeServer()
+            end)
+        )
     end
-
-    warn(peek(VoteGuiVisible))
 end
 
 local function initialiseVoteGui()

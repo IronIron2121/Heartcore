@@ -46,13 +46,7 @@ local function onOutfitSubmitted(player: Player)
 
 	-- Serialise it
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
-
 	SubmissionStoreManager:AddEntry(player, serialisedHumanoidDescription)
-
 end
 
 prompt.Triggered:Connect(onOutfitSubmitted)
-
-Remotes.ClientPrintSubmissions.OnServerEvent:Connect(function()
-	local CurrentSubmissionsMemoryStore = SubmissionStoreManager.GetEntries()
-end)

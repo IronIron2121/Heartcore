@@ -9,7 +9,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Controllers = ReplicatedStorage:WaitForChild("Controllers")
 
-
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
@@ -85,7 +84,6 @@ local function initialiseTheme()
 		warn("Memory store already existent!")
 		ThemeManager:_updateThemeData(currentThemeData)
 		ThemeChangedRemote:FireAllClients(currentThemeData)
-		print("Loaded existing theme: " .. currentThemeData.Theme)
 		return true
 	end
 end

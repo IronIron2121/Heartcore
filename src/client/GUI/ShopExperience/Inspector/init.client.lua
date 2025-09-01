@@ -211,7 +211,6 @@ end
 
 -- TODO: Revisit this and rationalise it
 local function onMannequinAdded(mannequin: Model)
-	print("Adding to mannequin")
 	local base = mannequin:WaitForChild("Base", 0.1)
 	--assert(base, `{mannequin:GetFullName()} is missing Base`)
 
@@ -334,7 +333,6 @@ local function initialize()
 	loadingDisplay.Parent 	= inspectFrame
 
 	for _, mannequin in CollectionService:GetTagged(Constants.MANNEQUIN_TAG) do
-		print(mannequin)
 		onMannequinAdded(mannequin)
 	end
 end

@@ -7,12 +7,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Controllers = ReplicatedStorage:WaitForChild("Controllers")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes") 
+local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
-local ThemeManager = require(Controllers:WaitForChild("ThemeManager"))
 
 -- Memory Stores
 local GameTimerMemoryStore = MemoryStoreService:GetHashMap(Constants.GAME_TIMER_MEMORYSTORE_NAME)
@@ -20,12 +20,12 @@ local TransitionLockStore = MemoryStoreService:GetHashMap("TransitionLocks")
 
 -- Constants
 local CHECK_TIME_LAPSE_INTERVAL = 10
-local DEBUG_SECONDS_BETWEEN_THEME_CHANGE = 60
+local DEBUG_SECONDS_BETWEEN_THEME_CHANGE = 120
 local SECONDS_BETWEEN_THEME_CHANGE = 86400 -- 24 hours
 
--- Create RemoteEvent for theme updates
-local RemotesFolder = ReplicatedStorage:WaitForChild("Remotes") 
-local ThemeChangedRemote = RemotesFolder:WaitForChild("ThemeChanged")
+-- Remotes / Bindables
+local ThemeChangedRemote = Remotes:WaitForChild("ThemeChanged")
+local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
 
 -- Flags
 local TimerStarted = false
@@ -69,96 +69,80 @@ function GameTimer.getTodayDateTimePrefix(): string
     --return dayPrefix
 end
 
-function GameTimer.getYesterdayDateTimePrefix(): string
-    local currentUniversalTime = getCurrentUniversalTime()
-    local yesterdayDateTimePrefix = ""
-
-    if currentUniversalTime["Day"] ~= 1 then
-        yesterdayDateTimePrefix = currentUniversalTime["Month"] .. (currentUniversalTime["Day"] - 1) .. currentUniversalTime["Minute"]
-    else
-        if table.find(PRIOR_MONTH_HAS_31_DAYS, currentUniversalTime["Month"]) then
-            yesterdayDateTimePrefix = (currentUniversalTime["Month"] - 1) .. 31 .. currentUniversalTime["Minute"]
-        elseif table.find(PRIOR_MONTH_HAS_30_DAYS, currentUniversalTime["Month"]) then
-            yesterdayDateTimePrefix = (currentUniversalTime["Month"] - 1) .. 30 .. currentUniversalTime["Minute"]
-        else
-            -- February case - handle leap years
-            local year = currentUniversalTime["Year"]
-            local isLeapYear = (year % 4 == 0 and year % 100 ~= 0) or (year % 400 == 0)
-            local februaryDays = isLeapYear and 29 or 28
-            yesterdayDateTimePrefix = (currentUniversalTime["Month"] - 1) .. februaryDays .. currentUniversalTime["Minute"]
-        end
-    end
-
-    return yesterdayDateTimePrefix
+local function getRecentPhaseTransition()
+    return GameTimerCache.RecentPhaseTransition
 end
 
-local function getLastPhaseTransition()
-    return GameTimerCache.lastPhaseTransition
+local function getPreviousPhaseTransition()
+    return GameTimerCache.PreviousPhaseTransition
 end
 
-function GameTimer.getLastTransitionDateTimePrefix(): string
-    local lastTransition = getLastPhaseTransition()
+function GameTimer.getLastTransitionDateTimePrefix(): string?
+    local lastTransition = getPreviousPhaseTransition()
     if lastTransition then
         local date = DateTime.fromUnixTimestamp(lastTransition):ToUniversalTime()
         local debug_dayPrefix = date.Month .. date.Day .. date.Minute
         return debug_dayPrefix
     else
-        -- Fallback to yesterday's date calculation if no transition recorded
-        local currentUniversalTime = getCurrentUniversalTime()
-        if currentUniversalTime["Day"] ~= 1 then
-            return currentUniversalTime["Month"] .. (currentUniversalTime["Day"] - 1) .. currentUniversalTime["Minute"]
-        else
-            if table.find(PRIOR_MONTH_HAS_31_DAYS, currentUniversalTime["Month"]) then
-                return (currentUniversalTime["Month"] - 1) .. 31 .. currentUniversalTime["Minute"]
-            elseif table.find(PRIOR_MONTH_HAS_30_DAYS, currentUniversalTime["Month"]) then
-                return (currentUniversalTime["Month"] - 1) .. 30 .. currentUniversalTime["Minute"]
-            else
-                -- February case - handle leap years
-                local year = currentUniversalTime["Year"]
-                local isLeapYear = (year % 4 == 0 and year % 100 ~= 0) or (year % 400 == 0)
-                local februaryDays = isLeapYear and 29 or 28
-                return (currentUniversalTime["Month"] - 1) .. februaryDays .. currentUniversalTime["Minute"]
-            end
-        end
+        warn("No previous phase transition!")
+        return nil
+    end
+end
+
+function GameTimer.getPreviousTransitionDateTimePrefix(): string?
+    local previousTransition = getPreviousPhaseTransition()
+    if previousTransition then
+        local date = DateTime.fromUnixTimestamp(previousTransition):ToUniversalTime()
+        local debug_dayPrefix = date.Month .. date.Day .. date.Minute
+        return debug_dayPrefix
+    else
+        warn("No previous phase transition!")
+        return nil
     end
 end
 
 local function currentPhaseHasExpired()
     local currentTime = os.time()
-    local lastPhaseTransition = getLastPhaseTransition()
+    local recentPhaseTransition = getRecentPhaseTransition()
     
-    if not lastPhaseTransition then
+    if not recentPhaseTransition then
         return true -- No phase transition recorded yet - start first phase
     end
     
-    -- Check if 24 hours have passed since the last phase transition
-    return (currentTime - lastPhaseTransition) >= DEBUG_SECONDS_BETWEEN_THEME_CHANGE
+    -- Check if time has passed since the last phase transition
+    return (currentTime - recentPhaseTransition) >= DEBUG_SECONDS_BETWEEN_THEME_CHANGE
 end
 
 local function updatePhase()
     print("Starting phase transition...")
     
-    -- TODO: Copy yesterday's submissions to contest store
-    -- This is where you'll implement the logic to move submissions to voting
-    
-    -- Update both the theme and the phase transition time
     local currentTime = os.time()
-    GameTimerCache.lastPhaseTransition = currentTime
     
-    -- Save the new phase transition time to persistent storage
-    local success = callWithRetry(function()
-        return GameTimerMemoryStore:SetAsync("lastPhaseTransition", currentTime, 86400 * 7) -- Keep for a week
+    -- Store the current "recent" transition as "previous" before updating
+    GameTimerCache.PreviousPhaseTransition = GameTimerCache.RecentPhaseTransition
+    GameTimerCache.RecentPhaseTransition = currentTime
+    
+    print("Updated transitions - Previous:", GameTimerCache.PreviousPhaseTransition, "Recent:", GameTimerCache.RecentPhaseTransition)
+    
+    -- Save both transition times to persistent storage
+    local recentSuccess = callWithRetry(function()
+        return GameTimerMemoryStore:SetAsync("RecentPhaseTransition", currentTime, 86400 * 7)
     end, 3)
     
-    if success then
+    if GameTimerCache.PreviousPhaseTransition then
+        local previousSuccess = callWithRetry(function()
+            return GameTimerMemoryStore:SetAsync("PreviousPhaseTransition", GameTimerCache.PreviousPhaseTransition, 86400 * 7)
+        end, 3)
+    end
+
+    
+    if recentSuccess then
+        PhaseChanged:Fire()
         print("Phase transition completed at:", currentTime)
         print("Next transition will be at:", currentTime + DEBUG_SECONDS_BETWEEN_THEME_CHANGE)
     else
-        warn("Failed to update phase transition time in GameTimerMemoryStore")
+        warn("Failed to update phase transition times in GameTimerMemoryStore")
     end
-    
-    -- Update the theme system
-    -- ThemeManager should handle the actual theme change logic
 end
 
 local function attemptPhaseTransition()
@@ -191,20 +175,33 @@ local function attemptPhaseTransition()
     end
 end
 
-
 local function initializeGameTimerCache()
-    local success, data = callWithRetry(function()
-        return GameTimerMemoryStore:GetAsync("lastPhaseTransition")
+    -- Load recent phase transition
+    local recentSuccess, recentData = callWithRetry(function()
+        return GameTimerMemoryStore:GetAsync("RecentPhaseTransition")
     end, 3)
     
-    if success and data then
-        GameTimerCache.lastPhaseTransition = data
-        local timeUntilNext = DEBUG_SECONDS_BETWEEN_THEME_CHANGE - (os.time() - data)
-        print("Loaded last phase transition time:", data)
+    -- Load previous phase transition
+    local previousSuccess, previousData = callWithRetry(function()
+        return GameTimerMemoryStore:GetAsync("PreviousPhaseTransition")
+    end, 3)
+    
+    if recentSuccess and recentData then
+        GameTimerCache.RecentPhaseTransition = recentData
+        local timeUntilNext = DEBUG_SECONDS_BETWEEN_THEME_CHANGE - (os.time() - recentData)
+        print("Loaded recent phase transition time:", recentData)
         print("Time until next phase:", math.max(0, timeUntilNext), "seconds")
     else
-        GameTimerCache.lastPhaseTransition = nil
-        print("No previous phase transition found - will start first phase on next check")
+        GameTimerCache.RecentPhaseTransition = nil
+        print("No recent phase transition found - will start first phase on next check")
+    end
+    
+    if previousSuccess and previousData then
+        GameTimerCache.PreviousPhaseTransition = previousData
+        print("Loaded previous phase transition time:", previousData)
+    else
+        GameTimerCache.PreviousPhaseTransition = nil
+        print("No previous phase transition found")
     end
 end
 
@@ -226,7 +223,7 @@ function GameTimer.initialiseTimer(): ()
                 print("Phase has expired, attempting transition...")
                 attemptPhaseTransition()
             else
-                local lastTransition = getLastPhaseTransition()
+                local lastTransition = getRecentPhaseTransition()
                 if lastTransition then
                     local timeUntilNext = DEBUG_SECONDS_BETWEEN_THEME_CHANGE - (os.time() - lastTransition)
                     print("Phase is still valid! Time until next:", timeUntilNext, "seconds")

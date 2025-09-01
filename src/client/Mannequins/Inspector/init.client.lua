@@ -157,7 +157,6 @@ local function inspectAsync(mannequin: Model, updating: boolean?)
 		if not assetDetails then
 			continue
 		end
-		print(assetDetails)
 
 		local itemTile = ItemTile(assetDetails, mannequinId, _, "Accessory")
 		itemTile.Parent = itemsFrame
@@ -168,7 +167,6 @@ local function inspectAsync(mannequin: Model, updating: boolean?)
 		if not bundleDetails then
 			continue
 		end
-		print(bundleDetails)
 		local itemTile = ItemTile(bundleDetails, mannequinId, _, "Bundle")
 		itemTile.Parent = itemsFrame
 	end

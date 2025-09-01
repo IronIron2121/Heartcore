@@ -53,14 +53,11 @@ local function setupMannequinAsync(mannequin: Instance)
 	-- You may want to apply bundles to the humanoid description here as well
 	if #bundleIds > 0 then
 		-- Add bundle handling logic here if needed
-		print("Mannequin has bundles:", bundleIds, "- bundle setup not implemented yet")
 	end
 	
-	print("Finished setting up clothing for mannequin:", mannequin.Name)
 end
 
 local function onMannequinAdded(mannequin: Model)
-	print("Setting up mannequin clothing:", mannequin.Name)
 	
 	-- Wait for humanoid to be ready
 	local humanoid = mannequin:WaitForChild("Humanoid", 5)
@@ -87,7 +84,6 @@ local function initialise()
 
 	-- Initialise existing mannequins
 	for _, mannequin in CollectionService:GetTagged(Constants.FLOOR_MANNEQUIN_TAG) do
-		print("Initialising clothing for existing mannequin:", mannequin.Name)
 		onMannequinAdded(mannequin)
 	end
 end

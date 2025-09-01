@@ -23,7 +23,6 @@ local function callWithRetry(
             tries += 1
         end
     end
-    warn(success, result)
     return success, result
 end
 

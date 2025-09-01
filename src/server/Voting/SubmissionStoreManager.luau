@@ -19,67 +19,55 @@ local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
--- Memory Stores
-local GameTimerMemoryStore = MemoryStoreService:GetHashMap(Constants.GAME_TIMER_MEMORYSTORE_NAME)
-
--- Cache
-local SubmissionStoreCache = {}
-
 local SubmissionStoreManager = {}
-
-local function getLastTransition()
-    return SubmissionStoreCache.lastPhaseTransition
-end
-
-local function initializeSubmissionStoreCache()
-    local success, data = callWithRetry(function()
-        return GameTimerMemoryStore:GetAsync("lastPhaseTransition")
-    end, 3)
-    
-    if success and data then
-        SubmissionStoreCache.lastPhaseTransition = data
-        print("Loaded last transition time for submissions:", data)
-    else
-        SubmissionStoreCache.lastPhaseTransition = nil
-        print("No previous transition found for submissions")
-    end
-end
 
 function SubmissionStoreManager.getCurrentMemoryStoreName(): string
     return GameTimer.getTodayDateTimePrefix() .. Constants.SUBMISSION_MEMORYSTORE_NAME
 end
 
-function SubmissionStoreManager.getLastTransitionMemoryStoreName(): string
-    return GameTimer.getLastTransitionDateTimePrefix() .. Constants.SUBMISSION_MEMORYSTORE_NAME
+function SubmissionStoreManager.getPreviousMemoryStoreName(): string?
+    local previousPrefix = GameTimer.getPreviousTransitionDateTimePrefix()
+    if previousPrefix then
+        return previousPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME
+    else
+        return nil
+    end
 end
 
-function SubmissionStoreManager.getLastSubmissionMemoryStore()
-    local lastTransitionStoreName = SubmissionStoreManager.getLastTransitionMemoryStoreName()
-    print("Getting last transition submission store:", lastTransitionStoreName)
+function SubmissionStoreManager.getPreviousSubmissionMemoryStore()
+    local previousStoreName = SubmissionStoreManager.getPreviousMemoryStoreName()
+    if not previousStoreName then
+        warn("No previous store name available")
+        return nil
+    end
+    
+    print("Getting previous submission store:", previousStoreName)
     
     local success, result = callWithRetry(function()
-        return MemoryStoreService:GetHashMap(lastTransitionStoreName)
+        return MemoryStoreService:GetHashMap(previousStoreName)
     end, 3)
     
     if success then 
         return result 
     else 
-        warn("Failed to get last transition memorystore!")
+        warn("Failed to get previous memorystore!")
         warn(success, result)
         return nil
     end
 end
 
 function SubmissionStoreManager.getCurrentSubmissionMemoryStore()
-    print(SubmissionStoreManager.getCurrentMemoryStoreName())
+    local currentStoreName = SubmissionStoreManager.getCurrentMemoryStoreName()
+    print("Getting current submission store:", currentStoreName)
+    
     local success, result = callWithRetry(function()
-        return MemoryStoreService:GetHashMap(SubmissionStoreManager.getCurrentMemoryStoreName())
+        return MemoryStoreService:GetHashMap(currentStoreName)
     end, 3)
     
     if success then 
         return result 
     else 
-        warn("Failed to get memorystore!")
+        warn("Failed to get current memorystore!")
         warn(success, result)
         return nil
     end
@@ -123,7 +111,7 @@ function SubmissionStoreManager:GetEntries(): {[string]: any}
     end
     
     local success, pages = callWithRetry(function()
-        return currentStore:ListItemsAsync(100) -- Get up to 100 items per page
+        return currentStore:ListItemsAsync(200)
     end, 3)
     
     if success and pages then
@@ -134,41 +122,43 @@ function SubmissionStoreManager:GetEntries(): {[string]: any}
     end
 end
 
--- Get all entries from last transition's submission store
+-- Get all entries from previous phase's submission store
 function SubmissionStoreManager:GetPreviousPhaseEntries(): {[string]: any}
-    local lastTransitionStore = self.getLastSubmissionMemoryStore()
+    local previousStore = self.getPreviousSubmissionMemoryStore()
     
-    if not lastTransitionStore then
-        warn("Could not get last transition submissions store")
+    if not previousStore then
+        warn("Could not get previous submissions store")
         return {}
     end
     
     local success, pages = callWithRetry(function()
-        return lastTransitionStore:ListItemsAsync(100) -- Get up to 100 items per page
+        return previousStore:ListItemsAsync(200)
     end, 3)
     
     if success and pages then
         return getAllHashMapEntries(pages)
     else
-        warn("Failed to fetch last transition submissions from Memory Store")
+        warn("Failed to fetch previous submissions from Memory Store")
         return {}
     end
 end
 
 function SubmissionStoreManager:AddEntry(player: Player, serialisedHumanoidDescription: {}): ()
     -- Get the submissions memory store
-    local CurrentSubmissionsMemoryStore = self.getCurrentSubmissionMemoryStore()
-    if not CurrentSubmissionsMemoryStore then 
+    local currentSubmissionsMemoryStore = self.getCurrentSubmissionMemoryStore()
+    if not currentSubmissionsMemoryStore then 
         warn("Failed to get submissions memory store") 
         return 
     end
 
     -- Add the serialised humanoid description to the submissions memory store
     local success = callWithRetry(function()
-        return CurrentSubmissionsMemoryStore:SetAsync(
+        return currentSubmissionsMemoryStore:SetAsync(
             tostring(player.UserId), {
-                id = player.UserId,
+                userId = player.UserId,
+                playerName = player.Name,
                 humanoidDescription = serialisedHumanoidDescription,
+                submissionTime = os.time()
             },
             86400
         )
@@ -176,12 +166,6 @@ function SubmissionStoreManager:AddEntry(player: Player, serialisedHumanoidDescr
 
     if success then
         print("Successfully submitted outfit for player:", player.Name)
-
-        task.spawn(function()
-            local pages = CurrentSubmissionsMemoryStore:ListItemsAsync(1)
-            printAllHashMapPages(pages)
-        end)
-
         SubmissionResultRE:FireClient(player, {
             ok = true,
             msg = "Outfit submitted successfully!"
@@ -216,8 +200,5 @@ function SubmissionStoreManager:PrintAllEntries()
     end
     print("Total entries:", self:GetSubmissionCount())
 end
-
--- Initialize cache
-initializeSubmissionStoreCache()
 
 return SubmissionStoreManager
