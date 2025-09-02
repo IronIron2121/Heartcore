@@ -152,14 +152,14 @@ function VotingGuiController.Initialise(visibilityBoolean: UsedAs<boolean>)
 
 									scope:New "TextLabel" {
 										Name = "RemainingVotes",
-										Text = "Votes 2/2 Remaining",
+										Text = "Votes 1/1 Remaining",
 										Size = UDim2.fromScale(0.8, 0.2),
 										TextScaled = true,
 									},
 
 									BaseButton(scope, {
 										name = "SubmitButton",
-										text = "Submit Votes",
+										text = "Submit Vote",
 										textScaled = true,
 										size = UDim2.fromScale(0.8, 0.1),
 										backgroundColor = Color3.new(0.031373, 0.301961, 0),

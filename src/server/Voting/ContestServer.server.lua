@@ -27,7 +27,8 @@ local function onPhaseChanged()
 end
  
 local function getContestSubmissionsCache()
-    return ContestStoreManager.getPublicCache
+    print("Public cache")
+    return ContestStoreManager.getPublicCache()
 end
 
 initialise()

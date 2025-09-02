@@ -4,18 +4,13 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MemoryStoreService = game:GetService("MemoryStoreService")
 local ServerScriptService = game:GetService("ServerScriptService")
-local RunService = game:GetService("RunService")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
--- Remotes
-local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
-
 -- Modules
-local printAllHashMapPages = require(Utility:WaitForChild("printAllHashMapStorePages"))
 local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
@@ -37,7 +32,7 @@ local CACHE_UPDATE_INTERVAL = 300 -- 5 minutes in seconds
 local isCacheUpdating = false
 
 function ContestStoreManager.getCurrentMemoryStoreName(): string
-    return GameTimer.getTodayDateTimePrefix() .. Constants.CONTEST_MEMORYSTORE_NAME
+    return tostring(GameTimer.getCurrentPhasePrefix()) .. Constants.CONTEST_MEMORYSTORE_NAME
 end
 
 function ContestStoreManager.initialiseNewContest(): boolean
@@ -62,16 +57,14 @@ function ContestStoreManager.initialiseNewContest(): boolean
         
         local contestSubmission = {
             userId = entry.userId,
-            playerName = entry.playerName,
             humanoidDescription = entry.humanoidDescription,
-            submissionTime = entry.submissionTime,
             votes = 0,
             views = 0
         }
          
         -- Add the contest submission at the key of the corresponding submission
         local success = callWithRetry(function()
-            return currentMemoryStore:SetAsync(key, contestSubmission, 259200) -- 3 day expiration
+            return currentMemoryStore:SetAsync(key, contestSubmission, Constants.MEMORYSTORE_STORE_DURATION) -- 3 minute expiration
         end, 3)
         
         if success then

@@ -115,7 +115,10 @@ local Constants = {
 		"Torso",
 	},
 	
-	QUERY_ATTEMPTS = 3
+	QUERY_ATTEMPTS = 3,
+
+	MEMORYSTORE_STORE_DURATION = 240
+
 }
 
 return Constants

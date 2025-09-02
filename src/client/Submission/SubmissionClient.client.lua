@@ -20,4 +20,4 @@ local function onSubmissionResult(
     print(result.ok, result.msg)
 end
 
-SubmissionResultRE.OnClientEvent:Connect(onSubmissionResult)
+--SubmissionResultRE.OnClientEvent:Connect(onSubmissionResult)

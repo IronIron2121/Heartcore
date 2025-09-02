@@ -14,7 +14,6 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
 
 -- Modules
-local printAllHashMapPages = require(Utility:WaitForChild("printAllHashMapStorePages"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
@@ -22,11 +21,11 @@ local GameTimer = require(Voting:WaitForChild("GameTimer"))
 local SubmissionStoreManager = {}
 
 function SubmissionStoreManager.getCurrentMemoryStoreName(): string
-    return GameTimer.getTodayDateTimePrefix() .. Constants.SUBMISSION_MEMORYSTORE_NAME
+    return GameTimer.getCurrentPhasePrefix() .. Constants.SUBMISSION_MEMORYSTORE_NAME
 end
 
 function SubmissionStoreManager.getPreviousMemoryStoreName(): string?
-    local previousPrefix = GameTimer.getPreviousTransitionDateTimePrefix()
+    local previousPrefix = GameTimer.getPreviousPhasePrefix()
     if previousPrefix then
         return previousPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME
     else
@@ -158,9 +157,8 @@ function SubmissionStoreManager:AddEntry(player: Player, serialisedHumanoidDescr
                 userId = player.UserId,
                 playerName = player.Name,
                 humanoidDescription = serialisedHumanoidDescription,
-                submissionTime = os.time()
             },
-            86400
+            240
         )
     end, 5)
 

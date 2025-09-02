@@ -12,7 +12,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Voting = ServerScriptService:WaitForChild("Voting")
 
 -- Modules
-local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
+local ContestStoreManager = require(Voting:WaitForChild("ContestStoreManager"))
 
 local BalancedSelector = {}
 
@@ -28,10 +28,10 @@ local BalancedSelector = {}
 
 function BalancedSelector.PickGroup(numberOfOutfits, alreadySeenOutfits, requiredTheme)
 	-- Default to 6 outfits if not specified (typical voting UI size)
-	numberOfOutfits = numberOfOutfits or 6
+	numberOfOutfits = numberOfOutfits or 3
 	
 	-- Get all available outfit submissions from the store
-	local allAvailableOutfits = SubmissionStoreManager:GetCachedEntries()
+	local allAvailableOutfits = ContestStoreManager.getPublicCache()
 	
 	-- STEP 1: Find the minimum view count among eligible outfits
 	local minimumViewCount = math.huge

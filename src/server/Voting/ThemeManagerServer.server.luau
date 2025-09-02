@@ -17,11 +17,6 @@ local ThemeManager = require(Controllers:WaitForChild("ThemeManager"))
 -- Memory Stores
 local CurrentThemeMemoryStore = MemoryStoreService:GetSortedMap(Constants.CONTEST_MEMORYSTORE_NAME)
 
--- Constants
-local CHECK_TIME_LAPSE_INTERVAL = 10
-local DEBUG_SECONDS_BETWEEN_THEME_CHANGE = 60
-local SECONDS_BETWEEN_THEME_CHANGE = 3880000
-
 -- Create RemoteEvent for theme updates
 local RemotesFolder = ReplicatedStorage:WaitForChild("Remotes") 
 
@@ -61,12 +56,12 @@ local function initialiseTheme()
 	if not currentThemeData or not currentThemeData["Theme"] then
 		warn("No current theme! Initialising...")
 		local newTheme = setNewTheme()
-		local _, setSuccess = callWithRetry(
+		local setSuccess, result = callWithRetry(
 			function()
 				return CurrentThemeMemoryStore:SetAsync(
 					Constants.CURRENT_THEME_KEY,
 					newTheme,
-					3888000
+					Constants.MEMORYSTORE_STORE_DURATION
 				)
 			end,
 			5
@@ -75,10 +70,10 @@ local function initialiseTheme()
 		if setSuccess then
 			ThemeManager:_updateThemeData(newTheme)
 			ThemeChangedRemote:FireAllClients(newTheme)
-			return true
+			return setSuccess
 		else
 			warn("Failed to set new theme!")
-			return setSuccess
+			return setSuccess, result
 		end
 	else
 		warn("Memory store already existent!")
@@ -100,7 +95,7 @@ local function updateTheme()
 			return CurrentThemeMemoryStore:SetAsync(
 				Constants.CURRENT_THEME_KEY,
 				newTheme,
-				3888000
+				Constants.MEMORYSTORE_STORE_DURATION
 			)
 		end,
 		5
@@ -121,7 +116,8 @@ local function updateTheme()
 end
 
 -- Initialize the theme system
-local success = initialiseTheme()
+task.wait(2)
+local success, err = initialiseTheme()
 if not success then
-	error("Failed to initialize theme system")
+	error("Failed to initialize theme system", err)
 end
