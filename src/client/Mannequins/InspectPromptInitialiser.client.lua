@@ -39,7 +39,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 			return
 		end
 
-		-- parent to player gui to buttons are interactable
+		-- parent to player gui so buttons are interactable
 		local player = Players.LocalPlayer
 		local playerGui = player:WaitForChild("PlayerGui")
 		
@@ -96,7 +96,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 
 		-- hover animations
 		button.MouseEnter:Connect(function()
-			tweenStroke(Color3.fromRGB(50, 7, 241), 3) -- blue glow
+			tweenStroke(Color3.fromRGB(22, 220, 255), 3) -- blue glow
 		end)
 
 		button.MouseLeave:Connect(function()
