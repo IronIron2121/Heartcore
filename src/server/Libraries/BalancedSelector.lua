@@ -27,7 +27,7 @@ local BalancedSelector = {}
 ]]
 
 function BalancedSelector.PickGroup(numberOfOutfits, alreadySeenOutfits, requiredTheme)
-	-- Default to 6 outfits if not specified (typical voting UI size)
+	-- Default to 3 outfits if not specified (typical voting UI size)
 	numberOfOutfits = numberOfOutfits or 3
 	
 	-- Get all available outfit submissions from the store
@@ -37,14 +37,6 @@ function BalancedSelector.PickGroup(numberOfOutfits, alreadySeenOutfits, require
 	local minimumViewCount = math.huge
 	
 	for outfitId, outfitData in pairs(allAvailableOutfits) do
-		-- Check if this outfit meets our criteria:
-		-- - Not already seen by this user (if we're tracking that)
-		-- - Matches the required theme (if specified)
-		--local isAlreadySeen = alreadySeenOutfits and alreadySeenOutfits[outfitId]
-		--local hasCorrectTheme = not requiredTheme or outfitData.theme == requiredTheme
-		
-		--if not isAlreadySeen and hasCorrectTheme then
-		--if not isAlreadySeen and hasCorrectTheme then
 		local currentViewCount = outfitData.views or 0
 		if currentViewCount < minimumViewCount then
 			minimumViewCount = currentViewCount
