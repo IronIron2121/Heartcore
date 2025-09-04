@@ -11,8 +11,10 @@ local Voting = ServerScriptService:WaitForChild("Voting")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Remotes / Bindables
-local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
 local GetContestSubmissionsCache = Remotes:WaitForChild("GetContestSubmissionsCache")
+local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
+local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
+
 
 -- Modules 
 local ContestStoreManager = require(Voting:WaitForChild("ContestStoreManager"))
@@ -27,11 +29,15 @@ local function onPhaseChanged()
 end
  
 local function getContestSubmissionsCache()
-    print("Public cache")
     return ContestStoreManager.getPublicCache()
+end
+
+local function getBalancedOutfit()
+    return ContestStoreManager.getBalancedOutfit()
 end
 
 initialise()
 
 GetContestSubmissionsCache.OnServerInvoke = getContestSubmissionsCache
 PhaseChanged.Event:Connect(onPhaseChanged)
+GetBalancedOutfit.OnServerInvoke = getBalancedOutfit

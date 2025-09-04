@@ -4,11 +4,11 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
-local votingZone = workspace:WaitForChild("votingZone")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
+local votingZone = workspace:WaitForChild("votingZone")
 
 -- Instances
 local VotingPad = votingZone:WaitForChild("VotingPad")
@@ -16,11 +16,13 @@ local promptHolder = VotingPad:WaitForChild("PromptHolder")
 
 -- Modules
 local VotingGuiController = require(FusionComponents:WaitForChild("VotingGuiController"))
+
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Remotes
 local GetContestSubmissionsCache = Remotes:WaitForChild("GetContestSubmissionsCache")
+local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -54,6 +56,7 @@ local function initialiseVoteGui()
 
         [OnEvent "Triggered"] = function()
             onVotePromptActivated()
+            print(GetBalancedOutfit:InvokeServer())
         end
     }
 
