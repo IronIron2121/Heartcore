@@ -50,6 +50,7 @@ function GameTimer.getCurrentPhasePrefix(): string?
         return debug_dayPrefix
     else
         warn("No current phase transition!")
+        task.wait(5)
         return nil
     end
 end

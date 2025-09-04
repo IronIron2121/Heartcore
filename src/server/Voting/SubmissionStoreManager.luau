@@ -20,8 +20,14 @@ local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
 local SubmissionStoreManager = {}
 
-function SubmissionStoreManager.getCurrentMemoryStoreName(): string
-    return GameTimer.getCurrentPhasePrefix() .. Constants.SUBMISSION_MEMORYSTORE_NAME
+function SubmissionStoreManager.getCurrentMemoryStoreName(): string?
+    local currentPrefix = GameTimer.getCurrentPhasePrefix()
+    
+    if currentPrefix then
+        return currentPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME
+    else
+        return nil
+    end
 end
 
 function SubmissionStoreManager.getPreviousMemoryStoreName(): string?
@@ -57,6 +63,11 @@ end
 
 function SubmissionStoreManager.getCurrentSubmissionMemoryStore()
     local currentStoreName = SubmissionStoreManager.getCurrentMemoryStoreName()
+    if not currentStoreName then
+        warn("Memory store not ready!") 
+        return nil 
+    end
+
     print("Getting current submission store:", currentStoreName)
     
     local success, result = callWithRetry(function()

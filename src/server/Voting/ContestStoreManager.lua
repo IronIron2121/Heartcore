@@ -8,13 +8,13 @@ local ServerScriptService = game:GetService("ServerScriptService")
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
+local CacheBasedBalancedSelector = require(Voting:WaitForChild("CacheBasedBalancedSelector"))
 
 local ContestStoreManager = {}
 
@@ -30,6 +30,9 @@ local publicCache = {} -- {entryKey = {id, description, votes, views}}
 local lastCacheUpdate = 0
 local CACHE_UPDATE_INTERVAL = 300 -- 5 minutes in seconds
 local isCacheUpdating = false
+
+-- Balanced selector instance
+local balancedSelector = CacheBasedBalancedSelector.new()
 
 function ContestStoreManager.getCurrentMemoryStoreName(): string
     return tostring(GameTimer.getCurrentPhasePrefix()) .. Constants.CONTEST_MEMORYSTORE_NAME
@@ -275,6 +278,15 @@ function ContestStoreManager.updatePublicCache(): ()
             entryCount += 1
         end
         print("Public cache updated with", entryCount, "entries")
+
+        -- Rebuild selection buckets from the fresh cache
+        local rebuildSuccess = balancedSelector:onCacheUpdated(publicCache)
+        if rebuildSuccess then
+            print("Selection buckets rebuilt successfully")
+        else
+            warn("Failed to rebuild selection buckets")
+        end
+        
     else
         warn("Failed to update public cache")
     end
@@ -311,6 +323,26 @@ function ContestStoreManager.getCachedEntry(entryKey: string): {}?
     end
     
     return entry
+end
+
+-- Get a balanced outfit selection (main method for voting UI)
+function ContestStoreManager.getBalancedOutfit(): string?
+    return balancedSelector:selectOutfit()
+end
+
+-- Get selection system statistics for monitoring
+function ContestStoreManager.getSelectionStats(): {}
+    return balancedSelector:getStats()
+end
+
+-- Get detailed selection statistics for debugging
+function ContestStoreManager.getDetailedSelectionStats(): {}
+    return balancedSelector:getDetailedStats()
+end
+
+-- Force rebuild selection buckets (for debugging)
+function ContestStoreManager.rebuildSelectionBuckets(): boolean
+    return balancedSelector:onCacheUpdated(publicCache)
 end
 
 -- Force update the public cache (useful for debugging)

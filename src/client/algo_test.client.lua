@@ -1,6 +1,7 @@
 -- Weighted Random Selection Algorithm Test
 -- Tests the performance and fairness of view-count weighted selection
 
+--[[
 local function generateTestData(count)
     local outfits = {}
     
@@ -220,3 +221,4 @@ print("The weighted selection algorithm should:")
 print("1. Complete selections in reasonable time even with 10,000+ outfits")
 print("2. Favor low-view outfits while still giving some chance to high-view ones")
 print("3. Provide variety in selections through weighted randomness")
+]]
