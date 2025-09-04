@@ -100,7 +100,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 		end)
 
 		button.MouseLeave:Connect(function()
-			tweenStroke(Color3.fromRGB(255, 255, 255), 2) -- back to white
+			tweenStroke(Color3.fromRGB(255, 255, 255), 2) -- back to white
 		end)
 
 
@@ -198,19 +198,29 @@ local function showAllPrompts()
 		prompt.Enabled = true
 	end
 end
-
+ 
 local function onMannequinAdded(mannequin: Model)
-	print("Adding inspect prompt to mannequin:", mannequin.Name)
-	local base = mannequin:WaitForChild("Base", 1)
-
+	--print("Adding inspect prompt to mannequin:", mannequin.Name)
 	-- Create a new ProximityPrompt in the mannequin
 	local inspectPrompt = getInspectPrompt()
 	inspectPrompt:AddTag(Constants.INSPECT_PROMPT_TAG)
-	inspectPrompt.Parent = mannequin.PrimaryPart or base
+	inspectPrompt.Parent = mannequin.PrimaryPart or mannequin:FindFirstChildOfClass("BasePart")
 
 	setupCustomPromptUI(inspectPrompt, mannequin) -- Cece addition
 	
-	assert(inspectPrompt.Parent, "Error: No parent of inspect prompt!")
+	if not inspectPrompt.Parent then
+		local highlight = Instance.new("Highlight")
+		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		highlight.Enabled = true
+		highlight.FillColor = Color3.new(1,0,0)
+		highlight.Name = "BadMannequin"
+		highlight.Parent = mannequin
+
+		print(mannequin)
+		print(mannequin.Name)
+		assert(inspectPrompt.Parent, "Error: No parent of inspect prompt!")
+
+	end
 
 	inspectPrompt.Triggered:Connect(function(_: Player)
 		-- Fire bindable to trigger inspection in the other script
@@ -235,7 +245,7 @@ local function initialise()
 
 	-- Initialise existing mannequins
 	for _, mannequin in CollectionService:GetTagged(Constants.FLOOR_MANNEQUIN_TAG) do
-		warn("Initialising inspect prompt for:", mannequin.Name)
+		--warn("Initialising inspect prompt for:", mannequin.Name)
 		onMannequinAdded(mannequin)
 	end
 
@@ -246,6 +256,7 @@ local function initialise()
 	HideAllPromptsBindable.Event:Connect(hideAllPrompts)
 	ShowAllPromptsBindable.Event:Connect(showAllPrompts)
 end
+ 
+task.wait(5)
 
---task.wait(2)
 initialise()
