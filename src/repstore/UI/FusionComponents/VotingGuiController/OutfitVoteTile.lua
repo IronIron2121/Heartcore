@@ -26,7 +26,13 @@ local peek = Fusion.peek
 function OutfitVoteTile(
 	scope: Fusion.Scope,
 	props: {
+		name: UsedAs<string>?,
 		visible: UsedAs<boolean>?,
+		views: UsedAs<number>?,
+		votes: UsedAs<number>?,
+		IsSelected: UsedAs<boolean>?,
+		OnSelected: () -> (),
+		userId: UsedAs<number>?,
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
 		layoutOrder: UsedAs<number>?,
@@ -62,17 +68,29 @@ function OutfitVoteTile(
 		end
 	end)
 
+	local backgroundColourSpring = scope:Spring(
+		scope:Computed(function(use)
+			if use(props.IsSelected) then
+				return UI_CONSTANTS.TASTEMAKER_PURPLE
+			else
+				return UI_CONSTANTS.COLOUR_BLACK
+			end
+		end),
+		20,
+		1
+	)	
+
 	-- Create viewport camera
 	local viewportCamera = scope:Value(nil)
 
 	local outfitVoteTile = scope:New "Frame" {
-		Name = "OutfitVoteTile",
+		Name = props.name,
 		Visible = props.visible or true,
 		Size = props.size or UDim2.fromScale(0.25, 0.3),
 		Position = props.position,
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		LayoutOrder = props.layoutOrder,
-		BackgroundColor3 = Color3.new(1, 1, 1),
+		BackgroundColor3 = backgroundColourSpring,
 		BackgroundTransparency = 0.1,
 
 		[Children] = {
@@ -99,7 +117,7 @@ function OutfitVoteTile(
 				Name = "OutfitViewport",
 				Size = UDim2.fromScale(1, 1),
 				LayoutOrder = 1,
-				BackgroundColor3 = Color3.fromRGB(240, 240, 240),
+				BackgroundColor3 = backgroundColourSpring,
 				BackgroundTransparency = 0,
 				BorderSizePixel = 0,
 
@@ -115,7 +133,7 @@ function OutfitVoteTile(
 
 
                         [OnEvent "Activated"] = function()
-                            
+                            props.onSelect()
                         end
 
                     },

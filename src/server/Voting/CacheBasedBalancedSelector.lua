@@ -235,7 +235,8 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket)
     
     -- Fallback to random selection
     local randomIndex = math.random(1, #outfits)
-    return outfits[randomIndex].entryKey
+    print("returning", outfits[randomIndex])
+    return outfits[randomIndex]
 end
 
 -- Hash-based fallback for when buckets aren't available

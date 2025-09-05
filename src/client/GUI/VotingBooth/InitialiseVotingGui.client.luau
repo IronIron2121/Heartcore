@@ -39,11 +39,7 @@ local function onVotePromptActivated()
         VoteGuiVisible:set(false)
     else
         VoteGuiVisible:set(true)
-        print(
-            callWithRetry(function()
-                return GetContestSubmissionsCache:InvokeServer()
-            end)
-        )
+        VotingGuiController.refreshOutfits()
     end
 end
 

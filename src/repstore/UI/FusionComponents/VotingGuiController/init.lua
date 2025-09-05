@@ -74,11 +74,11 @@ local function refreshOutfitVoteTiles()
         end)
         
         if success and outfitData then
+            print(outfitData)
             -- Create the tile data that OutfitVoteTile expects
             newTiles[i] = {
-                entryKey = outfitData.entryKey or ("outfit_" .. i),
+                userId = outfitData.userId,  -- Use userId as the key
                 humanoidDescription = outfitData.humanoidDescription,
-                userId = outfitData.userId,
                 playerName = outfitData.playerName,
                 votes = outfitData.votes or 0,
                 views = outfitData.views or 0
@@ -88,9 +88,8 @@ local function refreshOutfitVoteTiles()
             warn("Failed to get balanced outfit for slot " .. i .. ":", outfitData)
             -- Create a placeholder tile
             newTiles[i] = {
-                entryKey = "placeholder_" .. i,
+                userId = 0,  -- Placeholder user ID
                 humanoidDescription = nil,
-                userId = 0,
                 playerName = "Loading...",
                 votes = 0,
                 views = 0
@@ -102,6 +101,7 @@ local function refreshOutfitVoteTiles()
     outfitVoteTiles:set(newTiles)
     
     print("Refreshed outfit tiles: " .. successCount .. "/" .. maxDisplayedOutfits .. " loaded successfully")
+    warn(peek(outfitVoteTiles))
     isRefreshing = false
 end
 
@@ -116,8 +116,8 @@ function VotingGuiController.getSelectedOutfit()
 end
 
 -- Set the selected outfit (called by OutfitVoteTile)
-function VotingGuiController.setSelectedOutfit(entryKey: string)
-    selectedTileName:set(entryKey)
+function VotingGuiController.setSelectedOutfit(tileName: string)
+    selectedTileName:set(tileName)
 end
 
 function VotingGuiController.Initialise(
@@ -212,15 +212,13 @@ function VotingGuiController.Initialise(
                                 LayoutOrder = 2,
 
                                 [Children] = {
-                                    scope:New "UIGridLayout" {
+                                    scope:New "UIListLayout" {
                                         FillDirection = Enum.FillDirection.Horizontal,
-                                        FillDirectionMaxCells = maxDisplayedOutfits,
                                         SortOrder = Enum.SortOrder.LayoutOrder,
-                                        StartCorner = Enum.StartCorner.TopLeft,
                                         HorizontalAlignment = Enum.HorizontalAlignment.Center,
                                         VerticalAlignment = Enum.VerticalAlignment.Center,
-                                        CellSize = UDim2.fromScale(1/maxDisplayedOutfits, 0.9),
-                                        CellPadding = UDim2.fromOffset(10, 0)
+                                        Padding = UDim.new(0, 10),
+                                        Wraps = false
                                     },
 
                                     scope:New "UICorner" {
@@ -228,20 +226,27 @@ function VotingGuiController.Initialise(
                                     },
 
                                     scope:ForValues(outfitVoteTiles, function(use, scope, outfitData)
+                                        local randomId = math.random(1, 99999)
+                                        local tileName = "OutfitTile_" .. randomId
                                         return OutfitVoteTile(scope, {
-                                            UserId = outfitData.userId,  -- The key identifier
-                                            HumanoidDescription = outfitData.humanoidDescription,
-                                            Votes = outfitData.votes,
-                                            Views = outfitData.views,
+                                            Name = tileName,
+                                            userId = outfitData.userId,
+                                            humanoidDescription = outfitData.humanoidDescription,
+                                            playerName = outfitData.playerName,
+                                            votes = outfitData.votes,
+                                            views = outfitData.views,
+                                            size = UDim2.fromScale(0.3, 0.9),
                                             IsSelected = scope:Computed(function(use)
-                                                return use(selectedTileName) == outfitData.userId
+                                                return use(selectedTileName) == tileName
                                             end),
-                                            OnSelected = function()
-                                                VotingGuiController.setSelectedOutfit(outfitData.userId)
+                                            onSelect = function()
+                                                VotingGuiController.setSelectedOutfit(tileName)
+                                                print(tileName)
+                                                print(peek(selectedTileName))
                                             end
                                         })
                                     end)
-                                }
+                                } 
                             },
 
                             scope:New "Frame" {
@@ -277,11 +282,11 @@ function VotingGuiController.Initialise(
                                         backgroundColor = Color3.new(0.031373, 0.301961, 0),
                                         layoutOrder = 2,
                                         onClick = function()
-                                            local selected = VotingGuiController.getSelectedOutfit()
-                                            if selected then
-                                                print("Submitting vote for:", selected)
+                                            local selectedUserId = VotingGuiController.getSelectedOutfit()
+                                            if selectedUserId then
+                                                print("Submitting vote for userId:", selectedUserId)
                                                 -- TODO: Call vote submission remote
-                                                -- SubmitVote:FireServer(selected)
+                                                -- SubmitVote:FireServer(selectedUserId)
                                             else
                                                 warn("No outfit selected for voting")
                                             end

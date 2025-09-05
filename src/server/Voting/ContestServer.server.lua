@@ -33,7 +33,10 @@ local function getContestSubmissionsCache()
 end
 
 local function getBalancedOutfit()
-    return ContestStoreManager.getBalancedOutfit()
+    local BalancedOutfit = ContestStoreManager.getBalancedOutfit()
+
+    print("Now returning", BalancedOutfit)
+    return BalancedOutfit
 end
 
 initialise()
