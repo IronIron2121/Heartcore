@@ -9,19 +9,15 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 
-
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local ImageUris = require(DataTables:WaitForChild("ImageUris"))
-
 
 -- Fusion
 local OnEvent = Fusion.OnEvent
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 local peek = Fusion.peek
-
 
 function OutfitVoteTile(
 	scope: Fusion.Scope,
@@ -43,7 +39,7 @@ function OutfitVoteTile(
 ): Frame
 	-- Create avatar model from HumanoidDescription
 	local avatarModel = scope:Computed(function(use)
-		if not props.humanoidDescription then 
+		if not props.humanoidDescription or not props.humanoidDescription then 
             return nil 
         end
 
@@ -67,7 +63,6 @@ function OutfitVoteTile(
 			return nil
 		end
 	end)
-
 	
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
@@ -86,7 +81,6 @@ function OutfitVoteTile(
 		20,
 		1
 	)	
-
 
 	-- Create viewport camera
 	local viewportCamera = scope:Value(nil)

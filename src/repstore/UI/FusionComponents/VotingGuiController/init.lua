@@ -20,6 +20,7 @@ local OutfitVoteTile = require(script:WaitForChild("OutfitVoteTile"))
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -51,7 +52,6 @@ local function refreshOutfitVoteTiles()
     end
     
     isRefreshing = true
-    print("Refreshing outfit vote tiles...")
     
     -- Clear selection and destroy existing tiles
     selectedTileName:set(nil)
@@ -74,11 +74,12 @@ local function refreshOutfitVoteTiles()
         end)
         
         if success and outfitData then
+            warn("SUCCESSFULLY GOT AN OUTFIT")
             print(outfitData)
             -- Create the tile data that OutfitVoteTile expects
             newTiles[i] = {
                 userId = outfitData.userId,  -- Use userId as the key
-                humanoidDescription = outfitData.humanoidDescription,
+                humanoidDescription = SerialisationService.UnserialiseHumanoidDescription(outfitData.humanoidDescription),
                 playerName = outfitData.playerName,
                 votes = outfitData.votes or 0,
                 views = outfitData.views or 0
@@ -138,7 +139,6 @@ function VotingGuiController.Initialise(
                 BackgroundTransparency = 1,
 
                 [Children] = {    
-
                     scope:New "UIListLayout" {
                         FillDirection = Enum.FillDirection.Vertical,
                         SortOrder = Enum.SortOrder.LayoutOrder
@@ -241,8 +241,8 @@ function VotingGuiController.Initialise(
                                             end),
                                             onSelect = function()
                                                 VotingGuiController.setSelectedOutfit(tileName)
-                                                print(tileName)
                                                 print(peek(selectedTileName))
+                                                print(outfitData.humanoidDescription)
                                             end
                                         })
                                     end)

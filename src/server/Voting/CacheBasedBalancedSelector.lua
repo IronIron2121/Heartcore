@@ -48,7 +48,8 @@ end
 function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
     local startTime = tick()
     print("Rebuilding selection buckets from cache...")
-    
+    print(publicCache)
+     
     -- Initialize empty buckets for each tier
     local newBuckets = {}
     for i, tier in ipairs(CONFIG.VIEW_TIERS) do
@@ -78,7 +79,8 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
                     table.insert(bucket.outfits, {
                         entryKey = entryKey,
                         views = views,
-                        userId = entryData.userId
+                        userId = entryData.userId,
+                        humanoidDescription = entryData.humanoidDescription
                     })
                 else
                     -- Reservoir sampling to maintain randomness
@@ -87,7 +89,8 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
                         bucket.outfits[randomIndex] = {
                             entryKey = entryKey,
                             views = views,
-                            userId = entryData.userId
+                            userId = entryData.userId,
+                            humanoidDescription = entryData.humanoidDescription
                         }
                     end
                 end
@@ -201,7 +204,8 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket)
     local outfits = bucket.outfits
     
     if #outfits == 1 then
-        return outfits[1].entryKey
+        warn("Only one outfit!")
+        return outfits[1]
     end
     
     -- Calculate weights (inverse of view count + 1)
