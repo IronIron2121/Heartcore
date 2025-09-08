@@ -68,17 +68,25 @@ function OutfitVoteTile(
 		end
 	end)
 
+	
+	local isHovering = scope:Value(false)
+	local isHeldDown = scope:Value(false)
+
 	local backgroundColourSpring = scope:Spring(
 		scope:Computed(function(use)
-			if use(props.IsSelected) then
-				return UI_CONSTANTS.TASTEMAKER_PURPLE
+			local backgroundColor = use(props.IsSelected) and UI_CONSTANTS.TASTEMAKER_PURPLE or UI_CONSTANTS.COLOUR_BLACK
+			if use(isHeldDown) then
+				return backgroundColor:Lerp(UI_CONSTANTS.COLOUR_WHITE, 0.8)
+			elseif use(isHovering) then
+				return backgroundColor:Lerp(UI_CONSTANTS.COLOUR_WHITE, 0.2)
 			else
-				return UI_CONSTANTS.COLOUR_BLACK
+				return backgroundColor
 			end
 		end),
 		20,
 		1
 	)	
+
 
 	-- Create viewport camera
 	local viewportCamera = scope:Value(nil)
@@ -134,7 +142,23 @@ function OutfitVoteTile(
 
                         [OnEvent "Activated"] = function()
                             props.onSelect()
-                        end
+                        end,
+
+						[OnEvent "MouseButton1Down"] = function()
+							isHeldDown:set(true)
+						end,
+						
+						[OnEvent "MouseButton1Up"] = function()
+							isHeldDown:set(false)
+						end,
+						
+						[OnEvent "MouseEnter"] = function()
+							isHovering:set(true)
+						end,
+						
+						[OnEvent "MouseLeave"] = function()
+							isHovering:set(false)
+						end,
 
                     },
 
