@@ -91,6 +91,8 @@ function ContestStoreManager.initialiseNewContest(): boolean
 end
 
 function ContestStoreManager.addViews(entryKey: string, viewAmount: number): ()
+    warn("Adding views!")
+    entryKey = tostring(entryKey)
     -- Initialize entry in pending updates if it doesn't exist
     if not pendingUpdates[entryKey] then
         pendingUpdates[entryKey] = {votes = 0, views = 0}
@@ -99,6 +101,15 @@ function ContestStoreManager.addViews(entryKey: string, viewAmount: number): ()
     -- Add to pending updates
     pendingUpdates[entryKey].views += viewAmount
     
+    -- Also update the public cache immediately for real-time UI updates
+    warn("Here's the cache!", publicCache)
+    warn("Here's the entry key!", entryKey)
+    print("Before adding!", publicCache[entryKey].views)
+    if publicCache[entryKey] then
+        publicCache[entryKey].views += viewAmount
+    end
+    print("After adding!", publicCache[entryKey].views)
+    
     -- Check if we should flush (either by time or count)
     local pendingCount = 0
     for _ in pairs(pendingUpdates) do
@@ -111,9 +122,12 @@ function ContestStoreManager.addViews(entryKey: string, viewAmount: number): ()
     if (shouldFlushByTime or shouldFlushByCount) and not isFlushingInProgress then
         ContestStoreManager.flushPendingUpdates()
     end
+
+    warn("After updating views: ", publicCache)
 end
 
 function ContestStoreManager.addVotes(entryKey: string, voteAmount: number): ()
+    warn("Adding votes!")
     -- Initialize entry in pending updates if it doesn't exist
     if not pendingUpdates[entryKey] then
         pendingUpdates[entryKey] = {votes = 0, views = 0}
@@ -122,6 +136,11 @@ function ContestStoreManager.addVotes(entryKey: string, voteAmount: number): ()
     -- Add to pending updates
     pendingUpdates[entryKey].votes += voteAmount
     
+    -- Also update the public cache immediately for real-time UI updates
+    if publicCache[entryKey] then
+        publicCache[entryKey].votes += voteAmount 
+    end
+    
     -- Check if we should flush (either by time or count)
     local pendingCount = 0
     for _ in pairs(pendingUpdates) do
@@ -134,6 +153,7 @@ function ContestStoreManager.addVotes(entryKey: string, voteAmount: number): ()
     if (shouldFlushByTime or shouldFlushByCount) and not isFlushingInProgress then
         ContestStoreManager.flushPendingUpdates()
     end
+    warn("After updating votes: ", publicCache)
 end
 
 function ContestStoreManager.flushPendingUpdates(): ()

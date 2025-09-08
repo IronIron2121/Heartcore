@@ -35,14 +35,13 @@ local BaseButton = require(Widgets:WaitForChild("BaseButton"))
 local maxDisplayedOutfits = 3
 
 -- Remotes / Bindables
+local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
-
---
 
 local VotingGuiController = {}
 
 local outfitVoteTiles = scope:Value({})
-local selectedTileName = scope:Value(nil)
+local selectedTileId = scope:Value(nil)
 local isRefreshing = false
 
 local function refreshOutfitVoteTiles()
@@ -53,72 +52,62 @@ local function refreshOutfitVoteTiles()
     
     isRefreshing = true
     
-    -- Clear selection and destroy existing tiles
-    selectedTileName:set(nil)
+    -- Clear selection and existing tiles
+    selectedTileId:set(nil)
     for _, tile in ipairs(peek(outfitVoteTiles)) do
         if tile and tile.Destroy then
             tile:Destroy()
         end
     end
     
-    -- Clear the tiles array
     outfitVoteTiles:set({})
     
     -- Fetch new outfits
     local newTiles = {}
     local successCount = 0
-    
+    local usedIds = {}
+
     for i = 1, maxDisplayedOutfits do
         local success, outfitData = pcall(function()
             return GetBalancedOutfit:InvokeServer()
         end)
         
-        if success and outfitData then
-            warn("SUCCESSFULLY GOT AN OUTFIT")
-            print(outfitData)
-            -- Create the tile data that OutfitVoteTile expects
+        if success and outfitData and not table.find(usedIds, outfitData.userId) then
             newTiles[i] = {
-                userId = outfitData.userId,  -- Use userId as the key
+                userId = outfitData.userId,
                 humanoidDescription = SerialisationService.UnserialiseHumanoidDescription(outfitData.humanoidDescription),
                 playerName = outfitData.playerName,
                 votes = outfitData.votes or 0,
                 views = outfitData.views or 0
             }
+            table.insert(usedIds, outfitData.userId)
             successCount = successCount + 1
         else
-            warn("Failed to get balanced outfit for slot " .. i .. ":", outfitData)
-            -- Create a placeholder tile
             newTiles[i] = {
-                userId = 0,  -- Placeholder user ID
-                humanoidDescription = nil,
-                playerName = "Loading...",
+                userId = 0,
+                humanoidDescription = Instance.new("HumanoidDescription"),
+                playerName = "NO_MORE_OUTFITS_AVAILABLE",
                 votes = 0,
                 views = 0
             }
         end
     end
     
-    -- Update the tiles
     outfitVoteTiles:set(newTiles)
-    
     print("Refreshed outfit tiles: " .. successCount .. "/" .. maxDisplayedOutfits .. " loaded successfully")
-    warn(peek(outfitVoteTiles))
     isRefreshing = false
 end
 
--- Public function to refresh tiles (can be called from other scripts)
 function VotingGuiController.refreshOutfits()
     refreshOutfitVoteTiles()
 end
 
--- Get the currently selected outfit
 function VotingGuiController.getSelectedOutfit()
-    return peek(selectedTileName)
+    return peek(selectedTileId)
 end
 
--- Set the selected outfit (called by OutfitVoteTile)
-function VotingGuiController.setSelectedOutfit(tileName: string)
-    selectedTileName:set(tileName)
+function VotingGuiController.setSelectedOutfit(userId: number)
+    selectedTileId:set(userId)
 end
 
 function VotingGuiController.Initialise(
@@ -237,12 +226,12 @@ function VotingGuiController.Initialise(
                                             views = outfitData.views,
                                             size = UDim2.fromScale(0.3, 0.9),
                                             IsSelected = scope:Computed(function(use)
-                                                return use(selectedTileName) == tileName
+                                                return use(selectedTileId) == outfitData.userId
                                             end),
-                                            onSelect = function()
-                                                VotingGuiController.setSelectedOutfit(tileName)
-                                                print(peek(selectedTileName))
-                                                print(outfitData.humanoidDescription)
+                                            OnSelected = function()
+                                                if outfitData.userId ~= 0 then
+                                                    VotingGuiController.setSelectedOutfit(outfitData.userId)
+                                                end
                                             end
                                         })
                                     end)
@@ -281,12 +270,18 @@ function VotingGuiController.Initialise(
                                         size = UDim2.fromScale(0.8, 0.1),
                                         backgroundColor = Color3.new(0.031373, 0.301961, 0),
                                         layoutOrder = 2,
-                                        onClick = function()
+                                        onActivated = function()
                                             local selectedUserId = VotingGuiController.getSelectedOutfit()
                                             if selectedUserId then
-                                                print("Submitting vote for userId:", selectedUserId)
-                                                -- TODO: Call vote submission remote
-                                                -- SubmitVote:FireServer(selectedUserId)
+                                                local viewIds = {}
+                                                for _, tile in ipairs(peek(outfitVoteTiles)) do
+                                                    if tile.userId ~= 0 then
+                                                        table.insert(viewIds, tile.userId)
+                                                    end
+                                                end
+                                                
+                                                PlayerSubmittedVote:FireServer(selectedUserId, viewIds)
+                                                VotingGuiController.refreshOutfits()
                                             else
                                                 warn("No outfit selected for voting")
                                             end
@@ -300,7 +295,7 @@ function VotingGuiController.Initialise(
                                         size = UDim2.fromScale(0.8, 0.08),
                                         backgroundColor = Color3.new(0.3, 0.3, 0.3),
                                         layoutOrder = 3,
-                                        onClick = function()
+                                        onActivated = function()
                                             VotingGuiController.refreshOutfits()
                                         end
                                     })
@@ -313,8 +308,7 @@ function VotingGuiController.Initialise(
         }
     }
     
-    -- Initial load of outfits
-    task.wait(0.1) -- Small delay to ensure everything is set up
+    task.wait(0.1)
     refreshOutfitVoteTiles()
 end 
 

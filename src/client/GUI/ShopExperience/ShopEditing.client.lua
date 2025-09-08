@@ -38,8 +38,6 @@ local inEditGui: boolean = false
 -- TODO: This ALL has to be made more sensible, it is utterly incoherent right now
 -- TODO: MERGE THIS INTO MAINHUD SCRIPT
 
-print("ShopEditing!")
-
 local function onEditButtonClicked()
 	if ShopGuiFSM.CurrentState ~= "EditingBase" then
 		print("Into edit mode")

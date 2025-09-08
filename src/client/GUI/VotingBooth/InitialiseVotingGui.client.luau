@@ -52,7 +52,6 @@ local function initialiseVoteGui()
 
         [OnEvent "Triggered"] = function()
             onVotePromptActivated()
-            print(GetBalancedOutfit:InvokeServer())
         end
     }
 

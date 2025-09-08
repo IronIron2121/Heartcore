@@ -14,6 +14,7 @@ local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local ThemeManager = require(Controllers:WaitForChild("ThemeManager"))
 
+--[[
 -- Memory Stores
 local CurrentThemeMemoryStore = MemoryStoreService:GetSortedMap(Constants.CONTEST_MEMORYSTORE_NAME)
 
@@ -121,3 +122,4 @@ local success, err = initialiseTheme()
 if not success then
 	error("Failed to initialize theme system", err)
 end
+]]

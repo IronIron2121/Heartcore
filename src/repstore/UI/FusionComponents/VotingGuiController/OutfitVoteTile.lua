@@ -27,19 +27,19 @@ function OutfitVoteTile(
 		views: UsedAs<number>?,
 		votes: UsedAs<number>?,
 		IsSelected: UsedAs<boolean>?,
-		OnSelected: () -> (),
 		userId: UsedAs<number>?,
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
-		layoutOrder: UsedAs<number>?,
+		layoutOrder: UsedAs<number>?, 
 		anchorPoint: UsedAs<Vector2>?,
 		humanoidDescription: HumanoidDescription,
-		onSelect: () -> (),
+		OnSelected: () -> (),
 	}
 ): Frame
+
 	-- Create avatar model from HumanoidDescription
 	local avatarModel = scope:Computed(function(use)
-		if not props.humanoidDescription or not props.humanoidDescription then 
+		if not props.humanoidDescription then 
             return nil 
         end
 
@@ -51,7 +51,7 @@ function OutfitVoteTile(
 					descendant:Destroy()
 				end
 			end
-			return model
+			return model 
 		end)
 
 		if success and model then
@@ -63,6 +63,7 @@ function OutfitVoteTile(
 			return nil
 		end
 	end)
+
 	
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
@@ -135,7 +136,7 @@ function OutfitVoteTile(
 
 
                         [OnEvent "Activated"] = function()
-                            props.onSelect()
+                            props.OnSelected()
                         end,
 
 						[OnEvent "MouseButton1Down"] = function()

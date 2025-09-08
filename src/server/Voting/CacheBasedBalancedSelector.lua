@@ -79,6 +79,7 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
                     table.insert(bucket.outfits, {
                         entryKey = entryKey,
                         views = views,
+                        votes = entryData.votes,
                         userId = entryData.userId,
                         humanoidDescription = entryData.humanoidDescription
                     })
@@ -89,6 +90,7 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
                         bucket.outfits[randomIndex] = {
                             entryKey = entryKey,
                             views = views,
+                            votes = entryData.votes,
                             userId = entryData.userId,
                             humanoidDescription = entryData.humanoidDescription
                         }
@@ -132,7 +134,7 @@ function CacheBasedBalancedSelector:selectOutfit()
     
     -- Check if we have valid buckets
     if #self.selectionBuckets == 0 or self.totalWeightedOutfits == 0 then
-        warn("No selection buckets available, using fallback")
+        --warn("No selection buckets available, using fallback")
         self.stats.fallbackSelections = self.stats.fallbackSelections + 1
         return self:hashBasedFallback()
     end
@@ -260,7 +262,7 @@ function CacheBasedBalancedSelector:hashBasedFallback()
     
     -- This is a simplified fallback - in practice you might want to
     -- use this hash to select from a pre-sampled set of outfit IDs
-    warn("Using hash-based fallback selection (bucket " .. bucketNumber .. ")")
+    --warn("Using hash-based fallback selection (bucket " .. bucketNumber .. ")")
     
     return nil -- Return nil to indicate fallback selection needed
 end

@@ -188,26 +188,6 @@ function SubmissionStoreManager:AddEntry(player: Player, serialisedHumanoidDescr
     end
 end
 
--- Get total count of submissions
-function SubmissionStoreManager:GetSubmissionCount(): number
-    local entries = self:GetEntries()
-    local count = 0
-    for _ in pairs(entries) do
-        count = count + 1
-    end
-    return count
-end
 
--- Debug function to print all entries
-function SubmissionStoreManager:PrintAllEntries()
-    local entries = self:GetEntries()
-    print("=== All Submission Entries ===")
-    for key, value in pairs(entries) do
-        print("Key:", key)
-        print("Value:", value)
-        print("---")
-    end
-    print("Total entries:", self:GetSubmissionCount())
-end
 
 return SubmissionStoreManager
