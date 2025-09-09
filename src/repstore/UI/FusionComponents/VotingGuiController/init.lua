@@ -77,8 +77,8 @@ local function refreshOutfitVoteTiles()
                 userId = outfitData.userId,
                 humanoidDescription = SerialisationService.UnserialiseHumanoidDescription(outfitData.humanoidDescription),
                 playerName = outfitData.playerName,
-                votes = outfitData.votes or 0,
-                views = outfitData.views or 0
+                votes = outfitData.votes or "FAILURE_NO_VOTES",
+                views = outfitData.views or "FAILURE_NO_VIEWS"
             }
             table.insert(usedIds, outfitData.userId)
             successCount = successCount + 1
@@ -111,8 +111,7 @@ function VotingGuiController.setSelectedOutfit(userId: number)
 end
 
 function VotingGuiController.Initialise(
-    visibilityBoolean: UsedAs<boolean>,
-    OutfitsTable: UsedAs<{}>
+    visibilityBoolean: UsedAs<boolean>
 )
     local _VoteGui = scope:New "ScreenGui" {
         Name = "VotingGui",

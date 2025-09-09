@@ -8,9 +8,12 @@ local Voting = ServerScriptService:WaitForChild("Voting")
 
 -- Modules
 local ContestStoreManager = require(Voting:WaitForChild("ContestStoreManager"))
+local GameTimer = require(Voting:WaitForChild("GameTimer"))
+
 
 local function initialiseVoting()
-    --ContestStoreManager.updatePublicCache()
+    GameTimer.initialiseTimer()
+    ContestStoreManager.initialise()
 end
 
-initialiseVoting()
+initialiseVoting()  

@@ -11,7 +11,7 @@ local ContestStoreManager = require(Voting:WaitForChild("ContestStoreManager"))
 
 local function onServerClose()
     warn("Server Closing")
-    ContestStoreManager.forceFlush()
+    --ContestStoreManager.forceFlush()
     warn("Server Closed...")
 end
 

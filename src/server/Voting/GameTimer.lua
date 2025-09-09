@@ -163,12 +163,14 @@ local function initializeGameTimerCache()
         print("Loaded previous phase transition time:", previousData)
     else
         GameTimerCache.previousPhaseTimestamp = nil
-        print("No previous phase transition found")
+        print("No previous phase transition found") 
     end
 end
 
 function GameTimer.initialiseTimer(): ()
     if TimerStarted then return end
+    TimerStarted = true
+
 
     print("Initializing GameTimer system...")
     
@@ -196,7 +198,6 @@ function GameTimer.initialiseTimer(): ()
         end
     end)
 
-    TimerStarted = true
     print("GameTimer system started successfully!")
 end
 

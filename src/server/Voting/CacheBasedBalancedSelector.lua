@@ -41,7 +41,7 @@ function CacheBasedBalancedSelector.new()
         lastRebuildTime = 0
     }
     
-    return self
+    return self 
 end
 
 -- Rebuild selection buckets from the public cache (call this in updatePublicCache!)
@@ -269,6 +269,7 @@ end
 
 -- Integration helper: call this method in ContestStoreManager.updatePublicCache()
 function CacheBasedBalancedSelector:onCacheUpdated(publicCache)
+    warn("Cache updated - rebuilding")
     return self:rebuildFromCache(publicCache)
 end
 

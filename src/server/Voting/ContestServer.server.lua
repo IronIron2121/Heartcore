@@ -16,14 +16,8 @@ local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 
-
 -- Modules 
 local ContestStoreManager = require(Voting:WaitForChild("ContestStoreManager"))
-
-local function initialise()
-
-
-end
 
 local function onPhaseChanged()
     ContestStoreManager.initialiseNewContest()
@@ -42,15 +36,14 @@ end
 
 -- register votes and views for a given player's vote (for each vote, a player chooses one outfit to vote on out of three options, which all recieve a view)
 local function submitVote(player: Player, voteId: string, viewIds: {string})    
-    ContestStoreManager.addVotes(voteId, 1)
+    ContestStoreManager.addVotes(tostring(voteId), 1)
 
     for _, id in ipairs(viewIds) do
-        ContestStoreManager.addViews(id, 1)
+        ContestStoreManager.addViews(tostring(id), 1)
     end
-
+    --print("Just added votes and views to ", voteId, viewIds)
+    --print(ContestStoreManager.getPublicCache())
 end
-
-initialise()
 
 GetContestSubmissionsCache.OnServerInvoke = getContestSubmissionsCache
 PhaseChanged.Event:Connect(onPhaseChanged)

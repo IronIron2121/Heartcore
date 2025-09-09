@@ -121,7 +121,7 @@ function SubmissionStoreManager:GetEntries(): {[string]: any}
     end
     
     local success, pages = callWithRetry(function()
-        return currentStore:ListItemsAsync(200)
+        return currentStore:ListItemsAsync(10)
     end, 3)
     
     if success and pages then
@@ -142,7 +142,7 @@ function SubmissionStoreManager:GetPreviousPhaseEntries(): {[string]: any}
     end
     
     local success, pages = callWithRetry(function()
-        return previousStore:ListItemsAsync(200)
+        return previousStore:ListItemsAsync(10)
     end, 3)
     
     if success and pages then
@@ -187,7 +187,5 @@ function SubmissionStoreManager:AddEntry(player: Player, serialisedHumanoidDescr
         })
     end
 end
-
-
 
 return SubmissionStoreManager

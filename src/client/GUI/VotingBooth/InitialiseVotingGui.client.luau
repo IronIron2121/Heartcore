@@ -6,7 +6,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local votingZone = workspace:WaitForChild("votingZone")
 
@@ -17,12 +16,7 @@ local promptHolder = VotingPad:WaitForChild("PromptHolder")
 -- Modules
 local VotingGuiController = require(FusionComponents:WaitForChild("VotingGuiController"))
 
-local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
-
--- Remotes
-local GetContestSubmissionsCache = Remotes:WaitForChild("GetContestSubmissionsCache")
-local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -32,7 +26,7 @@ local OnEvent = Fusion.OnEvent
 -- Variables
 local VoteGuiVisible = scope:Value(false)
 
---
+-- 
 
 local function onVotePromptActivated()
     if peek(VoteGuiVisible) == true then
@@ -57,6 +51,6 @@ local function initialiseVoteGui()
 
     VotingGuiController.Initialise(VoteGuiVisible)
 
-end
+end 
 
 initialiseVoteGui()

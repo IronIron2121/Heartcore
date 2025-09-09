@@ -30,7 +30,7 @@ function OutfitVoteTile(
 		userId: UsedAs<number>?,
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
-		layoutOrder: UsedAs<number>?, 
+		layoutOrder: UsedAs<number>?,  
 		anchorPoint: UsedAs<Vector2>?,
 		humanoidDescription: HumanoidDescription,
 		OnSelected: () -> (),
