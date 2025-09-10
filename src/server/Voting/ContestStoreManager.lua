@@ -8,13 +8,17 @@ local ServerScriptService = game:GetService("ServerScriptService")
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
+local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
+local CacheBasedBalancedSelector = require(Voting:WaitForChild("CacheBasedBalancedSelector"))
 local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
-local CacheBasedBalancedSelector = require(Voting:WaitForChild("CacheBasedBalancedSelector"))
+
+-- Remotes / Bindables
+local SetNewWinnersBindable = Bindables:WaitForChild("SetNewWinners")
 
 local ContestStoreManager = {}
 
@@ -28,7 +32,7 @@ local isFlushingInProgress = false
 -- Public cache for current contest entries
 local publicCache = {} -- {entryKey = {id, description, votes, views}}
 local lastCacheUpdate = 0
-local CACHE_UPDATE_INTERVAL = 300 -- 5 minutes in seconds
+local CACHE_UPDATE_INTERVAL = 120 
 local isCacheUpdating = false
 
 -- Balanced selector instance
@@ -42,13 +46,33 @@ function ContestStoreManager.getCurrentMemoryStoreName(): string
     return tostring(GameTimer.getCurrentPhasePrefix()) .. Constants.CONTEST_MEMORYSTORE_NAME
 end
 
-function ContestStoreManager.initialiseNewContest(): boolean
-    warn("Initialising new contest")
+function ContestStoreManager.getCurrentMemoryStore()
     local contestStoreName = ContestStoreManager.getCurrentMemoryStoreName()
-    local currentMemoryStore = MemoryStoreService:GetHashMap(contestStoreName)
+    local success, memoryStore = callWithRetry(
+        function()
+            return MemoryStoreService:GetHashMap(contestStoreName)
+        end,
+        3
+    )
+
+    return memoryStore or success 
+end
+
+function ContestStoreManager.initialiseNewContest(): boolean
+    -- Set new winners before changing over...
+    local complete = SetNewWinnersBindable:Invoke()
+
+    if not complete then
+        warn("Could not set new winners...")
+    end
+
+    local currentMemoryStore = ContestStoreManager.getCurrentMemoryStore()
+    if not currentMemoryStore then
+        warn("No current memorystore!")
+        return false
+    end
 
     local allSubmissions = SubmissionStoreManager:GetPreviousPhaseEntries()
-    print("Found submissions for contest:", allSubmissions)
 
     if not allSubmissions or next(allSubmissions) == nil then
         warn("No submissions found to initialize contest with")
@@ -242,7 +266,7 @@ function ContestStoreManager.updatePublicCache(): ()
     local currentMemoryStore = MemoryStoreService:GetHashMap(contestStoreName)
     
     local success, pages = callWithRetry(function()
-        return currentMemoryStore:ListItemsAsync(200) 
+        return currentMemoryStore:ListItemsAsync(10) 
     end, 3)
     
     if success and pages then

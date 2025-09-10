@@ -16,6 +16,12 @@ local Constants = {
 	-- Voting Constants
 	SUBMISSION_MEMORYSTORE_NAME = "CurrentSubmissionsMemoryStore",
 	CONTEST_MEMORYSTORE_NAME = "CurrentContestMemoryStore",
+	WINNERS_MEMORYSTORE_NAME = "CurrentWinnersMemoryStore",
+	CURRENT_WINNERS_KEY = "CurrentWinners",
+	FIRST_PLACE_KEY = "FirstPlace",
+	SECOND_PLACE_KEY = "SecondPlace",
+	THIRD_PLACE_KEY = "ThirdPlace",
+
 	CURRENT_THEME_KEY = "CurrentTheme",
 	GAME_TIMER_MEMORYSTORE_NAME = "GameTimer",
 	
