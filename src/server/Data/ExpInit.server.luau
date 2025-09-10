@@ -1,4 +1,7 @@
 --!strict
+
+-- DataInit.server.luau
+
 -- Services
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,13 +31,13 @@ local PlayerStore = ProfileStore.New(GetStoreName(), Template)
 local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessionAsync()))
     local leaderstats = Instance.new("Folder", player)
     leaderstats.Name = "leaderstats"
-    local Gold = Instance.new("NumberValue", leaderstats)
-    Gold.Name = "Gold"
-    Gold.Value = profile.Data.Gold
+    
+    local Exp = Instance.new("NumberValue", leaderstats)
+    Exp.Name = "Exp"
+    Exp.Value = profile.Data.Exp
 
-    local Gems = Instance.new("NumberValue", leaderstats)
-    Gems.Name = "Gems"
-    Gems.Value = profile.Data.Gems 
+    -- Process login bonuses and streaks
+    DataManager.ProcessLogin(player)
 
     -- Sync player data
     --ReplicatedStorage

@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local Data = ServerScriptService:WaitForChild("Data")
 
 -- Remotes / Bindables
 local GetContestSubmissionsCache = Remotes:WaitForChild("GetContestSubmissionsCache")
@@ -18,6 +19,7 @@ local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 
 -- Modules 
 local ContestStoreManager = require(Voting:WaitForChild("ContestStoreManager"))
+local DataManager = require(Data:WaitForChild("DataManager"))
 
 local function onPhaseChanged()
     ContestStoreManager.initialiseNewContest()
@@ -41,6 +43,9 @@ local function submitVote(player: Player, voteId: string, viewIds: {string})
     for _, id in ipairs(viewIds) do
         ContestStoreManager.addViews(tostring(id), 1)
     end
+
+
+    DataManager.AddExp(player, 1)
     --print("Just added votes and views to ", voteId, viewIds)
     --print(ContestStoreManager.getPublicCache())
 end
