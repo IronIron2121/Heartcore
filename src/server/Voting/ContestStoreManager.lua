@@ -9,6 +9,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
+local RemotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local CacheBasedBalancedSelector = require(Voting:WaitForChild("CacheBasedBalancedSelector"))
@@ -19,8 +20,23 @@ local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
 -- Remotes / Bindables
 local SetNewWinnersBindable = Bindables:WaitForChild("SetNewWinners")
+local ThemeChangedRemote = RemotesFolder:WaitForChild("ThemeChanged")
 
 local ContestStoreManager = {}
+
+-- Theme configuration
+local AVAILABLE_THEMES = {
+    "Cyberpunk Streetwear",
+    "Medieval Knight", 
+    "Beach Party",
+    "Winter Wonderland",
+    "Space Explorer",
+    "Royal Ball",
+    "Sports Day"
+}
+
+-- Current theme data
+local currentTheme = nil
 
 -- Caching variables
 local pendingUpdates = {} -- {entryKey = {votes = 0, views = 0}}
@@ -38,7 +54,140 @@ local isCacheUpdating = false
 -- Balanced selector instance
 local balancedSelector = CacheBasedBalancedSelector.new()
 
+-- Theme Management Functions
+local function getCurrentUniversalTime()
+    return DateTime.now().UnixTimestamp
+end
+
+local function pickRandomTheme(): string
+    return AVAILABLE_THEMES[math.random(1, #AVAILABLE_THEMES)]
+end
+
+local function createNewTheme(): {}
+    return {
+        Theme = pickRandomTheme(),
+        TimeChanged = getCurrentUniversalTime(),
+        PhasePrefix = GameTimer.getCurrentPhasePrefix()
+    }
+end
+
+function ContestStoreManager.getCurrentTheme(): {}?
+    return currentTheme
+end
+
+function ContestStoreManager.getThemeName(): string
+    return currentTheme and currentTheme.Theme or "Loading..."
+end
+
+function ContestStoreManager.getThemeTimeChanged(): number?
+    return currentTheme and currentTheme.TimeChanged or nil
+end
+
+function ContestStoreManager.getAvailableThemes(): {string}
+    return AVAILABLE_THEMES
+end
+
+local function getThemeMemoryStore()
+    local success, memoryStore = callWithRetry(
+        function()
+            return MemoryStoreService:GetSortedMap(Constants.CONTEST_MEMORYSTORE_NAME)
+        end,
+        3
+    )
+    return success and memoryStore or nil
+end
+
+local function initializeTheme(): boolean
+    local themeMemoryStore = getThemeMemoryStore()
+    if not themeMemoryStore then
+        warn("Failed to get theme memory store")
+        return false
+    end
+
+    local success, currentThemeData = callWithRetry(
+        function()
+            return themeMemoryStore:GetAsync(Constants.CURRENT_THEME_KEY)
+        end, 
+        5
+    )
+
+    if not success then
+        warn("Failed to retrieve theme data:", currentThemeData)
+        return false
+    end
+
+    if not currentThemeData or not currentThemeData.Theme then
+        warn("No current theme found, creating new one...")
+        local newTheme = createNewTheme()
+        
+        local setSuccess, result = callWithRetry(
+            function()
+                return themeMemoryStore:SetAsync(
+                    Constants.CURRENT_THEME_KEY,
+                    newTheme,
+                    Constants.MEMORYSTORE_STORE_DURATION
+                )
+            end,
+            5
+        )
+        
+        if setSuccess then
+            currentTheme = newTheme
+            ThemeChangedRemote:FireAllClients(newTheme)
+            print("Initialized new theme:", newTheme.Theme)
+            return true
+        else
+            warn("Failed to set new theme:", result)
+            return false
+        end
+    else
+        currentTheme = currentThemeData
+        ThemeChangedRemote:FireAllClients(currentThemeData)
+        print("Loaded existing theme:", currentThemeData.Theme)
+        return true
+    end
+end
+
+local function updateTheme(): boolean
+    print("Updating to new theme...")
+    local newTheme = createNewTheme()
+    
+    local themeMemoryStore = getThemeMemoryStore()
+    if not themeMemoryStore then
+        warn("Failed to get theme memory store for update")
+        return false
+    end
+    
+    local success, result = callWithRetry(
+        function()
+            return themeMemoryStore:SetAsync(
+                Constants.CURRENT_THEME_KEY,
+                newTheme,
+                Constants.MEMORYSTORE_STORE_DURATION
+            )
+        end,
+        5
+    )
+
+    if success then
+        currentTheme = newTheme
+        ThemeChangedRemote:FireAllClients(newTheme)
+        print("Updated to new theme:", newTheme.Theme)
+        return true
+    else
+        warn("Failed to update theme:", result)
+        return false
+    end
+end
+
+-- Original ContestStoreManager functions (modified to include theme)
 function ContestStoreManager.initialise(): ()
+    -- Initialize theme first
+    local themeSuccess = initializeTheme()
+    if not themeSuccess then
+        error("Failed to initialize theme system")
+    end
+    
     ContestStoreManager.updatePublicCache()
 end
 
@@ -59,11 +208,18 @@ function ContestStoreManager.getCurrentMemoryStore()
 end
 
 function ContestStoreManager.initialiseNewContest(): boolean
-    -- Set new winners before changing over...
+        -- Set new winners before changing over...
     local complete = SetNewWinnersBindable:Invoke()
 
     if not complete then
         warn("Could not set new winners...")
+    end
+    
+    -- Update theme for new contest
+    local themeUpdateSuccess = updateTheme()
+    if not themeUpdateSuccess then
+        warn("Failed to update theme for new contest")
+        -- Continue anyway, as contest can function without theme
     end
 
     local currentMemoryStore = ContestStoreManager.getCurrentMemoryStore()
@@ -90,23 +246,23 @@ function ContestStoreManager.initialiseNewContest(): boolean
             userId = entry.userId,
             humanoidDescription = entry.humanoidDescription,
             votes = 0,
-            views = 0
+            views = 0,
         }
          
         -- Add the contest submission at the key of the corresponding submission
         local success = callWithRetry(function()
-            return currentMemoryStore:SetAsync(key, contestSubmission, Constants.MEMORYSTORE_STORE_DURATION) -- 3 minute expiration
+            return currentMemoryStore:SetAsync(key, contestSubmission, Constants.MEMORYSTORE_STORE_DURATION)
         end, 3)
         
         if success then
             successCount = successCount + 1
-            print("Added contest entry for:", key)
         else
             warn("Failed to add contest entry for:", key)
         end
     end
     
-    print(string.format("Contest initialization complete: %d/%d entries added successfully", successCount, totalCount))
+    print(string.format("Contest initialization complete: %d/%d entries added successfully with theme: %s", 
+        successCount, totalCount, currentTheme and currentTheme.Theme or "Unknown"))
     
     if successCount > 0 then
         -- Start the periodic flush and cache updates after initialization
@@ -293,6 +449,7 @@ function ContestStoreManager.updatePublicCache(): ()
                     playerName = entryData.playerName,
                     humanoidDescription = entryData.humanoidDescription,
                     submissionTime = entryData.submissionTime,
+                    theme = entryData.theme or (currentTheme and currentTheme.Theme) or "Unknown", -- Include theme
                     votes = (entryData.votes or 0) + pendingVotes,
                     views = (entryData.views or 0) + pendingViews
                 }
@@ -319,7 +476,8 @@ function ContestStoreManager.updatePublicCache(): ()
         for _ in pairs(publicCache) do
             entryCount += 1
         end
-        print("Public cache updated with", entryCount, "entries")
+        print("Public cache updated with", entryCount, "entries for theme:", 
+            currentTheme and currentTheme.Theme or "Unknown")
 
         -- Rebuild selection buckets from the fresh cache
         local rebuildSuccess = balancedSelector:onCacheUpdated(publicCache)
@@ -354,6 +512,7 @@ function ContestStoreManager.getCachedEntry(entryKey: string): {}?
         playerName = cachedEntry.playerName,
         humanoidDescription = cachedEntry.humanoidDescription,
         submissionTime = cachedEntry.submissionTime,
+        theme = cachedEntry.theme,
         votes = cachedEntry.votes,
         views = cachedEntry.views
     }
@@ -420,8 +579,15 @@ function ContestStoreManager.getCacheStats(): {}
         lastCacheUpdate = lastCacheUpdate,
         timeSinceLastCacheUpdate = tick() - lastCacheUpdate,
         isCacheUpdating = isCacheUpdating,
-        isFlushingInProgress = isFlushingInProgress
+        isFlushingInProgress = isFlushingInProgress,
+        currentTheme = currentTheme and currentTheme.Theme or "None",
+        themeTimeChanged = currentTheme and currentTheme.TimeChanged or nil
     }
+end
+
+-- Force update theme (useful for admin controls)
+function ContestStoreManager.forceUpdateTheme(): boolean
+    return updateTheme()
 end
 
 return ContestStoreManager
