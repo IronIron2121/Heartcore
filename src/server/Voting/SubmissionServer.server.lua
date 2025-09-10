@@ -11,6 +11,7 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 local centralPond = workspace:WaitForChild("centralPond")
+local Data = ServerScriptService:WaitForChild("Data")
 
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
@@ -19,6 +20,7 @@ local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
 local getHumanoidDescriptionFromPlayer = require(Getters:WaitForChild("getHumanoidDescriptionFromPlayer"))
 local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
+local DataManager = require(Data:WaitForChild("DataManager"))
 
 -- Instances
 local SubmissionPad = centralPond:WaitForChild("SubmissionPad")
@@ -47,6 +49,7 @@ local function onOutfitSubmitted(player: Player)
 	-- Serialise it
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
 	SubmissionStoreManager:AddEntry(player, serialisedHumanoidDescription)
+	DataManager.AddExp(player, 1)
 end
 
 prompt.Triggered:Connect(onOutfitSubmitted)

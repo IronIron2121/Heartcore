@@ -36,6 +36,10 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
     Exp.Name = "Exp"
     Exp.Value = profile.Data.Exp
 
+    local Level = Instance.new("NumberValue", leaderstats)
+    Level.Name = "Level"
+    Level.Value = profile.Data.Level or 1
+
     -- Process login bonuses and streaks
     DataManager.ProcessLogin(player)
 
