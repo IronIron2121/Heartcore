@@ -6,6 +6,7 @@ local RunService = game:GetService("RunService")
 local ThemeManager = {}
 ThemeManager.CurrentTheme = nil
 
+--[[
 -- Default themes list (for client reference)
 ThemeManager.Themes = {
 	"Cyberpunk Streetwear",
@@ -29,7 +30,7 @@ end
 
 function ThemeManager:getTimeChanged()
 	return self.CurrentTheme and self.CurrentTheme.TimeChanged or nil
-end
+end 
 
 -- Internal function for server to update theme data
 function ThemeManager:_updateThemeData(themeData)
@@ -40,3 +41,4 @@ function ThemeManager:_updateThemeData(themeData)
 end
 
 return ThemeManager
+]]

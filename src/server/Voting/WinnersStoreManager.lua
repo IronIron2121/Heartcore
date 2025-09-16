@@ -60,7 +60,7 @@ function WinnersStoreManager.getCurrentWinners(): {}?
         5
     )
 
-    if success then
+    if success then 
         return winners
     else
         warn("Failed to get current winners")

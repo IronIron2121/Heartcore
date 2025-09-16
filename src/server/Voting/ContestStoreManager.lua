@@ -1,15 +1,16 @@
 --!strict
 
 -- Services
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local MemoryStoreService = game:GetService("MemoryStoreService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local MemoryStoreService = game:GetService("MemoryStoreService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
+local RemotesFolder = ReplicatedStorage:WaitForChild("Remotes")
+local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
-local Bindables = ReplicatedStorage:WaitForChild("Bindables")
-local RemotesFolder = ReplicatedStorage:WaitForChild("Remotes")
+local votingZone = workspace:WaitForChild("votingZone")
 
 -- Modules
 local CacheBasedBalancedSelector = require(Voting:WaitForChild("CacheBasedBalancedSelector"))
@@ -21,6 +22,12 @@ local GameTimer = require(Voting:WaitForChild("GameTimer"))
 -- Remotes / Bindables
 local SetNewWinnersBindable = Bindables:WaitForChild("SetNewWinners")
 local ThemeChangedRemote = RemotesFolder:WaitForChild("ThemeChanged")
+
+-- Instances
+local BillboardHolder = votingZone:WaitForChild("BillboardHolder")
+local ThemeNameBillboard = BillboardHolder:WaitForChild("ThemeNameBillboard")
+local ThemeNameTextLabel = ThemeNameBillboard:WaitForChild("TextLabel")
+
 
 local ContestStoreManager = {}
 
@@ -41,14 +48,14 @@ local currentTheme = nil
 -- Caching variables
 local pendingUpdates = {} -- {entryKey = {votes = 0, views = 0}}
 local lastFlush = tick()
-local FLUSH_INTERVAL = 30 -- seconds
+local FLUSH_INTERVAL = 60 -- seconds
 local MAX_PENDING_UPDATES = 50 -- flush if we hit this many pending updates
 local isFlushingInProgress = false
 
 -- Public cache for current contest entries
 local publicCache = {} -- {entryKey = {id, description, votes, views}}
 local lastCacheUpdate = 0
-local CACHE_UPDATE_INTERVAL = 120 
+local CACHE_UPDATE_INTERVAL = 500 
 local isCacheUpdating = false
 
 -- Balanced selector instance
@@ -87,6 +94,10 @@ function ContestStoreManager.getAvailableThemes(): {string}
     return AVAILABLE_THEMES
 end
 
+local function updateThemeBillboardText()
+    ThemeNameTextLabel.Text = ContestStoreManager.getThemeName()
+end
+
 local function getThemeMemoryStore()
     local success, memoryStore = callWithRetry(
         function()
@@ -95,6 +106,40 @@ local function getThemeMemoryStore()
         3
     )
     return success and memoryStore or nil
+end
+
+local function updateTheme(themeMemoryStore: MemoryStoreHashMap?): boolean
+    print("Updating to new theme...")
+    local newTheme = createNewTheme()
+    
+    local memoryStore = themeMemoryStore or getThemeMemoryStore()
+    if not memoryStore then
+        warn("Failed to get theme memory store for update")
+        return false
+    end
+    
+    local success, result = callWithRetry(
+        function()
+            return memoryStore:SetAsync(
+                Constants.CURRENT_THEME_KEY,
+                newTheme,
+                Constants.MEMORYSTORE_STORE_DURATION
+            )
+        end,
+        5
+    )
+
+    -- TODO: Modularise this as it is redundant
+    if success then
+        currentTheme = newTheme
+        ThemeChangedRemote:FireAllClients(newTheme)
+        updateThemeBillboardText()
+        print("Updated to new theme:", newTheme.Theme)
+        return true
+    else
+        warn("Failed to update theme:", result)
+        return false
+    end
 end
 
 local function initializeTheme(): boolean
@@ -118,67 +163,21 @@ local function initializeTheme(): boolean
 
     if not currentThemeData or not currentThemeData.Theme then
         warn("No current theme found, creating new one...")
-        local newTheme = createNewTheme()
-        
-        local setSuccess, result = callWithRetry(
-            function()
-                return themeMemoryStore:SetAsync(
-                    Constants.CURRENT_THEME_KEY,
-                    newTheme,
-                    Constants.MEMORYSTORE_STORE_DURATION
-                )
-            end,
-            5
-        )
-        
-        if setSuccess then
-            currentTheme = newTheme
-            ThemeChangedRemote:FireAllClients(newTheme)
-            print("Initialized new theme:", newTheme.Theme)
-            return true
-        else
-            warn("Failed to set new theme:", result)
-            return false
-        end
+        local updateSuccess = updateTheme(themeMemoryStore)
+
+        return updateSuccess
     else
         currentTheme = currentThemeData
         ThemeChangedRemote:FireAllClients(currentThemeData)
+        updateThemeBillboardText()
+
         print("Loaded existing theme:", currentThemeData.Theme)
         return true
     end
+
 end
 
-local function updateTheme(): boolean
-    print("Updating to new theme...")
-    local newTheme = createNewTheme()
-    
-    local themeMemoryStore = getThemeMemoryStore()
-    if not themeMemoryStore then
-        warn("Failed to get theme memory store for update")
-        return false
-    end
-    
-    local success, result = callWithRetry(
-        function()
-            return themeMemoryStore:SetAsync(
-                Constants.CURRENT_THEME_KEY,
-                newTheme,
-                Constants.MEMORYSTORE_STORE_DURATION
-            )
-        end,
-        5
-    )
 
-    if success then
-        currentTheme = newTheme
-        ThemeChangedRemote:FireAllClients(newTheme)
-        print("Updated to new theme:", newTheme.Theme)
-        return true
-    else
-        warn("Failed to update theme:", result)
-        return false
-    end
-end
 
 -- Original ContestStoreManager functions (modified to include theme)
 function ContestStoreManager.initialise(): ()

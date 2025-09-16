@@ -11,11 +11,10 @@ local Players = game:GetService("Players")
 -- Folders
 local Libraries = ServerScriptService:WaitForChild("Libraries")
 local Data = ServerScriptService:WaitForChild("Data")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local ProfileStore = require(Libraries:WaitForChild("ProfileStore"))
-local Template = require(Data:WaitForChild("Template"))
+local ProfileTemplate = require(Data:WaitForChild("ProfileTemplate"))
 local DataManager = require(Data:WaitForChild("DataManager"))
 
 local function GetStoreName()
@@ -23,7 +22,7 @@ local function GetStoreName()
 end
 
 -- ProfileStore
-local PlayerStore = ProfileStore.New(GetStoreName(), Template)
+local PlayerStore = ProfileStore.New(GetStoreName(), ProfileTemplate)
 
 --
 
@@ -39,6 +38,10 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
     local Level = Instance.new("NumberValue", leaderstats)
     Level.Name = "Level"
     Level.Value = profile.Data.Level or 1
+
+    local Flair = Instance.new("NumberValue", leaderstats)
+    Level.Name = "Flair"
+    Level.Value = profile.Data.Flair or 1
 
     -- Process login bonuses and streaks
     DataManager.ProcessLogin(player)
@@ -59,7 +62,7 @@ local function PlayerAdded(player: Player)
 
     if profile ~= nil then
         profile:AddUserId(player.UserId) -- GDPR compliance
-        profile:Reconcile() -- Fill in missing data variables from template
+        profile:Reconcile() -- Fill in missing data variables from ProfileTemplate
         
         -- Handles session-locking
         profile.OnSessionEnd:Connect(function()
@@ -79,8 +82,6 @@ local function PlayerAdded(player: Player)
         -- Server shuts down while player is joining
         player:Kick("Data error occurred. Please rejoin")
     end
-
-
 end
 
 local function PlayerRemoved(player: Player)
