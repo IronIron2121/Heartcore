@@ -10,7 +10,8 @@
 local ImageUris = {}
 local assets = {
 	OutfitCatalogButton = "93922334459186",
-	CloseButton = "86480151535378"
+	CloseButton = "86480151535378",
+	StopwatchIcon = "73600277679991",
 }
 
 setmetatable(ImageUris, {

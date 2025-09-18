@@ -10,6 +10,7 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -21,6 +22,8 @@ local OutfitVoteTile = require(script:WaitForChild("OutfitVoteTile"))
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
+local ImageUris = require(DataTables:WaitForChild("ImageUris"))
+
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -124,13 +127,18 @@ function VotingGuiController.Initialise(
                 Size = UDim2.fromScale(0.8, 0.9),
                 AnchorPoint = Vector2.new(0.5, 1),
                 Position = UDim2.fromScale(0.5, 1),
-                BackgroundTransparency = 1,
+                BackgroundColor3 = Color3.new(1,1,1),
+                BackgroundTransparency = 0.2,
 
                 [Children] = {    
                     scope:New "UIListLayout" {
                         FillDirection = Enum.FillDirection.Vertical,
                         SortOrder = Enum.SortOrder.LayoutOrder
                     },
+
+                    scope:New "UICorner" {
+                                        CornerRadius = UDim.new(0.05)
+                                    },
 
                     scope:New "Frame"{
                         Name = "TopBar",
@@ -146,29 +154,42 @@ function VotingGuiController.Initialise(
 
                             scope:New "TextLabel" {
                                 Name = "TodaysTheme",
-                                Text = "TODAY'S THEME",
+                                Text = "Vote for best fit:",
                                 TextScaled = true,
                                 Size = UDim2.fromScale(0.3, 1),
                                 LayoutOrder = 1,
                                 BackgroundTransparency = 1,
-                                TextColor3 = Color3.new(1, 1, 1)
+                                TextColor3 = Color3.fromRGB(92, 96, 214)
                             },
 
                             scope:New "Frame"{
                                 Name = "Buffer",
                                 Size = UDim2.fromScale(0.2, 1),
                                 LayoutOrder = 2,
-                                BackgroundTransparency = 1
+                                BackgroundTransparency = 1,
+                            },
+
+                            scope:New "ImageLabel"{
+				                Image = ImageUris.StopwatchIcon,
+                                Size = UDim2.fromScale(1, 1),
+                                LayoutOrder = 3,
+                                BackgroundTransparency = 1,
+                                [Children] = {
+                                    scope:New "UIAspectRatioConstraint" {
+                                        AspectRatio = 1,
+                                        DominantAxis = Enum.DominantAxis.Width,
+                                    }
+                                }
                             },
 
                             scope:New "TextLabel" {
                                 Name = "Timer",
-                                Text = "VOTING ENDS: HH:MM:SS",
+                                Text = "HH:MM:SS",
                                 TextScaled = true,
                                 Size = UDim2.fromScale(0.3, 1),
-                                LayoutOrder = 3,
+                                LayoutOrder = 4,
                                 BackgroundTransparency = 1,
-                                TextColor3 = Color3.new(1, 1, 1)
+                                TextColor3 = Color3.fromRGB(92, 96, 214)
                             }
                         }
                     },
@@ -177,26 +198,26 @@ function VotingGuiController.Initialise(
                         Name = "Body",
                         LayoutOrder = 2,
                         Size = UDim2.fromScale(1, 0.8),
-                        BackgroundColor3 = Color3.new(0.1, 0.5, 0.9),
+                        BackgroundTransparency = 1,
 
                         [Children] = { 
                             scope:New "UIListLayout" {
-                                FillDirection = Enum.FillDirection.Horizontal,
+                                FillDirection = Enum.FillDirection.Vertical,
                                 SortOrder = Enum.SortOrder.LayoutOrder,
                                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
                             },
                             
                             scope:New "Frame" {
                                 Name = "Buffer",
-                                Size = UDim2.fromScale(0.1, 1),
+                                Size = UDim2.fromScale(1, 0.01),
                                 LayoutOrder = 1,
                                 BackgroundTransparency = 1
                             },
 
                             scope:New "Frame" {
                                 Name = "OutfitsContainer",
-                                BackgroundColor3 = Color3.new(0.1, 0.2, 0.9),
-                                Size = UDim2.fromScale(0.7, 1),
+                                BackgroundTransparency = 1,
+                                Size = UDim2.fromScale(1, 1),
                                 LayoutOrder = 2,
 
                                 [Children] = {
@@ -205,7 +226,7 @@ function VotingGuiController.Initialise(
                                         SortOrder = Enum.SortOrder.LayoutOrder,
                                         HorizontalAlignment = Enum.HorizontalAlignment.Center,
                                         VerticalAlignment = Enum.VerticalAlignment.Center,
-                                        Padding = UDim.new(0, 10),
+                                        Padding = UDim.new(0.01, 0),
                                         Wraps = false
                                     },
 
@@ -239,36 +260,23 @@ function VotingGuiController.Initialise(
 
                             scope:New "Frame" {
                                 Name = "SubmitFrame",
-                                Size = UDim2.fromScale(0.2, 1),
+                                Size = UDim2.fromScale(1, 1),
                                 LayoutOrder = 3,
                                 BackgroundTransparency = 1,
                                 
                                 [Children] = {
-                                    scope:New "UIListLayout" {
-                                        FillDirection = Enum.FillDirection.Vertical,
-                                        SortOrder = Enum.SortOrder.LayoutOrder,
-                                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                        VerticalAlignment = Enum.VerticalAlignment.Center,
-                                        Padding = UDim.new(0.05, 0)
-                                    },
-
-                                    scope:New "TextLabel" {
-                                        Name = "RemainingVotes",
-                                        Text = "Votes 1/1 Remaining",
-                                        Size = UDim2.fromScale(0.8, 0.2),
-                                        TextScaled = true,
-                                        BackgroundTransparency = 1,
-                                        TextColor3 = Color3.new(1, 1, 1),
-                                        LayoutOrder = 1
-                                    },
-
+                                                                       
                                     BaseButton(scope, {
                                         name = "SubmitButton",
                                         text = "Submit Vote",
                                         textScaled = true,
                                         size = UDim2.fromScale(0.8, 0.1),
-                                        backgroundColor = Color3.new(0.031373, 0.301961, 0),
-                                        layoutOrder = 2,
+                                        backgroundColor = Color3.new(1, 1, 1),
+                                        strokeColor = Color3.new(0.360784, 0.376471, 0.839216),
+                                        strokeThickness = 5,
+                                        textColor = Color3.new(0.360784, 0.376471, 0.839216),
+
+                                        layoutOrder = 1,
                                         onActivated = function()
                                             local selectedUserId = VotingGuiController.getSelectedOutfit()
                                             if selectedUserId then
@@ -287,17 +295,7 @@ function VotingGuiController.Initialise(
                                         end
                                     }),
 
-                                    BaseButton(scope, {
-                                        name = "RefreshButton",
-                                        text = "Refresh Outfits",
-                                        textScaled = true,
-                                        size = UDim2.fromScale(0.8, 0.08),
-                                        backgroundColor = Color3.new(0.3, 0.3, 0.3),
-                                        layoutOrder = 3,
-                                        onActivated = function()
-                                            VotingGuiController.refreshOutfits()
-                                        end
-                                    })
+                                    
                                 }
                             }
                         }
