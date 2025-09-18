@@ -29,7 +29,7 @@ function PlayerDetails.new(player : Player)
 	newPlayerDetails.player = player
 	newPlayerDetails.id = player.UserId
 	newPlayerDetails.shop = nil
-	newPlayerDetails:_initialisePlayerShopData(player)
+	newPlayerDetails:_initialisePlayerShopData(player)	
 	
 	return newPlayerDetails
 end

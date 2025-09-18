@@ -201,6 +201,8 @@ end
  
 local function onMannequinAdded(mannequin: Model)
 	--print("Adding inspect prompt to mannequin:", mannequin.Name)
+	local base = mannequin:WaitForChild("Base", 1)
+
 	-- Create a new ProximityPrompt in the mannequin
 	local inspectPrompt = getInspectPrompt()
 	inspectPrompt:AddTag(Constants.INSPECT_PROMPT_TAG)
@@ -238,14 +240,12 @@ local function onMannequinRemoved(mannequin: Instance)
 end
 
 local function initialise()
-	warn("Initialising inspect prompts")
 	-- Set up mannequin tracking
 	CollectionService:GetInstanceAddedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(onMannequinAdded)
 	CollectionService:GetInstanceRemovedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(onMannequinRemoved)
 
 	-- Initialise existing mannequins
 	for _, mannequin in CollectionService:GetTagged(Constants.FLOOR_MANNEQUIN_TAG) do
-		--warn("Initialising inspect prompt for:", mannequin.Name)
 		onMannequinAdded(mannequin)
 	end
 

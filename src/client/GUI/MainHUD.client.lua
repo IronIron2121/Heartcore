@@ -2,15 +2,11 @@
 	Contains functionality for player HUD gui
 ]]
 
-print("Initialising shop buttons etc etc")
-
 -- Services
 local Players 			= game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Bindables		= ReplicatedStorage:WaitForChild("Bindables")
-local Getters 		= ReplicatedStorage:WaitForChild("Getters")
 local Remotes 		= ReplicatedStorage:WaitForChild("Remotes")
 local Utility		= ReplicatedStorage:WaitForChild("Utility")
 local Trackers		= ReplicatedStorage:WaitForChild("Trackers")
@@ -27,7 +23,6 @@ local localPlayer 			= Players.LocalPlayer
 local playerGui 			= localPlayer.PlayerGui
 local MainHUD 				= playerGui:WaitForChild("MainHUD")
 local ShopButtons 			= MainHUD:WaitForChild("ShopButtons")
-local CloseShopButton 		= ShopButtons:WaitForChild("CloseShopButton")
 local GoToShopButton 		= ShopButtons:WaitForChild("GoToShopButton")
 local EditShopButton 		= ShopButtons:WaitForChild("EditShopButton")
 

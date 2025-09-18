@@ -9,20 +9,21 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 
 -- Modules
-local Fusion = require(Utility:WaitForChild("Fusion"))
 local GetAccessoryTypeFromAssetTypeId = require(Getters:WaitForChild("GetAccessoryTypeFromAssetTypeId"))
+local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
+local Fusion = require(Utility:WaitForChild("Fusion"))
 
 local AvatarPreviewModel = {}
 AvatarPreviewModel.__index = AvatarPreviewModel
 
 -- Simple helper to fix AccessoryTypes
 local function fixAccessoryTypes(humanoidDescription: HumanoidDescription)
-	warn("Attempting to fix accessory type!")
 	for _, description in ipairs(humanoidDescription:GetChildren()) do
 		if description:IsA("AccessoryDescription") and description.AccessoryType == Enum.AccessoryType.Unknown then
-			local success, productInfo = pcall(function()
+			warn("Attempting to fix accessory type!")
+			local success, productInfo = callWithRetry(function()
 				return MarketplaceService:GetProductInfo(description.AssetId, Enum.InfoType.Asset)
-			end)
+			end, 5)
 
 			if success then
 				local accessoryType = GetAccessoryTypeFromAssetTypeId(productInfo.AssetTypeId)

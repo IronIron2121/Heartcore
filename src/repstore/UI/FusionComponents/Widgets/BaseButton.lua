@@ -19,6 +19,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 function Button(
 	scope: Fusion.Scope,
 	props: {
+		name: UsedAs<string>?,
 		active: UsedAs<boolean>?,
 		visible: UsedAs<boolean>?,
 		size: UsedAs<UDim2>?,
@@ -26,6 +27,7 @@ function Button(
 		layoutOrder: UsedAs<number>?,
 		anchorPoint: UsedAs<Vector2>?,
 		text: UsedAs<string>?,
+		textScaled: UsedAs<boolean>?,
 		backgroundColor: UsedAs<Color3>?,
 		textColor: UsedAs<Color3>?,
 		strokeColor: UsedAs<Color3>?,
@@ -58,7 +60,7 @@ function Button(
 	)
 
 	local button = scope:New "TextButton" {
-		Name = "Button",
+		Name = props.name or "Button",
 		Active = props.active or true,
 		Visible = props.visible or true,
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
@@ -70,7 +72,7 @@ function Button(
 		BackgroundColor3 = backgroundColorSpring,
 		BackgroundTransparency = 0,
 		LayoutOrder = props.layoutOrder or 1,
-		TextScaled = true,
+		TextScaled = props.textScaled or true,
 		TextWrapped = true,
 		ZIndex = props.zIndex or 1,
 

@@ -6,11 +6,8 @@ local Players = game:GetService("Players")
 
 -- Folder
 local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
-local LibrariesFolder = ReplicatedStorage:WaitForChild("Libraries")
 local UtilityFolder = ReplicatedStorage:WaitForChild("Utility")
 local RemotesFolder = ReplicatedStorage:WaitForChild("Remotes")
-
-
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -22,24 +19,15 @@ local EditFurnitureFrame = ClaimedShopGui:WaitForChild("EditFurnitureFrame")
 local MainHUDGui = PlayerGui:WaitForChild("MainHUD")
 local ShopButtons = MainHUDGui:WaitForChild("ShopButtons")
 local editShopButton = ShopButtons:WaitForChild("EditShopButton")
-local DeleteButton = EditFurnitureFrame:WaitForChild("DeleteButton")
-local DuplicateButton = EditFurnitureFrame:WaitForChild("DuplicateButton")
 local CloseShopButton 		= ShopButtons:WaitForChild("CloseShopButton")
 
 -- Module Scripts
-local ItemSelection = require(UtilityFolder:WaitForChild("ItemSelection"))
-local ModalManager = require(LibrariesFolder:WaitForChild("ModalManager"))
-local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local ShopGuiFSM = require(UtilityFolder:WaitForChild("ShopGuiFSM"))
 
 -- Remotes / Bindables
-local RepositionShopItemBindable = BindablesFolder:WaitForChild("RepositionShopItemBindable")
 local playerClosedShopBindable = BindablesFolder:WaitForChild("PlayerClosedShopBindable")
-local HideAllPromptsBindable = BindablesFolder:WaitForChild("HideAllPromptsBindable")
-local ShowAllPromptsBindable = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
 local playerExitedShopAsync = RemotesFolder:WaitForChild("PlayerExitedShop")
 local PlayerClaimedShopAsync = RemotesFolder:WaitForChild("PlayerClaimedShop")
-local PlayerUnclaimedShopAsync = RemotesFolder:WaitForChild("PlayerUnclaimedShop")
 local CloseShopButtonClickedAsync = RemotesFolder:WaitForChild("CloseShopButtonClicked")
 
 -- Variables
@@ -49,8 +37,6 @@ local inEditGui: boolean = false
 
 -- TODO: This ALL has to be made more sensible, it is utterly incoherent right now
 -- TODO: MERGE THIS INTO MAINHUD SCRIPT
-
-print("ShopEditing!")
 
 local function onEditButtonClicked()
 	if ShopGuiFSM.CurrentState ~= "EditingBase" then
@@ -97,4 +83,3 @@ editShopButton.Activated:Connect(onEditButtonClicked)
 
 EditFurnitureFrame.MouseEnter:Connect(enterEditGui)
 EditFurnitureFrame.MouseLeave:Connect(exitEditGui) 
-

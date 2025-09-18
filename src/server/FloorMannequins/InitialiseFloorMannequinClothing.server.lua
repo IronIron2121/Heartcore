@@ -62,7 +62,6 @@ local function setupMannequinAsync(mannequin: Instance)
 	-- You may want to apply bundles to the humanoid description here as well
 	if #bundleIds > 0 then
 		-- Add bundle handling logic here if needed
-		print("Mannequin has bundles:", bundleIds, "- bundle setup not implemented yet")
 	end
 	
 	--print("Finished setting up clothing for mannequin:", mannequin.Name)
@@ -70,6 +69,9 @@ end
 
 local function onMannequinAdded(mannequin: Model)
 	--print("Setting up mannequin clothing:", mannequin.Name)
+end
+
+local function onMannequinAdded(mannequin: Model)
 	
 	-- Wait for humanoid to be ready
 	local humanoid = mannequin:WaitForChild("Humanoid", 5)

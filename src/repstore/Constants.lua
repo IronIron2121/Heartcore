@@ -1,7 +1,5 @@
 --!strict
 
-local ServerStorage = game:GetService("ServerStorage")
-
 local Constants = {
 	-- Mannequin Names
 	FULL_MANNEQUIN_NAME = "FullMannequin",
@@ -14,7 +12,18 @@ local Constants = {
 	--
 	DEFAULT_NUDGE = 1,
 	DEFAULT_ROTATE = 45,	
-	
+
+	-- Voting Constants
+	SUBMISSION_MEMORYSTORE_NAME = "CurrentSubmissionsMemoryStore",
+	CONTEST_MEMORYSTORE_NAME = "CurrentContestMemoryStore",
+	WINNERS_MEMORYSTORE_NAME = "CurrentWinnersMemoryStore",
+	CURRENT_WINNERS_KEY = "CurrentWinners",
+	FIRST_PLACE_KEY = "FirstPlace",
+	SECOND_PLACE_KEY = "SecondPlace",
+	THIRD_PLACE_KEY = "ThirdPlace",
+
+	CURRENT_THEME_KEY = "CurrentTheme",
+	GAME_TIMER_MEMORYSTORE_NAME = "GameTimer",
 	
 	-- Datastore names
 	PLAYER_SHOPS_DATA_STORE_NAME = "PlayerShops",
@@ -112,7 +121,10 @@ local Constants = {
 		"Torso",
 	},
 	
-	QUERY_ATTEMPTS = 3
+	QUERY_ATTEMPTS = 3,
+
+	MEMORYSTORE_STORE_DURATION = 240
+
 }
 
 return Constants

@@ -27,7 +27,6 @@ local RepositionButton = EditFurnitureFrame:WaitForChild("RepositionButton")
 local RecolourButton = EditFurnitureFrame:WaitForChild("RecolourButton")
 local DuplicateButton = EditFurnitureFrame:WaitForChild("DuplicateButton")
 
-
 local function onDuplicateButtonActivated()
 	print(ItemSelection.selectedItem.Name, ItemSelection.selectedItem:GetAttribute(Constants.ITEM_TYPE_ATTRIBUTE), Constants.PLACE_COMMAND)
 

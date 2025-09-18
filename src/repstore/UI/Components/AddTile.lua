@@ -9,7 +9,6 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AssetManager 		= game:GetService("AssetService")
 local Players 			= game:GetService("Players")
 
 
@@ -22,8 +21,6 @@ local Utility 	= ReplicatedStorage:WaitForChild("Utility")
 local Getters		= ReplicatedStorage:WaitForChild("Getters")
 local Remotes		= ReplicatedStorage:WaitForChild("Remotes")
 local Ui			= ReplicatedStorage:WaitForChild("UI")
-local Types		= Utility:WaitForChild("Types")
-local Components	= Ui:WaitForChild("Components")
 local Objects		= Ui:WaitForChild("Objects")
 local Bindables	= ReplicatedStorage:WaitForChild("Bindables")
 
@@ -33,11 +30,10 @@ local localPlayer = Players.LocalPlayer
 
 -- Module Scripts
 local arrayOfStringsToString 	= require(Utility:WaitForChild("arrayOfStringsToString"))
-local Types 					= require(Utility:WaitForChild("Types"))
 local getThumbnailFromId		= require(Getters:WaitForChild("getThumbnailFromId"))
 local Constants 				= require(ReplicatedStorage:WaitForChild("Constants"))
-local ModalManager 				= require(Libraries:WaitForChild("ModalManager"))
 local ShopGuiFsm				= require(Utility:WaitForChild("ShopGuiFSM"))
+
 -- UI Components
 local addTileTemplate 	= Objects:WaitForChild("AddTile")
 
@@ -73,9 +69,7 @@ local function AddTile(itemDetails: {}): Frame
 	
 	-- Function
 	local function update()
-		print("updating")
 		local playerOwnedItems = GetPlayerOwnedItems:InvokeServer(localPlayer.UserId)
-		print("got player owned items")
 
 		if playerOwnedItems[itemDetails["Name"]] == "true" then
 			addTile.BuyFrame.Visible = false
@@ -86,7 +80,6 @@ local function AddTile(itemDetails: {}): Frame
 		end
 	end
 	
-
 	local function onBuyItemClicked()
 		if addTile.BuyFrame.CostButton.Text == "Free" then
 			SetPlayerOwnedItems:InvokeServer(addTile.NameLabel.Text, "true")
@@ -100,8 +93,6 @@ local function AddTile(itemDetails: {}): Frame
 		
 	end
 	
-
-
 	local function onAddToShopClicked()
 		ShopGuiFsm.setState("None")
 		PlayerClickedAddToShopAsync:Fire(addTile.NameLabel.Text, itemDetails["ItemType"], Constants.PLACE_COMMAND)

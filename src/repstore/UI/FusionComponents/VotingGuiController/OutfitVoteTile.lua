@@ -1,5 +1,5 @@
 --!strict
--- OutfitTile.lua
+-- OutfitVoteTile.lua
 
 -- Services
 local Players = game:GetService("Players")
@@ -9,12 +9,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 
-
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local ImageUris = require(DataTables:WaitForChild("ImageUris"))
-
 
 -- Fusion
 local OnEvent = Fusion.OnEvent
@@ -22,26 +19,29 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 local peek = Fusion.peek
 
-
-function OutfitTile(
+function OutfitVoteTile(
 	scope: Fusion.Scope,
 	props: {
+		name: UsedAs<string>?,
 		visible: UsedAs<boolean>?,
+		views: UsedAs<number>?,
+		votes: UsedAs<number>?,
+		IsSelected: UsedAs<boolean>?,
+		userId: UsedAs<number>?,
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
-		layoutOrder: UsedAs<number>?,
+		layoutOrder: UsedAs<number>?,  
 		anchorPoint: UsedAs<Vector2>?,
-		text: UsedAs<string>?,
 		humanoidDescription: HumanoidDescription,
-		outfit: Fusion.UsedAs<{}>?,
-		onSelect: () -> (),
-		onDelete: () -> ()?,
+		OnSelected: () -> (),
 	}
 ): Frame
 
 	-- Create avatar model from HumanoidDescription
 	local avatarModel = scope:Computed(function(use)
-		if not props.humanoidDescription then return nil end
+		if not props.humanoidDescription then 
+            return nil 
+        end
 
 		local success, model = pcall(function()
 			local model = Players:CreateHumanoidModelFromDescription(props.humanoidDescription, Enum.HumanoidRigType.R15)
@@ -51,7 +51,7 @@ function OutfitTile(
 					descendant:Destroy()
 				end
 			end
-			return model
+			return model 
 		end)
 
 		if success and model then
@@ -64,19 +64,36 @@ function OutfitTile(
 		end
 	end)
 
+	
+	local isHovering = scope:Value(false)
+	local isHeldDown = scope:Value(false)
+
+	local backgroundColourSpring = scope:Spring(
+		scope:Computed(function(use)
+			local backgroundColor = use(props.IsSelected) and UI_CONSTANTS.TASTEMAKER_PURPLE or UI_CONSTANTS.COLOUR_BLACK
+			if use(isHeldDown) then
+				return backgroundColor:Lerp(UI_CONSTANTS.COLOUR_WHITE, 0.8)
+			elseif use(isHovering) then
+				return backgroundColor:Lerp(UI_CONSTANTS.COLOUR_WHITE, 0.2)
+			else
+				return backgroundColor
+			end
+		end),
+		20,
+		1
+	)	
+
 	-- Create viewport camera
 	local viewportCamera = scope:Value(nil)
 
-	local isCurrentlyEquipping = scope:Value(false)
-	
-	local outfitTile = scope:New "Frame" {
-		Name = "OutfitTile",
+	local outfitVoteTile = scope:New "Frame" {
+		Name = props.name,
 		Visible = props.visible or true,
 		Size = props.size or UDim2.fromScale(0.25, 0.3),
 		Position = props.position,
-		AnchorPoint = props.anchorPoint,
+		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		LayoutOrder = props.layoutOrder,
-		BackgroundColor3 = Color3.new(1, 1, 1),
+		BackgroundColor3 = backgroundColourSpring,
 		BackgroundTransparency = 0.1,
 
 		[Children] = {
@@ -101,9 +118,9 @@ function OutfitTile(
 			-- Outfit thumbnail viewport
 			scope:New "ViewportFrame" {
 				Name = "OutfitViewport",
-				Size = UDim2.fromScale(1, 0.8),
+				Size = UDim2.fromScale(1, 1),
 				LayoutOrder = 1,
-				BackgroundColor3 = Color3.fromRGB(240, 240, 240),
+				BackgroundColor3 = backgroundColourSpring,
 				BackgroundTransparency = 0,
 				BorderSizePixel = 0,
 
@@ -112,27 +129,33 @@ function OutfitTile(
 						CornerRadius = UDim.new(0.05, 0)
 					},
 
-					scope:New "ImageButton" {
-						Name = "CloseButton",
-						Image = ImageUris["CloseButton"],
-						AnchorPoint = Vector2.new(1, 0),
-						Size = UDim2.fromScale(0.25, 0.25),
-						BackgroundTransparency = 1,
-						Position = UDim2.fromScale(1,0),
-						
-						[Children] = {
-							scope:New "UIAspectRatioConstraint" {
-								AspectRatio = 1
-							}
-						},
-						
-						[OnEvent "Activated"] = function()
-							if props.onDelete then
-								props.onDelete()
-							end
-							-- TODO: Refresh the GUI from here
+                    scope:New "ImageButton" {
+                        Size = UDim2.fromScale(1, 1),
+                        ImageTransparency = 1,
+                        BackgroundTransparency = 1,
+
+
+                        [OnEvent "Activated"] = function()
+                            props.OnSelected()
+                        end,
+
+						[OnEvent "MouseButton1Down"] = function()
+							isHeldDown:set(true)
 						end,
-					},
+						
+						[OnEvent "MouseButton1Up"] = function()
+							isHeldDown:set(false)
+						end,
+						
+						[OnEvent "MouseEnter"] = function()
+							isHovering:set(true)
+						end,
+						
+						[OnEvent "MouseLeave"] = function()
+							isHovering:set(false)
+						end,
+
+                    },
 
 					scope:New "WorldModel" {
 						Name = "WorldModel",
@@ -157,80 +180,6 @@ function OutfitTile(
 					return use(viewportCamera)
 				end)
 			},
-
-			-- Button frame
-			scope:New "Frame" {
-				Name = "ButtonsFrame",
-				Size = UDim2.fromScale(1, 0.2),
-				LayoutOrder = 2,
-				BackgroundTransparency = 1,
-
-				[Children] = {
-					scope:New "UIListLayout" {
-						FillDirection = Enum.FillDirection.Horizontal,
-						SortOrder = Enum.SortOrder.LayoutOrder,
-						HorizontalAlignment = Enum.HorizontalAlignment.Center,
-						VerticalAlignment = Enum.VerticalAlignment.Center,
-						Padding = UDim.new(0, 5)
-					},
-
-					-- Wear/Select Button
-					scope:New "TextButton" {
-						Name = "WearButton",
-						Size = UDim2.fromScale(0.4, 0.8),
-						LayoutOrder = 1,
-						BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-						Text = "Wear Outfit",
-						TextColor3 = Color3.new(1, 1, 1),
-						TextScaled = true,
-						Font = Enum.Font.Gotham,
-
-						[OnEvent "Activated"] = function()
-							if peek(isCurrentlyEquipping) then return end
-							
-							isCurrentlyEquipping:set(true)
-
-							if props.onSelect then
-								props.onSelect()
-							end
-							
-							isCurrentlyEquipping:set(false)
-						end,
-
-						[Children] = {
-							scope:New "UICorner" {
-								CornerRadius = UDim.new(0.1, 0)
-							}
-						}
-					},
-					--[[
-					-- Wear/Select Button
-					scope:New "TextButton" {
-						Name = "BuyButton",
-						Size = UDim2.fromScale(0.4, 0.8),
-						LayoutOrder = 2,
-						BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-						Text = "Buy Outfit",
-						TextColor3 = Color3.new(1, 1, 1),
-						TextScaled = true,
-						Font = Enum.Font.Gotham,
-						-- This functionality is not yet ready
-						Visible = false,
-
-
-						[OnEvent "Activated"] = function()
-							PlayerPurchasedOutfit:FireServer(props.outfit.Id)
-						end,
-
-						[Children] = {
-							scope:New "UICorner" {
-								CornerRadius = UDim.new(0.1, 0)
-							}
-						}
-					}
-					]]
-				}
-			}
 		}
 	} :: Frame
 
@@ -258,7 +207,7 @@ function OutfitTile(
 	-- Set up initial camera position
 	task.defer(updateCameraPosition)
 
-	return outfitTile
+	return outfitVoteTile
 end
 
-return OutfitTile
+return OutfitVoteTile
