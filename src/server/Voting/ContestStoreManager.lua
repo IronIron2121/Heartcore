@@ -48,7 +48,7 @@ local currentTheme = nil
 -- Caching variables
 local pendingUpdates = {} -- {entryKey = {votes = 0, views = 0}}
 local lastFlush = tick()
-local FLUSH_INTERVAL = 60 -- seconds
+local FLUSH_INTERVAL = 60 
 local MAX_PENDING_UPDATES = 50 -- flush if we hit this many pending updates
 local isFlushingInProgress = false
 
@@ -129,7 +129,7 @@ local function updateTheme(themeMemoryStore: MemoryStoreHashMap?): boolean
         5
     )
 
-    -- TODO: Modularise this as it is redundant
+    -- TODO: Modularise this, it's redundant
     if success then
         currentTheme = newTheme
         ThemeChangedRemote:FireAllClients(newTheme)
@@ -179,9 +179,7 @@ end
 
 
 
--- Original ContestStoreManager functions (modified to include theme)
 function ContestStoreManager.initialise(): ()
-    -- Initialize theme first
     local themeSuccess = initializeTheme()
     if not themeSuccess then
         error("Failed to initialize theme system")
@@ -529,22 +527,6 @@ function ContestStoreManager.getBalancedOutfit(): string?
     return balancedSelector:selectOutfit()
 end
 
--- Get selection system statistics for monitoring
-function ContestStoreManager.getSelectionStats(): {}
-    return balancedSelector:getStats()
-end
-
--- Get detailed selection statistics for debugging
-function ContestStoreManager.getDetailedSelectionStats(): {}
-    return balancedSelector:getDetailedStats()
-end
-
--- Force rebuild selection buckets (for debugging)
-function ContestStoreManager.rebuildSelectionBuckets(): boolean
-    return balancedSelector:onCacheUpdated(publicCache)
-end
-
--- Force update the public cache (useful for debugging)
 function ContestStoreManager.forceUpdateCache(): ()
     ContestStoreManager.updatePublicCache()
 end
@@ -554,38 +536,11 @@ function ContestStoreManager.forceFlush(): ()
     ContestStoreManager.flushPendingUpdates()
 end
 
--- Get current pending updates for debugging
 function ContestStoreManager.getPendingUpdates(): {}
     return pendingUpdates
 end
 
--- Get cache statistics for debugging
-function ContestStoreManager.getCacheStats(): {}
-    local entryCount = 0
-    for _ in pairs(publicCache) do
-        entryCount += 1
-    end
-    
-    local pendingCount = 0
-    for _ in pairs(pendingUpdates) do
-        pendingCount += 1
-    end
-    
-    return {
-        cacheEntries = entryCount,
-        pendingUpdates = pendingCount,
-        lastCacheUpdate = lastCacheUpdate,
-        timeSinceLastCacheUpdate = tick() - lastCacheUpdate,
-        isCacheUpdating = isCacheUpdating,
-        isFlushingInProgress = isFlushingInProgress,
-        currentTheme = currentTheme and currentTheme.Theme or "None",
-        themeTimeChanged = currentTheme and currentTheme.TimeChanged or nil
-    }
-end
 
--- Force update theme (useful for admin controls)
-function ContestStoreManager.forceUpdateTheme(): boolean
-    return updateTheme()
-end
+
 
 return ContestStoreManager

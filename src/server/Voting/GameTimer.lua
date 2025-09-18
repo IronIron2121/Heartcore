@@ -1,5 +1,4 @@
 -- GameTimer.lua (ServerScript)
--- SERVER-ONLY: Handles phase transitions and timing
 
 -- Services
 local MemoryStoreService = game:GetService("MemoryStoreService")
@@ -28,7 +27,6 @@ local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
 -- Flags
 local TimerStarted = false
 
--- Cache for GameTimer data
 local GameTimerCache = {}
 
 local GameTimer = {}
@@ -71,10 +69,11 @@ local function currentPhaseHasExpired()
     local currentPhaseTimestamp = getCurrentPhaseTimestamp()
     
     if not currentPhaseTimestamp then
-        return true -- No phase transition recorded yet - start first phase
+        -- No phase transition recorded yet - start first phase
+        return true 
     end
     
-    -- Check if time has passed since the last phase transition
+    -- Check if enough time has passed since the last phase transition
     return (currentTime - currentPhaseTimestamp) >= DEBUG_SECONDS_BETWEEN_THEME_CHANGE
 end
 
@@ -82,11 +81,9 @@ local function updatePhase()
     print("Starting phase transition...")
     local currentTime = os.time()
     
-    -- Store the current "recent" transition as "previous" before updating
     GameTimerCache.previousPhaseTimestamp = GameTimerCache.currentPhaseTimestamp
     GameTimerCache.currentPhaseTimestamp = currentTime
     
-    -- Save both transition times to persistent storage
     local recentSuccess = callWithRetry(function()
         return GameTimerMemoryStore:SetAsync("currentPhaseTimestamp", currentTime, Constants.MEMORYSTORE_STORE_DURATION)
     end, 3)
@@ -114,16 +111,16 @@ local function attemptPhaseTransition()
     local success, result = callWithRetry(function()
         return TransitionLockStore:UpdateAsync(lockKey, function(currentOwner)
             if currentOwner == nil then
-                -- No one owns this transition yet - claim it
+                -- no one owns this transition yet, claim it
                 return {
                     serverId = game.JobId,
                     startTime = currentTime
                 }
             else
-                -- Another server already claimed it
-                return nil -- Return nil = no change, don't claim
+                -- another server is already doing the transition
+                return nil 
             end
-        end, 600) -- 10 minute expiration
+        end, 600) -- 10 mins
     end, 3)
     
     -- Check if this server won the lock
