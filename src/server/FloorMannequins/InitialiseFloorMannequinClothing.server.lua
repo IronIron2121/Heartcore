@@ -19,7 +19,16 @@ local setDescriptionSkinColor = require(Utility:WaitForChild("setDescriptionSkin
 local stringOfNumbersToArray = require(Utility:WaitForChild("stringOfNumbersToArray"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
+local function makeMannequinInvisible(mannequin: Instance)
+	for _, part in mannequin:GetDescendants() do
+		if part:IsA("BasePart") then
+			part.Transparency = 1
+		end
+	end
+end
+
 local function setupMannequinAsync(mannequin: Instance)
+	makeMannequinInvisible(mannequin)
 	-- Get the list of accessories, bundles, and skin color to apply to the mannequin
 	local accessoryIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_ACCESSORY_IDS_ATTRIBUTE)
 	local bundleIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE)
@@ -55,6 +64,11 @@ local function setupMannequinAsync(mannequin: Instance)
 		-- Add bundle handling logic here if needed
 	end
 	
+	--print("Finished setting up clothing for mannequin:", mannequin.Name)
+end
+
+local function onMannequinAdded(mannequin: Model)
+	--print("Setting up mannequin clothing:", mannequin.Name)
 end
 
 local function onMannequinAdded(mannequin: Model)
@@ -84,8 +98,9 @@ local function initialise()
 
 	-- Initialise existing mannequins
 	for _, mannequin in CollectionService:GetTagged(Constants.FLOOR_MANNEQUIN_TAG) do
+		--print("Initialising clothing for existing mannequin:", mannequin.Name)
 		onMannequinAdded(mannequin)
 	end
 end
 
-initialise()
+initialise() 
