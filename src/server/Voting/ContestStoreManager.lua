@@ -207,7 +207,7 @@ function ContestStoreManager.getCurrentMemoryStore()
 end
 
 function ContestStoreManager.initialiseNewContest(): boolean
-        -- Set new winners before changing over...
+    -- Set new winners before changing over...
     local complete = SetNewWinnersBindable:Invoke()
 
     if not complete then
@@ -218,7 +218,7 @@ function ContestStoreManager.initialiseNewContest(): boolean
     local themeUpdateSuccess = updateTheme()
     if not themeUpdateSuccess then
         warn("Failed to update theme for new contest")
-        -- Continue anyway, as contest can function without theme
+        -- TODO: Add logic for failed theme update here
     end
 
     local currentMemoryStore = ContestStoreManager.getCurrentMemoryStore()
@@ -275,6 +275,7 @@ end
 
 function ContestStoreManager.addViews(entryKey: string, viewAmount: number): ()
     warn("Adding views to ", entryKey, "with type,", typeof(entryKey))
+    
     -- Initialize entry in pending updates if it doesn't exist
     if not pendingUpdates[entryKey] then
         warn("No pre-existing entry for this key!")
@@ -305,6 +306,7 @@ function ContestStoreManager.addViews(entryKey: string, viewAmount: number): ()
     end
 end
 
+-- Add votesto a given outfit in the current contest
 function ContestStoreManager.addVotes(entryKey: string, voteAmount: number): ()
     -- Initialize entry in pending updates if it doesn't exist
     if not pendingUpdates[entryKey] then
@@ -347,7 +349,6 @@ function ContestStoreManager.flushPendingUpdates(): ()
     local contestStoreName = ContestStoreManager.getCurrentMemoryStoreName()
     local currentMemoryStore = MemoryStoreService:GetHashMap(contestStoreName)
     
-    -- Create a snapshot of pending updates and clear the original
     local updatesToFlush = {}
     for entryKey, updates in pairs(pendingUpdates) do
         updatesToFlush[entryKey] = {
@@ -387,7 +388,6 @@ function ContestStoreManager.flushPendingUpdates(): ()
 end
 
 function ContestStoreManager.startPeriodicFlush(): ()
-    -- Start a periodic flush every FLUSH_INTERVAL seconds
     task.spawn(function()
         while true do
             task.wait(FLUSH_INTERVAL)
@@ -397,7 +397,6 @@ function ContestStoreManager.startPeriodicFlush(): ()
         end
     end)
     
-    -- Start periodic cache updates every CACHE_UPDATE_INTERVAL seconds
     task.spawn(function()
         while true do
             task.wait(CACHE_UPDATE_INTERVAL)
@@ -411,7 +410,7 @@ end
 -- Update the public cache with all current contest entries
 function ContestStoreManager.updatePublicCache(): ()
     if isCacheUpdating then
-        return -- Already updating, prevent overlapping updates
+        return 
     end
     
     isCacheUpdating = true

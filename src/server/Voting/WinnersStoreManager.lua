@@ -18,10 +18,14 @@ local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
 -- Instances
+type RigModel = Model & {
+    Humanoid : Humanoid
+}
+
 local podiumRigs = {
-    [1] = dailyWinners:WaitForChild("FirstPlace") :: Model & {Humanoid},
-    [2] = dailyWinners:WaitForChild("SecondPlace") :: Model & {Humanoid},
-    [3] = dailyWinners:WaitForChild("ThirdPlace") :: Model & {Humanoid}
+    [1] = dailyWinners:WaitForChild("FirstPlace") :: RigModel,
+    [2] = dailyWinners:WaitForChild("SecondPlace") :: RigModel,
+    [3] = dailyWinners:WaitForChild("ThirdPlace") :: RigModel
 }
 
 local WinnersStoreManager = {}
@@ -162,7 +166,7 @@ function WinnersStoreManager.setNewWinners()
         print("1st Place:", first_place.userId, "with", first_place.votes, "votes")
         print("2nd Place:", second_place.userId, "with", second_place.votes, "votes") 
         print("3rd Place:", third_place.userId, "with", third_place.votes, "votes")
-        WinnersStoreManager.updateWinnersPodiums() -- Update podiums immediately
+        WinnersStoreManager.updateWinnersPodiums() 
         return true
     else
         warn("Failed to set new winners")
