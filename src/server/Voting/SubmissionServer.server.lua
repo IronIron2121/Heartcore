@@ -21,22 +21,21 @@ local getHumanoidDescriptionFromPlayer = require(Getters:WaitForChild("getHumano
 local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 local DataManager = require(Data:WaitForChild("DataManager"))
+local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Instances
 local SubmissionPad = centralPond:WaitForChild("SubmissionPad")
+local ColorPart = SubmissionPad:WaitForChild("ColorPart")
+
+-- Fusion
+local scope = Fusion:scoped()
+local Children = Fusion.Children
+local OnEvent = Fusion.OnEvent
+
+local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
+local promptEnabled = scope:Value(true)
 
 -- Prompt
-local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
-local prompt = Instance.new("ProximityPrompt") :: ProximityPrompt
-prompt.Parent = promptHolder
-prompt.ActionText = "Submit Outfit"
-prompt.HoldDuration = 0.5
-prompt.RequiresLineOfSight = false
-prompt.MaxActivationDistance = 16
-
-
---
-
 local function onOutfitSubmitted(player: Player)
 	-- Get humanoid description
 	local humanoidDescription = getHumanoidDescriptionFromPlayer(player)
@@ -48,8 +47,34 @@ local function onOutfitSubmitted(player: Player)
 
 	-- Serialise it
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
+
 	SubmissionStoreManager:AddEntry(player, serialisedHumanoidDescription)
+	
 	DataManager.AddExp(player, 1)
+	
+	task.spawn(function()
+		promptEnabled:set(false)
+		promptHolder.Color = Color3.fromRGB(100,100,100)
+		task.wait(10)
+		promptEnabled:set(true)		
+		promptHolder.Color = Color3.fromRGB(163,162,165)
+	end)
 end
+
+
+
+local prompt = scope:New "ProximityPrompt" {
+	Parent = promptHolder,
+	Enabled = promptEnabled,
+	ActionText = "Submit Outfit",
+	HoldDuration = 0.5,
+	RequiresLineOfSight = false,
+	MaxActivationDistance = 16,
+	[OnEvent "Triggered"] = function(player)
+		onOutfitSubmitted(player)
+	end
+}
+
+--
 
 prompt.Triggered:Connect(onOutfitSubmitted)
