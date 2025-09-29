@@ -25,7 +25,6 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Instances
 local SubmissionPad = centralPond:WaitForChild("SubmissionPad")
-local ColorPart = SubmissionPad:WaitForChild("ColorPart")
 
 -- Fusion
 local scope = Fusion:scoped()

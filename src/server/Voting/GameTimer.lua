@@ -85,7 +85,7 @@ local function getNextPhaseStartUnixTime(unixTimestamp: number)
     currentUniversalTime["Second"] = 0
     currentUniversalTime["Millisecond"] = 0
     
-    local todayPhaseStartUnix = DateTime.fromUniversalTime(currentUniversalTime).UnixTimestamp
+    local todayPhaseStartUnix = DateTime.fromUniversalTime(table.unpack(currentUniversalTime)).UnixTimestamp
     
     -- If we've already passed today's phase start, return tomorrow's
     if currentHour >= PHASE_START_HOUR then
@@ -132,7 +132,8 @@ local function updatePhase()
         PhaseChanged:Fire()
         
         local currentDateTime = DateTime.fromUnixTimestamp(currentUnixTime)
-        local tomorrowDateTime = DateTime.fromUnixTimestamp(currentUnixTime + 86400) -- today plus 24 hours
+        local nextPhaseUnixTime = getNextPhaseStartUnixTime(currentUnixTime)
+        local tomorrowDateTime = DateTime.fromUnixTimestamp(nextPhaseUnixTime)
         
         print("Phase transition completed at:", currentDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
         print("Next transition at:", tomorrowDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
