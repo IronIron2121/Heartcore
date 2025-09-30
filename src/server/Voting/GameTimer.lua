@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
+local centralPond = workspace:WaitForChild("centralPond")
 
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
@@ -19,9 +20,17 @@ local TransitionLockStore = MemoryStoreService:GetHashMap("TransitionLocks")
 -- Constants
 local CHECK_TIME_LAPSE_INTERVAL = 10
 local PHASE_START_HOUR = 12 -- every phase starts at 12:00:00
+local PHASE_CLOCK_UPDATE_INTERVAL = 1
 
 -- Remotes / Bindables
 local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
+
+-- Instances
+local centralPondModel = centralPond:WaitForChild("centralPond")
+local Text = centralPondModel:WaitForChild("Text")
+local BillboardGui = Text:WaitForChild("BillboardGui")
+local Frame = BillboardGui:WaitForChild("Frame")
+local TimeLabel = Frame:WaitForChild("TimeLabel")
 
 -- Flags
 local TimerStarted = false
@@ -29,6 +38,7 @@ local TimerStarted = false
 local GameTimerCache = {}
 GameTimerCache.currentPhaseUnixTime = nil
 GameTimerCache.previousPhaseUnixTime = nil
+GameTimerCache.nextPhaseUnixTime = nil
 
 local GameTimer = {}
 
@@ -42,6 +52,10 @@ end
 
 local function getPreviousPhaseUnixTime()
     return GameTimerCache.previousPhaseUnixTime
+end
+
+local function getNextPhaseUnixTime()
+    return GameTimerCache.nextPhaseUnixTime
 end
 
 function GameTimer.getCurrentPhasePrefix(): string?
@@ -70,16 +84,23 @@ function GameTimer.getPreviousPhasePrefix(): string?
 end
 
 local function getNextPhaseStartTime()
-    warn("Getting next phase start time")
+    -- Return cached value if it's still valid
+    if GameTimerCache.nextPhaseUnixTime then
+        local currentUnixTime = DateTime.now().UnixTimestamp
+        if currentUnixTime < GameTimerCache.nextPhaseUnixTime then
+            return GameTimerCache.nextPhaseUnixTime
+        end
+    end
+    
+    -- Cache is invalid or doesn't exist, recalculate
     local currentPhaseUnixTime = getCurrentPhaseUnixTime()
-    warn("current phase == ", currentPhaseUnixTime)
     if not currentPhaseUnixTime then
         return nil
     end
     
     local currentUniversalTime = getUniversalTimeFromUnixTimestamp(currentPhaseUnixTime)
     local currentHour = currentUniversalTime["Hour"]
-    warn("Universal time = ", currentUniversalTime)
+    
     currentUniversalTime["Hour"] = PHASE_START_HOUR
     currentUniversalTime["Minute"] = 0
     currentUniversalTime["Second"] = 0
@@ -97,32 +118,29 @@ local function getNextPhaseStartTime()
 
     local nextPhaseStartUnix = DateTime.fromUniversalTime(table.unpack(timeArray)).UnixTimestamp
     
-
     if currentHour >= PHASE_START_HOUR then
-        warn("nextPhaseStart tomorrow: ", DateTime.fromUnixTimestamp(nextPhaseStartUnix + 86400):FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
-        return nextPhaseStartUnix + 86400
-    else
-        warn("nextPhaseStart: today", DateTime.fromUnixTimestamp(nextPhaseStartUnix):FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
-        return nextPhaseStartUnix
+        nextPhaseStartUnix = nextPhaseStartUnix + 86400
     end
+    
+    -- Update cache
+    GameTimerCache.nextPhaseUnixTime = nextPhaseStartUnix
+    
+    return nextPhaseStartUnix
 end
 
 local function currentPhaseHasExpired()
     local currentPhaseUnixTime = getCurrentPhaseUnixTime()
     
     if not currentPhaseUnixTime then
-        warn("No current phase unix time!")
         return true
     end
 
-local nextPhaseStartTime = getNextPhaseStartTime()
+    local nextPhaseStartTime = getNextPhaseStartTime()
     if not nextPhaseStartTime then
-        warn("No next phase start time!")
         return true
     end
     
     local currentUnixTime = DateTime.now().UnixTimestamp
-    warn("comparing...", currentUnixTime, nextPhaseStartTime)
     return currentUnixTime >= nextPhaseStartTime
 end
 
@@ -144,6 +162,7 @@ local function updatePhase()
     if recentSuccess and previousSuccess then
         GameTimerCache.previousPhaseUnixTime = GameTimerCache.currentPhaseUnixTime
         GameTimerCache.currentPhaseUnixTime = currentUnixTime
+        GameTimerCache.nextPhaseUnixTime = nil -- Invalidate cache so it recalculates
         
         PhaseChanged:Fire()
         
@@ -247,6 +266,25 @@ function GameTimer.initialiseTimer(): ()
                     print("No phase transition recorded yet")
                 end
             end
+        end
+    end)
+
+    task.spawn(function()
+        while true do
+            local timestampNow = DateTime.now().UnixTimestamp
+            local nextPhaseTime = getNextPhaseUnixTime()
+            
+            if not nextPhaseTime or nextPhaseTime <= timestampNow then
+                TimeLabel.Text = "LOADING..."
+            else
+                local timeRemaining = nextPhaseTime - timestampNow
+                local hours = timeRemaining // 3600
+                local minutes = (timeRemaining % 3600) // 60
+                local seconds = timeRemaining % 60
+                TimeLabel.Text = string.format("%d:%02d:%02d", hours, minutes, seconds)      
+            end
+
+            task.wait(PHASE_CLOCK_UPDATE_INTERVAL)
         end
     end)
 
