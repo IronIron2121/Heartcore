@@ -23,6 +23,8 @@ local OutfitVoteTile = require(script:WaitForChild("OutfitVoteTile"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
+local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+
 
 
 -- Fusion Modules
@@ -124,9 +126,9 @@ function VotingGuiController.Initialise(
         [Children] = {
             scope:New "Frame" {
                 Name = "Container",
-                Size = UDim2.fromScale(0.8, 0.9),
-                AnchorPoint = Vector2.new(0.5, 1),
-                Position = UDim2.fromScale(0.5, 1),
+                Size = UDim2.fromScale(0.8, 0.8),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Position = UDim2.fromScale(0.5, 0.48),
                 BackgroundColor3 = Color3.new(1,1,1),
                 BackgroundTransparency = 0.2,
 
@@ -139,6 +141,13 @@ function VotingGuiController.Initialise(
                     scope:New "UICorner" {
                                         CornerRadius = UDim.new(0.05)
                                     },
+
+                    scope:New "UIPadding" {
+                        PaddingBottom = UDim.new(0.05,0),
+                        PaddingTop = UDim.new(0.05,0),
+                        PaddingRight = UDim.new(0.05,0),
+                        PaddingLeft = UDim.new(0.05,0)
+                    },
 
                     scope:New "Frame"{
                         Name = "TopBar",
@@ -153,8 +162,18 @@ function VotingGuiController.Initialise(
                             },
 
                             scope:New "TextLabel" {
-                                Name = "TodaysTheme",
+                                Name = "VoteFor",
                                 Text = "Vote for best fit:",
+                                TextScaled = true,
+                                Size = UDim2.fromScale(0.3, 1),
+                                LayoutOrder = 1,
+                                BackgroundTransparency = 1,
+                                TextColor3 = Color3.fromRGB(92, 96, 214)
+                            },
+
+                            scope:New "TextLabel" {
+                                Name = "TodaysTheme",
+                                Text = "Festival",
                                 TextScaled = true,
                                 Size = UDim2.fromScale(0.3, 1),
                                 LayoutOrder = 1,
@@ -164,32 +183,44 @@ function VotingGuiController.Initialise(
 
                             scope:New "Frame"{
                                 Name = "Buffer",
-                                Size = UDim2.fromScale(0.2, 1),
+                                Size = UDim2.fromScale(0.1, 1),
                                 LayoutOrder = 2,
                                 BackgroundTransparency = 1,
                             },
 
-                            scope:New "ImageLabel"{
-				                Image = ImageUris.StopwatchIcon,
-                                Size = UDim2.fromScale(1, 1),
+                            scope:New "Frame"{
+                                Name = "TimerContainer",
+                                Size = UDim2.fromScale(0.2, 1),
                                 LayoutOrder = 3,
                                 BackgroundTransparency = 1,
+                                
                                 [Children] = {
-                                    scope:New "UIAspectRatioConstraint" {
-                                        AspectRatio = 1,
-                                        DominantAxis = Enum.DominantAxis.Width,
+                                    scope:New "UIListLayout" {
+                                        FillDirection = Enum.FillDirection.Horizontal,
+                                        SortOrder = Enum.SortOrder.LayoutOrder
+                                    },
+                                    scope:New "ImageLabel"{
+                                        Image = ImageUris.StopwatchIcon,
+                                        Size = UDim2.fromScale(1, 1),
+                                        LayoutOrder = 1,
+                                        BackgroundTransparency = 1,
+                                        [Children] = {
+                                            scope:New "UIAspectRatioConstraint" {
+                                                AspectRatio = 1,
+                                                DominantAxis = Enum.DominantAxis.Width,
+                                            }
+                                        }
+                                    },
+                                    scope:New "TextLabel" {
+                                        Name = "Timer",
+                                        Text = "HH:MM:SS",
+                                        TextScaled = true,
+                                        Size = UDim2.fromScale(1, 1),
+                                        LayoutOrder = 2,
+                                        BackgroundTransparency = 1,
+                                        TextColor3 = Color3.fromRGB(92, 96, 214)
                                     }
                                 }
-                            },
-
-                            scope:New "TextLabel" {
-                                Name = "Timer",
-                                Text = "HH:MM:SS",
-                                TextScaled = true,
-                                Size = UDim2.fromScale(0.3, 1),
-                                LayoutOrder = 4,
-                                BackgroundTransparency = 1,
-                                TextColor3 = Color3.fromRGB(92, 96, 214)
                             }
                         }
                     },
@@ -217,7 +248,7 @@ function VotingGuiController.Initialise(
                             scope:New "Frame" {
                                 Name = "OutfitsContainer",
                                 BackgroundTransparency = 1,
-                                Size = UDim2.fromScale(1, 1),
+                                Size = UDim2.fromScale(1, 0.8),
                                 LayoutOrder = 2,
 
                                 [Children] = {
@@ -259,9 +290,16 @@ function VotingGuiController.Initialise(
                             },
 
                             scope:New "Frame" {
-                                Name = "SubmitFrame",
-                                Size = UDim2.fromScale(1, 1),
+                                Name = "Buffer",
+                                Size = UDim2.fromScale(1, 0.05),
                                 LayoutOrder = 3,
+                                BackgroundTransparency = 1
+                            },
+
+                            scope:New "Frame" {
+                                Name = "SubmitFrame",
+                                Size = UDim2.fromScale(0.5, 0.2),
+                                LayoutOrder = 4,
                                 BackgroundTransparency = 1,
                                 
                                 [Children] = {
@@ -270,7 +308,7 @@ function VotingGuiController.Initialise(
                                         name = "SubmitButton",
                                         text = "Submit Vote",
                                         textScaled = true,
-                                        size = UDim2.fromScale(0.8, 0.1),
+                                        size = UDim2.fromScale(0.8, 1),
                                         backgroundColor = Color3.new(1, 1, 1),
                                         strokeColor = Color3.new(0.360784, 0.376471, 0.839216),
                                         strokeThickness = 5,

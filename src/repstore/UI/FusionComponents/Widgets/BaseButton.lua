@@ -48,9 +48,9 @@ function Button(
 			local baseColor = backgroundColor
 
 			if use(isHeldDown) then
-				return baseColor:Lerp(UI_CONSTANTS.COLOUR_BLACK, 1)
+				return baseColor:Lerp(Color3.fromRGB(89, 247, 128), 1)
 			elseif use(isHovering) then
-				return baseColor:Lerp(UI_CONSTANTS.COLOUR_BLACK, 0.20)
+				return baseColor:Lerp(Color3.fromRGB(89, 247, 128), 0.20)
 			else
 				return baseColor
 			end
