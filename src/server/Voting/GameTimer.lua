@@ -49,7 +49,6 @@ function GameTimer.getCurrentPhasePrefix(): string?
 
     if currentPhaseUnixTime then
         local date = getUniversalTimeFromUnixTimestamp(currentPhaseUnixTime)
-        --local debug_dayPrefix = date.Month .. date.Day .. date.Minute
         local dayPrefix = date.Month .. date.Day 
         return dayPrefix
     else
@@ -70,28 +69,41 @@ function GameTimer.getPreviousPhasePrefix(): string?
     end
 end
 
-local function getCurrentUniversalTime()
-    local currentDateTime = DateTime.now()
-    return currentDateTime:ToUniversalTime()
-end
-
-local function getNextPhaseStartUnixTime(unixTimestamp: number)
-    local currentUniversalTime = getUniversalTimeFromUnixTimestamp(unixTimestamp)
-    local currentHour = currentUniversalTime["Hour"]
+local function getNextPhaseStartTime()
+    warn("Getting next phase start time")
+    local currentPhaseUnixTime = getCurrentPhaseUnixTime()
+    warn("current phase == ", currentPhaseUnixTime)
+    if not currentPhaseUnixTime then
+        return nil
+    end
     
-    -- Set to phase start hour (12 PM)
+    local currentUniversalTime = getUniversalTimeFromUnixTimestamp(currentPhaseUnixTime)
+    local currentHour = currentUniversalTime["Hour"]
+    warn("Universal time = ", currentUniversalTime)
     currentUniversalTime["Hour"] = PHASE_START_HOUR
     currentUniversalTime["Minute"] = 0
     currentUniversalTime["Second"] = 0
     currentUniversalTime["Millisecond"] = 0
     
-    local todayPhaseStartUnix = DateTime.fromUniversalTime(table.unpack(currentUniversalTime)).UnixTimestamp
+    local timeArray = {
+        currentUniversalTime.Year,
+        currentUniversalTime.Month,
+        currentUniversalTime.Day,
+        currentUniversalTime.Hour,
+        currentUniversalTime.Minute,
+        currentUniversalTime.Second,
+        currentUniversalTime.Millisecond
+    }
+
+    local nextPhaseStartUnix = DateTime.fromUniversalTime(table.unpack(timeArray)).UnixTimestamp
     
-    -- If we've already passed today's phase start, return tomorrow's
+
     if currentHour >= PHASE_START_HOUR then
-        return todayPhaseStartUnix + 86400
+        warn("nextPhaseStart tomorrow: ", DateTime.fromUnixTimestamp(nextPhaseStartUnix + 86400):FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
+        return nextPhaseStartUnix + 86400
     else
-        return todayPhaseStartUnix
+        warn("nextPhaseStart: today", DateTime.fromUnixTimestamp(nextPhaseStartUnix):FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
+        return nextPhaseStartUnix
     end
 end
 
@@ -99,12 +111,18 @@ local function currentPhaseHasExpired()
     local currentPhaseUnixTime = getCurrentPhaseUnixTime()
     
     if not currentPhaseUnixTime then
-        return true -- No phase exists, need to create one
+        warn("No current phase unix time!")
+        return true
     end
 
-    local nextPhaseStartTime = getNextPhaseStartUnixTime(currentPhaseUnixTime)
-    local currentUnixTime = DateTime.now().UnixTimestamp
+local nextPhaseStartTime = getNextPhaseStartTime()
+    if not nextPhaseStartTime then
+        warn("No next phase start time!")
+        return true
+    end
     
+    local currentUnixTime = DateTime.now().UnixTimestamp
+    warn("comparing...", currentUnixTime, nextPhaseStartTime)
     return currentUnixTime >= nextPhaseStartTime
 end
 
@@ -112,19 +130,17 @@ local function updatePhase()
     print("Starting phase transition...")
     local currentUnixTime = DateTime.now().UnixTimestamp 
     
-    -- Don't update cache until we confirm Memory Store success
     local recentSuccess = callWithRetry(function()
         return GameTimerMemoryStore:SetAsync("currentPhaseUnixTime", currentUnixTime, Constants.MEMORYSTORE_STORE_DURATION)
     end, 3)
     
-    local previousSuccess = true -- Default to true if no previous phase
+    local previousSuccess = true
     if GameTimerCache.currentPhaseUnixTime then
         previousSuccess = callWithRetry(function()
             return GameTimerMemoryStore:SetAsync("previousPhaseUnixTime", GameTimerCache.currentPhaseUnixTime, Constants.MEMORYSTORE_STORE_DURATION)
         end, 3)
     end
     
-    -- Only update cache if both Memory Store operations succeeded
     if recentSuccess and previousSuccess then
         GameTimerCache.previousPhaseUnixTime = GameTimerCache.currentPhaseUnixTime
         GameTimerCache.currentPhaseUnixTime = currentUnixTime
@@ -132,11 +148,13 @@ local function updatePhase()
         PhaseChanged:Fire()
         
         local currentDateTime = DateTime.fromUnixTimestamp(currentUnixTime)
-        local nextPhaseUnixTime = getNextPhaseStartUnixTime(currentUnixTime)
-        local tomorrowDateTime = DateTime.fromUnixTimestamp(nextPhaseUnixTime)
+        local nextPhaseUnixTime = getNextPhaseStartTime()
+        local tomorrowDateTime = nextPhaseUnixTime and DateTime.fromUnixTimestamp(nextPhaseUnixTime) or nil
         
         print("Phase transition completed at:", currentDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
-        print("Next transition at:", tomorrowDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
+        if tomorrowDateTime then
+            print("Next transition at:", tomorrowDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
+        end
     else
         warn("Failed to update phase transition times in GameTimerMemoryStore")
         return false
@@ -152,19 +170,16 @@ local function attemptPhaseTransition()
     local success, result = callWithRetry(function()
         return TransitionLockStore:UpdateAsync(lockKey, function(currentOwner)
             if currentOwner == nil then
-                -- no one owns this transition yet, claim it
                 return {
                     serverId = game.JobId,
                     startTime = currentTime
                 }
             else
-                -- another server is already doing the transition
                 return nil 
             end
-        end, 600) -- 10 mins
+        end, 600)
     end, 3)
     
-    -- Check if this server won the lock
     if success and result and result.serverId == game.JobId then
         print("Server", game.JobId, "won the transition lock at time", currentTime)
         updatePhase()
@@ -175,14 +190,11 @@ local function attemptPhaseTransition()
     end
 end
 
-
 local function initializeGameTimerCache()
-    -- Load recent phase transition
     local recentSuccess, recentUnixTime = callWithRetry(function()
         return GameTimerMemoryStore:GetAsync("currentPhaseUnixTime")
     end, 3)
     
-    -- Load previous phase transition
     local previousSuccess, previousUnixTime = callWithRetry(function()
         return GameTimerMemoryStore:GetAsync("previousPhaseUnixTime")
     end, 3)
@@ -190,10 +202,12 @@ local function initializeGameTimerCache()
     if recentSuccess and recentUnixTime then
         GameTimerCache.currentPhaseUnixTime = recentUnixTime
 
-        local nextPhaseTimestamp = getNextPhaseStartUnixTime(recentUnixTime)
-        local timeUntilNext = (nextPhaseTimestamp - DateTime.now().UnixTimestamp)
-        print("Loaded recent phase transition time:", recentUnixTime)
-        print("Time until next phase:", math.max(0, timeUntilNext), "seconds")
+        local nextPhaseTimestamp = getNextPhaseStartTime()
+        if nextPhaseTimestamp then
+            local timeUntilNext = nextPhaseTimestamp - DateTime.now().UnixTimestamp
+            print("Loaded recent phase transition time:", recentUnixTime)
+            print("Time until next phase:", math.max(0, timeUntilNext), "seconds")
+        end
     else
         GameTimerCache.currentPhaseUnixTime = nil
         print("No recent phase transition found - will start first phase on next check")
@@ -212,13 +226,10 @@ function GameTimer.initialiseTimer(): ()
     if TimerStarted then return end
     TimerStarted = true
 
-
     print("Initializing GameTimer system...")
     
-    -- Initialize cache from GameTimerMemoryStore
     initializeGameTimerCache()
 
-    -- Start the monitoring loop
     task.spawn(function()
         while true do
             task.wait(CHECK_TIME_LAPSE_INTERVAL)
@@ -228,11 +239,10 @@ function GameTimer.initialiseTimer(): ()
                 print("Phase has expired, attempting transition...")
                 attemptPhaseTransition()
             else
-                local lastTransition = getCurrentPhaseUnixTime()
-
-                if lastTransition then
-                    local timeUntilNext = getNextPhaseStartUnixTime(lastTransition) - DateTime.now().UnixTimestamp
-                    print("Phase is still valid! Time until next:", timeUntilNext, "seconds")
+                local nextPhaseTime = getNextPhaseStartTime()
+                if nextPhaseTime then
+                    local timeUntilNext = nextPhaseTime - DateTime.now().UnixTimestamp
+                    print("Phase is still valid! Time until next:", math.floor(timeUntilNext), "seconds")
                 else
                     print("No phase transition recorded yet")
                 end

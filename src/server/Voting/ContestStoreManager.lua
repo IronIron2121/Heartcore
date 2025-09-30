@@ -143,6 +143,7 @@ local function updateTheme(themeMemoryStore: MemoryStoreHashMap?): boolean
 end
 
 local function initializeTheme(): boolean
+    warn("Initialising theme...")
     local themeMemoryStore = getThemeMemoryStore()
     if not themeMemoryStore then
         warn("Failed to get theme memory store")
@@ -259,7 +260,8 @@ function ContestStoreManager.initialiseNewContest(): boolean
     end
     
     print(string.format("Contest initialization complete: %d/%d entries added successfully with theme: %s", 
-        successCount, totalCount, currentTheme and currentTheme.Theme or "Unknown"))
+        successCount, totalCount, currentTheme and currentTheme.Theme or "Unknown")
+    )
     
     if successCount > 0 then
         -- Start the periodic flush and cache updates after initialization
