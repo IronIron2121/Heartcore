@@ -71,7 +71,7 @@ function SubmissionStoreManager.getCurrentSubmissionMemoryStore()
     print("Getting current submission store:", currentStoreName)
     
     local success, result = callWithRetry(function()
-        return MemoryStoreService:GetHashMap(currentStoreName)
+        return MemoryStoreService:GetSortedMap(currentStoreName)
     end, 3)
     
     if success then 
