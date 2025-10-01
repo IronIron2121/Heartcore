@@ -123,7 +123,7 @@ function SearchBox(
 
 		[Children] = {
 			scope:New "UICorner" {
-				CornerRadius = UDim.new(0.1, 0)
+				CornerRadius = UDim.new(0.5, 0)
 			},
 
 			scope:New "UIStroke" {

@@ -24,6 +24,8 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local OutfitTile = require(Widgets:WaitForChild("OutfitTile"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
+local BaseButton = require(Widgets:WaitForChild("BaseButton"))
+
 
 -- Remotes
 local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
@@ -251,31 +253,21 @@ function OutfitsFrame(
 				BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 				LayoutOrder = 1,
 				[Children] = {
-					scope:New "TextButton" {
-						Name = "CatalogButton",
-						Size = UDim2.fromScale(0.2, 0.5),
-						BackgroundColor3 = UI_CONSTANTS.COLOUR_WHITE,
-						Text = "Shop the catalog",
-						TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-						TextScaled = true,
-						Font = Enum.Font.Gotham,
+					BaseButton(scope, {
+						name = "Catalog",
+						text = "Back to shopping",
+						textScaled = true,
+						size = UDim2.fromScale(0.2, 0.5),
+						backgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+						strokeColor = Color3.new(1,1,1),
+						strokeThickness = 2,
+						textColor = Color3.new(1,1,1),
 
-						[OnEvent "Activated"] = function()
+						onActivated = function()
 							currentView:set("Catalog")
 						end,
-
-						[Children] = {
-							scope:New "UICorner" {
-								CornerRadius = UDim.new(0.1, 0)
-							},
-
-							scope:New "UIStroke" {
-								ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-								Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-								Thickness = 1,
-							},
-						}
-					},
+					}
+				),
 
 					scope:New "UIListLayout" {
 						Padding = UDim.new(0.02, 0),

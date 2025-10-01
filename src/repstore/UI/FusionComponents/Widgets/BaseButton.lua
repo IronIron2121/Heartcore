@@ -111,6 +111,13 @@ function Button(
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				Color = props.strokeColor or UI_CONSTANTS.COLOUR_WHITE,
 				Thickness = props.strokeThickness or 2,
+			},
+
+			scope:New "UIPadding" {
+				PaddingTop = UDim.new(0.1,0),
+				PaddingBottom = UDim.new(0.1,0),
+				PaddingLeft = UDim.new(0.1,0),
+				PaddingRight = UDim.new(0.1,0)
 			}
 		}
 	} :: TextButton
