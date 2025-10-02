@@ -18,13 +18,26 @@ local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
+-- Caching variables
+local pendingUpdates = {}
+local lastFlush = tick()
+local FLUSH_INTERVAL = 60 
+local MAX_PENDING_UPDATES = 50
+local isFlushingInProgress = false
+
 local SubmissionStoreManager = {}
+
+local function getCurrentMemoryStoreIndex(): number
+    -- TODO: Implement store index tracking
+    return 1
+end
 
 function SubmissionStoreManager.getCurrentMemoryStoreName(): string?
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
+    local currentIndex = getCurrentMemoryStoreIndex()
     
     if currentPrefix then
-        return currentPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME
+        return currentPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME .. currentIndex
     else
         return nil
     end
@@ -39,28 +52,6 @@ function SubmissionStoreManager.getPreviousMemoryStoreName(): string?
     end
 end
 
-function SubmissionStoreManager.getPreviousSubmissionMemoryStore()
-    local previousStoreName = SubmissionStoreManager.getPreviousMemoryStoreName()
-    if not previousStoreName then
-        warn("No previous store name available")
-        return nil
-    end
-    
-    print("Getting previous submission store:", previousStoreName)
-    
-    local success, result = callWithRetry(function()
-        return MemoryStoreService:GetHashMap(previousStoreName)
-    end, 3)
-    
-    if success then 
-        return result 
-    else 
-        warn("Failed to get previous memorystore!")
-        warn(success, result)
-        return nil
-    end
-end
-
 function SubmissionStoreManager.getCurrentSubmissionMemoryStore()
     local currentStoreName = SubmissionStoreManager.getCurrentMemoryStoreName()
     if not currentStoreName then
@@ -68,50 +59,56 @@ function SubmissionStoreManager.getCurrentSubmissionMemoryStore()
         return nil 
     end
 
-    print("Getting current submission store:", currentStoreName)
-    
     local success, result = callWithRetry(function()
-        return MemoryStoreService:GetHashMap(currentStoreName)
+        return MemoryStoreService:GetSortedMap(currentStoreName)
     end, 3)
     
     if success then 
         return result 
     else 
-        warn("Failed to get current memorystore!")
-        warn(success, result)
+        warn("Failed to get current memorystore:", result)
         return nil
     end
 end
 
--- Gets all entries from a given hash map
-local function getAllHashMapEntries(hashPages: MemoryStoreHashMapPages): {[string]: any}
-    local allEntries: {[string]: any} = {}
+function SubmissionStoreManager.getPreviousSubmissionMemoryStore()
+    local previousStoreName = SubmissionStoreManager.getPreviousMemoryStoreName()
+    if not previousStoreName then
+        warn("No previous store name available")
+        return nil
+    end
     
-    while not hashPages.IsFinished do
-        local currentPage = hashPages:GetCurrentPage()
-        
-        -- Process each item in the current page
-        for _, item in ipairs(currentPage) do
-            allEntries[item.key] = item.value
-        end
-        
-        -- Move to next page if available
-        if not hashPages.IsFinished then
-            local success, error = pcall(function()
-                hashPages:AdvanceToNextPageAsync()
-            end)
-            
-            if not success then
-                warn("Failed to advance to next page:", error)
-                break
-            end
-        end
+    local success, result = callWithRetry(function()
+        return MemoryStoreService:GetSortedMap(previousStoreName)
+    end, 3)
+    
+    if success then 
+        return result 
+    else 
+        warn("Failed to get previous memorystore:", result)
+        return nil
+    end
+end
+
+local function getAllSortedMapEntries(sortedMap): {[string]: any}
+    local allEntries = {}
+    
+    local success, items = callWithRetry(function()
+        return sortedMap:GetRangeAsync(Enum.SortDirection.Ascending, 100)
+    end, 3)
+    
+    if not success or not items then
+        warn("Failed to get range from sorted map")
+        return allEntries
+    end
+    
+    for _, item in ipairs(items) do
+        allEntries[item.key] = item.value
     end
     
     return allEntries
 end
 
--- Get all entries from the current submission store
 function SubmissionStoreManager:GetEntries(): {[string]: any}
     local currentStore = self.getCurrentSubmissionMemoryStore()
     
@@ -120,19 +117,9 @@ function SubmissionStoreManager:GetEntries(): {[string]: any}
         return {}
     end
     
-    local success, pages = callWithRetry(function()
-        return currentStore:ListItemsAsync(10)
-    end, 3)
-    
-    if success and pages then
-        return getAllHashMapEntries(pages)
-    else
-        warn("Failed to fetch submissions from Memory Store")
-        return {}
-    end
+    return getAllSortedMapEntries(currentStore)
 end
 
--- Get all entries from previous phase's submission store
 function SubmissionStoreManager:GetPreviousPhaseEntries(): {[string]: any}
     local previousStore = self.getPreviousSubmissionMemoryStore()
     
@@ -141,35 +128,110 @@ function SubmissionStoreManager:GetPreviousPhaseEntries(): {[string]: any}
         return {}
     end
     
-    local success, pages = callWithRetry(function()
-        return previousStore:ListItemsAsync(10)
-    end, 3)
+    return getAllSortedMapEntries(previousStore)
+end
+
+function SubmissionStoreManager.flushPendingUpdates(): ()
+    if isFlushingInProgress then
+        return 
+    end
     
-    if success and pages then
-        return getAllHashMapEntries(pages)
-    else
-        warn("Failed to fetch previous submissions from Memory Store")
-        return {}
+    if next(pendingUpdates) == nil then
+        return 
+    end
+    
+    isFlushingInProgress = true
+    
+    local currentMemoryStore = SubmissionStoreManager.getCurrentSubmissionMemoryStore()
+    if not currentMemoryStore then
+        warn("Cannot flush: no current memory store")
+        isFlushingInProgress = false
+        return
+    end
+    
+    local updatesToFlush = {}
+    for entryKey, updates in pairs(pendingUpdates) do
+        updatesToFlush[entryKey] = {
+            userId = updates.userId,
+            humanoidDescription = updates.humanoidDescription,
+        }
+    end
+    
+    pendingUpdates = {}
+    
+    print("Flushing", #updatesToFlush, "pending submissions to MemoryStore")
+    
+    for entryKey, updates in pairs(updatesToFlush) do
+        local success = callWithRetry(function()
+            return currentMemoryStore:SetAsync(
+                entryKey, 
+                updates, 
+                Constants.MEMORYSTORE_STORE_DURATION, 
+                os.time()
+            )
+        end, 3)
+        
+        if not success then
+            warn("Failed to flush submission for entry:", entryKey)
+        end
+    end
+    
+    lastFlush = tick()
+    isFlushingInProgress = false
+end
+
+function SubmissionStoreManager.startPeriodicFlush(): ()
+    task.spawn(function()
+        while true do
+            task.wait(FLUSH_INTERVAL)
+            warn("Flushing submissions!")
+            if not isFlushingInProgress and next(pendingUpdates) then
+                SubmissionStoreManager.flushPendingUpdates()
+            end
+        end
+    end)
+end
+
+function SubmissionStoreManager:AddEntryToCache(player: Player, serialisedHumanoidDescription: {})
+    pendingUpdates[tostring(player.UserId)] = {
+        userId = player.UserId,
+        humanoidDescription = serialisedHumanoidDescription
+    }
+    
+    -- Check if we should flush
+    local pendingCount = 0
+    for _ in pairs(pendingUpdates) do
+        pendingCount += 1
+    end
+    
+    local shouldFlushByTime = tick() - lastFlush > FLUSH_INTERVAL
+    local shouldFlushByCount = pendingCount >= MAX_PENDING_UPDATES
+    
+    if (shouldFlushByTime or shouldFlushByCount) and not isFlushingInProgress then
+        SubmissionStoreManager.flushPendingUpdates()
     end
 end
 
-function SubmissionStoreManager:AddEntry(player: Player, serialisedHumanoidDescription: {}): ()
-    -- Get the submissions memory store
+function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumanoidDescription: {}): ()
     local currentSubmissionsMemoryStore = self.getCurrentSubmissionMemoryStore()
     if not currentSubmissionsMemoryStore then 
         warn("Failed to get submissions memory store") 
+        SubmissionResultRE:FireClient(player, {
+            ok = false,
+            msg = "Server error. Please try again."
+        })
         return 
     end
 
-    -- Add the serialised humanoid description to the submissions memory store
     local success = callWithRetry(function()
         return currentSubmissionsMemoryStore:SetAsync(
-            tostring(player.UserId), {
+            tostring(player.UserId),
+            {
                 userId = player.UserId,
-                playerName = player.Name,
                 humanoidDescription = serialisedHumanoidDescription,
             },
-            240
+            Constants.MEMORYSTORE_STORE_DURATION,
+            os.time()
         )
     end, 5)
 

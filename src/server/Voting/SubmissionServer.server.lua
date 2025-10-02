@@ -48,7 +48,7 @@ local function onOutfitSubmitted(player: Player)
 	-- Serialise it
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
 
-	SubmissionStoreManager:AddEntry(player, serialisedHumanoidDescription)
+	SubmissionStoreManager.AddEntryToStore(player, serialisedHumanoidDescription)
 	
 	DataManager.AddExp(player, 1)
 	
@@ -59,6 +59,10 @@ local function onOutfitSubmitted(player: Player)
 		promptEnabled:set(true)		
 		promptHolder.Color = Color3.fromRGB(163,162,165)
 	end)
+end
+
+local function initialiseSubmissionFlushing()
+	SubmissionStoreManager.startPeriodicFlush()
 end
 
 local prompt = scope:New "ProximityPrompt" {
@@ -77,3 +81,5 @@ local prompt = scope:New "ProximityPrompt" {
 		isSubmitting:set(false)
 	end
 }
+
+initialiseSubmissionFlushing()

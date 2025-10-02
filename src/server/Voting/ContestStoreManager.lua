@@ -28,6 +28,8 @@ local BillboardHolder = votingZone:WaitForChild("BillboardHolder")
 local ThemeNameBillboard = BillboardHolder:WaitForChild("ThemeNameBillboard")
 local ThemeNameTextLabel = ThemeNameBillboard:WaitForChild("TextLabel")
 
+-- Memory Stores
+local CacheLockStore = MemoryStoreService:GetHashMap("CacheRefreshLocks")
 
 local ContestStoreManager = {}
 
@@ -46,14 +48,14 @@ local AVAILABLE_THEMES = {
 local currentTheme = nil
 
 -- Caching variables
-local pendingUpdates = {} -- {entryKey = {votes = 0, views = 0}}
+local pendingUpdates = {}
 local lastFlush = tick()
 local FLUSH_INTERVAL = 60 
-local MAX_PENDING_UPDATES = 50 -- flush if we hit this many pending updates
+local MAX_PENDING_UPDATES = 50
 local isFlushingInProgress = false
 
 -- Public cache for current contest entries
-local publicCache = {} -- {entryKey = {id, description, votes, views}}
+local publicCache = {}
 local lastCacheUpdate = 0
 local CACHE_UPDATE_INTERVAL = 500 
 local isCacheUpdating = false
@@ -129,7 +131,6 @@ local function updateTheme(themeMemoryStore: MemoryStoreHashMap?): boolean
         5
     )
 
-    -- TODO: Modularise this, it's redundant
     if success then
         currentTheme = newTheme
         ThemeChangedRemote:FireAllClients(newTheme)
@@ -164,21 +165,37 @@ local function initializeTheme(): boolean
 
     if not currentThemeData or not currentThemeData.Theme then
         warn("No current theme found, creating new one...")
-        local updateSuccess = updateTheme(themeMemoryStore)
-
-        return updateSuccess
+        return updateTheme(themeMemoryStore)
     else
         currentTheme = currentThemeData
         ThemeChangedRemote:FireAllClients(currentThemeData)
         updateThemeBillboardText()
-
         print("Loaded existing theme:", currentThemeData.Theme)
         return true
     end
-
 end
 
-
+local function attemptCacheRefresh(): boolean
+    local lockKey = "contest_cache_refresh"
+    
+    local success, result = callWithRetry(function()
+        return CacheLockStore:UpdateAsync(lockKey, function(currentLock)
+            local now = DateTime.now().UnixTimestamp
+            
+            -- Lock is free or stale (timeout after 2 minutes in case server crashes mid-refresh)
+            if currentLock == nil or (now - currentLock.startTime) > 60 then
+                return {
+                    serverId = game.JobId,
+                    startTime = now
+                }
+            else
+                return nil
+            end
+        end, 300)
+    end, 3)
+    
+    return success and result and result.serverId == game.JobId
+end
 
 function ContestStoreManager.initialise(): ()
     local themeSuccess = initializeTheme()
@@ -202,22 +219,24 @@ function ContestStoreManager.getCurrentMemoryStore()
         3
     )
 
-    return memoryStore or success 
+    if success then
+        return memoryStore
+    else
+        warn("Failed to get contest memory store")
+        return nil
+    end
 end
 
 function ContestStoreManager.initialiseNewContest(): boolean
-    -- Set new winners before changing over...
     local complete = SetNewWinnersBindable:Invoke()
 
     if not complete then
         warn("Could not set new winners...")
     end
     
-    -- Update theme for new contest
     local themeUpdateSuccess = updateTheme()
     if not themeUpdateSuccess then
         warn("Failed to update theme for new contest")
-        -- TODO: Add logic for failed theme update here
     end
 
     local currentMemoryStore = ContestStoreManager.getCurrentMemoryStore()
@@ -238,7 +257,6 @@ function ContestStoreManager.initialiseNewContest(): boolean
 
     for key, entry in pairs(allSubmissions) do
         totalCount = totalCount + 1
-        warn("Processing entry for contest:", key)
         
         local contestSubmission = {
             userId = entry.userId,
@@ -247,7 +265,6 @@ function ContestStoreManager.initialiseNewContest(): boolean
             views = 0,
         }
          
-        -- Add the contest submission at the key of the corresponding submission
         local success = callWithRetry(function()
             return currentMemoryStore:SetAsync(key, contestSubmission, Constants.MEMORYSTORE_STORE_DURATION)
         end, 3)
@@ -264,9 +281,8 @@ function ContestStoreManager.initialiseNewContest(): boolean
     )
     
     if successCount > 0 then
-        -- Start the periodic flush and cache updates after initialization
         ContestStoreManager.startPeriodicFlush()
-        ContestStoreManager.updatePublicCache() -- Initial cache population
+        ContestStoreManager.updatePublicCache()
         return true
     else
         return false
@@ -274,25 +290,16 @@ function ContestStoreManager.initialiseNewContest(): boolean
 end
 
 function ContestStoreManager.addViews(entryKey: string, viewAmount: number): ()
-    warn("Adding views to ", entryKey, "with type,", typeof(entryKey))
-    
-    -- Initialize entry in pending updates if it doesn't exist
     if not pendingUpdates[entryKey] then
-        warn("No pre-existing entry for this key!")
         pendingUpdates[entryKey] = {votes = 0, views = 0}
     end
     
-    -- Add to pending updates
     pendingUpdates[entryKey].views += viewAmount
     
-    -- Also update the public cache immediately for real-time UI updates
     if publicCache[entryKey] then 
         publicCache[entryKey].views += viewAmount
-    else
-        warn("No public cache entry for this outfit!")
     end
     
-    -- Check if we should flush (either by time or count)
     local pendingCount = 0
     for _ in pairs(pendingUpdates) do
         pendingCount += 1
@@ -306,22 +313,17 @@ function ContestStoreManager.addViews(entryKey: string, viewAmount: number): ()
     end
 end
 
--- Add votesto a given outfit in the current contest
 function ContestStoreManager.addVotes(entryKey: string, voteAmount: number): ()
-    -- Initialize entry in pending updates if it doesn't exist
     if not pendingUpdates[entryKey] then
         pendingUpdates[entryKey] = {votes = 0, views = 0}
     end
     
-    -- Add to pending updates
     pendingUpdates[entryKey].votes += voteAmount
     
-    -- Also update the public cache immediately for real-time UI updates
     if publicCache[entryKey] then
         publicCache[entryKey].votes += voteAmount
     end
     
-    -- Check if we should flush (either by time or count)
     local pendingCount = 0
     for _ in pairs(pendingUpdates) do
         pendingCount += 1
@@ -356,11 +358,10 @@ function ContestStoreManager.flushPendingUpdates(): ()
             views = updates.views
         }
     end
-    pendingUpdates = {} -- Clear pending updates
+    pendingUpdates = {}
     
     print("Flushing pending updates to MemoryStore")
     
-    -- Process each update
     for entryKey, updates in pairs(updatesToFlush) do
         if updates.votes ~= 0 or updates.views ~= 0 then
             local success = callWithRetry(function()
@@ -400,14 +401,15 @@ function ContestStoreManager.startPeriodicFlush(): ()
     task.spawn(function()
         while true do
             task.wait(CACHE_UPDATE_INTERVAL)
-            if not isCacheUpdating then
+            if not isCacheUpdating and attemptCacheRefresh() then
                 ContestStoreManager.updatePublicCache()
+            else
+                print("Skipping cache refresh - another server is handling it")
             end
         end
     end)
 end
 
--- Update the public cache with all current contest entries
 function ContestStoreManager.updatePublicCache(): ()
     if isCacheUpdating then
         return 
@@ -426,7 +428,6 @@ function ContestStoreManager.updatePublicCache(): ()
     if success and pages then
         local newCache = {}
         
-        -- Process all pages
         while true do
             local currentPage = pages:GetCurrentPage()
             
@@ -434,7 +435,6 @@ function ContestStoreManager.updatePublicCache(): ()
                 local entryKey = item.key
                 local entryData = item.value
                 
-                -- Merge with any pending updates for this entry
                 local pendingVotes = 0
                 local pendingViews = 0
                 if pendingUpdates[entryKey] then
@@ -447,7 +447,7 @@ function ContestStoreManager.updatePublicCache(): ()
                     playerName = entryData.playerName,
                     humanoidDescription = entryData.humanoidDescription,
                     submissionTime = entryData.submissionTime,
-                    theme = entryData.theme or (currentTheme and currentTheme.Theme) or "Unknown", -- Include theme
+                    theme = entryData.theme or (currentTheme and currentTheme.Theme) or "Unknown",
                     votes = (entryData.votes or 0) + pendingVotes,
                     views = (entryData.views or 0) + pendingViews
                 }
@@ -466,7 +466,6 @@ function ContestStoreManager.updatePublicCache(): ()
             end
         end
         
-        -- Update the public cache
         publicCache = newCache
         lastCacheUpdate = tick()
         
@@ -477,7 +476,6 @@ function ContestStoreManager.updatePublicCache(): ()
         print("Public cache updated with", entryCount, "entries for theme:", 
             currentTheme and currentTheme.Theme or "Unknown")
 
-        -- Rebuild selection buckets from the fresh cache
         local rebuildSuccess = balancedSelector:onCacheUpdated(publicCache)
         if rebuildSuccess then
             print("Selection buckets rebuilt successfully")
@@ -492,19 +490,16 @@ function ContestStoreManager.updatePublicCache(): ()
     isCacheUpdating = false
 end
 
--- Get the public cache (all contest entries with current vote/view counts)
 function ContestStoreManager.getPublicCache(): {}
     return publicCache
 end
 
--- Get a specific entry from the public cache (with pending updates included)
 function ContestStoreManager.getCachedEntry(entryKey: string): {}?
     local cachedEntry = publicCache[entryKey]
     if not cachedEntry then
         return nil
     end
     
-    -- Create a copy and add any pending updates
     local entry = {
         userId = cachedEntry.userId,
         playerName = cachedEntry.playerName,
@@ -515,7 +510,6 @@ function ContestStoreManager.getCachedEntry(entryKey: string): {}?
         views = cachedEntry.views
     }
     
-    -- Add pending updates if they exist
     if pendingUpdates[entryKey] then
         entry.votes += pendingUpdates[entryKey].votes
         entry.views += pendingUpdates[entryKey].views
@@ -524,7 +518,6 @@ function ContestStoreManager.getCachedEntry(entryKey: string): {}?
     return entry
 end
 
--- Get a balanced outfit selection (main method for voting UI)
 function ContestStoreManager.getBalancedOutfit(): string?
     return balancedSelector:selectOutfit()
 end
@@ -533,7 +526,6 @@ function ContestStoreManager.forceUpdateCache(): ()
     ContestStoreManager.updatePublicCache()
 end
 
--- Force flush all pending updates (useful for shutdown/cleanup)
 function ContestStoreManager.forceFlush(): ()
     ContestStoreManager.flushPendingUpdates()
 end
@@ -541,8 +533,5 @@ end
 function ContestStoreManager.getPendingUpdates(): {}
     return pendingUpdates
 end
-
-
-
 
 return ContestStoreManager
