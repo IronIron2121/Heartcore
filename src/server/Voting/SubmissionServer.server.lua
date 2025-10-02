@@ -28,11 +28,12 @@ local SubmissionPad = centralPond:WaitForChild("SubmissionPad")
 
 -- Fusion
 local scope = Fusion:scoped()
-local Children = Fusion.Children
+local peek = Fusion.peek
 local OnEvent = Fusion.OnEvent
 
 local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
 local promptEnabled = scope:Value(true)
+local isSubmitting = scope:Value(false)
 
 -- Prompt
 local function onOutfitSubmitted(player: Player)
@@ -60,20 +61,19 @@ local function onOutfitSubmitted(player: Player)
 	end)
 end
 
-
-
 local prompt = scope:New "ProximityPrompt" {
 	Parent = promptHolder,
 	Enabled = promptEnabled,
-	ActionText = "Submit Outfit",
+	ActionText = "Submit Outfit", 
 	HoldDuration = 0.5,
 	RequiresLineOfSight = false,
 	MaxActivationDistance = 16,
 	[OnEvent "Triggered"] = function(player)
+		if peek(isSubmitting) then
+			return
+		end
+		isSubmitting:set(true)
 		onOutfitSubmitted(player)
+		isSubmitting:set(false)
 	end
 }
-
---
-
-prompt.Triggered:Connect(onOutfitSubmitted)
