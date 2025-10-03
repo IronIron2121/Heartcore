@@ -54,7 +54,7 @@ function BuyButton(
 		Visible = props.visible or true,
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		Position = props.position or UDim2.fromScale(0.5, 0.5),
-		Size = props.size or UDim2.fromScale(0.8, 0.5),
+		Size = props.size or UDim2.fromScale(0.8, 0.6),
 		Text = props.text or "BUY",
 		TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
 		TextStrokeTransparency = 1,

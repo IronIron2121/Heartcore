@@ -98,6 +98,23 @@ function FusionItemTile(
 				VerticalAlignment = Enum.VerticalAlignment.Center,
 				HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			},
+
+			scope:New "UICorner" {
+				CornerRadius = UDim.new(0.1,0)
+			},
+
+			scope:New "UIStroke" {
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
+				Thickness = 2,
+			},
+
+			scope:New "UIPadding" {
+				PaddingTop = UDim.new(0.01,0),
+				PaddingBottom = UDim.new(0.01,0),
+				PaddingLeft = UDim.new(0.01,0),
+				PaddingRight = UDim.new(0.01,0),
+			},
 			
 			NameLabel(scope, {
 				layoutOrder = 0, 
@@ -110,7 +127,7 @@ function FusionItemTile(
 				LayoutOrder = 1,
 				Text = itemDetails.Name,
 				TextTransparency = 1,
-				Size = UDim2.fromScale(1, 1),
+				Size = UDim2.fromScale(0.8, 0.8),
 				BackgroundColor3 = backgroundColorSpring,
 				BackgroundTransparency = 0,
 				ZIndex = 1,
@@ -152,7 +169,7 @@ function FusionItemTile(
 						Active = isHovering,
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						Position = UDim2.fromScale(0.5, 0.5),
-						Size = UDim2.fromScale(0.8, 0.5),
+						Size = UDim2.fromScale(0.9, 0.8),
 						BackgroundTransparency = 1,
 
 						[Children] = {
@@ -161,7 +178,7 @@ function FusionItemTile(
 								FillDirection = Enum.FillDirection.Vertical,
 								HorizontalFlex = Enum.UIFlexAlignment.Fill,
 								VerticalFlex = Enum.UIFlexAlignment.Fill,
-								Padding = UDim.new(0.1, 0),
+								Padding = UDim.new(0.3, 0),
 								ItemLineAlignment = Enum.ItemLineAlignment.Center,
 								VerticalAlignment = Enum.VerticalAlignment.Center,
 								HorizontalAlignment = Enum.HorizontalAlignment.Center,
