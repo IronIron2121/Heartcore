@@ -32,6 +32,8 @@ function SearchBox(
 		placeholder: UsedAs<string>?,
 		onSearch: (keyword: string) -> ()?,
 		searchResults: Fusion.UsedAs<{}>?,
+		textScaled: UsedAs<boolean>?,
+
 	}
 ): TextBox
 
@@ -91,7 +93,8 @@ function SearchBox(
 		BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 		BackgroundTransparency = backgroundTransparencySpring,
 		Text = displayText,
-		TextColor3 = textColorSpring,
+		TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
+		TextScaled = props.textScaled or true,
 		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 
 		[Out "Text"] = searchText,
@@ -130,6 +133,13 @@ function SearchBox(
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				Color = Color3.fromRGB(255, 255, 255),
 				Thickness = 2,
+			},
+
+			scope:New "UIPadding"{
+				PaddingTop = UDim.new(0.1,0),
+				PaddingBottom = UDim.new(0.1,0),
+				PaddingRight = UDim.new(0.1,0),
+				PaddingLeft = UDim.new(0.1,0),
 			}
 		}
 	} :: TextBox

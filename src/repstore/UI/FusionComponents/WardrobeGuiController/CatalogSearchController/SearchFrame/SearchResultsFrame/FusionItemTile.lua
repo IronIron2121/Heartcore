@@ -41,7 +41,7 @@ local COLOUR_HOVER = COLOUR_WHITE:Lerp(COLOUR_GREY, 0.5)
 
 -- Config
 local CONFIG = {
-	SIZE = UDim2.fromOffset(200, 200),
+	SIZE = UDim2.fromOffset(300, 300),
 }
 
 -- BIG NOTE / TODO: This should really be what we use for all item tiles, i.e. also the ones when we equip
@@ -100,12 +100,12 @@ function FusionItemTile(
 			},
 			
 			NameLabel(scope, {
-				layoutOrder = 1, 
+				layoutOrder = 0, 
 				text = itemDetails.Name,
 			}),
 			
 			scope:New "TextButton" {
-				LayoutOrder = 2,
+				LayoutOrder = 1,
 				Text = itemDetails.Name,
 				TextTransparency = 1,
 				Size = UDim2.fromScale(1, 1),
@@ -179,8 +179,9 @@ function FusionItemTile(
 			
 			-- PriceLabel
 			PriceLabel(scope, {
+				layoutOrder = 2,
 				text = itemDetails.Price,
-			})
+			}),
 		}
 	}
 	

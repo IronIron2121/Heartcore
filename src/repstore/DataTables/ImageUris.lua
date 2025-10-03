@@ -12,6 +12,7 @@ local assets = {
 	OutfitCatalogButton = "93922334459186",
 	CloseButton = "86480151535378",
 	StopwatchIcon = "73600277679991",
+	RobuxIcon = "81055682730978",
 }
 
 setmetatable(ImageUris, {

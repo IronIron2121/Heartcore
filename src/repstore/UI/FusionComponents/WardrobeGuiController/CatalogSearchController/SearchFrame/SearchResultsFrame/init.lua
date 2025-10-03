@@ -20,7 +20,7 @@ local peek = Fusion.peek
 local CONFIG = {
 	MIN_CELL_SIZE = Vector2.new(120, 150), -- Minimum size for each item tile
 	CELL_PADDING_X = 10,
-	CELL_PADDING_Y = 20 -- Padding between cells
+	CELL_PADDING_Y = 40 -- Padding between cells
 }
 
 function SearchResultsFrame(
@@ -65,6 +65,13 @@ function SearchResultsFrame(
 					CellPadding = UDim2.fromOffset(CONFIG.CELL_PADDING_X, CONFIG.CELL_PADDING_Y)
 				}
 			),
+
+			-- scope:New "UIPadding" {
+			-- 	PaddingTop = UDim.new(0.01,0),
+			-- 	PaddingBottom = UDim.new(0.01,0),
+			-- 	PaddingRight = UDim.new(0.01,0),
+			-- 	PaddingLeft = UDim.new(0.01,0),
+			-- },
 
 			scope:ForValues(currentPage, 
 				function(use, scope, itemDetails)
