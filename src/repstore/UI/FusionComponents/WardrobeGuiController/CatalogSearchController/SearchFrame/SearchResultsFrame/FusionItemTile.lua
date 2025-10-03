@@ -102,9 +102,11 @@ function FusionItemTile(
 			NameLabel(scope, {
 				layoutOrder = 0, 
 				text = itemDetails.Name,
+				textSize = 20,
 			}),
 			
 			scope:New "TextButton" {
+				Name = "ItemButton",
 				LayoutOrder = 1,
 				Text = itemDetails.Name,
 				TextTransparency = 1,
@@ -123,6 +125,11 @@ function FusionItemTile(
 				end,
 				
 				[Children] = {
+					scope:New "UIAspectRatioConstraint" {
+						AspectRatio = 1,
+						AspectType = Enum.AspectType.ScaleWithParentSize
+					},
+					
 					scope:New "UICorner" {
 						CornerRadius = UDim.new(0.1, 0),
 					},

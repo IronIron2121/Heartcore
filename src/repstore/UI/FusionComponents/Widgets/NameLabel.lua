@@ -30,6 +30,7 @@ function NameLabel(
 		anchorPoint: UsedAs<Vector2>?,
 		text: UsedAs<string>?,
 		onPurchaseCallback: (() -> ())?,
+		textSize: UsedAs<string>?,
 	}
 ): TextButton
 	local nameLabel = scope:New "TextLabel" {
@@ -38,7 +39,7 @@ function NameLabel(
 		LayoutOrder = props.layoutOrder or 1,
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		Position = props.position or UDim2.fromScale(0.5, 0.5),
-		Size = props.size or UDim2.fromScale(0.8, 0.3),
+		Size = props.size or UDim2.fromScale(0.8, 0.5),
 		Text = props.text or "NAME HERE",
 		TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 		BorderColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
@@ -48,6 +49,7 @@ function NameLabel(
 		BackgroundTransparency = 1,
 		TextScaled = false,
 		TextWrapped = true,
+		TextSize = props.textSize,
 		
 		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 

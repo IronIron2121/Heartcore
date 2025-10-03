@@ -42,6 +42,7 @@ function PriceLabel(
 
 local priceLabel = scope:New "Frame" {
 	Name = "Container",
+	LayoutOrder = props.layoutOrder or 1,
 	AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 	Position = props.position or UDim2.fromScale(0.5, 0.5),
 	Size = props.size or UDim2.fromScale(0.5, 0.3),
@@ -86,7 +87,7 @@ local priceLabel = scope:New "Frame" {
 			[Children] = {
                 scope:New "UIAspectRatioConstraint" {
                 	AspectRatio = 1,
-                    DominantAxis = Enum.DominantAxis.Width,
+					AspectType = Enum.AspectType.ScaleWithParentSize
                 }
             }
 		}
