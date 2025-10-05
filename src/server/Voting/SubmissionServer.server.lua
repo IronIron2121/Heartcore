@@ -24,7 +24,7 @@ local DataManager = require(Data:WaitForChild("DataManager"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Instances
-local SubmissionPad = centralPond:WaitForChild("SubmissionPad")
+local SubmissionPad = centralPond:WaitForChild("SubmissionPad") 
 
 -- Fusion
 local scope = Fusion:scoped()
@@ -48,7 +48,7 @@ local function onOutfitSubmitted(player: Player)
 	-- Serialise it
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
 
-	SubmissionStoreManager:AddEntryToCache(player, serialisedHumanoidDescription)
+	SubmissionStoreManager:AddEntryToStore(player, serialisedHumanoidDescription)
 	
 	DataManager.AddExp(player, 1)
 	
@@ -61,9 +61,6 @@ local function onOutfitSubmitted(player: Player)
 	end)
 end
 
-local function initialiseSubmissionFlushing()
-	SubmissionStoreManager.startPeriodicFlush()
-end
 
 local prompt = scope:New "ProximityPrompt" {
 	Parent = promptHolder,
@@ -82,4 +79,3 @@ local prompt = scope:New "ProximityPrompt" {
 	end
 }
 
-initialiseSubmissionFlushing()

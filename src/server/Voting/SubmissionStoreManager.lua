@@ -25,7 +25,71 @@ local FLUSH_INTERVAL = 60
 local MAX_PENDING_UPDATES = 50
 local isFlushingInProgress = false
 
+-- Lock configuration
+local ROLLOVER_LOCK_DURATION = 120 -- 2 minutes for crash recovery
+local ROLLOVER_LOCK_KEY = "submission_rollover_lock"
+
 local SubmissionStoreManager = {}
+
+local function getRolloverLockStore()
+    local currentPrefix = GameTimer.getCurrentPhasePrefix()
+    if not currentPrefix then 
+        return nil
+    end
+    
+    local success, lockStore = callWithRetry(function()
+        return MemoryStoreService:GetSortedMap(currentPrefix .. "_SubmissionRolloverLocks")
+    end, 3)
+    
+    if success then
+        return lockStore
+    end
+    return nil
+end
+
+local function acquireRolloverLock(): boolean
+    local lockStore = getRolloverLockStore()
+    if not lockStore then
+        warn("Failed to get rollover lock store")
+        return false
+    end
+    
+    local success, result = callWithRetry(function()
+        return lockStore:SetAsync(
+            ROLLOVER_LOCK_KEY,
+            game.JobId, -- Store which server has the lock
+            ROLLOVER_LOCK_DURATION,
+            os.time()
+        )
+    end, 3)
+    
+    return success == true
+end
+
+local function releaseRolloverLock(): ()
+    local lockStore = getRolloverLockStore()
+    if not lockStore then
+        return
+    end
+    
+    callWithRetry(function()
+        return lockStore:RemoveAsync(ROLLOVER_LOCK_KEY)
+    end, 3)
+end
+
+local function isRolloverLockActive(): boolean
+    local lockStore = getRolloverLockStore()
+    if not lockStore then
+        return false
+    end
+    
+    local success, lockValue = callWithRetry(function()
+        return lockStore:GetAsync(ROLLOVER_LOCK_KEY)
+    end, 3)
+    
+    -- Lock exists if we successfully got a non-nil value
+    return success and lockValue ~= nil
+end
 
 local function getCurrentMemoryStoreIndex(): number?
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
@@ -46,15 +110,21 @@ local function getCurrentMemoryStoreIndex(): number?
         end, 3)
         
         if infoSuccess and info then
+            warn("Got the current index!")
             return info.currentStoreNumber
+        else
+            warn("Failed to getAsync!", infoSuccess, info)
         end
     end
+
+    warn("Failed to get current index!", success, result)
     return nil
 end
 
 function SubmissionStoreManager.getCurrentInfoStoreName(): string?
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
     if not currentPrefix then 
+        warn("No current prefix!")
         return nil
     end
     
@@ -62,32 +132,97 @@ function SubmissionStoreManager.getCurrentInfoStoreName(): string?
 end
 
 function SubmissionStoreManager.initialiseNewSubmissionStore()
+    warn("Initialising new submission store!")
     local submissionsStoreInfo = {
         phaseDate = GameTimer.getCurrentPhasePrefix(),
-        currentStoreNumber = 1,
+        currentStoreNumber = 1, 
         storeSubmissionCount = 0,
         lastUpdated = DateTime.now().UnixTimestamp
     }
 
     local currentInfoStoreName = SubmissionStoreManager.getCurrentInfoStoreName()
 
+
     local success, submissionInfo = callWithRetry(
         function()
-            return MemoryStoreService:GetHashMap(currentInfoStoreName)
+            return MemoryStoreService:GetSortedMap(currentInfoStoreName)
         end
     )
 
     if not submissionInfo then
+        warn("No submission info!")
         return false
     end
 
-    local setSuccess  = callWithRetry(
+    local setSuccess = callWithRetry(
         function()
             return submissionInfo:SetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY, submissionsStoreInfo, Constants.MEMORYSTORE_STORE_DURATION)
         end
     )
 
+    if setSuccess then
+       warn("Just ++ set current submission info!")
+       print(submissionInfo:GetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY)) 
+    else
+        warn("Failed to set submission info!")
+    end
+
     return setSuccess
+end
+
+function SubmissionStoreManager.incrementIndex(): boolean
+    local currentPrefix = GameTimer.getCurrentPhasePrefix()
+    if not currentPrefix then 
+        warn("No current prefix!")
+        return false
+    end
+
+    -- Acquire lock before incrementing
+    local gotLock = acquireRolloverLock()
+    if not gotLock then
+        warn("Failed to acquire rollover lock - another server is handling rollover")
+        return false
+    end
+
+    local success, result = callWithRetry(
+        function()
+            return MemoryStoreService:GetSortedMap(currentPrefix .. Constants.SUBMISSION_INFO_MEMORYSTORE_NAME)
+        end
+    )
+
+    if not result then 
+        releaseRolloverLock()
+        return false
+    end
+
+    if success and result then
+        local infoSuccess, info = callWithRetry(function()
+            return result:UpdateAsync(Constants.CURRENT_SUBMISSION_INFO_KEY, function(infoTable)
+                infoTable = infoTable or {
+                    phaseDate = GameTimer.getCurrentPhasePrefix(),
+                    currentStoreNumber = 1,
+                    storeSubmissionCount = 0,
+                    lastUpdated = DateTime.now().UnixTimestamp
+                }
+
+                infoTable.currentStoreNumber = tonumber(infoTable.currentStoreNumber) + 1
+                infoTable.storeSubmissionCount = 0
+                infoTable.lastUpdated = DateTime.now().UnixTimestamp
+
+                return infoTable
+            end)
+        end, 3)
+        
+        releaseRolloverLock()
+        
+        if infoSuccess and info then
+            print("Successfully rolled over to submission store #" .. info.currentStoreNumber)
+            return true
+        end
+    end
+    
+    releaseRolloverLock()
+    return false
 end
 
 function SubmissionStoreManager.getCurrentMemoryStoreName(): string?
@@ -97,6 +232,7 @@ function SubmissionStoreManager.getCurrentMemoryStoreName(): string?
     if currentPrefix and currentIndex then
         return currentPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME .. currentIndex
     else
+        warn("Failed to get name!", currentPrefix, currentIndex)
         return nil
     end
 end
@@ -225,7 +361,7 @@ function SubmissionStoreManager.flushPendingUpdates(): ()
                 entryKey, 
                 updates, 
                 Constants.MEMORYSTORE_STORE_DURATION, 
-                os.time()
+                DateTime.now().UnixTimestamp
             )
         end, 3)
         
@@ -238,21 +374,21 @@ function SubmissionStoreManager.flushPendingUpdates(): ()
     isFlushingInProgress = false
 end
 
-
-
 function SubmissionStoreManager.startPeriodicFlush(): ()
+    warn("starting flush for sub store!")
     task.spawn(function()
         while true do
             task.wait(FLUSH_INTERVAL)
-            warn("Flushing submissions!")
             if not isFlushingInProgress and next(pendingUpdates) then
                 SubmissionStoreManager.flushPendingUpdates()
             end
         end
     end)
+    warn("Done!")
 end
 
-function SubmissionStoreManager.initialise(): ()
+function SubmissionStoreManager.initialise(): () 
+    SubmissionStoreManager.initialiseNewSubmissionStore()
     SubmissionStoreManager.startPeriodicFlush()
 end
 
@@ -277,6 +413,17 @@ function SubmissionStoreManager:AddEntryToCache(player: Player, serialisedHumano
 end
 
 function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumanoidDescription: {}): ()
+    -- Check if rollover is happening
+    if isRolloverLockActive() then
+        print("Rollover in progress for player " .. player.Name .. ", adding to cache instead")
+        SubmissionStoreManager:AddEntryToCache(player, serialisedHumanoidDescription)
+        SubmissionResultRE:FireClient(player, {
+            ok = true,
+            msg = "Outfit submitted successfully!"
+        })
+        return
+    end
+    
     local currentSubmissionsMemoryStore = self.getCurrentSubmissionMemoryStore()
     if not currentSubmissionsMemoryStore then 
         warn("Failed to get submissions memory store") 
@@ -305,6 +452,13 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             ok = true,
             msg = "Outfit submitted successfully!"
         })
+        
+        -- Check if we need to rollover to a new store
+        local currentSize = currentSubmissionsMemoryStore:GetSizeAsync()
+        if currentSize >= Constants.MAX_SUBMISSIONS_PER_MEMORYSTORE then
+            print("Store full (" .. currentSize .. " entries), attempting rollover...")
+            SubmissionStoreManager.incrementIndex()
+        end
     else
         warn("Failed to submit outfit for player:", player.Name)
         SubmissionResultRE:FireClient(player, {
