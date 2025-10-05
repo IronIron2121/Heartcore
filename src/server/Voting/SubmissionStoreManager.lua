@@ -27,16 +27,74 @@ local isFlushingInProgress = false
 
 local SubmissionStoreManager = {}
 
-local function getCurrentMemoryStoreIndex(): number
-    -- TODO: Implement store index tracking
-    return 1
+local function getCurrentMemoryStoreIndex(): number?
+    local currentPrefix = GameTimer.getCurrentPhasePrefix()
+    if not currentPrefix then 
+        warn("No current prefix!")
+        return nil
+    end
+
+    local success, result = callWithRetry(
+        function()
+            return MemoryStoreService:GetSortedMap(currentPrefix .. Constants.SUBMISSION_INFO_MEMORYSTORE_NAME)
+        end
+    )
+
+    if success and result then
+        local infoSuccess, info = callWithRetry(function()
+            return result:GetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY)
+        end, 3)
+        
+        if infoSuccess and info then
+            return info.currentStoreNumber
+        end
+    end
+    return nil
+end
+
+function SubmissionStoreManager.getCurrentInfoStoreName(): string?
+    local currentPrefix = GameTimer.getCurrentPhasePrefix()
+    if not currentPrefix then 
+        return nil
+    end
+    
+    return currentPrefix .. Constants.SUBMISSION_INFO_MEMORYSTORE_NAME
+end
+
+function SubmissionStoreManager.initialiseNewSubmissionStore()
+    local submissionsStoreInfo = {
+        phaseDate = GameTimer.getCurrentPhasePrefix(),
+        currentStoreNumber = 1,
+        storeSubmissionCount = 0,
+        lastUpdated = DateTime.now().UnixTimestamp
+    }
+
+    local currentInfoStoreName = SubmissionStoreManager.getCurrentInfoStoreName()
+
+    local success, submissionInfo = callWithRetry(
+        function()
+            return MemoryStoreService:GetHashMap(currentInfoStoreName)
+        end
+    )
+
+    if not submissionInfo then
+        return false
+    end
+
+    local setSuccess  = callWithRetry(
+        function()
+            return submissionInfo:SetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY, submissionsStoreInfo, Constants.MEMORYSTORE_STORE_DURATION)
+        end
+    )
+
+    return setSuccess
 end
 
 function SubmissionStoreManager.getCurrentMemoryStoreName(): string?
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
     local currentIndex = getCurrentMemoryStoreIndex()
     
-    if currentPrefix then
+    if currentPrefix and currentIndex then
         return currentPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME .. currentIndex
     else
         return nil
@@ -180,6 +238,8 @@ function SubmissionStoreManager.flushPendingUpdates(): ()
     isFlushingInProgress = false
 end
 
+
+
 function SubmissionStoreManager.startPeriodicFlush(): ()
     task.spawn(function()
         while true do
@@ -190,6 +250,10 @@ function SubmissionStoreManager.startPeriodicFlush(): ()
             end
         end
     end)
+end
+
+function SubmissionStoreManager.initialise(): ()
+    SubmissionStoreManager.startPeriodicFlush()
 end
 
 function SubmissionStoreManager:AddEntryToCache(player: Player, serialisedHumanoidDescription: {})

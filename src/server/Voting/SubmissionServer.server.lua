@@ -48,7 +48,7 @@ local function onOutfitSubmitted(player: Player)
 	-- Serialise it
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
 
-	SubmissionStoreManager.AddEntryToStore(player, serialisedHumanoidDescription)
+	SubmissionStoreManager:AddEntryToCache(player, serialisedHumanoidDescription)
 	
 	DataManager.AddExp(player, 1)
 	

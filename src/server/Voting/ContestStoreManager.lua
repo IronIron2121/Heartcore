@@ -203,6 +203,7 @@ function ContestStoreManager.initialise(): ()
         error("Failed to initialize theme system")
     end
     
+    ContestStoreManager.startPeriodicFlush()
     ContestStoreManager.updatePublicCache()
 end
 
@@ -281,8 +282,7 @@ function ContestStoreManager.initialiseNewContest(): boolean
     )
     
     if successCount > 0 then
-        ContestStoreManager.startPeriodicFlush()
-        ContestStoreManager.updatePublicCache()
+
         return true
     else
         return false
@@ -389,6 +389,7 @@ function ContestStoreManager.flushPendingUpdates(): ()
 end
 
 function ContestStoreManager.startPeriodicFlush(): ()
+    print("Starting periodic flush!")
     task.spawn(function()
         while true do
             task.wait(FLUSH_INTERVAL)
