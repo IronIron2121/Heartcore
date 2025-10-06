@@ -472,7 +472,6 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             print("Store full (" .. currentSize .. " entries), attempting rollover...")
             SubmissionStoreManager.incrementIndex()
         end
-        return true
     else
         warn("Failed to submit outfit for player:", player.Name)
         SubmissionResultRE:FireClient(player, {

@@ -29,15 +29,16 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
 -- Instances
-local SubmissionPad = centralPond:WaitForChild("SubmissionPad")
+local SubmissionPad = centralPond:WaitForChild("SubmissionPad") 
 
 -- Fusion
 local scope = Fusion:scoped()
-local Children = Fusion.Children
+local peek = Fusion.peek
 local OnEvent = Fusion.OnEvent
 
 local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
 local promptEnabled = scope:Value(true)
+local isSubmitting = scope:Value(false)
 
 local function canPlayerSubmit(player: Player)
 	local lastSubmit = DataManager.GetLastOutfitSubmittedTime(player)
@@ -79,7 +80,7 @@ local function onOutfitSubmitted(player: Player)
 	-- Serialise it
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
 
-	local success = SubmissionStoreManager:AddEntryToStore(player, serialisedHumanoidDescription)
+	SubmissionStoreManager:AddEntryToStore(player, serialisedHumanoidDescription)
 	
 	if not success then return end
 
@@ -87,24 +88,21 @@ local function onOutfitSubmitted(player: Player)
 	DataManager.onOutfitSubmitted(player)	
 
 
-end
-
-local function onPhaseChanged()
-    SubmissionStoreManager.initialiseNewSubmissionStore()
-end
-
 local prompt = scope:New "ProximityPrompt" {
 	Name = "SubmissionPrompt",
 	Parent = promptHolder,
 	Enabled = promptEnabled,
-	ActionText = "Submit Outfit",
+	ActionText = "Submit Outfit", 
 	HoldDuration = 0.5,
 	RequiresLineOfSight = false,
 	MaxActivationDistance = 16,
+	[OnEvent "Triggered"] = function(player)
+		if peek(isSubmitting) then
+			return
+		end
+		isSubmitting:set(true)
+		onOutfitSubmitted(player)
+		isSubmitting:set(false)
+	end
 }
 
---
-
-prompt.Triggered:Connect(onOutfitSubmitted)
-PhaseChanged.Event:Connect(onPhaseChanged)
-SubmissionResultRF.OnServerInvoke = canPlayerSubmit

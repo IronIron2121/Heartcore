@@ -227,8 +227,6 @@ local function initializeGameTimerCache()
         local nextPhaseTimestamp = getNextPhaseStartTime()
         if nextPhaseTimestamp then
             local timeUntilNext = nextPhaseTimestamp - DateTime.now().UnixTimestamp
-            print("Loaded recent phase transition time:", recentUnixTime)
-            print("Time until next phase:", math.max(0, timeUntilNext), "seconds")
         end
     else
         GameTimerCache.currentPhaseUnixTime = nil
@@ -237,7 +235,6 @@ local function initializeGameTimerCache()
     
     if previousSuccess and previousUnixTime then
         GameTimerCache.previousPhaseUnixTime = previousUnixTime
-        print("Loaded previous phase transition time:", previousUnixTime)
     else
         GameTimerCache.previousPhaseUnixTime = nil
         print("No previous phase transition found") 
@@ -245,11 +242,9 @@ local function initializeGameTimerCache()
 end
 
 function GameTimer.initialiseTimer(): ()
-    if TimerStarted then return end
+    if TimerStarted then return end 
     TimerStarted = true
 
-    print("Initializing GameTimer system...")
-    
     initializeGameTimerCache()
 
     task.spawn(function()
