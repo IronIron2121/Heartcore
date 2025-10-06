@@ -123,8 +123,11 @@ local Constants = {
 	
 	QUERY_ATTEMPTS = 3,
 
-	MEMORYSTORE_STORE_DURATION = 129600 -- 36 hours
-
+	MEMORYSTORE_STORE_DURATION = 129600, -- 36 hours
+	MAX_SUBMISSIONS_PER_MEMORYSTORE = 500,
+	SUBMISSION_INFO_MEMORYSTORE_NAME = "SubmissionsInfo",
+	SUBMISSION_INFO_INDEX = "currentStoreNumber",
+	CURRENT_SUBMISSION_INFO_KEY = "currentSubmissionsInfo", 
 }
 
 return Constants

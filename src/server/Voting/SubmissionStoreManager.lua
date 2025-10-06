@@ -18,14 +18,234 @@ local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
+-- Caching variables
+local pendingUpdates = {}
+local lastFlush = tick()
+local FLUSH_INTERVAL = 60 
+local MAX_PENDING_UPDATES = 50
+local isFlushingInProgress = false
+
+-- Lock configuration
+local ROLLOVER_LOCK_DURATION = 120 -- 2 minutes for crash recovery
+local ROLLOVER_LOCK_KEY = "submission_rollover_lock"
+
 local SubmissionStoreManager = {}
+
+local function getRolloverLockStore()
+    local currentPrefix = GameTimer.getCurrentPhasePrefix()
+    if not currentPrefix then 
+        return nil
+    end
+    
+    local success, lockStore = callWithRetry(function()
+        return MemoryStoreService:GetSortedMap(currentPrefix .. "_SubmissionRolloverLocks")
+    end, 3)
+    
+    if success then
+        return lockStore
+    end
+    return nil
+end
+
+local function acquireRolloverLock(): boolean
+    local lockStore = getRolloverLockStore()
+    if not lockStore then
+        warn("Failed to get rollover lock store")
+        return false
+    end
+    
+    local success, result = callWithRetry(function()
+        return lockStore:SetAsync(
+            ROLLOVER_LOCK_KEY,
+            game.JobId, -- Store which server has the lock
+            ROLLOVER_LOCK_DURATION,
+            os.time()
+        )
+    end, 3)
+    
+    return success == true
+end
+
+local function releaseRolloverLock(): ()
+    local lockStore = getRolloverLockStore()
+    if not lockStore then
+        return
+    end
+    
+    callWithRetry(function()
+        return lockStore:RemoveAsync(ROLLOVER_LOCK_KEY)
+    end, 3)
+end
+
+local function isRolloverLockActive(): boolean
+    local lockStore = getRolloverLockStore()
+    if not lockStore then
+        return false
+    end
+    
+    local success, lockValue = callWithRetry(function()
+        return lockStore:GetAsync(ROLLOVER_LOCK_KEY)
+    end, 3)
+    
+    -- Lock exists if we successfully got a non-nil value
+    return success and lockValue ~= nil
+end
+local function getCurrentMemoryStoreIndex(): number?
+    local currentPrefix = GameTimer.getCurrentPhasePrefix()
+    if not currentPrefix then 
+        warn("No current prefix!")
+        return nil
+    end
+
+    local success, result = callWithRetry(
+        function()
+            return MemoryStoreService:GetSortedMap(currentPrefix .. Constants.SUBMISSION_INFO_MEMORYSTORE_NAME)
+        end
+    )
+
+    if not success or not result then
+        warn("Failed to get info store!")
+        return nil
+    end
+
+    local infoSuccess, info = callWithRetry(function()
+        return result:GetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY)
+    end, 3)
+    
+    if infoSuccess and info then
+        return info.currentStoreNumber
+    end
+    
+    if infoSuccess and not info then
+        -- Info store exists but no data - initialize it
+        warn("No submission info found, initializing...")
+        local initSuccess = SubmissionStoreManager.initialiseNewSubmissionStore()
+        
+        if not initSuccess then
+            warn("Failed to initialize submission store!")
+            return nil
+        end
+        
+        -- Return default store number after initialization
+        return 1
+    end
+    
+    warn("Failed to get submission info:", infoSuccess, info)
+    return nil
+end
+
+function SubmissionStoreManager.getCurrentInfoStoreName(): string?
+    local currentPrefix = GameTimer.getCurrentPhasePrefix()
+    if not currentPrefix then 
+        warn("No current prefix!")
+        return nil
+    end
+    
+    return currentPrefix .. Constants.SUBMISSION_INFO_MEMORYSTORE_NAME
+end
+
+function SubmissionStoreManager.initialiseNewSubmissionStore()
+    warn("Initialising new submission store!")
+    local submissionsStoreInfo = {
+        phaseDate = GameTimer.getCurrentPhasePrefix(),
+        currentStoreNumber = 1, 
+        storeSubmissionCount = 0,
+        lastUpdated = DateTime.now().UnixTimestamp
+    }
+
+    local currentInfoStoreName = SubmissionStoreManager.getCurrentInfoStoreName()
+
+
+    local success, submissionInfo = callWithRetry(
+        function()
+            return MemoryStoreService:GetSortedMap(currentInfoStoreName)
+        end
+    )
+
+    if not submissionInfo then
+        warn("No submission info!")
+        return false
+    end
+
+    local setSuccess = callWithRetry(
+        function()
+            return submissionInfo:SetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY, submissionsStoreInfo, Constants.MEMORYSTORE_STORE_DURATION)
+        end
+    )
+
+    if setSuccess then
+       warn("Just ++ set current submission info!")
+       print(submissionInfo:GetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY)) 
+    else
+        warn("Failed to set submission info!")
+    end
+
+    return setSuccess
+end
+
+function SubmissionStoreManager.incrementIndex(): boolean
+    local currentPrefix = GameTimer.getCurrentPhasePrefix()
+    if not currentPrefix then 
+        warn("No current prefix!")
+        return false
+    end
+
+    -- Acquire lock before incrementing
+    local gotLock = acquireRolloverLock()
+    if not gotLock then
+        warn("Failed to acquire rollover lock - another server is handling rollover")
+        return false
+    end
+
+    local success, result = callWithRetry(
+        function()
+            return MemoryStoreService:GetSortedMap(currentPrefix .. Constants.SUBMISSION_INFO_MEMORYSTORE_NAME)
+        end
+    )
+
+    if not result then 
+        releaseRolloverLock()
+        return false
+    end
+
+    if success and result then
+        local infoSuccess, info = callWithRetry(function()
+            return result:UpdateAsync(Constants.CURRENT_SUBMISSION_INFO_KEY, function(infoTable)
+                infoTable = infoTable or {
+                    phaseDate = GameTimer.getCurrentPhasePrefix(),
+                    currentStoreNumber = 1,
+                    storeSubmissionCount = 0,
+                    lastUpdated = DateTime.now().UnixTimestamp
+                }
+
+                infoTable.currentStoreNumber = tonumber(infoTable.currentStoreNumber) + 1
+                infoTable.storeSubmissionCount = 0
+                infoTable.lastUpdated = DateTime.now().UnixTimestamp
+
+                return infoTable
+            end)
+        end, 3)
+        
+        releaseRolloverLock()
+        
+        if infoSuccess and info then
+            print("Successfully rolled over to submission store #" .. info.currentStoreNumber)
+            return true
+        end
+    end
+    
+    releaseRolloverLock()
+    return false
+end
 
 function SubmissionStoreManager.getCurrentMemoryStoreName(): string?
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
+    local currentIndex = getCurrentMemoryStoreIndex()
     
-    if currentPrefix then
-        return currentPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME
+    if currentPrefix and currentIndex then
+        return currentPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME .. currentIndex
     else
+        warn("Failed to get name!", currentPrefix, currentIndex)
         return nil
     end
 end
@@ -39,28 +259,6 @@ function SubmissionStoreManager.getPreviousMemoryStoreName(): string?
     end
 end
 
-function SubmissionStoreManager.getPreviousSubmissionMemoryStore()
-    local previousStoreName = SubmissionStoreManager.getPreviousMemoryStoreName()
-    if not previousStoreName then
-        warn("No previous store name available")
-        return nil
-    end
-    
-    print("Getting previous submission store:", previousStoreName)
-    
-    local success, result = callWithRetry(function()
-        return MemoryStoreService:GetHashMap(previousStoreName)
-    end, 3)
-    
-    if success then 
-        return result 
-    else 
-        warn("Failed to get previous memorystore!")
-        warn(success, result)
-        return nil
-    end
-end
-
 function SubmissionStoreManager.getCurrentSubmissionMemoryStore()
     local currentStoreName = SubmissionStoreManager.getCurrentMemoryStoreName()
     if not currentStoreName then
@@ -68,50 +266,56 @@ function SubmissionStoreManager.getCurrentSubmissionMemoryStore()
         return nil 
     end
 
-    print("Getting current submission store:", currentStoreName)
-    
     local success, result = callWithRetry(function()
-        return MemoryStoreService:GetHashMap(currentStoreName)
+        return MemoryStoreService:GetSortedMap(currentStoreName)
     end, 3)
     
     if success then 
         return result 
     else 
-        warn("Failed to get current memorystore!")
-        warn(success, result)
+        warn("Failed to get current memorystore:", result)
         return nil
     end
 end
 
--- Gets all entries from a given hash map
-local function getAllHashMapEntries(hashPages: MemoryStoreHashMapPages): {[string]: any}
-    local allEntries: {[string]: any} = {}
+function SubmissionStoreManager.getPreviousSubmissionMemoryStore()
+    local previousStoreName = SubmissionStoreManager.getPreviousMemoryStoreName()
+    if not previousStoreName then
+        warn("No previous store name available")
+        return nil
+    end
     
-    while not hashPages.IsFinished do
-        local currentPage = hashPages:GetCurrentPage()
-        
-        -- Process each item in the current page
-        for _, item in ipairs(currentPage) do
-            allEntries[item.key] = item.value
-        end
-        
-        -- Move to next page if available
-        if not hashPages.IsFinished then
-            local success, error = pcall(function()
-                hashPages:AdvanceToNextPageAsync()
-            end)
-            
-            if not success then
-                warn("Failed to advance to next page:", error)
-                break
-            end
-        end
+    local success, result = callWithRetry(function()
+        return MemoryStoreService:GetSortedMap(previousStoreName)
+    end, 3)
+    
+    if success then 
+        return result 
+    else 
+        warn("Failed to get previous memorystore:", result)
+        return nil
+    end
+end
+
+local function getAllSortedMapEntries(sortedMap): {[string]: any}
+    local allEntries = {}
+    
+    local success, items = callWithRetry(function()
+        return sortedMap:GetRangeAsync(Enum.SortDirection.Ascending, 100)
+    end, 3)
+    
+    if not success or not items then
+        warn("Failed to get range from sorted map")
+        return allEntries
+    end
+    
+    for _, item in ipairs(items) do
+        allEntries[item.key] = item.value
     end
     
     return allEntries
 end
 
--- Get all entries from the current submission store
 function SubmissionStoreManager:GetEntries(): {[string]: any}
     local currentStore = self.getCurrentSubmissionMemoryStore()
     
@@ -120,19 +324,9 @@ function SubmissionStoreManager:GetEntries(): {[string]: any}
         return {}
     end
     
-    local success, pages = callWithRetry(function()
-        return currentStore:ListItemsAsync(10)
-    end, 3)
-    
-    if success and pages then
-        return getAllHashMapEntries(pages)
-    else
-        warn("Failed to fetch submissions from Memory Store")
-        return {}
-    end
+    return getAllSortedMapEntries(currentStore)
 end
 
--- Get all entries from previous phase's submission store
 function SubmissionStoreManager:GetPreviousPhaseEntries(): {[string]: any}
     local previousStore = self.getPreviousSubmissionMemoryStore()
     
@@ -141,35 +335,127 @@ function SubmissionStoreManager:GetPreviousPhaseEntries(): {[string]: any}
         return {}
     end
     
-    local success, pages = callWithRetry(function()
-        return previousStore:ListItemsAsync(10)
-    end, 3)
+    return getAllSortedMapEntries(previousStore)
+end
+
+function SubmissionStoreManager.flushPendingUpdates(): ()
+    if isFlushingInProgress then
+        return 
+    end
     
-    if success and pages then
-        return getAllHashMapEntries(pages)
-    else
-        warn("Failed to fetch previous submissions from Memory Store")
-        return {}
+    if next(pendingUpdates) == nil then
+        return 
+    end
+    
+    isFlushingInProgress = true
+    
+    local currentMemoryStore = SubmissionStoreManager.getCurrentSubmissionMemoryStore()
+    if not currentMemoryStore then
+        warn("Cannot flush: no current memory store")
+        isFlushingInProgress = false
+        return
+    end
+    
+    local updatesToFlush = {}
+    for entryKey, updates in pairs(pendingUpdates) do
+        updatesToFlush[entryKey] = {
+            userId = updates.userId,
+            humanoidDescription = updates.humanoidDescription,
+        }
+    end
+    
+    pendingUpdates = {}
+    
+    print("Flushing", #updatesToFlush, "pending submissions to MemoryStore")
+    
+    for entryKey, updates in pairs(updatesToFlush) do
+        local success = callWithRetry(function()
+            return currentMemoryStore:SetAsync(
+                entryKey, 
+                updates, 
+                Constants.MEMORYSTORE_STORE_DURATION, 
+                DateTime.now().UnixTimestamp
+            )
+        end, 3)
+        
+        if not success then
+            warn("Failed to flush submission for entry:", entryKey)
+        end
+    end
+    
+    lastFlush = tick()
+    isFlushingInProgress = false
+end
+
+function SubmissionStoreManager.startPeriodicFlush(): ()
+    warn("starting flush for sub store!")
+    task.spawn(function()
+        while true do
+            task.wait(FLUSH_INTERVAL)
+            if not isFlushingInProgress and next(pendingUpdates) then
+                SubmissionStoreManager.flushPendingUpdates()
+            end
+        end
+    end)
+    warn("Done!")
+end
+
+function SubmissionStoreManager.initialise(): () 
+    SubmissionStoreManager.initialiseNewSubmissionStore()
+    SubmissionStoreManager.startPeriodicFlush()
+end
+
+function SubmissionStoreManager:AddEntryToCache(player: Player, serialisedHumanoidDescription: {})
+    pendingUpdates[tostring(player.UserId)] = {
+        userId = player.UserId,
+        humanoidDescription = serialisedHumanoidDescription
+    }
+    
+    -- Check if we should flush
+    local pendingCount = 0
+    for _ in pairs(pendingUpdates) do
+        pendingCount += 1
+    end
+    
+    local shouldFlushByTime = tick() - lastFlush > FLUSH_INTERVAL
+    local shouldFlushByCount = pendingCount >= MAX_PENDING_UPDATES
+    
+    if (shouldFlushByTime or shouldFlushByCount) and not isFlushingInProgress then
+        SubmissionStoreManager.flushPendingUpdates()
     end
 end
 
-function SubmissionStoreManager:AddEntry(player: Player, serialisedHumanoidDescription: {}): ()
-    -- Get the submissions memory store
+function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumanoidDescription: {}): ()
+    -- Check if rollover is happening
+    if isRolloverLockActive() then
+        print("Rollover in progress for player " .. player.Name .. ", adding to cache instead")
+        SubmissionStoreManager:AddEntryToCache(player, serialisedHumanoidDescription)
+        SubmissionResultRE:FireClient(player, {
+            ok = true,
+            msg = "Outfit submitted successfully!"
+        })
+        return
+    end
+    
     local currentSubmissionsMemoryStore = self.getCurrentSubmissionMemoryStore()
     if not currentSubmissionsMemoryStore then 
         warn("Failed to get submissions memory store") 
+        SubmissionResultRE:FireClient(player, {
+            ok = false,
+            msg = "Server error. Please try again."
+        })
         return 
     end
 
-    -- Add the serialised humanoid description to the submissions memory store
     local success = callWithRetry(function()
         return currentSubmissionsMemoryStore:SetAsync(
-            tostring(player.UserId), {
+            tostring(player.UserId),
+            {
                 userId = player.UserId,
-                playerName = player.Name,
                 humanoidDescription = serialisedHumanoidDescription,
             },
-            240
+            Constants.MEMORYSTORE_STORE_DURATION,
+            os.time()
         )
     end, 5)
 
@@ -179,12 +465,21 @@ function SubmissionStoreManager:AddEntry(player: Player, serialisedHumanoidDescr
             ok = true,
             msg = "Outfit submitted successfully!"
         })
+        
+        -- Check if we need to rollover to a new store
+        local currentSize = currentSubmissionsMemoryStore:GetSizeAsync()
+        if currentSize >= Constants.MAX_SUBMISSIONS_PER_MEMORYSTORE then
+            print("Store full (" .. currentSize .. " entries), attempting rollover...")
+            SubmissionStoreManager.incrementIndex()
+        end
+        return true
     else
         warn("Failed to submit outfit for player:", player.Name)
         SubmissionResultRE:FireClient(player, {
             ok = false,
             msg = "Failed to submit outfit. Please try again."
         })
+        return false
     end
 end
 
