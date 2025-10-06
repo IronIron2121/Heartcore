@@ -90,7 +90,6 @@ local function isRolloverLockActive(): boolean
     -- Lock exists if we successfully got a non-nil value
     return success and lockValue ~= nil
 end
-
 local function getCurrentMemoryStoreIndex(): number?
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
     if not currentPrefix then 
@@ -104,20 +103,34 @@ local function getCurrentMemoryStoreIndex(): number?
         end
     )
 
-    if success and result then
-        local infoSuccess, info = callWithRetry(function()
-            return result:GetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY)
-        end, 3)
-        
-        if infoSuccess and info then
-            warn("Got the current index!")
-            return info.currentStoreNumber
-        else
-            warn("Failed to getAsync!", infoSuccess, info)
-        end
+    if not success or not result then
+        warn("Failed to get info store!")
+        return nil
     end
 
-    warn("Failed to get current index!", success, result)
+    local infoSuccess, info = callWithRetry(function()
+        return result:GetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY)
+    end, 3)
+    
+    if infoSuccess and info then
+        return info.currentStoreNumber
+    end
+    
+    if infoSuccess and not info then
+        -- Info store exists but no data - initialize it
+        warn("No submission info found, initializing...")
+        local initSuccess = SubmissionStoreManager.initialiseNewSubmissionStore()
+        
+        if not initSuccess then
+            warn("Failed to initialize submission store!")
+            return nil
+        end
+        
+        -- Return default store number after initialization
+        return 1
+    end
+    
+    warn("Failed to get submission info:", infoSuccess, info)
     return nil
 end
 
