@@ -24,15 +24,16 @@ local DataManager = require(Data:WaitForChild("DataManager"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Instances
-local SubmissionPad = centralPond:WaitForChild("SubmissionPad")
+local SubmissionPad = centralPond:WaitForChild("SubmissionPad") 
 
 -- Fusion
 local scope = Fusion:scoped()
-local Children = Fusion.Children
+local peek = Fusion.peek
 local OnEvent = Fusion.OnEvent
 
 local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
 local promptEnabled = scope:Value(true)
+local isSubmitting = scope:Value(false)
 
 -- Prompt
 local function onOutfitSubmitted(player: Player)
@@ -47,7 +48,7 @@ local function onOutfitSubmitted(player: Player)
 	-- Serialise it
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
 
-	SubmissionStoreManager:AddEntry(player, serialisedHumanoidDescription)
+	SubmissionStoreManager:AddEntryToStore(player, serialisedHumanoidDescription)
 	
 	DataManager.AddExp(player, 1)
 	
@@ -61,19 +62,20 @@ local function onOutfitSubmitted(player: Player)
 end
 
 
-
 local prompt = scope:New "ProximityPrompt" {
 	Parent = promptHolder,
 	Enabled = promptEnabled,
-	ActionText = "Submit Outfit",
+	ActionText = "Submit Outfit", 
 	HoldDuration = 0.5,
 	RequiresLineOfSight = false,
 	MaxActivationDistance = 16,
 	[OnEvent "Triggered"] = function(player)
+		if peek(isSubmitting) then
+			return
+		end
+		isSubmitting:set(true)
 		onOutfitSubmitted(player)
+		isSubmitting:set(false)
 	end
 }
 
---
-
-prompt.Triggered:Connect(onOutfitSubmitted)

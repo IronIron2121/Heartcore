@@ -97,34 +97,13 @@ local Constants = {
 	PAGE_SIZE = 30,
 	SCROLL_LOAD_FACTOR = 0.9,
 	QUERY_ATTEMPTS = 3,
-	ASSET_TYPE_ID = Enum.MarketplaceProductType.AvatarAsset.Value,
-	BUNDLE_TYPE_ID = Enum.MarketplaceProductType.AvatarBundle.Value,
-	
-	ITEM_RESTRICTIONS = {
-		LIMITED = "Limited",
-		LIMITED_U = "LimitedUnique",
-		COLLECTIBLE = "Collectible",
-	},
-	
-	-- UI Constants
-	ROBUX_CHAR = utf8.char(0xe002),
-	BUTTON_DISABLED_TRANSPARENCY = 0.5,
-	ITEM_TILE_SIZE = Vector2.new(100, 200),
-	ITEM_TILE_PADDING = 4,
-	CAMERA_OFFSET = 0.65,
-	
-	-- Tags
-	UI_BUTTON_TAG = "UIButton",
-	INSPECT_PROMPT_TAG = "InspectPrompt",
-	CLAIM_PROMPT_TAG = "ClaimPrompt",
-	CATALOG_CONSOLE_TAG = "Console",
-	CATALOG_CONSOLE_PROMPT_NAME = "ConsolePrompt",
-	
-	-- Editing Commands
-	PLACE_COMMAND = "place",
-	REPOSITION_COMMAND = "reposition",
-	DEFAULT_NUDGE = 1,
-	DEFAULT_ROTATE = 45,
+
+	MEMORYSTORE_STORE_DURATION = 129600, -- 36 hours
+	MAX_SUBMISSIONS_PER_MEMORYSTORE = 500,
+	SUBMISSION_INFO_MEMORYSTORE_NAME = "SubmissionsInfo",
+	SUBMISSION_INFO_INDEX = "currentStoreNumber",
+	CURRENT_SUBMISSION_INFO_KEY = "currentSubmissionsInfo",
+
 }
 
 return Constants
