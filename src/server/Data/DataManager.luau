@@ -22,7 +22,7 @@ end
 
 -- Helper function to get current day start
 local function getCurrentDayStart(): number
-    return getDayStart(os.time())
+    return getDayStart(DateTime.now().UnixTimestamp)
 end
 
 -- Helper function to get yesterday's day start
@@ -65,7 +65,7 @@ function DataManager.AddExp(player: Player, amount: number)
     local newLevel = calculateLevel(profile.Data.Exp)
     if newLevel > oldLevel then
         profile.Data.Level = newLevel
-        profile.Data.LevelUpTime = os.time()
+        profile.Data.LevelUpTime = DateTime.now().UnixTimestamp
         
         print(player.Name, "leveled up to level", newLevel, "(" .. DataManager.GetLevelName(newLevel) .. ")!")
         
@@ -91,7 +91,7 @@ function DataManager.ProcessLogin(player: Player)
         return
     end
     
-    local currentTime = os.time()
+    local currentTime = DateTime.now().UnixTimestamp
     local currentDayStart = getCurrentDayStart()
     local lastLoginDayStart = getDayStart(profile.Data.LastLoginTime or 0)
     local yesterdayStart = getYesterdayStart()
@@ -165,8 +165,24 @@ function DataManager.GetTimeSinceLastLogin(player: Player): number
     if lastLogin == 0 then
         return 0
     end
-    return os.time() - lastLogin
+    return DateTime.now().UnixTimestamp - lastLogin
 end
+
+function DataManager.onOutfitSubmitted(player: Player)
+    local profile = DataManager.Profiles[player]
+    if not profile then
+        return
+    end
+    profile.Data.LastOutfitSubmittedTime = DateTime.now().UnixTimestamp
+end
+
+function DataManager.GetLastOutfitSubmittedTime(player: Player): number
+    local profile = DataManager.Profiles[player]
+    if not profile then
+        return 0
+    end
+    return profile.Data.LastOutfitSubmittedTime
+end 
 
 -- Debug function to manually test login streaks
 function DataManager.DebugSetLastLogin(player: Player, daysAgo: number)

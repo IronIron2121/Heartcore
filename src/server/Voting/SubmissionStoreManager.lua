@@ -478,6 +478,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             ok = false,
             msg = "Failed to submit outfit. Please try again."
         })
+        return false
     end
 end
 

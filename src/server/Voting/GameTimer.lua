@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local centralPond = workspace:WaitForChild("centralPond")
 
 -- Modules
@@ -24,6 +25,7 @@ local PHASE_CLOCK_UPDATE_INTERVAL = 1
 
 -- Remotes / Bindables
 local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
+local PhaseChangedRemote = Remotes:WaitForChild("PhaseChangedRemote")
 
 -- Instances
 local centralPondModel = centralPond:WaitForChild("centralPond")
@@ -46,7 +48,7 @@ local function getUniversalTimeFromUnixTimestamp(unixTimestamp: number)
     return DateTime.fromUnixTimestamp(unixTimestamp):ToUniversalTime()    
 end
 
-local function getCurrentPhaseUnixTime()
+function GameTimer.getCurrentPhaseUnixTime()
     return GameTimerCache.currentPhaseUnixTime
 end
 
@@ -59,7 +61,7 @@ local function getNextPhaseUnixTime()
 end
 
 function GameTimer.getCurrentPhasePrefix(): string?
-    local currentPhaseUnixTime = getCurrentPhaseUnixTime()
+    local currentPhaseUnixTime = GameTimer.getCurrentPhaseUnixTime()
 
     if currentPhaseUnixTime then
         local date = getUniversalTimeFromUnixTimestamp(currentPhaseUnixTime)
@@ -93,7 +95,7 @@ local function getNextPhaseStartTime()
     end
     
     -- Cache is invalid or doesn't exist, recalculate
-    local currentPhaseUnixTime = getCurrentPhaseUnixTime()
+    local currentPhaseUnixTime = GameTimer.getCurrentPhaseUnixTime()
     if not currentPhaseUnixTime then
         return nil
     end
@@ -129,7 +131,7 @@ local function getNextPhaseStartTime()
 end
 
 local function currentPhaseHasExpired()
-    local currentPhaseUnixTime = getCurrentPhaseUnixTime()
+    local currentPhaseUnixTime = GameTimer.getCurrentPhaseUnixTime()
     
     if not currentPhaseUnixTime then
         return true
@@ -165,6 +167,7 @@ local function updatePhase()
         GameTimerCache.nextPhaseUnixTime = nil -- Invalidate cache so it recalculates
         
         PhaseChanged:Fire()
+        PhaseChangedRemote:FireAllClients()
         
         local currentDateTime = DateTime.fromUnixTimestamp(currentUnixTime)
         local nextPhaseUnixTime = getNextPhaseStartTime()

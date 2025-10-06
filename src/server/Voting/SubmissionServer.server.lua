@@ -6,6 +6,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
+local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
@@ -15,6 +16,9 @@ local Data = ServerScriptService:WaitForChild("Data")
 
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
+local SubmissionResultRF = Remotes:WaitForChild("SubmissionResultRF")
+local PhaseChanged = Bindables:WaitForChild("PhaseChanged") 
+
 
 -- Modules
 local getHumanoidDescriptionFromPlayer = require(Getters:WaitForChild("getHumanoidDescriptionFromPlayer"))
@@ -22,6 +26,7 @@ local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManag
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 local DataManager = require(Data:WaitForChild("DataManager"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
 -- Instances
 local SubmissionPad = centralPond:WaitForChild("SubmissionPad") 
@@ -35,8 +40,35 @@ local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
 local promptEnabled = scope:Value(true)
 local isSubmitting = scope:Value(false)
 
--- Prompt
+local function canPlayerSubmit(player: Player)
+	local lastSubmit = DataManager.GetLastOutfitSubmittedTime(player)
+	if not lastSubmit or lastSubmit == 0 then
+		warn("no previous submission")
+		return true
+	end
+
+	local currentPhaseStart = GameTimer.getCurrentPhaseUnixTime()
+
+	if lastSubmit >= currentPhaseStart then
+		warn("no, they can't submit")
+		return false
+	end
+
+	warn("yes, they can submit")
+	return true
+end
+
 local function onOutfitSubmitted(player: Player)
+	if not canPlayerSubmit(player) then
+		SubmissionResultRE:FireClient(player, {
+			ok = false, 
+			msg = "You've already submitted this phase. Try again tomorrow!"
+		})
+
+		warn("can't submit rn!!!")
+		return 
+	end
+
 	-- Get humanoid description
 	local humanoidDescription = getHumanoidDescriptionFromPlayer(player)
 	if not humanoidDescription then
@@ -50,19 +82,14 @@ local function onOutfitSubmitted(player: Player)
 
 	SubmissionStoreManager:AddEntryToStore(player, serialisedHumanoidDescription)
 	
+	if not success then return end
+
 	DataManager.AddExp(player, 1)
-	
-	task.spawn(function()
-		promptEnabled:set(false)
-		promptHolder.Color = Color3.fromRGB(100,100,100)
-		task.wait(10)
-		promptEnabled:set(true)		
-		promptHolder.Color = Color3.fromRGB(163,162,165)
-	end)
-end
+	DataManager.onOutfitSubmitted(player)	
 
 
 local prompt = scope:New "ProximityPrompt" {
+	Name = "SubmissionPrompt",
 	Parent = promptHolder,
 	Enabled = promptEnabled,
 	ActionText = "Submit Outfit", 
