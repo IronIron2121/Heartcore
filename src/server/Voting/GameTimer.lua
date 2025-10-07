@@ -17,9 +17,13 @@ local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local GameTimerMemoryStore = MemoryStoreService:GetHashMap(Constants.GAME_TIMER_MEMORYSTORE_NAME)
 local TransitionLockStore = MemoryStoreService:GetHashMap("TransitionLocks")
 
+-- DEBUG MODE - SET TO FALSE FOR PRODUCTION
+local DEBUG_MODE = true
+local DEBUG_PHASE_DURATION = 120 -- 2 minutes per phase in debug mode
+
 -- Constants
-local CHECK_TIME_LAPSE_INTERVAL = 10
-local PHASE_START_HOUR = 12 -- every phase starts at 12:00:00
+local CHECK_TIME_LAPSE_INTERVAL = DEBUG_MODE and 5 or 10
+local PHASE_START_HOUR = 12 -- every phase starts at 12:00:00 (ignored in debug mode)
 local PHASE_CLOCK_UPDATE_INTERVAL = 1
 
 -- Remotes / Bindables
@@ -50,6 +54,10 @@ local function getCurrentPhaseUnixTime()
     return GameTimerCache.currentPhaseUnixTime
 end
 
+function GameTimer.getCurrentPhaseUnixTime()
+    return getCurrentPhaseUnixTime()
+end
+
 local function getPreviousPhaseUnixTime()
     return GameTimerCache.previousPhaseUnixTime
 end
@@ -63,8 +71,15 @@ function GameTimer.getCurrentPhasePrefix(): string?
 
     if currentPhaseUnixTime then
         local date = getUniversalTimeFromUnixTimestamp(currentPhaseUnixTime)
-        local dayPrefix = date.Month .. date.Day 
-        return dayPrefix
+        
+        if DEBUG_MODE then
+            -- Use timestamp for unique phase prefixes in debug mode
+            local debugPrefix = "DEBUG_" .. tostring(currentPhaseUnixTime)
+            return debugPrefix
+        else
+            local dayPrefix = date.Month .. date.Day 
+            return dayPrefix
+        end
     else
         warn("No current phase transition!")
         return nil
@@ -75,8 +90,15 @@ function GameTimer.getPreviousPhasePrefix(): string?
     local previousPhaseUnixTime = getPreviousPhaseUnixTime()
     if previousPhaseUnixTime then
         local date = getUniversalTimeFromUnixTimestamp(previousPhaseUnixTime)
-        local debug_dayPrefix = date.Month .. date.Day .. date.Minute
-        return debug_dayPrefix
+        
+        if DEBUG_MODE then
+            -- Use timestamp for unique phase prefixes in debug mode
+            local debugPrefix = "DEBUG_" .. tostring(previousPhaseUnixTime)
+            return debugPrefix
+        else
+            local debug_dayPrefix = date.Month .. date.Day .. date.Minute
+            return debug_dayPrefix
+        end
     else
         warn("No previous phase transition!")
         return nil
@@ -98,34 +120,42 @@ local function getNextPhaseStartTime()
         return nil
     end
     
-    local currentUniversalTime = getUniversalTimeFromUnixTimestamp(currentPhaseUnixTime)
-    local currentHour = currentUniversalTime["Hour"]
-    
-    currentUniversalTime["Hour"] = PHASE_START_HOUR
-    currentUniversalTime["Minute"] = 0
-    currentUniversalTime["Second"] = 0
-    currentUniversalTime["Millisecond"] = 0
-    
-    local timeArray = {
-        currentUniversalTime.Year,
-        currentUniversalTime.Month,
-        currentUniversalTime.Day,
-        currentUniversalTime.Hour,
-        currentUniversalTime.Minute,
-        currentUniversalTime.Second,
-        currentUniversalTime.Millisecond
-    }
+    if DEBUG_MODE then
+        -- In debug mode, next phase is just DEBUG_PHASE_DURATION seconds from current
+        local nextPhaseStartUnix = currentPhaseUnixTime + DEBUG_PHASE_DURATION
+        GameTimerCache.nextPhaseUnixTime = nextPhaseStartUnix
+        return nextPhaseStartUnix
+    else
+        -- Production mode: calculate based on 12:00 UTC daily cycle
+        local currentUniversalTime = getUniversalTimeFromUnixTimestamp(currentPhaseUnixTime)
+        local currentHour = currentUniversalTime["Hour"]
+        
+        currentUniversalTime["Hour"] = PHASE_START_HOUR
+        currentUniversalTime["Minute"] = 0
+        currentUniversalTime["Second"] = 0
+        currentUniversalTime["Millisecond"] = 0
+        
+        local timeArray = {
+            currentUniversalTime.Year,
+            currentUniversalTime.Month,
+            currentUniversalTime.Day,
+            currentUniversalTime.Hour,
+            currentUniversalTime.Minute,
+            currentUniversalTime.Second,
+            currentUniversalTime.Millisecond
+        }
 
-    local nextPhaseStartUnix = DateTime.fromUniversalTime(table.unpack(timeArray)).UnixTimestamp
-    
-    if currentHour >= PHASE_START_HOUR then
-        nextPhaseStartUnix = nextPhaseStartUnix + 86400
+        local nextPhaseStartUnix = DateTime.fromUniversalTime(table.unpack(timeArray)).UnixTimestamp
+        
+        if currentHour >= PHASE_START_HOUR then
+            nextPhaseStartUnix = nextPhaseStartUnix + 86400
+        end
+        
+        -- Update cache
+        GameTimerCache.nextPhaseUnixTime = nextPhaseStartUnix
+        
+        return nextPhaseStartUnix
     end
-    
-    -- Update cache
-    GameTimerCache.nextPhaseUnixTime = nextPhaseStartUnix
-    
-    return nextPhaseStartUnix
 end
 
 local function currentPhaseHasExpired()
@@ -145,7 +175,12 @@ local function currentPhaseHasExpired()
 end
 
 local function updatePhase()
-    print("Starting phase transition...")
+    if DEBUG_MODE then
+        print("=== DEBUG MODE: Starting phase transition ===")
+    else
+        print("Starting phase transition...")
+    end
+    
     local currentUnixTime = DateTime.now().UnixTimestamp 
     
     local recentSuccess = callWithRetry(function()
@@ -170,9 +205,16 @@ local function updatePhase()
         local nextPhaseUnixTime = getNextPhaseStartTime()
         local tomorrowDateTime = nextPhaseUnixTime and DateTime.fromUnixTimestamp(nextPhaseUnixTime) or nil
         
-        print("Phase transition completed at:", currentDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
-        if tomorrowDateTime then
-            print("Next transition at:", tomorrowDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
+        if DEBUG_MODE then
+            print("=== DEBUG: Phase transition completed ===")
+            print("Current phase prefix:", GameTimer.getCurrentPhasePrefix())
+            print("Previous phase prefix:", GameTimer.getPreviousPhasePrefix())
+            print("Next transition in:", DEBUG_PHASE_DURATION, "seconds")
+        else
+            print("Phase transition completed at:", currentDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
+            if tomorrowDateTime then
+                print("Next transition at:", tomorrowDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
+            end
         end
     else
         warn("Failed to update phase transition times in GameTimerMemoryStore")
@@ -226,6 +268,11 @@ local function initializeGameTimerCache()
             local timeUntilNext = nextPhaseTimestamp - DateTime.now().UnixTimestamp
             print("Loaded recent phase transition time:", recentUnixTime)
             print("Time until next phase:", math.max(0, timeUntilNext), "seconds")
+            
+            if DEBUG_MODE then
+                print("DEBUG MODE: Current prefix:", GameTimer.getCurrentPhasePrefix())
+                print("DEBUG MODE: Previous prefix:", GameTimer.getPreviousPhasePrefix())
+            end
         end
     else
         GameTimerCache.currentPhaseUnixTime = nil
@@ -245,6 +292,13 @@ function GameTimer.initialiseTimer(): ()
     if TimerStarted then return end
     TimerStarted = true
 
+    if DEBUG_MODE then
+        warn("=================================================")
+        warn("DEBUG MODE ENABLED - PHASES EVERY", DEBUG_PHASE_DURATION, "SECONDS")
+        warn("SET DEBUG_MODE = false FOR PRODUCTION")
+        warn("=================================================")
+    end
+
     print("Initializing GameTimer system...")
     
     initializeGameTimerCache()
@@ -252,7 +306,12 @@ function GameTimer.initialiseTimer(): ()
     task.spawn(function()
         while true do
             task.wait(CHECK_TIME_LAPSE_INTERVAL)
-            warn("Checking phase expiry...")
+            
+            if DEBUG_MODE then
+                warn("DEBUG: Checking phase expiry...")
+            else
+                warn("Checking phase expiry...")
+            end
             
             if currentPhaseHasExpired() then
                 print("Phase has expired, attempting transition...")
@@ -261,7 +320,11 @@ function GameTimer.initialiseTimer(): ()
                 local nextPhaseTime = getNextPhaseStartTime()
                 if nextPhaseTime then
                     local timeUntilNext = nextPhaseTime - DateTime.now().UnixTimestamp
-                    print("Phase is still valid! Time until next:", math.floor(timeUntilNext), "seconds")
+                    if DEBUG_MODE then
+                        print("DEBUG: Phase valid -", math.floor(timeUntilNext), "seconds until next")
+                    else
+                        print("Phase is still valid! Time until next:", math.floor(timeUntilNext), "seconds")
+                    end
                 else
                     print("No phase transition recorded yet")
                 end
@@ -275,13 +338,18 @@ function GameTimer.initialiseTimer(): ()
             local nextPhaseTime = getNextPhaseUnixTime()
             
             if not nextPhaseTime or nextPhaseTime <= timestampNow then
-                TimeLabel.Text = "LOADING..."
+                TimeLabel.Text = DEBUG_MODE and "DEBUG: LOADING..." or "LOADING..."
             else
                 local timeRemaining = nextPhaseTime - timestampNow
                 local hours = timeRemaining // 3600
                 local minutes = (timeRemaining % 3600) // 60
                 local seconds = timeRemaining % 60
-                TimeLabel.Text = string.format("%d:%02d:%02d", hours, minutes, seconds)      
+                
+                if DEBUG_MODE then
+                    TimeLabel.Text = string.format("DEBUG: %d:%02d", minutes, seconds)
+                else
+                    TimeLabel.Text = string.format("%d:%02d:%02d", hours, minutes, seconds)
+                end
             end
 
             task.wait(PHASE_CLOCK_UPDATE_INTERVAL)
