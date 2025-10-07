@@ -12,7 +12,7 @@ local Voting = ServerScriptService:WaitForChild("Voting")
 
 -- Modules
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
-local ContestStoreManager = require(Voting:WaitForChild("ContestStoreManager"))
+local VotingStoreManager = require(Voting:WaitForChild("VotingStoreManager"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
@@ -108,7 +108,7 @@ function WinnersStoreManager.updateWinnersPodiums()
 end
 
 function WinnersStoreManager.setNewWinners()
-    local publicCache = ContestStoreManager.getPublicCache()
+    local publicCache = VotingStoreManager.getPublicCache()
 
     if not publicCache then 
         warn("No public cache; can't get it!") 

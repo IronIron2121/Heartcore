@@ -7,11 +7,11 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Voting = ServerScriptService:WaitForChild("Voting")
 
 -- Modules
-local ContestStoreManager = require(Voting:WaitForChild("ContestStoreManager"))
+local VotingStoreManager = require(Voting:WaitForChild("VotingStoreManager"))
 
 local function onServerClose()
     warn("Server Closing")
-    --ContestStoreManager.forceFlush()
+    --VotingStoreManager.forceFlush()
     warn("Server Closed...")
 end
 
