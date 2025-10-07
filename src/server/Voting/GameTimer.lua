@@ -5,9 +5,10 @@ local MemoryStoreService = game:GetService("MemoryStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local centralPond = workspace:WaitForChild("centralPond")
+local Bindables = ReplicatedStorage:WaitForChild("Bindables")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
@@ -28,6 +29,7 @@ local PHASE_CLOCK_UPDATE_INTERVAL = 1
 
 -- Remotes / Bindables
 local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
+local PhaseChangedRemote = Remotes:WaitForChild("PhaseChangedRemote")
 
 -- Instances
 local centralPondModel = centralPond:WaitForChild("centralPond")
@@ -200,6 +202,8 @@ local function updatePhase()
         GameTimerCache.nextPhaseUnixTime = nil -- Invalidate cache so it recalculates
         
         PhaseChanged:Fire()
+        PhaseChangedRemote:FireAllClients()
+
         
         local currentDateTime = DateTime.fromUnixTimestamp(currentUnixTime)
         local nextPhaseUnixTime = getNextPhaseStartTime()

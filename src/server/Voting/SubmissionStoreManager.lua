@@ -426,7 +426,7 @@ function SubmissionStoreManager:AddEntryToCache(player: Player, serialisedHumano
     end
 end
 
-function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumanoidDescription: {}): ()
+function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumanoidDescription: {}): boolean
     -- Check if rollover is happening
     if isRolloverLockActive() then
         print("Rollover in progress for player " .. player.Name .. ", adding to cache instead")
@@ -435,7 +435,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             ok = true,
             msg = "Outfit submitted successfully!"
         })
-        return
+        return false
     end
     
     local currentSubmissionsMemoryStore = self.getCurrentSubmissionMemoryStore()
@@ -445,7 +445,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             ok = false,
             msg = "Server error. Please try again."
         })
-        return 
+        return false
     end
 
     local success = callWithRetry(function()
