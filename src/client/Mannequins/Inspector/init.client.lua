@@ -255,6 +255,7 @@ local function onMannequinInspectRequested(mannequin: Model)
 end
 
 local function initialize()
+
 	-- Initialize buttons
 	deleteButton.Activated:Connect(onDeleteButtonActivated)
 	buyAllButton.Activated:Connect(onBuyAllButtonActivated)

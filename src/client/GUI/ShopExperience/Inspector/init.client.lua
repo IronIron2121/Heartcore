@@ -5,6 +5,8 @@
 	created in each mannequin, which when triggered opens up the inspect menu.
 --]]
 
+-- TODO: If we see this later this script is useless and can be deleted
+
 
 -- Services
 local CollectionService 	   	= game:GetService("CollectionService")
@@ -305,6 +307,9 @@ local function onEditButtonActivated()
 end
 
 local function initialize()
+
+	warn("Initialising inspector")
+
 	-- Initialise buttons	
 	deleteButton.Activated:Connect(onDeleteButtonActivated)
 	buyAllButton.Activated:Connect(onBuyAllButtonActivated)
@@ -337,8 +342,8 @@ local function initialize()
 	end
 end
 
-initialize()
-
+--initialize()
+--[[
 -- Connections
 shopClosedBindable.Event:Connect(onCloseButtonActivated)
 PlayerCreatedPreview.Event:Connect(hideAllPrompts)
@@ -348,3 +353,4 @@ HideAllPromptsBindable.Event:Connect(hideAllPrompts)
 ShowAllPromptsBindable.Event:Connect(showAllPrompts)
 
 UpdateInspector.Event:Connect(updateInspector)
+]]
