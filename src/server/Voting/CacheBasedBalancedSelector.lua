@@ -50,7 +50,7 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
     print("Rebuilding selection buckets from cache...")
     print(publicCache)
      
-    -- Initialize empty buckets for each tier
+    -- initialise empty buckets for each tier
     local newBuckets = {}
     for i, tier in ipairs(CONFIG.VIEW_TIERS) do
         newBuckets[i] = {

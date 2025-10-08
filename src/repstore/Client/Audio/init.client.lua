@@ -91,7 +91,7 @@ local function onInspectPromptAdded(prompt: Instance)
 	end)
 end
 
-local function initialize()
+local function initialise()
 	CollectionService:GetInstanceAddedSignal(Constants.UI_BUTTON_TAG):Connect(onUIButtonAdded)
 	CollectionService:GetInstanceAddedSignal(Constants.INSPECT_PROMPT_TAG):Connect(onInspectPromptAdded)
 	MarketplaceService.PromptPurchaseFinished:Connect(onPurchaseFinished)
@@ -113,4 +113,4 @@ local function initialize()
 	--musicPlayer:Play()
 end
 
-initialize()
+initialise()

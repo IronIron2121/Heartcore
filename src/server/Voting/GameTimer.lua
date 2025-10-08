@@ -255,7 +255,7 @@ local function attemptPhaseTransition()
     end
 end
 
-local function initializeGameTimerCache()
+local function initialiseGameTimerCache()
     local recentSuccess, recentUnixTime = callWithRetry(function()
         return GameTimerMemoryStore:GetAsync("currentPhaseUnixTime")
     end, 3)
@@ -305,7 +305,7 @@ function GameTimer.initialiseTimer(): ()
 
     print("Initializing GameTimer system...")
     
-    initializeGameTimerCache()
+    initialiseGameTimerCache()
 
     task.spawn(function()
         while true do

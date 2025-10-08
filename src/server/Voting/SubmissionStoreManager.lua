@@ -117,12 +117,12 @@ local function getCurrentMemoryStoreIndex(): number?
     end
     
     if infoSuccess and not info then
-        -- Info store exists but no data - initialize it
+        -- Info store exists but no data - initialise it
         warn("No submission info found, initializing...")
         local initSuccess = SubmissionStoreManager.initialiseNewSubmissionStore()
         
         if not initSuccess then
-            warn("Failed to initialize submission store!")
+            warn("Failed to initialise submission store!")
             return nil
         end
         

@@ -142,7 +142,7 @@ local function updateTheme(themeMemoryStore: MemoryStoreHashMap?): boolean
     end
 end
 
-local function initializeTheme(): boolean
+local function initialiseTheme(): boolean
     warn("Initialising theme...")
     local themeMemoryStore = getThemeMemoryStore()
     if not themeMemoryStore then
@@ -347,9 +347,9 @@ function VotingStoreManager.loadCacheFromCurrentStore()
 end
 
 function VotingStoreManager.initialise(): ()
-    local themeSuccess = initializeTheme()
+    local themeSuccess = initialiseTheme()
     if not themeSuccess then
-        error("Failed to initialize theme system")
+        error("Failed to initialise theme system")
     end
     
     -- Set active voting phase to previous day (if it exists)
@@ -371,7 +371,7 @@ function VotingStoreManager.addViews(entryKey: string, viewAmount: number): ()
         return
     end
     
-    -- Initialize entry in pending updates if it doesn't exist
+    -- initialise entry in pending updates if it doesn't exist
     if not pendingUpdates[entryKey] then
         pendingUpdates[entryKey] = {votes = 0, views = 0}
     end
@@ -404,7 +404,7 @@ function VotingStoreManager.addVotes(entryKey: string, voteAmount: number): ()
         return
     end
     
-    -- Initialize entry in pending updates if it doesn't exist
+    -- initialise entry in pending updates if it doesn't exist
     if not pendingUpdates[entryKey] then
         pendingUpdates[entryKey] = {votes = 0, views = 0}
     end

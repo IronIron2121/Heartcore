@@ -304,7 +304,7 @@ local function onEditButtonActivated()
 	end
 end
 
-local function initialize()
+local function initialise()
 	-- Initialise buttons	
 	deleteButton.Activated:Connect(onDeleteButtonActivated)
 	buyAllButton.Activated:Connect(onBuyAllButtonActivated)
@@ -318,17 +318,17 @@ local function initialize()
 	CollectionService:GetInstanceAddedSignal(Constants.MANNEQUIN_TAG):Connect(onMannequinAdded)
 	CollectionService:GetInstanceRemovedSignal(Constants.MANNEQUIN_TAG):Connect(onMannequinRemoved)
 
-	-- Initialize items frame
+	-- initialise items frame
 	itemsFrame = ResponsiveGrid(Constants.ITEM_TILE_SIZE, Constants.ITEM_TILE_PADDING)
 	itemsFrame.LayoutOrder 	= 1
 	itemsFrame.Parent 		= inspectFrame
 
-	-- Initialize cart button
+	-- initialise cart button
 	local cartButton 		= CartButton()
 	cartButton.LayoutOrder 	= 3
 	cartButton.Parent 		= topBar
 
-	-- Initialize loading display
+	-- initialise loading display
 	loadingDisplay 			= LoadingDisplay()
 	loadingDisplay.Parent 	= inspectFrame
 
@@ -337,7 +337,7 @@ local function initialize()
 	end
 end
 
-initialize()
+initialise()
 
 -- Connections
 shopClosedBindable.Event:Connect(onCloseButtonActivated)
