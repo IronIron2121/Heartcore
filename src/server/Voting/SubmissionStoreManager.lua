@@ -536,4 +536,11 @@ function SubmissionStoreManager.onPhaseTransition()
     print("Submission billboard updated with new theme")
 end
 
+-- Phase transition handler - called when the day changes
+function SubmissionStoreManager.onThemeTransition()
+    warn("Updating after theme transition")
+    -- Update the submission billboard with new theme
+    updateSubmissionThemeBillboard() 
+end
+
 return SubmissionStoreManager
