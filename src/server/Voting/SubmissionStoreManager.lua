@@ -215,7 +215,8 @@ function SubmissionStoreManager.incrementIndex(): boolean
                     phaseDate = GameTimer.getCurrentPhasePrefix(),
                     currentStoreNumber = 1,
                     storeSubmissionCount = 0,
-                    lastUpdated = DateTime.now().UnixTimestamp
+                    lastUpdated = DateTime.now().UnixTimestamp,
+                    theme = ""
                 }
 
                 infoTable.currentStoreNumber = tonumber(infoTable.currentStoreNumber) + 1

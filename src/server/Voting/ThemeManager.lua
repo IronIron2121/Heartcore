@@ -65,7 +65,7 @@ local function getThemeMemoryStore(phasePrefix: string)
     local storeName = getThemeStoreName(phasePrefix)
     local success, memoryStore = callWithRetry(
         function()
-            return MemoryStoreService:GetSortedMap(storeName)
+            return MemoryStoreService:GetHashMap(storeName)
         end,
         3
     )
