@@ -87,7 +87,6 @@ local function onOutfitSubmitted(player: Player)
 	DataManager.AddExp(player, 1)
 	DataManager.onOutfitSubmitted(player)	
 	SubmissionResultRE:FireClient(player, {ok=true, msg = "Outfit submitted successfully!"})
-
 end
 
 

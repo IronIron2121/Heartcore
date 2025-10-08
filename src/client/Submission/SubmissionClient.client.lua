@@ -44,11 +44,8 @@ local function onSubmissionResult(
     print(result.msg)
 end
 
-
-
 SubmissionResultRE.OnClientEvent:Connect(onSubmissionResult)
 PhaseChangedRemote.OnClientEvent:Connect(updateSubmitButton)
-
 
 -- This is just a clumsy way of making sure we update the button after the player joins
 task.wait(2)

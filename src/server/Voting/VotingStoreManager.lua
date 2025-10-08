@@ -41,6 +41,7 @@ local AVAILABLE_THEMES = {
 
 -- Current theme and voting phase
 local currentTheme = nil
+
 local activeVotingPhasePrefix = nil -- Which day's submissions we're voting on
 
 -- Active store tracking
