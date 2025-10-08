@@ -38,11 +38,22 @@ local isFlushingInProgress = false
 local ROLLOVER_LOCK_DURATION = 120 -- 2 minutes for crash recovery
 local ROLLOVER_LOCK_KEY = "submission_rollover_lock"
 
+-- Constants
+local REUPDATE_THEME_WAIT_TIME = 10
+
 local SubmissionStoreManager = {}
 
 local function updateSubmissionThemeBillboard()
     local themeName = ThemeManager.getCurrentThemeName()
     SubmissionThemeTextLabel.Text = "THEME: " .. themeName
+    warn("Updating theme", SubmissionThemeTextLabel.Text)
+    warn(themeName)
+    if themeName == "Loading..." then
+        task.wait(REUPDATE_THEME_WAIT_TIME)
+        task.spawn(function()
+            updateSubmissionThemeBillboard()
+        end)
+    end
 end
 
 local function getRolloverLockStore()
@@ -520,7 +531,7 @@ function SubmissionStoreManager.onPhaseTransition()
     print("SubmissionStoreManager handling phase transition...")
     
     -- Update the submission billboard with new theme
-    updateSubmissionThemeBillboard()
+    updateSubmissionThemeBillboard() 
     
     print("Submission billboard updated with new theme")
 end
