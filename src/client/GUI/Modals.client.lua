@@ -91,7 +91,7 @@ local function onModalChanged(modal: GuiObject?)
 	update()
 end
 
-local function initialize()
+local function initialise()
 	ModalManager.modalChanged:Connect(onModalChanged)
 	UserInputService.InputBegan:Connect(onInputBegan)
 	UserInputService.LastInputTypeChanged:Connect(onInputTypeChanged)
@@ -100,4 +100,4 @@ local function initialize()
 	onInputTypeChanged(UserInputService:GetLastInputType())
 end
 
-initialize()
+initialise()

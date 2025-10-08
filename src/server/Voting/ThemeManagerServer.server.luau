@@ -116,10 +116,10 @@ local function updateTheme()
 	end
 end
 
--- Initialize the theme system
+-- initialise the theme system
 task.wait(2)
 local success, err = initialiseTheme()
 if not success then
-	error("Failed to initialize theme system", err)
+	error("Failed to initialise theme system", err)
 end
 ]]

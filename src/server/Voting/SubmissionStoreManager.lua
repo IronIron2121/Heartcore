@@ -59,7 +59,7 @@ local function acquireRolloverLock(): boolean
             ROLLOVER_LOCK_KEY,
             game.JobId, -- Store which server has the lock
             ROLLOVER_LOCK_DURATION,
-            os.time()
+            DateTime.now().UnixTimestamp
         )
     end, 3)
     
@@ -117,12 +117,12 @@ local function getCurrentMemoryStoreIndex(): number?
     end
     
     if infoSuccess and not info then
-        -- Info store exists but no data - initialize it
+        -- Info store exists but no data - initialise it
         warn("No submission info found, initializing...")
         local initSuccess = SubmissionStoreManager.initialiseNewSubmissionStore()
         
         if not initSuccess then
-            warn("Failed to initialize submission store!")
+            warn("Failed to initialise submission store!")
             return nil
         end
         
@@ -401,14 +401,15 @@ function SubmissionStoreManager.startPeriodicFlush(): ()
 end
 
 function SubmissionStoreManager.initialise(): () 
-    SubmissionStoreManager.initialiseNewSubmissionStore()
     SubmissionStoreManager.startPeriodicFlush()
 end
 
 function SubmissionStoreManager:AddEntryToCache(player: Player, serialisedHumanoidDescription: {})
     pendingUpdates[tostring(player.UserId)] = {
         userId = player.UserId,
-        humanoidDescription = serialisedHumanoidDescription
+        humanoidDescription = serialisedHumanoidDescription,
+        votes = 0,
+        views = 0,
     }
     
     -- Check if we should flush
@@ -425,7 +426,7 @@ function SubmissionStoreManager:AddEntryToCache(player: Player, serialisedHumano
     end
 end
 
-function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumanoidDescription: {}): ()
+function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumanoidDescription: {}): boolean
     -- Check if rollover is happening
     if isRolloverLockActive() then
         print("Rollover in progress for player " .. player.Name .. ", adding to cache instead")
@@ -434,7 +435,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             ok = true,
             msg = "Outfit submitted successfully!"
         })
-        return
+        return false
     end
     
     local currentSubmissionsMemoryStore = self.getCurrentSubmissionMemoryStore()
@@ -444,7 +445,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             ok = false,
             msg = "Server error. Please try again."
         })
-        return 
+        return false
     end
 
     local success = callWithRetry(function()
@@ -453,9 +454,11 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             {
                 userId = player.UserId,
                 humanoidDescription = serialisedHumanoidDescription,
+                votes = 0,
+                views = 0,
             },
             Constants.MEMORYSTORE_STORE_DURATION,
-            os.time()
+            DateTime.now().UnixTimestamp
         )
     end, 5)
 
@@ -472,6 +475,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             print("Store full (" .. currentSize .. " entries), attempting rollover...")
             SubmissionStoreManager.incrementIndex()
         end
+        return true
     else
         warn("Failed to submit outfit for player:", player.Name)
         SubmissionResultRE:FireClient(player, {

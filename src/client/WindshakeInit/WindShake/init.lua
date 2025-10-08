@@ -267,7 +267,7 @@ function WindShake:Resume()
 end
 
 function WindShake:Init(config: { MatchWorkspaceWind: boolean? })
-	if self.Initialized then
+	if self.initialised then
 		return
 	end
 
@@ -290,7 +290,7 @@ function WindShake:Init(config: { MatchWorkspaceWind: boolean? })
 
 	-- Clear any old stuff.
 	self:Cleanup()
-	self.Initialized = true
+	self.initialised = true
 
 	-- Wire up tag listeners.
 	local windShakeAdded = CollectionService:GetInstanceAddedSignal(COLLECTION_TAG)
@@ -316,7 +316,7 @@ function WindShake:Init(config: { MatchWorkspaceWind: boolean? })
 end
 
 function WindShake:Cleanup()
-	if not self.Initialized then
+	if not self.initialised then
 		return
 	end
 
@@ -342,7 +342,7 @@ function WindShake:Cleanup()
 
 	self.Handled = 0
 	self.Active = 0
-	self.Initialized = false
+	self.initialised = false
 end
 
 function WindShake:UpdateObjectSettings(object: Instance, settingsTable: WindShakeSettings)

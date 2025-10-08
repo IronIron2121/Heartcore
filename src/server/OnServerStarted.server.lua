@@ -7,15 +7,15 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Voting = ServerScriptService:WaitForChild("Voting")
 
 -- Modules
+local VotingStoreManager = require(Voting:WaitForChild("VotingStoreManager"))
 local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
-local ContestStoreManager = require(Voting:WaitForChild("ContestStoreManager"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
 
 local function initialiseVoting()
     GameTimer.initialiseTimer()
+    VotingStoreManager.initialise()
     SubmissionStoreManager.initialise()
-    ContestStoreManager.initialise()
 
 end
 
