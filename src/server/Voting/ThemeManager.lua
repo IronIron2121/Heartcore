@@ -9,7 +9,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local RemotesFolder = ReplicatedStorage:WaitForChild("Remotes")
-local votingZone = workspace:WaitForChild("votingZone")
 
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
@@ -18,11 +17,6 @@ local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
 -- Remotes
 local ThemeChangedRemote = RemotesFolder:WaitForChild("ThemeChanged")
-
--- Instances
-local BillboardHolder = votingZone:WaitForChild("BillboardHolder")
-local ThemeNameBillboard = BillboardHolder:WaitForChild("ThemeNameBillboard")
-local ThemeNameTextLabel = ThemeNameBillboard:WaitForChild("TextLabel")
 
 local ThemeManager = {}
 
@@ -140,10 +134,6 @@ function ThemeManager.getErePreviousPhaseTheme(): {}?
     return ThemeManager.getThemeForPhase(erePrefix)
 end
 
-local function updateThemeBillboardText()
-    ThemeNameTextLabel.Text = ThemeManager.getCurrentThemeName()
-end
-
 local function createAndStoreNewTheme(): boolean
     print("Creating new theme for current phase...")
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
@@ -175,12 +165,11 @@ local function createAndStoreNewTheme(): boolean
     if success then
         currentThemeCache = newTheme
         ThemeChangedRemote:FireAllClients(newTheme)
-        updateThemeBillboardText()
         print("Created and stored new theme:", newTheme.theme, "for phase:", currentPrefix)
         return true
     else
         warn("Failed to store new theme")
-        return false
+        return false 
     end
 end
 
@@ -217,7 +206,6 @@ local function loadCurrentTheme(): boolean
     else
         currentThemeCache = themeData
         ThemeChangedRemote:FireAllClients(themeData)
-        updateThemeBillboardText()
         print("Loaded existing theme:", themeData.theme, "for phase:", currentPrefix)
         return true
     end

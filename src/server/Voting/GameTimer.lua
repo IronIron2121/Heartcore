@@ -33,8 +33,8 @@ local PhaseChangedRemote = Remotes:WaitForChild("PhaseChangedRemote")
 
 -- Instances
 local centralPondModel = centralPond:WaitForChild("centralPond")
-local Text = centralPondModel:WaitForChild("Text")
-local BillboardGui = Text:WaitForChild("BillboardGui")
+local SubmissionBillboardHolder = centralPondModel:WaitForChild("SubmissionBillboardHolder")
+local BillboardGui = SubmissionBillboardHolder:WaitForChild("BillboardGui")
 local Frame = BillboardGui:WaitForChild("Frame")
 local TimeLabel = Frame:WaitForChild("TimeLabel")
 

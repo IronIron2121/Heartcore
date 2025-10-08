@@ -9,6 +9,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local centralPond = workspace:WaitForChild("centralPond")
 
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
@@ -17,6 +18,14 @@ local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
+local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
+
+-- Instances
+local centralPondModel = centralPond:WaitForChild("centralPond")
+local SubmissionBillboardHolder = centralPondModel:WaitForChild("SubmissionBillboardHolder")
+local SubmissionThemeBillboard = SubmissionBillboardHolder:WaitForChild("BillboardGui")
+local Frame = SubmissionThemeBillboard:WaitForChild("Frame")
+local SubmissionThemeTextLabel = Frame:WaitForChild("ThemeLabel")
 
 -- Caching variables
 local pendingUpdates = {}
@@ -30,6 +39,11 @@ local ROLLOVER_LOCK_DURATION = 120 -- 2 minutes for crash recovery
 local ROLLOVER_LOCK_KEY = "submission_rollover_lock"
 
 local SubmissionStoreManager = {}
+
+local function updateSubmissionThemeBillboard()
+    local themeName = ThemeManager.getCurrentThemeName()
+    SubmissionThemeTextLabel.Text = "THEME: " .. themeName
+end
 
 local function getRolloverLockStore()
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
@@ -90,6 +104,7 @@ local function isRolloverLockActive(): boolean
     -- Lock exists if we successfully got a non-nil value
     return success and lockValue ~= nil
 end
+
 local function getCurrentMemoryStoreIndex(): number?
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
     if not currentPrefix then 
@@ -146,15 +161,20 @@ end
 
 function SubmissionStoreManager.initialiseNewSubmissionStore()
     warn("Initialising new submission store!")
+    
+    -- Get current theme from ThemeManager
+    local currentTheme = ThemeManager.getCurrentTheme()
+    local themeName = currentTheme and currentTheme.theme or "Unknown"
+    
     local submissionsStoreInfo = {
         phaseDate = GameTimer.getCurrentPhasePrefix(),
         currentStoreNumber = 1, 
         storeSubmissionCount = 0,
-        lastUpdated = DateTime.now().UnixTimestamp
+        lastUpdated = DateTime.now().UnixTimestamp,
+        theme = themeName
     }
 
     local currentInfoStoreName = SubmissionStoreManager.getCurrentInfoStoreName()
-
 
     local success, submissionInfo = callWithRetry(
         function()
@@ -174,7 +194,7 @@ function SubmissionStoreManager.initialiseNewSubmissionStore()
     )
 
     if setSuccess then
-       warn("Just ++ set current submission info!")
+       warn("Just ++ set current submission info with theme:", themeName)
        print(submissionInfo:GetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY)) 
     else
         warn("Failed to set submission info!")
@@ -197,6 +217,10 @@ function SubmissionStoreManager.incrementIndex(): boolean
         return false
     end
 
+    -- Get current theme from ThemeManager
+    local currentTheme = ThemeManager.getCurrentTheme()
+    local themeName = currentTheme and currentTheme.theme or "Unknown"
+
     local success, result = callWithRetry(
         function()
             return MemoryStoreService:GetSortedMap(currentPrefix .. Constants.SUBMISSION_INFO_MEMORYSTORE_NAME)
@@ -216,12 +240,14 @@ function SubmissionStoreManager.incrementIndex(): boolean
                     currentStoreNumber = 1,
                     storeSubmissionCount = 0,
                     lastUpdated = DateTime.now().UnixTimestamp,
-                    theme = ""
+                    theme = themeName
                 }
 
                 infoTable.currentStoreNumber = tonumber(infoTable.currentStoreNumber) + 1
                 infoTable.storeSubmissionCount = 0
                 infoTable.lastUpdated = DateTime.now().UnixTimestamp
+                -- Keep the same theme during rollover
+                infoTable.theme = themeName
 
                 return infoTable
             end)
@@ -230,7 +256,7 @@ function SubmissionStoreManager.incrementIndex(): boolean
         releaseRolloverLock()
         
         if infoSuccess and info then
-            print("Successfully rolled over to submission store #" .. info.currentStoreNumber)
+            print("Successfully rolled over to submission store #" .. info.currentStoreNumber .. " with theme:", themeName)
             return true
         end
     end
@@ -403,6 +429,8 @@ end
 
 function SubmissionStoreManager.initialise(): () 
     SubmissionStoreManager.startPeriodicFlush()
+    -- Update billboard with current theme on initialization
+    updateSubmissionThemeBillboard()
 end
 
 function SubmissionStoreManager:AddEntryToCache(player: Player, serialisedHumanoidDescription: {})
@@ -485,6 +513,16 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         })
         return false
     end
+end
+
+-- Phase transition handler - called when the day changes
+function SubmissionStoreManager.onPhaseTransition()
+    print("SubmissionStoreManager handling phase transition...")
+    
+    -- Update the submission billboard with new theme
+    updateSubmissionThemeBillboard()
+    
+    print("Submission billboard updated with new theme")
 end
 
 return SubmissionStoreManager
