@@ -47,6 +47,7 @@ local Constants = {
 	UI_BUTTON_TAG = "UIButton",
 	INSPECT_PROMPT_TAG = "InspectPrompt",
 	CLAIM_PROMPT_TAG = "ClaimPrompt",
+	CATALOG_CONSOLE_TAG = "Catalog",
 	-- Attributes
 	ITEM_ID_ATTRIBUTE = "Id",
 	ITEM_COLOUR_ATTRIBUTE = "itemColour",
@@ -80,6 +81,7 @@ local Constants = {
 		LIMITED_U = "LimitedUnique",
 		COLLECTIBLE = "Collectible",
 	},
+	CATALOG_CONSOLE_PROMPT_NAME = "ConsolePrompt",
 	-- Amount of the page that needs to be scrolled through before loading the next one
 	SCROLL_LOAD_FACTOR = 0.9,
 	-- Factor to offset the character by onscreen when shop/inspect UI is open

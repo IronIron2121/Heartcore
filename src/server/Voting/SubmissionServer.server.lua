@@ -54,7 +54,7 @@ local function canPlayerSubmit(player: Player)
 		return false
 	end
 
-	warn("yes, they can submit")
+	warn("yes, they can submit", lastSubmit, currentPhaseStart)
 	return true
 end
 
@@ -95,14 +95,7 @@ local function onOutfitSubmitted(player: Player)
 	if not success then return end
 
 	DataManager.AddExp(player, 1)
-	
-	task.spawn(function()
-		promptEnabled:set(false)
-		promptHolder.Color = Color3.fromRGB(100,100,100)
-		task.wait(10)
-		promptEnabled:set(true)		
-		promptHolder.Color = Color3.fromRGB(163,162,165)
-	end)
+	DataManager.onOutfitSubmitted(player)
 end
 
 
@@ -127,4 +120,4 @@ local prompt = scope:New "ProximityPrompt" {
 
 --
 
-prompt.Triggered:Connect(onOutfitSubmitted)
+SubmissionResultRF.OnServerInvoke = canPlayerSubmit

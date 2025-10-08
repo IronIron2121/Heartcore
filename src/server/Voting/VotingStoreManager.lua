@@ -6,8 +6,6 @@ local MemoryStoreService = game:GetService("MemoryStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local RemotesFolder = ReplicatedStorage:WaitForChild("Remotes")
-local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local votingZone = workspace:WaitForChild("votingZone")
@@ -17,32 +15,18 @@ local CacheBasedBalancedSelector = require(Voting:WaitForChild("CacheBasedBalanc
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
-
--- Remotes / Bindables
-local ThemeChangedRemote = RemotesFolder:WaitForChild("ThemeChanged")
+local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 
 -- Instances
 local BillboardHolder = votingZone:WaitForChild("BillboardHolder")
 local ThemeNameBillboard = BillboardHolder:WaitForChild("ThemeNameBillboard")
-local ThemeNameTextLabel = ThemeNameBillboard:WaitForChild("TextLabel")
+local ThemeText = ThemeNameBillboard:WaitForChild("ThemeText")
 
 local VotingStoreManager = {}
 
--- Theme configuration
-local AVAILABLE_THEMES = {
-    "Cyberpunk Streetwear",
-    "Medieval Knight", 
-    "Beach Party",
-    "Winter Wonderland",
-    "Space Explorer",
-    "Royal Ball",
-    "Sports Day"
-}
-
--- Current theme and voting phase
-local currentTheme = nil
-
+-- Current voting phase
 local activeVotingPhasePrefix = nil -- Which day's submissions we're voting on
+local currentTheme = nil -- Theme for the voting phase (yesterday's theme)
 
 -- Active store tracking
 local currentActiveStore = nil -- The ONE store this server is currently working with
@@ -63,117 +47,9 @@ local isCacheUpdating = false
 -- Balanced selector instance
 local balancedSelector = CacheBasedBalancedSelector.new()
 
--- Theme Management Functions
-local function getCurrentUniversalTime()
-    return DateTime.now().UnixTimestamp
-end
-
-local function pickRandomTheme(): string
-    return AVAILABLE_THEMES[math.random(1, #AVAILABLE_THEMES)]
-end
-
-local function createNewTheme(): {}
-    return {
-        Theme = pickRandomTheme(),
-        TimeChanged = getCurrentUniversalTime(),
-        PhasePrefix = GameTimer.getCurrentPhasePrefix()
-    }
-end
-
-function VotingStoreManager.getCurrentTheme(): {}?
-    return currentTheme
-end
-
-function VotingStoreManager.getThemeName(): string
-    return currentTheme and currentTheme.Theme or "Loading..."
-end
-
-function VotingStoreManager.getThemeTimeChanged(): number?
-    return currentTheme and currentTheme.TimeChanged or nil
-end
-
-function VotingStoreManager.getAvailableThemes(): {string}
-    return AVAILABLE_THEMES
-end
-
-local function updateThemeBillboardText()
-    ThemeNameTextLabel.Text = VotingStoreManager.getThemeName()
-end
-
-local function getThemeMemoryStore()
-    local success, memoryStore = callWithRetry(
-        function()
-            return MemoryStoreService:GetSortedMap(Constants.THEME_MEMORYSTORE_NAME)
-        end,
-        3
-    )
-    return success and memoryStore or nil
-end
-
-local function updateTheme(themeMemoryStore: MemoryStoreHashMap?): boolean
-    print("Updating to new theme...")
-    local newTheme = createNewTheme()
-    
-    local memoryStore = themeMemoryStore or getThemeMemoryStore()
-    if not memoryStore then
-        warn("Failed to get theme memory store for update")
-        return false
-    end
-    
-    local success, result = callWithRetry(
-        function()
-            return memoryStore:SetAsync(
-                Constants.CURRENT_THEME_KEY,
-                newTheme,
-                Constants.MEMORYSTORE_STORE_DURATION
-            )
-        end,
-        5
-    )
-
-    if success then
-        currentTheme = newTheme
-        ThemeChangedRemote:FireAllClients(newTheme)
-        updateThemeBillboardText()
-        print("Updated to new theme:", newTheme.Theme)
-        return true
-    else
-        warn("Failed to update theme:", result)
-        return false
-    end
-end
-
-local function initialiseTheme(): boolean
-    warn("Initialising theme...")
-    local themeMemoryStore = getThemeMemoryStore()
-    if not themeMemoryStore then
-        warn("Failed to get theme memory store")
-        return false
-    end
-
-    local success, currentThemeData = callWithRetry(
-        function()
-            return themeMemoryStore:GetAsync(Constants.CURRENT_THEME_KEY)
-        end, 
-        5
-    )
-
-    if not success then
-        warn("Failed to retrieve theme data:", currentThemeData)
-        return false
-    end
-
-    if not currentThemeData or not currentThemeData.Theme then
-        warn("No current theme found, creating new one...")
-        local updateSuccess = updateTheme(themeMemoryStore)
-        return updateSuccess
-    else
-        currentTheme = currentThemeData
-        ThemeChangedRemote:FireAllClients(currentThemeData)
-        updateThemeBillboardText()
-        print("Loaded existing theme:", currentThemeData.Theme)
-        return true
-    end
+local function updateVotingThemeBillboard()
+    local themeName = currentTheme and currentTheme.theme or "Loading..."
+    ThemeText.Text = themeName
 end
 
 -- Voting Phase Management
@@ -181,12 +57,29 @@ function VotingStoreManager.setActiveVotingPhase(phasePrefix: string)
     print("Setting active voting phase to:", phasePrefix)
     activeVotingPhasePrefix = phasePrefix
     
+    -- Load the theme for this phase (yesterday's theme)
+    currentTheme = ThemeManager.getThemeForPhase(phasePrefix)
+    if currentTheme then
+        print("Loaded theme for voting phase:", currentTheme.theme)
+        updateVotingThemeBillboard()
+    else
+        warn("Could not load theme for voting phase:", phasePrefix)
+    end
+    
     -- Pick a random store and load it
     VotingStoreManager.rotateStore()
 end
 
 function VotingStoreManager.getActiveVotingPhase(): string?
     return activeVotingPhasePrefix
+end
+
+function VotingStoreManager.getCurrentTheme(): {}?
+    return currentTheme
+end
+
+function VotingStoreManager.getThemeName(): string
+    return currentTheme and currentTheme.theme or "Loading..."
 end
 
 -- Get all submission store names for a given phase
@@ -325,7 +218,7 @@ function VotingStoreManager.loadCacheFromCurrentStore()
         newCache[entryKey] = {
             userId = entryData.userId,
             humanoidDescription = entryData.humanoidDescription,
-            theme = currentTheme and currentTheme.Theme or "Unknown",
+            theme = currentTheme and currentTheme.theme or "Unknown",
             votes = entryData.votes or 0,
             views = entryData.views or 0
         }
@@ -348,11 +241,6 @@ function VotingStoreManager.loadCacheFromCurrentStore()
 end
 
 function VotingStoreManager.initialise(): ()
-    local themeSuccess = initialiseTheme()
-    if not themeSuccess then
-        error("Failed to initialise theme system")
-    end
-    
     -- Set active voting phase to previous day (if it exists)
     local previousPrefix = GameTimer.getPreviousPhasePrefix()
     if previousPrefix then
@@ -562,13 +450,7 @@ function VotingStoreManager.onPhaseTransition()
         VotingStoreManager.flushPendingUpdates()
     end
     
-    -- Update theme for new day
-    local themeSuccess = updateTheme()
-    if not themeSuccess then
-        warn("Failed to update theme during phase transition")
-    end
-    
-    -- Set voting to yesterday's submissions
+    -- Set voting to yesterday's submissions (theme will be loaded and billboard updated automatically)
     local previousPrefix = GameTimer.getPreviousPhasePrefix()
     if previousPrefix then
         VotingStoreManager.setActiveVotingPhase(previousPrefix)
