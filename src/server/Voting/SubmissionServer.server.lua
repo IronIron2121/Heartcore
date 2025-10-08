@@ -39,6 +39,10 @@ local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
 local promptEnabled = scope:Value(true)
 local isSubmitting = scope:Value(false)
 
+local function onPhaseTransition()
+	SubmissionStoreManager.onPhaseTransition()
+end
+
 local function canPlayerSubmit(player: Player)
 	local lastSubmit = DataManager.GetLastOutfitSubmittedTime(player)
 	if not lastSubmit or lastSubmit == 0 then
@@ -120,3 +124,4 @@ local prompt = scope:New "ProximityPrompt" {
 --
 
 SubmissionResultRF.OnServerInvoke = canPlayerSubmit
+PhaseChanged.Event:Connect(onPhaseTransition)
