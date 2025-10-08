@@ -44,6 +44,7 @@ local TimerStarted = false
 local GameTimerCache = {}
 GameTimerCache.currentPhaseUnixTime = nil
 GameTimerCache.previousPhaseUnixTime = nil
+GameTimerCache.erePreviousPhaseUnixTime = nil
 GameTimerCache.nextPhaseUnixTime = nil
 
 local GameTimer = {}
@@ -62,6 +63,10 @@ end
 
 local function getPreviousPhaseUnixTime()
     return GameTimerCache.previousPhaseUnixTime
+end
+
+local function getErePreviousPhaseUnixTime()
+    return GameTimerCache.erePreviousPhaseUnixTime
 end
 
 local function getNextPhaseUnixTime()
@@ -103,6 +108,25 @@ function GameTimer.getPreviousPhasePrefix(): string?
         end
     else
         warn("No previous phase transition!")
+        return nil
+    end
+end
+
+-- "Ere" in the sense of "ereysterday" (day before yesterday)
+function GameTimer.getErePreviousPhasePrefix(): string?
+    local erePreviousPhaseUnixTime = getErePreviousPhaseUnixTime()
+    if erePreviousPhaseUnixTime then
+        local date = getUniversalTimeFromUnixTimestamp(erePreviousPhaseUnixTime)
+        
+        if DEBUG_MODE then
+            local debugPrefix = "DEBUG_" .. tostring(erePreviousPhaseUnixTime)
+            return debugPrefix
+        else
+            local dayPrefix = date.Month .. date.Day
+            return dayPrefix
+        end
+    else
+        warn("No ere-previous phase transition!")
         return nil
     end
 end
@@ -196,7 +220,15 @@ local function updatePhase()
         end, 3)
     end
     
-    if recentSuccess and previousSuccess then
+    local erePreviousSuccess = true
+    if GameTimerCache.previousPhaseUnixTime then
+        erePreviousSuccess = callWithRetry(function()
+            return GameTimerMemoryStore:SetAsync("erePreviousPhaseUnixTime", GameTimerCache.previousPhaseUnixTime, Constants.MEMORYSTORE_STORE_DURATION)
+        end, 3)
+    end
+    
+    if recentSuccess and previousSuccess and erePreviousSuccess then
+        GameTimerCache.erePreviousPhaseUnixTime = GameTimerCache.previousPhaseUnixTime
         GameTimerCache.previousPhaseUnixTime = GameTimerCache.currentPhaseUnixTime
         GameTimerCache.currentPhaseUnixTime = currentUnixTime
         GameTimerCache.nextPhaseUnixTime = nil -- Invalidate cache so it recalculates
@@ -213,6 +245,7 @@ local function updatePhase()
             print("=== DEBUG: Phase transition completed ===")
             print("Current phase prefix:", GameTimer.getCurrentPhasePrefix())
             print("Previous phase prefix:", GameTimer.getPreviousPhasePrefix())
+            print("Ere-previous phase prefix:", GameTimer.getErePreviousPhasePrefix())
             print("Next transition in:", DEBUG_PHASE_DURATION, "seconds")
         else
             print("Phase transition completed at:", currentDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
@@ -264,6 +297,10 @@ local function initialiseGameTimerCache()
         return GameTimerMemoryStore:GetAsync("previousPhaseUnixTime")
     end, 3)
     
+    local erePreviousSuccess, erePreviousUnixTime = callWithRetry(function()
+        return GameTimerMemoryStore:GetAsync("erePreviousPhaseUnixTime")
+    end, 3)
+    
     if recentSuccess and recentUnixTime then
         GameTimerCache.currentPhaseUnixTime = recentUnixTime
 
@@ -289,6 +326,14 @@ local function initialiseGameTimerCache()
     else
         GameTimerCache.previousPhaseUnixTime = nil
         print("No previous phase transition found") 
+    end
+    
+    if erePreviousSuccess and erePreviousUnixTime then
+        GameTimerCache.erePreviousPhaseUnixTime = erePreviousUnixTime
+        print("Loaded ere-previous phase transition time:", erePreviousUnixTime)
+    else
+        GameTimerCache.erePreviousPhaseUnixTime = nil
+        print("No ere-previous phase transition found")
     end
 end
 
