@@ -44,12 +44,100 @@ local isFlushingInProgress = false
 local publicCache = {} -- {entryKey = {userId, description, votes, views}}
 local isCacheUpdating = false
 
+-- Cache update lock configuration
+local CACHE_UPDATE_LOCK_DURATION = 120 -- 2 minutes for crash recovery
+local CACHE_UPDATE_COOLDOWN = 60 -- 1 minute cooldown between cache updates
+local CACHE_UPDATE_LOCK_KEY = "voting_cache_update_lock"
+
 -- Balanced selector instance
 local balancedSelector = CacheBasedBalancedSelector.new()
 
 local function updateVotingThemeBillboard()
     local themeName = currentTheme and currentTheme.theme or "Loading..."
     ThemeText.Text = themeName
+end
+
+local function getCacheUpdateLockStore()
+    if not activeVotingPhasePrefix then 
+        return nil
+    end
+    
+    local success, lockStore = callWithRetry(function()
+        return MemoryStoreService:GetSortedMap(activeVotingPhasePrefix .. "_VotingCacheUpdateLocks")
+    end, 3)
+    
+    if success then
+        return lockStore
+    end
+    return nil
+end
+
+local function acquireCacheUpdateLock(): boolean
+    local lockStore = getCacheUpdateLockStore()
+    if not lockStore then
+        warn("Failed to get cache update lock store")
+        return false
+    end
+    
+    local currentTime = DateTime.now().UnixTimestamp
+    
+    -- Try to acquire lock
+    local success, result = callWithRetry(function()
+        return lockStore:UpdateAsync(
+            CACHE_UPDATE_LOCK_KEY,
+            function(lockData)
+                -- If no lock exists, create one
+                if not lockData then
+                    return {
+                        serverId = game.JobId,
+                        timestamp = currentTime
+                    }
+                end
+                
+                -- Check if lock has expired (for crash recovery)
+                local lockAge = currentTime - lockData.timestamp
+                if lockAge > CACHE_UPDATE_LOCK_DURATION then
+                    print("Lock expired, taking over")
+                    return {
+                        serverId = game.JobId,
+                        timestamp = currentTime
+                    }
+                end
+                
+                -- Check cooldown period
+                if lockAge < CACHE_UPDATE_COOLDOWN then
+                    -- Still in cooldown, don't take lock
+                    return nil
+                end
+                
+                -- Cooldown passed, we can take the lock
+                return {
+                    serverId = game.JobId,
+                    timestamp = currentTime
+                }
+            end,
+            CACHE_UPDATE_LOCK_DURATION
+        )
+    end, 3)
+    
+    if success and result and result.serverId == game.JobId then
+        print("Successfully acquired cache update lock")
+        return true
+    else
+        print("Failed to acquire cache update lock - another server recently updated or is updating")
+        return false
+    end
+end
+
+local function releaseCacheUpdateLock(): ()
+    local lockStore = getCacheUpdateLockStore()
+    if not lockStore then
+        return
+    end
+    
+    -- We don't actually remove the lock - we keep the timestamp
+    -- so other servers know when the last update was
+    print("Cache update completed, lock retained with timestamp")
 end
 
 -- Voting Phase Management
@@ -204,6 +292,13 @@ function VotingStoreManager.loadCacheFromCurrentStore()
         return
     end
     
+    -- Try to acquire the cache update lock
+    local gotLock = acquireCacheUpdateLock()
+    if not gotLock then
+        print("Skipping cache update - another server recently updated or is currently updating")
+        return
+    end
+    
     isCacheUpdating = true
     print("Loading cache from store:", currentActiveStoreName)
     
@@ -238,6 +333,9 @@ function VotingStoreManager.loadCacheFromCurrentStore()
     end
     
     isCacheUpdating = false
+    
+    -- Release lock (keeps timestamp for cooldown tracking)
+    releaseCacheUpdateLock()
 end
 
 function VotingStoreManager.initialise(): ()
@@ -447,7 +545,7 @@ function VotingStoreManager.onPhaseTransition()
     
     -- Flush any pending updates before switching phases
     if next(pendingUpdates) then
-        VotingStoreManager.flushPendingUpdates()
+        VotingStoreManager.flushPendingUpdates() 
     end
     
     -- Set voting to yesterday's submissions (theme will be loaded and billboard updated automatically)

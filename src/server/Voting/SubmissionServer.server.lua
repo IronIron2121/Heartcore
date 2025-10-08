@@ -19,7 +19,6 @@ local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
 local SubmissionResultRF = Remotes:WaitForChild("SubmissionResultRF")
 local PhaseChanged = Bindables:WaitForChild("PhaseChanged") 
 
-
 -- Modules
 local getHumanoidDescriptionFromPlayer = require(Getters:WaitForChild("getHumanoidDescriptionFromPlayer"))
 local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
