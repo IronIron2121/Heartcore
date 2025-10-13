@@ -6,6 +6,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
+local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
@@ -15,29 +16,72 @@ local Data = ServerScriptService:WaitForChild("Data")
 
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
+local SubmissionResultRF = Remotes:WaitForChild("SubmissionResultRF")
+local PhaseChanged = Bindables:WaitForChild("PhaseChanged") 
 
 -- Modules
 local getHumanoidDescriptionFromPlayer = require(Getters:WaitForChild("getHumanoidDescriptionFromPlayer"))
 local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 local DataManager = require(Data:WaitForChild("DataManager"))
+local Fusion = require(Utility:WaitForChild("Fusion"))
+local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
 -- Instances
-local SubmissionPad = centralPond:WaitForChild("SubmissionPad")
+local SubmissionPad = centralPond:WaitForChild("SubmissionPad") 
 
--- Prompt
+-- Fusion
+local scope = Fusion:scoped()
+local peek = Fusion.peek
+local OnEvent = Fusion.OnEvent
+
 local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
-local prompt = Instance.new("ProximityPrompt") :: ProximityPrompt
-prompt.Parent = promptHolder
-prompt.ActionText = "Submit Outfit"
-prompt.HoldDuration = 0.5
-prompt.RequiresLineOfSight = false
-prompt.MaxActivationDistance = 16
+local promptEnabled = scope:Value(true)
+local isSubmitting = scope:Value(false)
 
+local function onPhaseTransition()
+	SubmissionStoreManager.onPhaseTransition()
+end
 
---
+local function canPlayerSubmit(player: Player)
+	local lastSubmit = DataManager.GetLastOutfitSubmittedTime(player)
+	if not lastSubmit or lastSubmit == 0 then
+		warn("no previous submission")
+		return true
+	end
+
+	local currentPhaseStart = GameTimer.getCurrentPhaseUnixTime()
+
+	if lastSubmit >= currentPhaseStart then
+		warn("no, they can't submit")
+		return false
+	end
+
+	warn("yes, they can submit", lastSubmit, currentPhaseStart)
+	return true
+end
 
 local function onOutfitSubmitted(player: Player)
+	if not canPlayerSubmit(player) then
+		SubmissionResultRE:FireClient(player, {
+			ok = false, 
+			msg = "You've already submitted this phase. Try again tomorrow!"
+		})
+
+		warn("can't submit rn!!!")
+		return 
+	end
+
+	if not canPlayerSubmit(player) then
+		SubmissionResultRE:FireClient(player, {
+			ok = false, 
+			msg = "You've already submitted this phase. Try again tomorrow!"
+		})
+
+		warn("can't submit rn!!!")
+		return 
+	end
+
 	-- Get humanoid description
 	local humanoidDescription = getHumanoidDescriptionFromPlayer(player)
 	if not humanoidDescription then
@@ -48,8 +92,41 @@ local function onOutfitSubmitted(player: Player)
 
 	-- Serialise it
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
-	SubmissionStoreManager:AddEntry(player, serialisedHumanoidDescription)
+
+	local success = SubmissionStoreManager:AddEntryToStore(player, serialisedHumanoidDescription)
+	
+	if not success then return end
+
 	DataManager.AddExp(player, 1)
+	DataManager.onOutfitSubmitted(player)
+
+	SubmissionResultRE:FireClient(player, {
+		ok = true, 
+		msg = "Outfit submitted successfully!"
+	})
 end
 
-prompt.Triggered:Connect(onOutfitSubmitted)
+
+
+local prompt = scope:New "ProximityPrompt" {
+	Name = "SubmissionPrompt",
+	Parent = promptHolder,
+	Enabled = promptEnabled,
+	ActionText = "Submit Outfit", 
+	HoldDuration = 0.5,
+	RequiresLineOfSight = false,
+	MaxActivationDistance = 16,
+	[OnEvent "Triggered"] = function(player)
+		if peek(isSubmitting) then
+			return
+		end
+		isSubmitting:set(true)
+		onOutfitSubmitted(player)
+		isSubmitting:set(false)
+	end
+}
+
+--
+
+SubmissionResultRF.OnServerInvoke = canPlayerSubmit
+PhaseChanged.Event:Connect(onPhaseTransition)

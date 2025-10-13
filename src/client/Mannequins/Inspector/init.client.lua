@@ -254,8 +254,8 @@ local function onMannequinInspectRequested(mannequin: Model)
 	inspectAsync(mannequin)
 end
 
-local function initialize()
-	-- Initialize buttons
+local function initialise()
+	-- initialise buttons
 	deleteButton.Activated:Connect(onDeleteButtonActivated)
 	buyAllButton.Activated:Connect(onBuyAllButtonActivated)
 	closeButton.Activated:Connect(onCloseButtonActivated)
@@ -263,21 +263,21 @@ local function initialize()
 	editButton.Activated:Connect(onEditButtonActivated)
 	addButton.Activated:Connect(onAddButtonActivated)
 
-	-- Initialize items frame
+	-- initialise items frame
 	itemsFrame = ResponsiveGrid(Constants.ITEM_TILE_SIZE, Constants.ITEM_TILE_PADDING)
 	itemsFrame.LayoutOrder = 1
 	itemsFrame.Parent = inspectFrame
 
-	-- Initialize cart button
+	-- initialise cart button
 	local cartButton = CartButton()
 	cartButton.LayoutOrder = 3
 	cartButton.Parent = topBar
 
-	-- Initialize loading display
+	-- initialise loading display
 	loadingDisplay = LoadingDisplay()
 	loadingDisplay.Parent = inspectFrame
 
-	-- Connect to inspection requests from MannequinInitializer
+	-- Connect to inspection requests from Mannequininitialiser
 	PlayerInspectedMannequin.Event:Connect(onMannequinInspectRequested)
 
 	-- Connect other bindables
@@ -285,4 +285,4 @@ local function initialize()
 	UpdateInspector.Event:Connect(updateInspector)
 end
 
-initialize()
+initialise()

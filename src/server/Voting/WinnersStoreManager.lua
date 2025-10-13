@@ -2,7 +2,7 @@
 
 -- Services
 local ServerScriptService = game:GetService("ServerScriptService")
-local MemoryStoreService = game:GetService("MemoryStoreService") -- We'll start by using memory stores and change over to datastores if the needs arises
+local MemoryStoreService = game:GetService("MemoryStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
@@ -12,7 +12,6 @@ local Voting = ServerScriptService:WaitForChild("Voting")
 
 -- Modules
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
-local ContestStoreManager = require(Voting:WaitForChild("ContestStoreManager"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
@@ -89,7 +88,6 @@ function WinnersStoreManager.updateWinnersPodiums()
             description = SerialisationService.UnserialiseHumanoidDescription(description)
         end
 
-
         local rig = podiumRigs[index]
 
         if not rig then
@@ -107,43 +105,133 @@ function WinnersStoreManager.updateWinnersPodiums()
     end
 end
 
-function WinnersStoreManager.setNewWinners()
-    local publicCache = ContestStoreManager.getPublicCache()
+-- Get all submission store names for a given phase
+local function getSubmissionStoreNames(phasePrefix: string): {string}
+    local storeNames = {}
+    
+    local infoStoreName = phasePrefix .. Constants.SUBMISSION_INFO_MEMORYSTORE_NAME
+    local success, infoStore = callWithRetry(function()
+        return MemoryStoreService:GetSortedMap(infoStoreName)
+    end, 3)
+    
+    if not success or not infoStore then
+        warn("Could not get submission info store for phase:", phasePrefix)
+        return storeNames
+    end
+    
+    local infoSuccess, info = callWithRetry(function()
+        return infoStore:GetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY)
+    end, 3)
+    
+    if not infoSuccess or not info then
+        warn("Could not get submission info for phase:", phasePrefix)
+        return storeNames
+    end
+    
+    local maxStoreNumber = info.currentStoreNumber or 1
+    for i = 1, maxStoreNumber do
+        local storeName = phasePrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME .. i
+        table.insert(storeNames, storeName)
+    end
+    
+    print("Found", #storeNames, "submission stores for phase:", phasePrefix)
+    return storeNames
+end
 
-    if not publicCache then 
-        warn("No public cache; can't get it!") 
+-- Get top N entries from a single submission store (sorted by votes)
+local function getTopEntriesFromStore(storeName: string, topN: number): {{}}
+    local topEntries = {}
+    
+    local success, store = callWithRetry(function()
+        return MemoryStoreService:GetSortedMap(storeName)
+    end, 3)
+    
+    if not success or not store then
+        warn("Failed to get submission store:", storeName)
+        return topEntries
+    end
+    
+    -- GetRangeAsync doesn't sort by votes, so we need to get all and sort manually
+    local rangeSuccess, items = callWithRetry(function()
+        return store:GetRangeAsync(Enum.SortDirection.Ascending, 200)
+    end, 3)
+    
+    if not rangeSuccess or not items then
+        warn("Failed to get range from store:", storeName)
+        return topEntries
+    end
+    
+    -- Convert to array and sort by votes
+    local allEntries = {}
+    for _, item in ipairs(items) do
+        table.insert(allEntries, {
+            key = item.key,
+            userId = item.value.userId,
+            humanoidDescription = item.value.humanoidDescription,
+            votes = item.value.votes or 0,
+            views = item.value.views or 0
+        })
+    end
+    
+    -- Sort by votes descending
+    table.sort(allEntries, function(a, b)
+        return a.votes > b.votes
+    end)
+    
+    -- Take top N
+    for i = 1, math.min(topN, #allEntries) do
+        table.insert(topEntries, allEntries[i])
+    end
+    
+    return topEntries
+end
+
+function WinnersStoreManager.setNewWinners()
+    -- Get ereyesterday's phase prefix (day before yesterday)
+    local erePreviousPrefix = GameTimer.getErePreviousPhasePrefix()
+    
+    if not erePreviousPrefix then
+        warn("No ereyesterday phase available yet - cannot determine winners")
         return false
     end
-
-    local first_place = {
-        userId = 0,
-        votes = -1
-    }  
-    local second_place = {
-        userId = 0,
-        votes = -1
-    }
-    local third_place = {
-        userId = 0,
-        votes = -1
-    }
     
-    for playerId, entry in pairs(publicCache) do
-        if entry.votes > first_place.votes then
-            -- New first place: cascade the others down
-            third_place = second_place
-            second_place = first_place
-            first_place = entry
-        elseif entry.votes > second_place.votes then
-            -- New second place: third place gets old second
-            third_place = second_place
-            second_place = entry
-        elseif entry.votes > third_place.votes then
-            -- New third place
-            third_place = entry
+    print("Determining winners from phase:", erePreviousPrefix)
+    
+    -- Get all submission stores for that phase
+    local storeNames = getSubmissionStoreNames(erePreviousPrefix)
+    
+    if #storeNames == 0 then
+        warn("No submission stores found for phase:", erePreviousPrefix)
+        return false
+    end
+    
+    -- Collect top 5 from each store
+    local topCandidates = {}
+    for _, storeName in ipairs(storeNames) do
+        local topFromStore = getTopEntriesFromStore(storeName, 5)
+        for _, entry in ipairs(topFromStore) do
+            table.insert(topCandidates, entry)
         end
     end
-
+    
+    if #topCandidates == 0 then
+        warn("No entries found across all stores for phase:", erePreviousPrefix)
+        return false
+    end
+    
+    print("Collected", #topCandidates, "top candidates from", #storeNames, "stores")
+    
+    -- Sort all candidates by votes
+    table.sort(topCandidates, function(a, b)
+        return a.votes > b.votes
+    end)
+    
+    -- Get top 3
+    local first_place = topCandidates[1] or {userId = 0, votes = -1, humanoidDescription = nil}
+    local second_place = topCandidates[2] or {userId = 0, votes = -1, humanoidDescription = nil}
+    local third_place = topCandidates[3] or {userId = 0, votes = -1, humanoidDescription = nil}
+    
+    -- Save winners to current phase's winner store
     local winnersStore = WinnersStoreManager.getCurrentMemoryStore()
     if not winnersStore then
         warn("Failed to get winner store!")
@@ -162,7 +250,8 @@ function WinnersStoreManager.setNewWinners()
     )
     
     if success then
-        print("Winners updated successfully")
+        print("Winners updated successfully for phase:", GameTimer.getCurrentPhasePrefix())
+        print("Winners from phase:", erePreviousPrefix)
         print("1st Place:", first_place.userId, "with", first_place.votes, "votes")
         print("2nd Place:", second_place.userId, "with", second_place.votes, "votes") 
         print("3rd Place:", third_place.userId, "with", third_place.votes, "votes")

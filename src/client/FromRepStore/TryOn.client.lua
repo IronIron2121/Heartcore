@@ -38,7 +38,7 @@ local function onItemRemoved(item: ItemContainer.ContainedItem)
 	end
 end
 
-local function initialize()
+local function initialise()
 	TryOn.itemAdded:Connect(onItemAdded)
 	TryOn.itemRemoved:Connect(onItemRemoved)
 
@@ -47,4 +47,4 @@ local function initialize()
 	end
 end
 
-initialize()
+initialise()
