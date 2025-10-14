@@ -36,7 +36,7 @@ end
 --
 
 local function onPlayerAdded(player: Player)
-	-- Initialize player in cache as not equipping
+	-- initialise player in cache as not equipping
 	setPlayerEquipping(player, false)
 end
 

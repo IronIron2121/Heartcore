@@ -1,5 +1,5 @@
 -- CacheBasedBalancedSelector.lua
--- Uses ContestStoreManager's public cache to build selection buckets
+-- Uses VotingStoreManager's public cache to build selection buckets
 
 local CacheBasedBalancedSelector = {}
 CacheBasedBalancedSelector.__index = CacheBasedBalancedSelector
@@ -50,7 +50,7 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
     print("Rebuilding selection buckets from cache...")
     print(publicCache)
      
-    -- Initialize empty buckets for each tier
+    -- initialise empty buckets for each tier
     local newBuckets = {}
     for i, tier in ipairs(CONFIG.VIEW_TIERS) do
         newBuckets[i] = {
@@ -267,7 +267,7 @@ function CacheBasedBalancedSelector:hashBasedFallback()
     return nil -- Return nil to indicate fallback selection needed
 end
 
--- Integration helper: call this method in ContestStoreManager.updatePublicCache()
+-- Integration helper: call this method in VotingStoreManager.updatePublicCache()
 function CacheBasedBalancedSelector:onCacheUpdated(publicCache)
     warn("Cache updated - rebuilding")
     return self:rebuildFromCache(publicCache)

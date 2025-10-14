@@ -4,21 +4,23 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
+local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
-local Fusion = require(Utility:WaitForChild("Fusion"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
+local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion Components
-local scoped = Fusion.scoped
-local Children, OnEvent = Fusion.Children, Fusion.OnEvent
-
+local OnEvent = Fusion.OnEvent
 type UsedAs<T> = Fusion.UsedAs<T>
- 
+
+-- Remotes / Bindables
+local PlayerTriggeredCatalogConsole = Bindables:WaitForChild("PlayerTriggeredCatalogConsole")
+
 -- Constants
-local DEFAULT_TEXT_COLOUR = Color3.new(0.360784, 0.376471, 0.839216)
+-- local DEFAULT_TEXT_COLOUR = Color3.new(0.360784, 0.376471, 0.839216)
 local COLOUR_BLACK = Color3.new(0, 0, 0)
 local COLOUR_PURPLE = Color3.new(0.360784, 0.376471, 0.839216)
 local COLOUR_GREY = Color3.new(1, 1, 1)
@@ -37,6 +39,10 @@ local function OpenWardrobeButton(
 	local OnClick = function()
 		Toggled:set(not Fusion.peek(Toggled))
 	end
+
+	PlayerTriggeredCatalogConsole.Event:Connect(function()
+		Toggled:set(not Fusion.peek(Toggled))
+	end)
 	
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
@@ -100,7 +106,7 @@ local function OpenWardrobeButton(
 						end
 					end),
 					BG_FADE_SPEED
-				),
+				), 
 				
 			},
 			
@@ -110,7 +116,6 @@ local function OpenWardrobeButton(
 		}
 	},  
 		Toggled
-	
 end
 
 return OpenWardrobeButton

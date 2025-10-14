@@ -17,6 +17,7 @@ local Constants = {
 	SUBMISSION_MEMORYSTORE_NAME = "CurrentSubmissionsMemoryStore",
 	CONTEST_MEMORYSTORE_NAME = "CurrentContestMemoryStore",
 	WINNERS_MEMORYSTORE_NAME = "CurrentWinnersMemoryStore",
+	THEME_MEMORYSTORE_NAME = "ThemesMemoryStore",
 	CURRENT_WINNERS_KEY = "CurrentWinners",
 	FIRST_PLACE_KEY = "FirstPlace",
 	SECOND_PLACE_KEY = "SecondPlace",
@@ -46,6 +47,7 @@ local Constants = {
 	UI_BUTTON_TAG = "UIButton",
 	INSPECT_PROMPT_TAG = "InspectPrompt",
 	CLAIM_PROMPT_TAG = "ClaimPrompt",
+	CATALOG_CONSOLE_TAG = "Catalog",
 	-- Attributes
 	ITEM_ID_ATTRIBUTE = "Id",
 	ITEM_COLOUR_ATTRIBUTE = "itemColour",
@@ -79,6 +81,7 @@ local Constants = {
 		LIMITED_U = "LimitedUnique",
 		COLLECTIBLE = "Collectible",
 	},
+	CATALOG_CONSOLE_PROMPT_NAME = "ConsolePrompt",
 	-- Amount of the page that needs to be scrolled through before loading the next one
 	SCROLL_LOAD_FACTOR = 0.9,
 	-- Factor to offset the character by onscreen when shop/inspect UI is open
@@ -123,7 +126,11 @@ local Constants = {
 	
 	QUERY_ATTEMPTS = 3,
 
-	MEMORYSTORE_STORE_DURATION = 240
+	MEMORYSTORE_STORE_DURATION = 259200, -- 72 hours
+	MAX_SUBMISSIONS_PER_MEMORYSTORE = 500,
+	SUBMISSION_INFO_MEMORYSTORE_NAME = "SubmissionsInfo",
+	SUBMISSION_INFO_INDEX = "currentStoreNumber",
+	CURRENT_SUBMISSION_INFO_KEY = "currentSubmissionsInfo",
 
 }
 
