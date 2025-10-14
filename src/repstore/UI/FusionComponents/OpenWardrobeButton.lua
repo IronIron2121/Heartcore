@@ -20,7 +20,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 -- Constants
 local DEFAULT_TEXT_COLOUR = Color3.new(0.360784, 0.376471, 0.839216)
 local COLOUR_BLACK = Color3.new(0, 0, 0)
-local COLOUR_GREEN = Color3.new(0.219608, 0.74902, 0.211765)
+local COLOUR_PURPLE = Color3.new(0.360784, 0.376471, 0.839216)
 local COLOUR_GREY = Color3.new(1, 1, 1)
 
 
@@ -41,7 +41,7 @@ local function OpenWardrobeButton(
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
 	
-	local COLOUR_BG_TOGGLED = COLOUR_GREEN
+	local COLOUR_BG_TOGGLED = COLOUR_PURPLE
 	local COLOUR_BG_NOT_TOGGLED = COLOUR_GREY
 	
 	local isToggled = scope:Computed(function(use, _)
@@ -52,7 +52,7 @@ local function OpenWardrobeButton(
 		Name = "OutfitCatalogButton",
 		
 		LayoutOrder = 0,
-		Position = UDim2.fromScale(0.5, 1),
+		Position = UDim2.fromScale(0.5, 0.95),
 		AnchorPoint = Vector2.new(0.5, 1),
 		ZIndex = 0, 
 		Size = UDim2.fromScale(0.1,0.1),
