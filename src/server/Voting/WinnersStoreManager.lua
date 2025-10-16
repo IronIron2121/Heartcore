@@ -4,6 +4,7 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 local MemoryStoreService = game:GetService("MemoryStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 
 -- Folders
 local dailyWinners = workspace:WaitForChild("dailyWinners")
@@ -17,6 +18,14 @@ local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
 -- Instances
+local leaderboard = dailyWinners:WaitForChild("leaderboard")
+local leaderboardScreen = leaderboard:WaitForChild("leaderboardScreen")
+
+-- GUI Instances
+local leaderboardGui = leaderboardScreen:WaitForChild("LeaderboardGui")
+local leaderboardFrame = leaderboardGui:WaitForChild("LeaderboardFrame")
+
+-- Types
 type RigModel = Model & {
     Humanoid : Humanoid
 }
@@ -68,6 +77,65 @@ function WinnersStoreManager.getCurrentWinners(): {}?
     else
         warn("Failed to get current winners")
         return nil
+    end
+end
+
+function WinnersStoreManager.getCurrentTopTwenty(): {}?
+    local currentWinnerStore = WinnersStoreManager.getCurrentMemoryStore()
+    if not currentWinnerStore then
+        return nil
+    end
+
+    local success, topTwenty = callWithRetry(
+        function()
+            return currentWinnerStore:GetAsync(Constants.CURRENT_TOP_TWENTY_KEY)
+        end,
+        5
+    )
+
+    if success then 
+        return topTwenty
+    else
+        warn("Failed to get current top twenty")
+        return nil
+    end
+end
+
+function WinnersStoreManager.updateTopTwentyLeaderboard()
+    local topTwenty = WinnersStoreManager.getCurrentTopTwenty()
+    if not topTwenty then return end
+    local lengthOfList = #topTwenty
+
+    -- Clear existing labels
+    for _, child in ipairs(leaderboardFrame:GetChildren()) do
+        if child:IsA("TextLabel") then
+            child:Destroy()
+        end
+    end
+
+    -- Create new labels for top twenty
+    for i = 1, lengthOfList do
+        local currentEntry = topTwenty[i]
+        local currentEntryId = currentEntry.userId
+
+        local success, playerName = pcall(function()
+            return Players:GetNameFromUserIdAsync(currentEntryId)
+        end)
+
+        if not success then
+            warn("Failed to get username for userId:", currentEntryId)
+            continue
+        end
+
+        local newLabel = Instance.new("TextLabel")
+        newLabel.Parent = leaderboardFrame
+        newLabel.LayoutOrder = i
+        newLabel.Text = i .. ". " .. playerName .. " - " .. currentEntry.votes .. " votes"
+        newLabel.Size = UDim2.new(1, 0, 0, 30)
+        newLabel.BackgroundTransparency = 1
+        newLabel.TextColor3 = Color3.new(1, 1, 1)
+        newLabel.TextScaled = true
+        newLabel.Font = Enum.Font.GothamBold
     end
 end
 
@@ -186,6 +254,16 @@ local function getTopEntriesFromStore(storeName: string, topN: number): {{}}
     return topEntries
 end
 
+function WinnersStoreManager.initialise()
+    print("Initializing WinnersStoreManager...")
+    
+    -- Update podiums and leaderboard with current winners on server start
+    WinnersStoreManager.updateWinnersPodiums()
+    WinnersStoreManager.updateTopTwentyLeaderboard()
+    
+    print("WinnersStoreManager initialized successfully")
+end
+
 function WinnersStoreManager.setNewWinners()
     -- Get ereyesterday's phase prefix (day before yesterday)
     local erePreviousPrefix = GameTimer.getErePreviousPhasePrefix()
@@ -230,6 +308,15 @@ function WinnersStoreManager.setNewWinners()
     local first_place = topCandidates[1] or {userId = 0, votes = -1, humanoidDescription = nil}
     local second_place = topCandidates[2] or {userId = 0, votes = -1, humanoidDescription = nil}
     local third_place = topCandidates[3] or {userId = 0, votes = -1, humanoidDescription = nil}
+
+    -- Get top 20
+    local topTwenty = {}
+    for i = 1, 20 do
+        if not topCandidates[i] then
+            break
+        end
+        table.insert(topTwenty, topCandidates[i])
+    end
     
     -- Save winners to current phase's winner store
     local winnersStore = WinnersStoreManager.getCurrentMemoryStore()
@@ -244,21 +331,32 @@ function WinnersStoreManager.setNewWinners()
                 first_place, 
                 second_place, 
                 third_place
-            }, 172800)
+            }, Constants.MEMORYSTORE_STORE_DURATION)
         end,
         10
     )
+
+    -- Save top twenty to current phase's winner store
+    local twentySuccess = callWithRetry(
+        function()
+            return winnersStore:SetAsync(Constants.CURRENT_TOP_TWENTY_KEY, topTwenty, Constants.MEMORYSTORE_STORE_DURATION)
+        end,
+        3
+    )
+
     
-    if success then
+    if success and twentySuccess then
         print("Winners updated successfully for phase:", GameTimer.getCurrentPhasePrefix())
         print("Winners from phase:", erePreviousPrefix)
         print("1st Place:", first_place.userId, "with", first_place.votes, "votes")
         print("2nd Place:", second_place.userId, "with", second_place.votes, "votes") 
         print("3rd Place:", third_place.userId, "with", third_place.votes, "votes")
-        WinnersStoreManager.updateWinnersPodiums() 
+        print("Top 20 saved successfully")
+        WinnersStoreManager.updateWinnersPodiums()
+        WinnersStoreManager.updateTopTwentyLeaderboard()
         return true
     else
-        warn("Failed to set new winners")
+        warn("Failed to set new winners or top twenty")
         return false
     end
 end

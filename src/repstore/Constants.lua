@@ -19,6 +19,7 @@ local Constants = {
 	WINNERS_MEMORYSTORE_NAME = "CurrentWinnersMemoryStore",
 	THEME_MEMORYSTORE_NAME = "ThemesMemoryStore",
 	CURRENT_WINNERS_KEY = "CurrentWinners",
+	CURRENT_TOP_TWENTY_KEY = "TopTwenty",
 	FIRST_PLACE_KEY = "FirstPlace",
 	SECOND_PLACE_KEY = "SecondPlace",
 	THIRD_PLACE_KEY = "ThirdPlace",
