@@ -30,9 +30,6 @@ local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 --local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 
-
-
-
 -- Fusion Modules
 local scope = Fusion:scoped()
 local peek = Fusion.peek
@@ -46,6 +43,7 @@ local BaseButton = require(Widgets:WaitForChild("BaseButton"))
 local maxDisplayedOutfits = 3
 
 -- Remotes / Bindables
+local PlayerRequestedCurrentTheme = Remotes:WaitForChild("PlayerRequestedCurrentTheme")
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 
@@ -124,11 +122,20 @@ end
 -- local currentTheme = ThemeManager.getCurrentTheme()
 -- local themeName = currentTheme or "Unknown"
     
-   
+local currentTheme = scope:Value("")
 
 function VotingGuiController.Initialise(
     visibilityBoolean: UsedAs<boolean>
 )
+    local visibilityObserver = scope:Observer(visibilityBoolean) 
+
+    -- TODO: Make this more efficient with caching or something such...
+    visibilityObserver:onChange(function()
+        if peek(visibilityBoolean) == true then
+            currentTheme:set(PlayerRequestedCurrentTheme:InvokeServer())
+        end
+    end)
+
     local _VoteGui = scope:New "ScreenGui" {
         Name = "VotingGui",
         Enabled = visibilityBoolean,
@@ -184,7 +191,7 @@ function VotingGuiController.Initialise(
 
                             scope:New "TextLabel" {
                                 Name = "TodaysTheme",
-                                Text = "???",--themeName,
+                                Text = currentTheme,--themeName,
                                 TextScaled = true,
                                 Size = UDim2.fromScale(0.3, 1),
                                 LayoutOrder = 1,
