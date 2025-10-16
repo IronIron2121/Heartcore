@@ -20,7 +20,7 @@ local peek = Fusion.peek
 local CONFIG = {
 	MIN_CELL_SIZE = Vector2.new(120, 150), -- Minimum size for each item tile
 	CELL_PADDING_X = 10,
-	CELL_PADDING_Y = 20 -- Padding between cells
+	CELL_PADDING_Y = 10 -- Padding between cells
 }
 
 function SearchResultsFrame(
@@ -44,7 +44,7 @@ function SearchResultsFrame(
 	local searchResultsFrame = scope:New "ScrollingFrame" {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Name = "SearchResultsFrame",
-		Size = UDim2.fromScale(1, 0.9),  
+		Size = UDim2.fromScale(1, 0.85),  
 		Position = UDim2.fromScale(0.5, 0.5),
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		BackgroundTransparency = 1,
@@ -58,13 +58,20 @@ function SearchResultsFrame(
 			gridLayout:set(
 				scope:New "UIGridLayout" {
 					FillDirection = Enum.FillDirection.Horizontal,
-					HorizontalAlignment = Enum.HorizontalAlignment.Left,
+					HorizontalAlignment = Enum.HorizontalAlignment.Center,
 					VerticalAlignment = Enum.VerticalAlignment.Top,
 					SortOrder = Enum.SortOrder.LayoutOrder,
 					CellSize = cellSize,
 					CellPadding = UDim2.fromOffset(CONFIG.CELL_PADDING_X, CONFIG.CELL_PADDING_Y)
 				}
 			),
+
+			scope:New "UIPadding" {
+				PaddingTop = UDim.new(0.01,0),
+				PaddingBottom = UDim.new(0.01,0),
+				PaddingRight = UDim.new(0.01,0),
+				PaddingLeft = UDim.new(0.01,0),
+			},
 
 			scope:ForValues(currentPage, 
 				function(use, scope, itemDetails)

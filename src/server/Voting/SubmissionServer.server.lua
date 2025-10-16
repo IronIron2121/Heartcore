@@ -52,7 +52,7 @@ local function canPlayerSubmit(player: Player)
 
 	local currentPhaseStart = GameTimer.getCurrentPhaseUnixTime()
 
-	if lastSubmit >= currentPhaseStart then
+	if not currentPhaseStart or lastSubmit >= currentPhaseStart then
 		warn("no, they can't submit")
 		return false
 	end

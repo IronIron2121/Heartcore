@@ -16,6 +16,8 @@ local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
+local UI_CONSTANTS = require(ReplicatedStorage.Utility:WaitForChild("UI_CONSTANTS"))
+ 
 
 -- Bindables
 local PlayerCreatedPreview = BindablesFolder:WaitForChild("PlayerCreatedPreview")
@@ -96,7 +98,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 
 		-- hover animations
 		button.MouseEnter:Connect(function()
-			tweenStroke(Color3.fromRGB(22, 220, 255), 3) -- blue glow
+			tweenStroke(UI_CONSTANTS.TASTEMAKER_GREEN)
 		end)
 
 		button.MouseLeave:Connect(function()

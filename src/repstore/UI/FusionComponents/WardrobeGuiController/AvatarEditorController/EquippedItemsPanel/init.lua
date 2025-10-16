@@ -87,6 +87,13 @@ function EquippedItemsPanel(
 			scope:New "UICorner" {
 				CornerRadius = UDim.new(0.2,0)
 			},
+
+			scope:New "UIPadding" {
+				PaddingTop = UDim.new(0.01,0),
+				PaddingBottom = UDim.new(0.01,0),
+				PaddingLeft = UDim.new(0.01,0),
+				PaddingRight = UDim.new(0.01,0),
+			},
 			
 			equippedItemButtons
 		}

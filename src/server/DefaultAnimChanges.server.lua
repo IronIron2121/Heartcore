@@ -7,7 +7,7 @@ game.Players.PlayerAdded:Connect(function(player)
         end
         local animScript = char:WaitForChild("Animate")
         -- All custom animations go here vvv --
-        animScript.jump.JumpAnim.AnimationId = script:WaitForChild("FrontFlip").AnimationId
-        animScript.fall.FallAnim.AnimationId = script:WaitForChild("Fall").AnimationId
+        --animScript.jump.JumpAnim.AnimationId = script:WaitForChild("FrontFlip").AnimationId
+        --animScript.fall.FallAnim.AnimationId = script:WaitForChild("Fall").AnimationId
     end)
 end)

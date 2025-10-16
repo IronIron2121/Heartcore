@@ -13,6 +13,10 @@ local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
+-- Constants
+local HOVER_COLOR = Color3.fromRGB(89, 247, 128)
+local HOLD_COLOR = Color3.new(0.117647, 0.023529, 0.941176)
+
 -- Fusion
 local OnEvent = Fusion.OnEvent
 local Children = Fusion.Children
@@ -33,9 +37,12 @@ function OutfitVoteTile(
 		layoutOrder: UsedAs<number>?,  
 		anchorPoint: UsedAs<Vector2>?,
 		humanoidDescription: HumanoidDescription,
+		strokeColor: UsedAs<Color3>?,
+		strokeThickness: UsedAs<number>?,
 		OnSelected: () -> (),
 	}
 ): Frame
+	local strokeColor = Color3.fromRGB(255, 255, 255) or UI_CONSTANTS.TASTEMAKER_PURPLE
 
 	-- Create avatar model from HumanoidDescription
 	local avatarModel = scope:Computed(function(use)
@@ -66,22 +73,21 @@ function OutfitVoteTile(
 
 	
 	local isHovering = scope:Value(false)
-	local isHeldDown = scope:Value(false)
-
-	local backgroundColourSpring = scope:Spring(
+	local isHeld = scope:Value(false)
+	
+	local strokeColorSpring = scope:Spring(
 		scope:Computed(function(use)
-			local backgroundColor = use(props.IsSelected) and UI_CONSTANTS.TASTEMAKER_PURPLE or UI_CONSTANTS.COLOUR_BLACK
-			if use(isHeldDown) then
-				return backgroundColor:Lerp(UI_CONSTANTS.COLOUR_WHITE, 0.8)
+			if use(isHeld) then
+				return strokeColor:Lerp(HOLD_COLOR, 1)
 			elseif use(isHovering) then
-				return backgroundColor:Lerp(UI_CONSTANTS.COLOUR_WHITE, 0.2)
+				return strokeColor:Lerp(HOVER_COLOR, 0.7)
 			else
-				return backgroundColor
+				return strokeColor
 			end
 		end),
 		20,
-		1
-	)	
+		1	
+	)
 
 	-- Create viewport camera
 	local viewportCamera = scope:Value(nil)
@@ -93,7 +99,7 @@ function OutfitVoteTile(
 		Position = props.position,
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		LayoutOrder = props.layoutOrder,
-		BackgroundColor3 = backgroundColourSpring,
+		BackgroundColor3 = Color3.fromRGB(218, 214, 231),
 		BackgroundTransparency = 0.1,
 
 		[Children] = {
@@ -111,8 +117,8 @@ function OutfitVoteTile(
 
 			scope:New "UIStroke" {
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Color = Color3.fromRGB(200, 200, 200),
-				Thickness = 1,
+				Color = strokeColorSpring,
+				Thickness = 5,
 			},
 
 			-- Outfit thumbnail viewport
@@ -120,14 +126,20 @@ function OutfitVoteTile(
 				Name = "OutfitViewport",
 				Size = UDim2.fromScale(1, 1),
 				LayoutOrder = 1,
-				BackgroundColor3 = backgroundColourSpring,
+				BackgroundColor3 = Color3.fromRGB(218, 214, 231),
 				BackgroundTransparency = 0,
-				BorderSizePixel = 0,
+				BorderSizePixel = 5,
+				Ambient = Color3.new(1,1,1),
+				LightColor = Color3.fromRGB(255, 249, 228),
+				LightDirection = Vector3.new(1,1,1),
+
 
 				[Children] = {
 					scope:New "UICorner" {
 						CornerRadius = UDim.new(0.05, 0)
 					},
+
+					
 
                     scope:New "ImageButton" {
                         Size = UDim2.fromScale(1, 1),
@@ -140,11 +152,11 @@ function OutfitVoteTile(
                         end,
 
 						[OnEvent "MouseButton1Down"] = function()
-							isHeldDown:set(true)
+							isHeld:set(true)
 						end,
 						
 						[OnEvent "MouseButton1Up"] = function()
-							isHeldDown:set(false)
+							isHeld:set(false)
 						end,
 						
 						[OnEvent "MouseEnter"] = function()
