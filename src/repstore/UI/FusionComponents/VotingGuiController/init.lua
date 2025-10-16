@@ -13,7 +13,7 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
-local Voting = ServerScriptService:WaitForChild("Voting")
+--local Voting = ServerScriptService:WaitForChild("Voting")
 
 
 -- Instances
@@ -28,7 +28,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
-local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
+--local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 
 
 
@@ -121,8 +121,8 @@ function VotingGuiController.setSelectedOutfit(userId: number)
     selectedTileId:set(userId)
 end
 
-local currentTheme = ThemeManager.getCurrentTheme()
-local themeName = currentTheme or "Unknown"
+-- local currentTheme = ThemeManager.getCurrentTheme()
+-- local themeName = currentTheme or "Unknown"
     
    
 
@@ -184,7 +184,7 @@ function VotingGuiController.Initialise(
 
                             scope:New "TextLabel" {
                                 Name = "TodaysTheme",
-                                Text = themeName,
+                                Text = "???",--themeName,
                                 TextScaled = true,
                                 Size = UDim2.fromScale(0.3, 1),
                                 LayoutOrder = 1,
