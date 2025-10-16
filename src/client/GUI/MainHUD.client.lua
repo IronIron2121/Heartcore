@@ -80,6 +80,10 @@ local function onGoToShopButtonPressed()
 	end
 end
 
+--[[
+
 PlayerEnteredOwnShopAsync.OnClientEvent:Connect(onPlayerEnteredOwnShop)
 PlayerExitedShopAsync.OnClientEvent:Connect(onPlayerExitedShop)
 GoToShopButton.Activated:Connect(onGoToShopButtonPressed)
+
+]]

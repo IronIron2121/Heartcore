@@ -1,5 +1,8 @@
 --!strict
 
+warn("initialising exp gui (top of script)")
+
+
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -26,13 +29,14 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI
 local PlayerGui = localPlayer.PlayerGui
-local ExpBar = require(script:WaitForChild("ExpBar"))
+local ExpBar = require(FusionComponents:WaitForChild("ExpBar"))
 
-
+ 
 local function initialiseGUI()
+    warn("initialising exp gui (in function)")
 	local screenGUI = scope:New "ScreenGui" {
 		Parent = PlayerGui
-	}
+	} 
 	
 	
 	local _hudTopBar = scope:New "Frame" {
@@ -57,7 +61,9 @@ local function initialiseGUI()
                 LayoutOrder = 0,
 
                 [Children] = {
-                    ExpBar
+                    ExpBar(scope, {
+                        name = "ExpBar"
+                    })
                 }
             }
         }
