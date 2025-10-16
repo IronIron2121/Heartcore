@@ -25,6 +25,8 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI Components
 local CategoryButton = require(Widgets:WaitForChild("CategoryButton"))
+local BaseButton = require(Widgets:WaitForChild("BaseButton"))
+
 
 function CategoryFrame(
 	scope: Fusion.Scope,
@@ -39,7 +41,8 @@ function CategoryFrame(
 		backgroundColor3: UsedAs<Color3>?,
 		backgroundTransparency: UsedAs<number>?,
 		visible: UsedAs<boolean>?,
-		name: UsedAs<string>?
+		name: UsedAs<string>?,
+		isSelected: UsedAs<boolean>?
 	}?
 ): Frame
 	local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
@@ -55,6 +58,8 @@ function CategoryFrame(
 			return false
 		end
 	end)
+
+
 
 	-- Outer container frame
 	local categoryFrame = scope:New "Frame" {
@@ -87,18 +92,21 @@ function CategoryFrame(
 				Name = "OutfitsButtonFrame",
 				LayoutOrder = 2,
 				BackgroundTransparency = 1,
-				Size = UDim2.fromScale(1, 0.1),
+				Size = UDim2.fromScale(0.8, 0.1),
+				
 				[Children] = {
-					scope:New "TextButton" {
-						Name = "MyOutfits",
-						Text = "My Outfits",
-						BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-						BackgroundTransparency = 0,
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						Size = UDim2.fromScale(0.9, 0.7),
-						Position = UDim2.fromScale(0.5, 0.5),
-						
-						[OnEvent "Activated"] = function()
+
+					BaseButton(scope, {
+						name = "MyOutfits",
+						text = "My Outfits",
+						textScaled = true,
+						size = UDim2.fromScale(1, 1),
+						backgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+						strokeColor = Color3.new(1,1,1),
+						strokeThickness = 2,
+						textColor = Color3.new(1,1,1),
+
+						onActivated = function()
 							currentView:set("Outfits")
 						end,
 						
@@ -113,13 +121,15 @@ function CategoryFrame(
 							}
 						}
 					}
+				)
+					
 				}
 			},
 			
 			-- Inner scrolling frame
 			scope:New "ScrollingFrame" {
 				Name = "CategoryScrollFrame",
-				Size = UDim2.fromScale(1, 0.9),
+				Size = UDim2.fromScale(0.9, 0.8),
 				Position = UDim2.fromScale(0, 0),
 				BackgroundTransparency = 1,
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,

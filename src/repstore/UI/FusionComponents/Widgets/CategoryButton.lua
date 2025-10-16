@@ -96,13 +96,20 @@ function CategoryButton(
 
 		[Children] = {
 			scope:New "UICorner" {
-				CornerRadius = UDim.new(0.1, 0)
+				CornerRadius = UDim.new(0.5, 0)
 			},
 
 			scope:New "UIStroke" {
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				Color = Color3.new(1, 1, 1),
 				Thickness = 1,
+			},
+
+			scope:New "UIPadding" {
+				PaddingTop = UDim.new(0.1,0),
+				PaddingBottom = UDim.new(0.1,0),
+				PaddingLeft = UDim.new(0.1,0),
+				PaddingRight = UDim.new(0.1,0)
 			}
 		}
 	} :: TextButton

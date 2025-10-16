@@ -48,9 +48,9 @@ function Button(
 			local baseColor = backgroundColor
 
 			if use(isHeldDown) then
-				return baseColor:Lerp(UI_CONSTANTS.COLOUR_BLACK, 1)
+				return baseColor:Lerp(Color3.fromRGB(89, 247, 128), 1)
 			elseif use(isHovering) then
-				return baseColor:Lerp(UI_CONSTANTS.COLOUR_BLACK, 0.20)
+				return baseColor:Lerp(Color3.fromRGB(89, 247, 128), 0.20)
 			else
 				return baseColor
 			end
@@ -111,6 +111,13 @@ function Button(
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				Color = props.strokeColor or UI_CONSTANTS.COLOUR_WHITE,
 				Thickness = props.strokeThickness or 2,
+			},
+
+			scope:New "UIPadding" {
+				PaddingTop = UDim.new(0.1,0),
+				PaddingBottom = UDim.new(0.1,0),
+				PaddingLeft = UDim.new(0.1,0),
+				PaddingRight = UDim.new(0.1,0)
 			}
 		}
 	} :: TextButton

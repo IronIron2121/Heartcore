@@ -106,6 +106,9 @@ function OutfitTile(
 				BackgroundColor3 = Color3.fromRGB(240, 240, 240),
 				BackgroundTransparency = 0,
 				BorderSizePixel = 0,
+				Ambient = Color3.new(1,1,1),
+				LightColor = Color3.fromRGB(255, 249, 228),
+				LightDirection = Vector3.new(1,1,1),
 
 				[Children] = {
 					scope:New "UICorner" {

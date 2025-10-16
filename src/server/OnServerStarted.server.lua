@@ -9,6 +9,7 @@ local Voting = ServerScriptService:WaitForChild("Voting")
 -- Modules
 local SubmissionStoreManager = require(Voting:WaitForChild("SubmissionStoreManager"))
 local VotingStoreManager = require(Voting:WaitForChild("VotingStoreManager"))
+local WinnersStoreManager = require(Voting:WaitForChild("WinnersStoreManager"))
 local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 
@@ -19,6 +20,7 @@ local function initialiseVoting()
     VotingStoreManager.initialise()
     SubmissionStoreManager.initialise()
     ThemeManager.initialise()
+    WinnersStoreManager.initialise()
 end
 
 initialiseVoting()  
