@@ -45,7 +45,8 @@ local function initialiseGUI()
 		AnchorPoint = Vector2.new(0,0),
 		Parent = screenGUI,
 		BackgroundColor3 = Color3.new(1, 1, 1),
-        BackgroundTransparency = 0,
+        BackgroundTransparency = 1,
+        Visible = false,
 
         [Children] = {
             scope:New "UIListLayout"{
