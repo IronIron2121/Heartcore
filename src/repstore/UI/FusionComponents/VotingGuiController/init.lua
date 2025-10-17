@@ -32,6 +32,7 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion Modules
 local scope = Fusion:scoped()
+local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
@@ -52,6 +53,8 @@ local VotingGuiController = {}
 local outfitVoteTiles = scope:Value({})
 local selectedTileId = scope:Value(nil)
 local isRefreshing = false
+
+
 
 local function refreshOutfitVoteTiles()
     if isRefreshing then
@@ -136,107 +139,144 @@ function VotingGuiController.Initialise(
         end
     end)
 
+
+
     local _VoteGui = scope:New "ScreenGui" {
         Name = "VotingGui",
         Enabled = visibilityBoolean,
         Parent = PlayerGui,
 
         [Children] = {
+                        
             scope:New "Frame" {
                 Name = "Container",
                 Size = UDim2.fromScale(0.8, 0.8),
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 Position = UDim2.fromScale(0.5, 0.48),
                 BackgroundColor3 = Color3.new(1,1,1),
-                BackgroundTransparency = 0.2,
+                BackgroundTransparency = 1,
+                Visible = true,
 
-                [Children] = {    
-                    scope:New "UIListLayout" {
-                        FillDirection = Enum.FillDirection.Vertical,
-                        SortOrder = Enum.SortOrder.LayoutOrder
-                    },
+                [Children] = {
+                    scope:New "ImageButton" {
+						Name = "CloseButton",
+						Image = ImageUris["CloseButton"],
+						AnchorPoint = Vector2.new(0.5, 0),
+						Size = UDim2.fromScale(0.05, 0.05),
+						BackgroundTransparency = 1,
+						Position = UDim2.fromScale(1,0),
+                        ZIndex = 3,
+						
+						[Children] = {
+							scope:New "UIAspectRatioConstraint" {
+								AspectRatio = 1
+							}
+						},
+						
+						[OnEvent "Activated"] = function()
+							visible = false
+						end,
+					},
 
-                    scope:New "UICorner" {
-                                        CornerRadius = UDim.new(0.05)
-                                    },
+                    scope:New "Frame" {
+                        Name = "Background",
+                        Size = UDim2.fromScale(1,1),
+                        AnchorPoint = Vector2.new(0.5, 0.5),
+                        Position = UDim2.fromScale(0.5, 0.48),
+                        BackgroundColor3 = Color3.new(1,1,1),
+                        BackgroundTransparency = 0.2,
+                        
 
-                    scope:New "UIPadding" {
-                        PaddingBottom = UDim.new(0.05,0),
-                        PaddingTop = UDim.new(0.05,0),
-                        PaddingRight = UDim.new(0.05,0),
-                        PaddingLeft = UDim.new(0.05,0)
-                    },
-
-                    scope:New "Frame"{
-                        Name = "TopBar",
-                        Size = UDim2.fromScale(1, 0.1),
-                        LayoutOrder = 1,
-                        BackgroundTransparency = 1,
-
-                        [Children] = {
+                        [Children] = {    
                             scope:New "UIListLayout" {
-                                FillDirection = Enum.FillDirection.Horizontal,
+                                FillDirection = Enum.FillDirection.Vertical,
                                 SortOrder = Enum.SortOrder.LayoutOrder
                             },
 
-                            scope:New "TextLabel" {
-                                Name = "VoteFor",
-                                Text = "Vote for best fit:",
-                                TextScaled = true,
-                                Size = UDim2.fromScale(0.3, 1),
-                                LayoutOrder = 1,
-                                BackgroundTransparency = 1,
-                                TextColor3 = Color3.fromRGB(92, 96, 214)
+                            scope:New "UICorner" {
+                                CornerRadius = UDim.new(0.05)
                             },
 
-                            scope:New "TextLabel" {
-                                Name = "TodaysTheme",
-                                Text = currentTheme,--themeName,
-                                TextScaled = true,
-                                Size = UDim2.fromScale(0.3, 1),
-                                LayoutOrder = 1,
-                                BackgroundTransparency = 1,
-                                TextColor3 = Color3.fromRGB(92, 96, 214)
+                            scope:New "UIPadding" {
+                                PaddingBottom = UDim.new(0.05,0),
+                                PaddingTop = UDim.new(0.05,0),
+                                PaddingRight = UDim.new(0.05,0),
+                                PaddingLeft = UDim.new(0.05,0)
                             },
 
                             scope:New "Frame"{
-                                Name = "Buffer",
-                                Size = UDim2.fromScale(0.1, 1),
-                                LayoutOrder = 2,
+                                Name = "TopBar",
+                                Size = UDim2.fromScale(1, 0.1),
+                                LayoutOrder = 1,
                                 BackgroundTransparency = 1,
-                            },
 
-                            scope:New "Frame"{
-                                Name = "TimerContainer",
-                                Size = UDim2.fromScale(0.2, 1),
-                                LayoutOrder = 3,
-                                BackgroundTransparency = 1,
-                                
                                 [Children] = {
                                     scope:New "UIListLayout" {
                                         FillDirection = Enum.FillDirection.Horizontal,
                                         SortOrder = Enum.SortOrder.LayoutOrder
                                     },
-                                    scope:New "ImageLabel"{
-                                        Image = ImageUris.StopwatchIcon,
-                                        Size = UDim2.fromScale(1, 1),
+
+                                    scope:New "TextLabel" {
+                                        Name = "VoteFor",
+                                        Text = "Vote for best fit:",
+                                        TextScaled = true,
+                                        Size = UDim2.fromScale(0.3, 1),
                                         LayoutOrder = 1,
                                         BackgroundTransparency = 1,
-                                        [Children] = {
-                                            scope:New "UIAspectRatioConstraint" {
-                                                AspectRatio = 1,
-                                                DominantAxis = Enum.DominantAxis.Width,
-                                            }
-                                        }
+                                        TextColor3 = Color3.fromRGB(92, 96, 214)
                                     },
+
                                     scope:New "TextLabel" {
-                                        Name = "Timer",
-                                        Text = "HH:MM:SS",
+                                        Name = "TodaysTheme",
+                                        Text = currentTheme,--themeName,
                                         TextScaled = true,
-                                        Size = UDim2.fromScale(1, 1),
-                                        LayoutOrder = 2,
+                                        Size = UDim2.fromScale(0.3, 1),
+                                        LayoutOrder = 1,
                                         BackgroundTransparency = 1,
                                         TextColor3 = Color3.fromRGB(92, 96, 214)
+                                    },
+
+                                    scope:New "Frame"{
+                                        Name = "Buffer",
+                                        Size = UDim2.fromScale(0.1, 1),
+                                        LayoutOrder = 2,
+                                        BackgroundTransparency = 1,
+                                    },
+
+                                    scope:New "Frame"{
+                                        Name = "TimerContainer",
+                                        Size = UDim2.fromScale(0.2, 1),
+                                        LayoutOrder = 3,
+                                        BackgroundTransparency = 1,
+                                        
+                                        [Children] = {
+                                            scope:New "UIListLayout" {
+                                                FillDirection = Enum.FillDirection.Horizontal,
+                                                SortOrder = Enum.SortOrder.LayoutOrder
+                                            },
+                                            scope:New "ImageLabel"{
+                                                Image = ImageUris.StopwatchIcon,
+                                                Size = UDim2.fromScale(1, 1),
+                                                LayoutOrder = 1,
+                                                BackgroundTransparency = 1,
+                                                
+                                                [Children] = {
+                                                    scope:New "UIAspectRatioConstraint" {
+                                                        AspectRatio = 1,
+                                                        DominantAxis = Enum.DominantAxis.Width,
+                                                    }
+                                                }
+                                            },
+                                            scope:New "TextLabel" {
+                                                Name = "Timer",
+                                                Text = "HH:MM:SS",
+                                                TextScaled = true,
+                                                Size = UDim2.fromScale(1, 1),
+                                                LayoutOrder = 2,
+                                                BackgroundTransparency = 1,
+                                                TextColor3 = Color3.fromRGB(92, 96, 214)
+                                            }
+                                        }
                                     }
                                 }
                             }
