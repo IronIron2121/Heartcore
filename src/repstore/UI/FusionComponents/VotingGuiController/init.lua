@@ -36,6 +36,7 @@ local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
+local Value = Fusion.Value
 
 -- GUI Modules
 local BaseButton = require(Widgets:WaitForChild("BaseButton"))
@@ -128,13 +129,13 @@ end
 local currentTheme = scope:Value("")
 
 function VotingGuiController.Initialise(
-    visibilityBoolean: UsedAs<boolean>
+    VoteGuiVisible: UsedAs<boolean>
 )
-    local visibilityObserver = scope:Observer(visibilityBoolean) 
+    local visibilityObserver = scope:Observer(VoteGuiVisible) 
 
     -- TODO: Make this more efficient with caching or something such...
     visibilityObserver:onChange(function()
-        if peek(visibilityBoolean) == true then
+        if peek(VoteGuiVisible) == true then
             currentTheme:set(PlayerRequestedCurrentTheme:InvokeServer())
         end
     end)
@@ -143,7 +144,7 @@ function VotingGuiController.Initialise(
 
     local _VoteGui = scope:New "ScreenGui" {
         Name = "VotingGui",
-        Enabled = visibilityBoolean,
+        Enabled = true,
         Parent = PlayerGui,
 
         [Children] = {
@@ -155,7 +156,7 @@ function VotingGuiController.Initialise(
                 Position = UDim2.fromScale(0.5, 0.48),
                 BackgroundColor3 = Color3.new(1,1,1),
                 BackgroundTransparency = 1,
-                Visible = true,
+                Visible = VoteGuiVisible,
 
                 [Children] = {
                     scope:New "ImageButton" {
@@ -174,7 +175,7 @@ function VotingGuiController.Initialise(
 						},
 						
 						[OnEvent "Activated"] = function()
-							visible = false
+							VoteGuiVisible:set(not peek(VoteGuiVisible))
 						end,
 					},
 
