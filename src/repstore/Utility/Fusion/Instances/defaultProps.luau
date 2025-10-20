@@ -96,7 +96,10 @@ return {
 	ViewportFrame = {
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		BorderColor3 = Color3.new(0, 0, 0),
-		BorderSizePixel = 0
+		BorderSizePixel = 0,
+		Ambient = Color3.new(1,1,1),
+		LightColor = Color3.fromRGB(255, 249, 228),
+		LightDirection = Vector3.new(1,1,1),
 	},
 
 	VideoFrame = {

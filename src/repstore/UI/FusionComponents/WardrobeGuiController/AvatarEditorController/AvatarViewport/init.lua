@@ -80,10 +80,14 @@ function AvatarViewport(
 		Name = "AvatarViewport",
 		Size = UDim2.fromScale(1, 0.85),  
 		Position = UDim2.fromScale(0.5, 0.5),
-		BackgroundColor3 = Color3.new(0.65098, 0.65098, 0.65098),
+		BackgroundColor3 = Color3.new(1, 1, 1),
 		BorderSizePixel = 2,
 		BorderColor3 = Color3.new(0.360784, 0.376471, 0.839216),
 		LayoutOrder = 1,
+		Ambient = Color3.new(1,1,1),
+		LightColor = Color3.fromRGB(255, 249, 228),
+		LightDirection = Vector3.new(1,1,1),
+
 		
 		[Children] = {
 			scope:New "UIStroke" {
@@ -99,6 +103,8 @@ function AvatarViewport(
 					return currentModel and {currentModel} or {}
 				end)	
 			},
+
+	
 
 			scope:New "UICorner" {
 				CornerRadius = UDim.new(0.05)
