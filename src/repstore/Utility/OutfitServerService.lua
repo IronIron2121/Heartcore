@@ -56,4 +56,8 @@ function OutfitServerService.DeleteOutfit(outfitId: number)
 	AvatarEditorService.PromptDeleteOutfitCompleted:Wait() 
 end
 
+function OutfitServerService.PlayerDeletedOutfitWithUnownedAssets(player)
+
+end
+
 return OutfitServerService

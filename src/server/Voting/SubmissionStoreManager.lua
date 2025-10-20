@@ -472,8 +472,8 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         print("Rollover in progress for player " .. player.Name .. ", adding to cache instead")
         SubmissionStoreManager:AddEntryToCache(player, serialisedHumanoidDescription)
         SubmissionResultRE:FireClient(player, {
-            ok = true,
-            msg = "Outfit submitted successfully!"
+            ok = false,
+            msg = "Outfit failed to submit! 2"
         })
         return false
     end
@@ -506,7 +506,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         print("Successfully submitted outfit for player:", player.Name)
         SubmissionResultRE:FireClient(player, {
             ok = true,
-            msg = "Outfit submitted successfully!"
+            msg = "Outfit submitted successfully! 2"
         })
         
         -- Check if we need to rollover to a new store
