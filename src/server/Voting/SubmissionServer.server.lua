@@ -26,6 +26,8 @@ local SerialisationService = require(Utility:WaitForChild("SerialisationService"
 local DataManager = require(Data:WaitForChild("DataManager"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
+local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
+
 
 -- Instances
 local SubmissionPad = centralPond:WaitForChild("SubmissionPad") 
@@ -50,9 +52,14 @@ local function canPlayerSubmit(player: Player)
 		return true
 	end
 
-	local currentPhaseStart = GameTimer.getCurrentPhaseUnixTime()
+	local success, currentPhaseStart = callWithRetry(
+		function()
+			return GameTimer.getCurrentPhaseUnixTime()
+		end,
+		5
+	)
 
-	if not currentPhaseStart or lastSubmit >= currentPhaseStart then
+	if not success or lastSubmit >= currentPhaseStart then
 		warn("no, they can't submit")
 		return false
 	end
@@ -60,7 +67,7 @@ local function canPlayerSubmit(player: Player)
 	warn("yes, they can submit", lastSubmit, currentPhaseStart)
 	return true
 end
-
+ 
 local function onOutfitSubmitted(player: Player)
 	if not canPlayerSubmit(player) then
 		SubmissionResultRE:FireClient(player, {
@@ -105,8 +112,6 @@ local function onOutfitSubmitted(player: Player)
 		msg = "Outfit submitted successfully!"
 	})
 end
-
-
 
 local prompt = scope:New "ProximityPrompt" {
 	Name = "SubmissionPrompt",

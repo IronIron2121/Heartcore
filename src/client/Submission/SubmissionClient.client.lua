@@ -26,11 +26,11 @@ local function updateSubmitButton()
         warn("Player can submit!", canPlayerSubmit)
         prompt.Enabled = true
         PromptHolder.Color = Color3.fromRGB(190, 190, 192)
-    else
+    else 
         warn("Player cannot submit!", canPlayerSubmit)
         prompt.Enabled = false
         PromptHolder.Color = Color3.fromRGB(100,100,100)
-    end
+    end 
 end
 
 local function onSubmissionResult(
@@ -48,5 +48,5 @@ SubmissionResultRE.OnClientEvent:Connect(onSubmissionResult)
 PhaseChangedRemote.OnClientEvent:Connect(updateSubmitButton)
 
 -- This is just a clumsy way of making sure we update the button after the player joins
-task.wait(2)
+task.wait(10)
 updateSubmitButton()

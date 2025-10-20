@@ -16,14 +16,21 @@ local SerialisationService = require(Utility:WaitForChild("SerialisationService"
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
+local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 
 -- Instances
 local leaderboard = dailyWinners:WaitForChild("leaderboard")
 local leaderboardScreen = leaderboard:WaitForChild("leaderboardScreen")
+local WinnersThemeHolder = leaderboardScreen:WaitForChild("WinnersThemeHolder")
+
 
 -- GUI Instances
 local leaderboardGui = leaderboardScreen:WaitForChild("LeaderboardGui")
 local leaderboardFrame = leaderboardGui:WaitForChild("LeaderboardFrame")
+
+local WinnersThemeGui = WinnersThemeHolder:WaitForChild("WinnersThemeGui")
+local WinnersThemeFrame = WinnersThemeGui:WaitForChild("WinnersThemeFrame")
+local ThemeLabel = WinnersThemeFrame:WaitForChild("ThemeLabel")
 
 -- Types
 type RigModel = Model & {
@@ -101,6 +108,12 @@ function WinnersStoreManager.getCurrentTopTwenty(): {}?
     end
 end
 
+function WinnersStoreManager.updateWinnersThemeDisplay()
+    warn("UPDATING WINNERS THEME DISPLAY")
+    local erePreviousTheme = ThemeManager.getErePreviousThemeName()
+    ThemeLabel.Text = erePreviousTheme
+end
+
 function WinnersStoreManager.updateTopTwentyLeaderboard()
     local topTwenty = WinnersStoreManager.getCurrentTopTwenty()
     if not topTwenty then return end
@@ -171,6 +184,8 @@ function WinnersStoreManager.updateWinnersPodiums()
             warn("Failed to apply description to rig at index:", index)
         end
     end
+
+    
 end
 
 -- Get all submission store names for a given phase
@@ -260,6 +275,7 @@ function WinnersStoreManager.initialise()
     -- Update podiums and leaderboard with current winners on server start
     WinnersStoreManager.updateWinnersPodiums()
     WinnersStoreManager.updateTopTwentyLeaderboard()
+    WinnersStoreManager.updateWinnersThemeDisplay()
     
     print("WinnersStoreManager initialized successfully")
 end
@@ -354,6 +370,7 @@ function WinnersStoreManager.setNewWinners()
         print("Top 20 saved successfully")
         WinnersStoreManager.updateWinnersPodiums()
         WinnersStoreManager.updateTopTwentyLeaderboard()
+        WinnersStoreManager.updateWinnersThemeDisplay()
         return true
     else
         warn("Failed to set new winners or top twenty")
