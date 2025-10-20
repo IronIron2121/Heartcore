@@ -3,19 +3,13 @@
 local AvatarEditorService = game:GetService("AvatarEditorService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local DatastoreService = game:GetService("DataStoreService")
-local Players = game:GetService("Players")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
--- Modules
-local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
-local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
-
 -- Remotes
-local PlayerSavedOutfitWithUnownedAssets = Remotes:WaitForChild("PlayerSavedOutfitWithUnownedAssets")
+local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
+local PlayerDeletedTastemakerOutfit = Remotes:WaitForChild("PlayerDeletedTastemakerOutfit")
 
 -- Datastores
 --local PlayerOutfitsDatastore = DatastoreService:GetDataStore(Constants.PLAYER_OUTFITS_DATASTORE)
@@ -32,8 +26,8 @@ function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 			if MarketplaceService:PlayerOwnsAsset(player, description.AssetId) then
 				continue
 			else
-				PlayerSavedOutfitWithUnownedAssets:FireServer()
-				-- do local outfit creation\
+				PlayerSavedTastemakerOutfit:FireServer()
+				-- do local outfit creation
 				return
 			end
 		end
@@ -47,6 +41,8 @@ function OutfitClientService.DeleteOutfit(outfitId: number)
 	AvatarEditorService.PromptDeleteOutfitCompleted:Wait()
 end
 
-
+function OutfitClientService.DeleteTastemakerOutfit(outfitIndex: number)
+	return PlayerDeletedTastemakerOutfit:InvokeServer(outfitIndex)
+end
 
 return OutfitClientService
