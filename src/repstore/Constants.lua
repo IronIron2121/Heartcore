@@ -48,7 +48,7 @@ local Constants = {
 	UI_BUTTON_TAG = "UIButton",
 	INSPECT_PROMPT_TAG = "InspectPrompt",
 	CLAIM_PROMPT_TAG = "ClaimPrompt",
-	CATALOG_CONSOLE_TAG = "Catalog",
+	CATALOG_CONSOLE_TAG = "Console",
 	-- Attributes
 	ITEM_ID_ATTRIBUTE = "Id",
 	ITEM_COLOUR_ATTRIBUTE = "itemColour",
