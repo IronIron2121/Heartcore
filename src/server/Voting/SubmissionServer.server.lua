@@ -106,11 +106,6 @@ local function onOutfitSubmitted(player: Player)
 
 	DataManager.AddExp(player, 1)
 	DataManager.onOutfitSubmitted(player)
-
-	SubmissionResultRE:FireClient(player, {
-		ok = true, 
-		msg = "Outfit submitted successfully!"
-	})
 end
 
 local prompt = scope:New "ProximityPrompt" {
@@ -123,8 +118,10 @@ local prompt = scope:New "ProximityPrompt" {
 	MaxActivationDistance = 16,
 	[OnEvent "Triggered"] = function(player)
 		if peek(isSubmitting) then
+			warn("Submitting now!")
 			return
 		end
+		warn("submitting on prompt hit!!")
 		isSubmitting:set(true)
 		onOutfitSubmitted(player)
 		isSubmitting:set(false)

@@ -51,6 +51,10 @@ local function playerSavedOutfitWithUnownedAssets(player: Player)
 	OutfitServerService.SaveCurrentOutfitWithUnownedItems(player)
 end
 
+local function playerDeletedOutfitWithUnownedAssets(player: Player)
+
+end
+
 local function getPlayerTastemakerOutfits(player: Player)
 	local playerTastemakerOutfits = OutfitServerService.GetPlayerTastemakerOutfits(player)
 	return playerTastemakerOutfits
