@@ -16,7 +16,8 @@ local Utility = RepStore:WaitForChild("Utility")
 local OutfitServerService = require(Utility:WaitForChild("OutfitServerService"))
 
 -- Remotes
-local PlayerSavedOutfitWithUnownedAssets = Remotes:WaitForChild("PlayerSavedOutfitWithUnownedAssets")
+local PlayerDeletedTastemakerOutfit = Remotes:WaitForChild("PlayerDeletedTastemakerOutfit")
+local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
 local GetPlayerTastemakerOutfits = Remotes:WaitForChild("GetPlayerTastemakerOutfits")
 local PlayerPurchasedOutfit = Remotes:WaitForChild("PlayerPurchasedOutfit")
 
@@ -47,12 +48,12 @@ local function playerPurchasedOutfit(player: Player, outfitId: number)
 	isCurrentlyPurchasing = false
 end
 
-local function playerSavedOutfitWithUnownedAssets(player: Player)
+local function playerSavedTastemakerOutfit(player: Player)
 	OutfitServerService.SaveCurrentOutfitWithUnownedItems(player)
 end
 
-local function playerDeletedOutfitWithUnownedAssets(player: Player)
-
+local function playerDeletedTastemakerOutfit(player: Player, index: number)
+ 	return OutfitServerService.playerDeletedTastemakerOutfit(player, index)
 end
 
 local function getPlayerTastemakerOutfits(player: Player)
@@ -60,6 +61,7 @@ local function getPlayerTastemakerOutfits(player: Player)
 	return playerTastemakerOutfits
 end
 
-PlayerSavedOutfitWithUnownedAssets.OnServerEvent:Connect(playerSavedOutfitWithUnownedAssets)
+PlayerSavedTastemakerOutfit.OnServerEvent:Connect(playerSavedTastemakerOutfit)
 PlayerPurchasedOutfit.OnServerEvent:Connect(playerPurchasedOutfit)
+PlayerDeletedTastemakerOutfit.OnServerInvoke = playerDeletedTastemakerOutfit
 GetPlayerTastemakerOutfits.OnServerInvoke = getPlayerTastemakerOutfits

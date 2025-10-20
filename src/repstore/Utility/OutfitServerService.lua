@@ -41,6 +41,8 @@ end
 function OutfitServerService.GetPlayerTastemakerOutfits(player: Player)
 	local success, result = pcall(function()
 		local playerOutfits = PlayerOutfitsDatastore:GetAsync(player.UserId)
+		warn("Getting t maker outfits @ server")
+		print(playerOutfits)
 		return playerOutfits
 	end)
 	
@@ -56,8 +58,16 @@ function OutfitServerService.DeleteOutfit(outfitId: number)
 	AvatarEditorService.PromptDeleteOutfitCompleted:Wait() 
 end
 
-function OutfitServerService.PlayerDeletedOutfitWithUnownedAssets(player)
+function OutfitServerService.playerDeletedTastemakerOutfit(player: Player, index: number)
+	local success, result = pcall(function()
+		PlayerOutfitsDatastore:UpdateAsync(player.UserId, function(oldData)
+			local newData = oldData or {}
+			newData[index] = nil
+			return newData
+		end)
+	end)
 
+	return success
 end
 
 return OutfitServerService

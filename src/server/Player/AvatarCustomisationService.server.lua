@@ -16,6 +16,7 @@ local SerialisationService = require(Utility:WaitForChild("SerialisationService"
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
 local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
+local PlayerEquippedTastemakerOutfit = Remotes:WaitForChild("PlayerEquippedTastemakerOutfit")
 
 -- Variables
 local equippingCache = {}
@@ -62,7 +63,11 @@ end
 
 local function playerEquippedOutfit(player: Player, outfitId: number)
 	warn("Equipping on server side!")
-	if isPlayerEquipping(player) then warn("Already equipping") return end
+	if isPlayerEquipping(player) then 
+		warn("Already equipping") 
+		return 
+	end
+	
 	setPlayerEquipping(player, true)
 	AvatarCustomisationService.ApplyOutfitToAvatar(player, outfitId) 
 	setPlayerEquipping(player, false)
@@ -79,5 +84,6 @@ end
 Plrs.PlayerAdded:Connect(onPlayerAdded)
 Plrs.PlayerRemoving:Connect(onPlayerRemoving)
 PlayerEquippedOutfit.OnServerEvent:Connect(playerEquippedOutfit)
+PlayerEquippedTastemakerOutfit.OnServerEvent:Connect(playerEquippedTastemakerOutfit)
 PlayerEquippedItem.OnServerEvent:Connect(playerEquippedItem)
 PlayerRemovedItem.OnServerEvent:Connect(playerRemovedItem)

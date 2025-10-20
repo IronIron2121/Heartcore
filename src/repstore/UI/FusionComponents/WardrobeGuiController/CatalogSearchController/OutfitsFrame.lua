@@ -29,6 +29,7 @@ local BaseButton = require(Widgets:WaitForChild("BaseButton"))
 
 -- Remotes
 local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
+local PlayerEquippedTastemakerOutfit = Remotes:WaitForChild("PlayerEquippedTastemakerOutfit")
 local GetPlayerTastemakerOutfits = Remotes:WaitForChild("GetPlayerTastemakerOutfits")
 
 -- Fusion
@@ -83,13 +84,15 @@ function OutfitsFrame(
 		end
 		
 		-- Get Tastemaker Outfits
-		local success, result = pcall(function()
+		local tastemakerSuccess, result = pcall(function()
+			warn("getting tastemaker outfits")
 			return GetPlayerTastemakerOutfits:InvokeServer()
 		end) 
 
-		if success and result then
+		if tastemakerSuccess and result then
+			warn("Got them! setting...", result)
 			tastemakerOutfits:set(result)
-		elseif success and not result then
+		elseif tastemakerSuccess and not result then
 			warn("Successful query but no outfits")
 		else
 			assert("Error on attempt to get tastemaker outfits!")
@@ -210,31 +213,28 @@ function OutfitsFrame(
 								updatePlayerOutfits()
 							end,
 							onSelect = function()
-								PlayerEquippedOutfit:FireServer(props.outfit.Id)
+								PlayerEquippedOutfit:FireServer(outfit.Id)
 							end,
-							
 							visible = scope:Computed(function(use)
 								return use(isLoading) == false
 							end)
 						})
 					end),
 					
-					scope:ForValues(tastemakerOutfits, function(use, innerScope, serialisedOutfit)
+					scope:ForPairs(tastemakerOutfits, function(use, innerScope, index, serialisedOutfit)
 						local humanoidDescription = SerialisationService.UnserialiseHumanoidDescription(serialisedOutfit)
 						
-						return OutfitTile(innerScope, {
+						return index, OutfitTile(innerScope, {
 							humanoidDescription = humanoidDescription,
-							outfit = outfit,
+							outfit = serialisedOutfit,
 							onDelete = function()
-								OutfitClientService.DeleteOutfit(outfit.Id)
+								OutfitClientService.DeleteTastemakerOutfit(index)
 								updatePlayerOutfits()
 							end,
 							
 							onSelect = function()
 								print("About to invoke server...")
-								
-								--TODO: This is a problem for tomorrow!
-								PlayerEquippedOutfit:FireServer(props.outfit.Id)
+								local deleted = PlayerEquippedTastemakerOutfit:FireServer(serialisedOutfit)
 							end,
 
 							visible = scope:Computed(function(use)
