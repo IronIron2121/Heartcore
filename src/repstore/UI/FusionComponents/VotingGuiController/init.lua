@@ -13,7 +13,6 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
---local Voting = ServerScriptService:WaitForChild("Voting")
 
 
 -- Instances
@@ -28,7 +27,6 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
---local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -45,7 +43,7 @@ local BaseButton = require(Widgets:WaitForChild("BaseButton"))
 local maxDisplayedOutfits = 3
 
 -- Remotes / Bindables
-local PlayerRequestedCurrentTheme = Remotes:WaitForChild("PlayerRequestedCurrentTheme")
+local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTheme")
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 
@@ -123,10 +121,9 @@ function VotingGuiController.setSelectedOutfit(userId: number)
     selectedTileId:set(userId)
 end
 
--- local currentTheme = ThemeManager.getCurrentTheme()
--- local themeName = currentTheme or "Unknown"
+
     
-local currentTheme = scope:Value("")
+local votingTheme = scope:Value("")
 
 function VotingGuiController.Initialise(
     VoteGuiVisible: UsedAs<boolean>
@@ -135,8 +132,13 @@ function VotingGuiController.Initialise(
 
     -- TODO: Make this more efficient with caching or something such...
     visibilityObserver:onChange(function()
+<<<<<<< HEAD
         if peek(VoteGuiVisible) == true then
             currentTheme:set(PlayerRequestedCurrentTheme:InvokeServer())
+=======
+        if peek(visibilityBoolean) == true then
+            votingTheme:set(PlayerRequestedVotingTheme:InvokeServer())
+>>>>>>> f5634063b561daffc0cdf05a439ae38df5eadf5b
         end
     end)
 
@@ -198,11 +200,22 @@ function VotingGuiController.Initialise(
                                 CornerRadius = UDim.new(0.05)
                             },
 
+<<<<<<< HEAD
                             scope:New "UIPadding" {
                                 PaddingBottom = UDim.new(0.05,0),
                                 PaddingTop = UDim.new(0.05,0),
                                 PaddingRight = UDim.new(0.05,0),
                                 PaddingLeft = UDim.new(0.05,0)
+=======
+                            scope:New "TextLabel" {
+                                Name = "TodaysTheme",
+                                Text = votingTheme,--themeName,
+                                TextScaled = true,
+                                Size = UDim2.fromScale(0.3, 1),
+                                LayoutOrder = 1,
+                                BackgroundTransparency = 1,
+                                TextColor3 = Color3.fromRGB(92, 96, 214)
+>>>>>>> f5634063b561daffc0cdf05a439ae38df5eadf5b
                             },
 
                             scope:New "Frame"{
