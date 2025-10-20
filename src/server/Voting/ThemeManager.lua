@@ -33,6 +33,8 @@ local AVAILABLE_THEMES = {
 
 -- Cache for current theme
 local currentThemeCache = nil
+local previousThemeCache = nil
+local erePreviousThemeCache = nil
 
 -- Helper Functions
 local function getCurrentUniversalTime()
@@ -121,6 +123,10 @@ function ThemeManager.getPreviousPhaseTheme(): {}?
     end
     
     return ThemeManager.getThemeForPhase(previousPrefix)
+end
+
+function ThemeManager.getPreviousPhaseThemeName(): string
+    return currentThemeCache and currentThemeCache.theme or "Loading..."
 end
 
 -- Get day-before-yesterday's theme (for winners)

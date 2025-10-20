@@ -30,14 +30,13 @@ local function playerRequestedCurrentTheme()
     return ThemeManager.getCurrentThemeName()
 end
 
-PhasedChanged.Event:Connect(onPhaseChanged)  
-PlayerRequestedCurrentTheme.OnServerInvoke = playerRequestedCurrentTheme
 
 -- Get voting theme from server to client
 
 local function playerRequestedVotingTheme()
-    return ThemeManager.getPreviousPhaseTheme()
+    return ThemeManager.getPreviousPhaseTheme().theme
 end
 
 PhasedChanged.Event:Connect(onPhaseChanged)  
 PlayerRequestedVotingTheme.OnServerInvoke = playerRequestedVotingTheme
+PlayerRequestedCurrentTheme.OnServerInvoke = playerRequestedCurrentTheme
