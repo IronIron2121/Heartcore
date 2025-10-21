@@ -13,19 +13,15 @@ local SoundService = game:GetService("SoundService")
 local Constants = require(ReplicatedStorage.Constants)
 local Types = require(ReplicatedStorage.Utility.Types)
 local Cart = require(ReplicatedStorage.Libraries.Cart)
-local TryOn = require(ReplicatedStorage.Libraries.TryOn)
 local ItemContainer = require(ReplicatedStorage.Utility.ItemContainer)
 local playFromStart = require(script.playFromStart)
 
 local audioPlayers = SoundService.Audio.Players
 local purchasePlayer = audioPlayers.UI.Purchase
-local tryOnAddPlayer = audioPlayers.UI.TryOnAdd
-local tryOnRemovePlayer = audioPlayers.UI.TryOnRemove
 local cartAddPlayer = audioPlayers.UI.CartAdd
 local cartRemovePlayer = audioPlayers.UI.CartRemove
 local hoverStartPlayer = audioPlayers.UI.HoverStart
 local clickPlayer = audioPlayers.UI.Click
-local musicPlayer = audioPlayers.Ambience.ShoppingMusic
 
 local function onBulkPurchaseFinished(
 	_: Instance,
@@ -53,14 +49,6 @@ local function onBundlePurchaseFinished(_: Instance, _: number, wasPurchased: bo
 	end
 
 	playFromStart(purchasePlayer)
-end
-
-local function onTryOnItemAdded(_: ItemContainer.ContainedItem)
-	playFromStart(tryOnAddPlayer)
-end
-
-local function onTryOnItemRemoved(_: ItemContainer.ContainedItem)
-	playFromStart(tryOnRemovePlayer)
 end
 
 local function onCartItemAdded(_: ItemContainer.ContainedItem)
@@ -97,8 +85,6 @@ local function initialise()
 	MarketplaceService.PromptPurchaseFinished:Connect(onPurchaseFinished)
 	MarketplaceService.PromptBundlePurchaseFinished:Connect(onBundlePurchaseFinished)
 	MarketplaceService.PromptBulkPurchaseFinished:Connect(onBulkPurchaseFinished)
-	TryOn.itemAdded:Connect(onTryOnItemAdded)
-	TryOn.itemRemoved:Connect(onTryOnItemRemoved)
 	Cart.itemAdded:Connect(onCartItemAdded)
 	Cart.itemRemoved:Connect(onCartItemRemoved)
 
@@ -109,8 +95,7 @@ local function initialise()
 	for _, prompt in CollectionService:GetTagged(Constants.INSPECT_PROMPT_TAG) do
 		onInspectPromptAdded(prompt)
 	end
-	-- I hate this music
-	--musicPlayer:Play()
+
 end
 
 initialise()

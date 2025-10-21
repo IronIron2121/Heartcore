@@ -25,7 +25,6 @@ local AvatarCustomisationService = require(Utility:WaitForChild("AvatarCustomisa
 -- Module Scripts
 local ItemContainer 	= require(ReplicatedStorage.Utility.ItemContainer)
 local getItemIcon 		= require(ReplicatedStorage.Utility.getItemIcon)
-local TryOn 			= require(ReplicatedStorage.Libraries.TryOn)
 
 local itemButtonTemplate = ReplicatedStorage.UI.Objects.ItemButton
 
@@ -49,7 +48,6 @@ local function ItemButton(itemId: number, productType: Enum.MarketplaceProductTy
 			itemButton.TryOnFrame.Visible = true
 
 		end
-		print(itemButton.TryOnFrame.Visible)
 	end
 
 	itemButton.Activated:Connect(onActivated)
