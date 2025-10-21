@@ -144,6 +144,8 @@ function ThemeManager.getPreviousPhaseTheme(): {}?
     return ThemeManager.getThemeForPhase(previousPrefix)
 end
 
+
+
 function ThemeManager.getPreviousPhaseThemeName(): string
     return currentThemeCache and currentThemeCache.theme or "Loading..."
 end
