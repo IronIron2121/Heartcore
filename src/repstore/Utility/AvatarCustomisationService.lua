@@ -73,12 +73,14 @@ end
 
 function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId: number, assetType: string)
 
-
 	local clonedDescription = getClonedDescription(player)
 
 	local accessoryDescription = Instance.new("AccessoryDescription")
 	accessoryDescription.AssetId = itemId
 	accessoryDescription.AccessoryType = Enum.AccessoryType[GetAccessoryTypeFromAssetType(assetType)]
+
+	warn("Item accessory type == ", accessoryDescription.AccessoryType)
+	warn(assetType)
 
 	-- TODO: Give this a cleaner implementation
 	if PlayerHasMaxOfAccessoryTypeEquipped(player, accessoryDescription.AccessoryType) then
@@ -163,6 +165,7 @@ end
 -- Public API
 function AvatarCustomisationService.AddItemToAvatar(player: Player, itemId: number, assetOrBundleType: string, itemType: string)
 	if itemType == "Asset" then
+		warn("equipping asset")
 		AvatarCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Bundle" then
 		AvatarCustomisationService.AddBundleToAvatar(player, itemId, assetOrBundleType)
