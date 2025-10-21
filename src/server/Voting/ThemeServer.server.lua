@@ -15,6 +15,8 @@ local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 
 -- Remotes / Bindables
 local PlayerRequestedCurrentTheme = Remotes:WaitForChild("PlayerRequestedCurrentTheme")
+local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTheme")
+
 local PhasedChanged = Bindables:WaitForChild("PhaseChanged")
 
 local function onPhaseChanged()
@@ -22,9 +24,19 @@ local function onPhaseChanged()
     SubmissionStoreManager.onThemeTransition()
 end
 
+
+-- Get current theme from server to client
 local function playerRequestedCurrentTheme()
     return ThemeManager.getCurrentThemeName()
 end
 
+
+-- Get voting theme from server to client
+
+local function playerRequestedVotingTheme()
+    return ThemeManager.getPreviousPhaseTheme().theme
+end
+
 PhasedChanged.Event:Connect(onPhaseChanged)  
+PlayerRequestedVotingTheme.OnServerInvoke = playerRequestedVotingTheme
 PlayerRequestedCurrentTheme.OnServerInvoke = playerRequestedCurrentTheme
