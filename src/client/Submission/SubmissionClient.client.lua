@@ -40,8 +40,17 @@ local function onSubmissionResult(
     }
 ): ()
     warn("Got result....")
-    updateSubmitButton()
-    print(result.msg)
+
+    if result.ok then
+        warn("Player submitted successfully!")
+        prompt.Enabled = false
+        PromptHolder.Color = Color3.fromRGB(100,100,100)
+    else 
+        warn("Player failed to submit!")
+        prompt.Enabled = true
+        PromptHolder.Color = Color3.fromRGB(190, 190, 192)
+    end 
+    --updateSubmitButton()
 end
 
 SubmissionResultRE.OnClientEvent:Connect(onSubmissionResult)

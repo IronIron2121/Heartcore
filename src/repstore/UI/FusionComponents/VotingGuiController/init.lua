@@ -203,9 +203,24 @@ function VotingGuiController.Initialise(
                                 LayoutOrder = 1,
                                 BackgroundTransparency = 1,
                                 TextColor3 = Color3.fromRGB(92, 96, 214)
+                            }
+                        }
+                    },
+
+                    scope:New "Frame" {
+                        Name = "Body",
+                        LayoutOrder = 2,
+                        Size = UDim2.fromScale(1, 0.8),
+                        BackgroundTransparency = 1,
+
+                        [Children] = { 
+                            scope:New "UIListLayout" {
+                                FillDirection = Enum.FillDirection.Vertical,
+                                SortOrder = Enum.SortOrder.LayoutOrder,
+                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
                             },
 
-                            scope:New "Frame"{
+                                                        scope:New "Frame"{
                                 Name = "TopBar",
                                 Size = UDim2.fromScale(1, 0.1),
                                 LayoutOrder = 1,
@@ -227,15 +242,15 @@ function VotingGuiController.Initialise(
                                         TextColor3 = Color3.fromRGB(92, 96, 214)
                                     },
 
-                            scope:New "TextLabel" {
-                                Name = "TodaysTheme",
-                                Text = currentTheme,--themeName,
-                                TextScaled = true,
-                                Size = UDim2.fromScale(0.3, 1),
-                                LayoutOrder = 1,
-                                BackgroundTransparency = 1,
-                                TextColor3 = Color3.fromRGB(92, 96, 214)
-                            },
+                                    scope:New "TextLabel" {
+                                        Name = "TodaysTheme",
+                                        Text = currentTheme,
+                                        TextScaled = true,
+                                        Size = UDim2.fromScale(0.3, 1),
+                                        LayoutOrder = 1,
+                                        BackgroundTransparency = 1,
+                                        TextColor3 = Color3.fromRGB(92, 96, 214)
+                                    },
 
                                     scope:New "Frame"{
                                         Name = "Buffer",
@@ -251,10 +266,12 @@ function VotingGuiController.Initialise(
                                         BackgroundTransparency = 1,
                                         
                                         [Children] = {
+
                                             scope:New "UIListLayout" {
                                                 FillDirection = Enum.FillDirection.Horizontal,
                                                 SortOrder = Enum.SortOrder.LayoutOrder
                                             },
+
                                             scope:New "ImageLabel"{
                                                 Image = ImageUris.StopwatchIcon,
                                                 Size = UDim2.fromScale(1, 1),
@@ -268,6 +285,7 @@ function VotingGuiController.Initialise(
                                                     }
                                                 }
                                             },
+
                                             scope:New "TextLabel" {
                                                 Name = "Timer",
                                                 Text = "HH:MM:SS",
@@ -280,21 +298,6 @@ function VotingGuiController.Initialise(
                                         }
                                     }
                                 }
-                            }
-                        }
-                    },
-
-                    scope:New "Frame" {
-                        Name = "Body",
-                        LayoutOrder = 2,
-                        Size = UDim2.fromScale(1, 0.8),
-                        BackgroundTransparency = 1,
-
-                        [Children] = { 
-                            scope:New "UIListLayout" {
-                                FillDirection = Enum.FillDirection.Vertical,
-                                SortOrder = Enum.SortOrder.LayoutOrder,
-                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
                             },
                             
                             scope:New "Frame" {
