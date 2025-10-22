@@ -22,8 +22,8 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 local AvatarCustomisationService = require(Utility:WaitForChild("AvatarCustomisationService"))
+
 -- Module Scripts
-local ItemContainer 	= require(ReplicatedStorage.Utility.ItemContainer)
 local getItemIcon 		= require(ReplicatedStorage.Utility.getItemIcon)
 
 local itemButtonTemplate = ReplicatedStorage.UI.Objects.ItemButton

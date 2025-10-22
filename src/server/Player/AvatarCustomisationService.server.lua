@@ -13,10 +13,11 @@ local AvatarCustomisationService = require(Utility:WaitForChild("AvatarCustomisa
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 
 -- Remotes
+local PlayerEquippedTastemakerOutfit = Remotes:WaitForChild("PlayerEquippedTastemakerOutfit")
+local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
+local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
-local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
-local PlayerEquippedTastemakerOutfit = Remotes:WaitForChild("PlayerEquippedTastemakerOutfit")
 
 -- Variables
 local equippingCache = {}
@@ -34,8 +35,6 @@ local function clearPlayerFromCache(player: Player)
 	equippingCache[player.UserId] = nil
 end
 
---
-
 local function onPlayerAdded(player: Player)
 	-- initialise player in cache as not equipping
 	setPlayerEquipping(player, false)
@@ -50,6 +49,13 @@ local function playerRemovedItem(player: Player, itemId: number)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true)
 	AvatarCustomisationService.RemoveItemFromAvatar(player, itemId)
+	setPlayerEquipping(player, false)
+end
+
+local function playerRemovedClassicItem(player, itemId: number, itemType: string)
+	if isPlayerEquipping(player) then return end
+	setPlayerEquipping(player, true)
+	AvatarCustomisationService.RemoveClassicClothingFromAvatar(player, itemId, itemType)
 	setPlayerEquipping(player, false)
 end
 
@@ -81,9 +87,10 @@ local function playerEquippedTastemakerOutfit(player: Player, tastemakerOutfit: 
 	setPlayerEquipping(player, false)
 end
 
-Plrs.PlayerAdded:Connect(onPlayerAdded)
-Plrs.PlayerRemoving:Connect(onPlayerRemoving)
 PlayerEquippedOutfit.OnServerEvent:Connect(playerEquippedOutfit)
 PlayerEquippedTastemakerOutfit.OnServerEvent:Connect(playerEquippedTastemakerOutfit)
+PlayerRemovedClassicItem.OnServerEvent:Connect(playerRemovedClassicItem)
 PlayerEquippedItem.OnServerEvent:Connect(playerEquippedItem)
 PlayerRemovedItem.OnServerEvent:Connect(playerRemovedItem)
+Plrs.PlayerRemoving:Connect(onPlayerRemoving)
+Plrs.PlayerAdded:Connect(onPlayerAdded)

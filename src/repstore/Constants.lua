@@ -131,6 +131,12 @@ local Constants = {
 		Enum.AssetType.Pants.Name
 	},
 	
+	DEFAULT_CLASSIC_CLOTHING = {
+		["GraphicTShirt"] = 0,
+		["Shirt"] = 855779323,
+		["Pants"] = 855785499,
+	},
+
 	QUERY_ATTEMPTS = 3,
 
 	MEMORYSTORE_STORE_DURATION = 259200, -- 72 hours

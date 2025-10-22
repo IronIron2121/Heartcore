@@ -24,15 +24,12 @@ local function onPhaseChanged()
     SubmissionStoreManager.onThemeTransition()
 end
 
-
 -- Get current theme from server to client
 local function playerRequestedCurrentTheme()
     return ThemeManager.getCurrentThemeName()
 end
 
-
 -- Get voting theme from server to client
-
 local function playerRequestedVotingTheme()
     return ThemeManager.getPreviousPhaseTheme().theme
 end
