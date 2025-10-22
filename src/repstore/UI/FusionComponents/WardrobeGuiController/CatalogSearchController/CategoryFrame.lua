@@ -49,8 +49,6 @@ function CategoryFrame(
 	local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
 	
 	-- TODO: this is a little hacky but it'll do for now...
-	-- TODO: NOTE: Apologies to any engineers that potentially get to this point after me. At this point I have been the sole dev on this project for around 6 months -
-	-- My sanity is beginning to wane. I know this isn't beautiful code to look at. I hope you don't take this personally.
 	local allSelected = scope:Computed(function(use)
 		if #use(searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes() and #use(searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes() then
 			return true
