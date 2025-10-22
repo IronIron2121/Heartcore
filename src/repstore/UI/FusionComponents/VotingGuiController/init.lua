@@ -195,15 +195,7 @@ function VotingGuiController.Initialise(
                                 CornerRadius = UDim.new(0.05)
                             },
 
-                            scope:New "TextLabel" {
-                                Name = "TodaysTheme",
-                                Text = votingTheme,--themeName,
-                                TextScaled = true,
-                                Size = UDim2.fromScale(0.3, 1),
-                                LayoutOrder = 1,
-                                BackgroundTransparency = 1,
-                                TextColor3 = Color3.fromRGB(92, 96, 214)
-                            }
+                            
                         }
                     },
 
@@ -237,14 +229,14 @@ function VotingGuiController.Initialise(
                                         Text = "Vote for best fit:",
                                         TextScaled = true,
                                         Size = UDim2.fromScale(0.3, 1),
-                                        LayoutOrder = 1,
+                                        LayoutOrder = 0,
                                         BackgroundTransparency = 1,
                                         TextColor3 = Color3.fromRGB(92, 96, 214)
                                     },
 
                                     scope:New "TextLabel" {
                                         Name = "TodaysTheme",
-                                        Text = currentTheme,
+                                        Text = votingTheme,--themeName,
                                         TextScaled = true,
                                         Size = UDim2.fromScale(0.3, 1),
                                         LayoutOrder = 1,
