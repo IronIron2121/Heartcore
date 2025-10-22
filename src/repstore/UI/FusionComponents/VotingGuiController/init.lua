@@ -119,9 +119,7 @@ end
 
 function VotingGuiController.setSelectedOutfit(userId: number)
     selectedTileId:set(userId)
-end
-
-
+end 
     
 local votingTheme = scope:Value("")
 
@@ -132,8 +130,8 @@ function VotingGuiController.Initialise(
 
     -- TODO: Make this more efficient with caching or something such...
     visibilityObserver:onChange(function()
-        if peek(visibilityBoolean) == true then
-            currentTheme:set(PlayerRequestedCurrentTheme:InvokeServer())
+        if peek(VoteGuiVisible) == true then
+            votingTheme:set(PlayerRequestedVotingTheme:InvokeServer())
         end
     end)
 
