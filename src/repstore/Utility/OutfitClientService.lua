@@ -7,12 +7,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
+-- Modules
+local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
+
 -- Remotes
 local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
 local PlayerDeletedTastemakerOutfit = Remotes:WaitForChild("PlayerDeletedTastemakerOutfit")
 
--- Datastores
---local PlayerOutfitsDatastore = DatastoreService:GetDataStore(Constants.PLAYER_OUTFITS_DATASTORE)
+--
 
 local OutfitClientService = {}
 
@@ -30,6 +32,16 @@ function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 				-- do local outfit creation
 				return
 			end
+		end
+	end
+
+	for _, itemType in Constants.CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES do
+		if MarketplaceService:PlayerOwnsAsset(player, humanoidDescription[itemType]) then
+			continue
+		else
+			PlayerSavedTastemakerOutfit:FireServer()
+			-- do local outfit creation
+			return
 		end
 	end
 	

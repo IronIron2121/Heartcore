@@ -1,5 +1,11 @@
 --!strict
 
+-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Modules
+local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
+
 local accessoryDescriptionProperties = {
 	"AccessoryType",
 	"AssetId",
@@ -131,32 +137,42 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 			
 		end
 	end
+
+	serialisedHumanoidDescription.GraphicTShirt = humanoidDescription.GraphicTShirt
+	serialisedHumanoidDescription.Shirt = humanoidDescription.Shirt
+	serialisedHumanoidDescription.Pants = humanoidDescription.Pants
 		
 	return serialisedHumanoidDescription
 end
 
 function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidDescription: {[string] : any}) : HumanoidDescription
-	local humanoidDescription = Instance.new("HumanoidDescription")
+	local humanoidDescription = Instance.new("HumanoidDescription") 
 	
 	for assetId, description in pairs(serialisedHumanoidDescription) do
-		-- TODO: This deserves a better variable name...unfortunately time is of the essence right now
-		local newDescription = description.BodyPart and Instance.new("BodyPartDescription") or Instance.new("AccessoryDescription")
+		-- for the classic clothing items, the key / value pair is better described as "ClothingType" / "itemId"
+		if table.find(Constants.CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES, assetId) then
+			-- This should be safe - if we run into any errors, we'll use an if-statement to validate here
+			humanoidDescription[assetId] = description
+		else
+			local newDescription = description.BodyPart and Instance.new("BodyPartDescription") or Instance.new("AccessoryDescription")
 
-		for property, value in pairs(description) do
-			if property == "Color" then
-				newDescription[property] = SerialisationService.unserialiseColor3(value)
-			elseif property == "Position" or property == "Vector" or property == "Scale" or property == "Rotation" then
-				newDescription[property] = SerialisationService.unserialiseVector3(value)
-			elseif property == "AccessoryType" then
-				newDescription[property] = Enum.AccessoryType:FromValue(value)
-			elseif property == "BodyPart" then
-				newDescription[property] = Enum.BodyPart:FromValue(value)
-			else
-				newDescription[property] = value
+			for property, value in pairs(description) do
+				if property == "Color" then
+					newDescription[property] = SerialisationService.unserialiseColor3(value)
+				elseif property == "Position" or property == "Vector" or property == "Scale" or property == "Rotation" then
+					newDescription[property] = SerialisationService.unserialiseVector3(value)
+				elseif property == "AccessoryType" then
+					newDescription[property] = Enum.AccessoryType:FromValue(value)
+				elseif property == "BodyPart" then
+					newDescription[property] = Enum.BodyPart:FromValue(value)
+				else
+					newDescription[property] = value
+				end
 			end
+			newDescription.Parent = humanoidDescription
 		end
-		newDescription.Parent = humanoidDescription
 	end
+
 	
 	return humanoidDescription
 end
