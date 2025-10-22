@@ -48,6 +48,9 @@ function AvatarCustomisationService.applyDescription(player: Player, description
 	end)
 
 	humanoid:applyDescription(description)
+
+	local refresher = Instance.new("Pants", humanoid.Parent)
+	refresher:Destroy()
 end
 
 local function getUserOutfitIdFromBundleItems(bundleItems: {}): number?
