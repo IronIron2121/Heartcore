@@ -125,6 +125,13 @@ local Constants = {
 		"Torso",
 	},
 
+	-- We have to list this slightly differently as the actual assetType in Enum does not appear in the humanoid description
+	CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES = {
+		"GraphicTShirt",
+		Enum.AssetType.Shirt.Name,
+		Enum.AssetType.Pants.Name
+	},
+
 	CLASSIC_CLOTHING_ASSET_TYPES = {
 		Enum.AssetType.TShirt.Name,
 		Enum.AssetType.Shirt.Name,

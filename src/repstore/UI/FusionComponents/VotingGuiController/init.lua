@@ -132,6 +132,8 @@ function VotingGuiController.Initialise(
     visibilityObserver:onChange(function()
         if peek(VoteGuiVisible) == true then
             votingTheme:set(PlayerRequestedVotingTheme:InvokeServer())
+        elseif peek(VoteGuiVisible) == false then
+            -- delete / reset the mannequins? ...
         end
     end)
 
@@ -331,7 +333,12 @@ function VotingGuiController.Initialise(
                                             end),
                                             OnSelected = function()
                                                 if outfitData.userId ~= 0 then
+                                                    warn("Selecting yeah!")
                                                     VotingGuiController.setSelectedOutfit(outfitData.userId)
+                                                else
+                                                    warn("No outfitData user id!")
+                                                    print("OutfitData == ", outfitData)
+                                                    print(peek(outfitVoteTiles))
                                                 end
                                             end
                                         })
