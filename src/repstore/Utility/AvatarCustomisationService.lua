@@ -9,11 +9,13 @@ local Players = game:GetService("Players")
 -- Folders
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 local Checkers = ReplicatedStorage:WaitForChild("Checkers")
+local Utility = ReplicatedStorage:WaitForChild("Constants")
 
 -- Modules
 local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
 local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessoryTypeFromAssetType"))
 local PlayerHasMaxOfAccessoryTypeEquipped = require(Checkers:WaitForChild("PlayerHasMaxOfAccessoryTypeEquipped"))
+local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
 -- Constants
 local DEFAULT_BODY_COLOR = Color3.fromRGB(200, 200, 200)
@@ -80,6 +82,7 @@ function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 	accessoryDescription.AccessoryType = Enum.AccessoryType[GetAccessoryTypeFromAssetType(assetType)]
 
 	warn("Item accessory type == ", accessoryDescription.AccessoryType)
+	-- note - this is where we will want to check asset type, probably...yes. line 84
 	warn(assetType)
 
 	-- TODO: Give this a cleaner implementation
@@ -162,10 +165,25 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 	end
 end
 
+function AvatarCustomisationService.AddClassicClothingToAvatar(player: Player, itemId: number, assetType: string)
+	local clonedDescription = getClonedDescription(player)
+
+	if assetType == "TShirt" then
+		clonedDescription.GraphicTShirt = itemId
+	elseif assetType == "Shirt" then
+		clonedDescription.Shirt = itemId 
+	elseif assetType == "Pants" then 
+		clonedDescription.Pants = itemId
+	end
+ 
+	AvatarCustomisationService.applyDescription(player, clonedDescription)
+end
+
 -- Public API
 function AvatarCustomisationService.AddItemToAvatar(player: Player, itemId: number, assetOrBundleType: string, itemType: string)
-	if itemType == "Asset" then
-		warn("equipping asset")
+	if itemType == "Asset" and table.find(Constants.CLASSIC_CLOTHING_ASSET_TYPES, assetOrBundleType) then
+		AvatarCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
+	elseif itemType == "Asset" then
 		AvatarCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Bundle" then
 		AvatarCustomisationService.AddBundleToAvatar(player, itemId, assetOrBundleType)

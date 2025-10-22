@@ -124,6 +124,12 @@ local Constants = {
 		"RightLeg",
 		"Torso",
 	},
+
+	CLASSIC_CLOTHING_ASSET_TYPES = {
+		Enum.AssetType.TShirt.Name,
+		Enum.AssetType.Shirt.Name,
+		Enum.AssetType.Pants.Name
+	},
 	
 	QUERY_ATTEMPTS = 3,
 

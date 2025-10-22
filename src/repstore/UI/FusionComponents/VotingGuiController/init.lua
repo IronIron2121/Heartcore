@@ -135,8 +135,6 @@ function VotingGuiController.Initialise(
         end
     end)
 
-
-
     local _VoteGui = scope:New "ScreenGui" {
         Name = "VotingGui",
         Enabled = true,
