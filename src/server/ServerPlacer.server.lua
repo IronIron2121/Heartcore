@@ -5,6 +5,8 @@
 
 --!strict
 
+
+--[[
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataStoreService  = game:GetService("DataStoreService")
@@ -159,3 +161,4 @@ PlayerPlacedShopItemAsync.OnServerEvent:Connect(placeShopItem)
 DeleteShopItemEvent.OnServerEvent:Connect(deleteShopItem)
 NudgeShopItemAsync.OnServerEvent:Connect(nudgeItem)
 UserKeyPressed.OnServerEvent:Connect(onKeyPress)
+]]

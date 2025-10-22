@@ -160,10 +160,11 @@ function CategoryFrame(
 					}),
 
 					-- Create category buttons for assets
-					scope:ForValues(scope:Value(AssetFilterCategories.getAllAssetTypes()), function(use, scope, assetType)
-						return CategoryButton(scope, {
+					scope:ForPairs(scope:Value(AssetFilterCategories.getAllAssetTypes()), function(use, scope, index, assetType)
+						return index, CategoryButton(scope, {
 							text = assetType.Name,
 							size = UDim2.fromScale(0.8, 0.1),
+							layoutOrder = index,
 							isSelected = scope:Computed(function(use)
 								if use(allSelected) then
 									return false
@@ -171,7 +172,7 @@ function CategoryFrame(
 									return table.find(use(searchAssetCategories), assetType) ~= nil
 								end
 							end),
-							
+							 
 							onActivated = function()
 								if use(allSelected) then
 									searchBundleCategories:set({})
@@ -205,10 +206,11 @@ function CategoryFrame(
 					end),
 					
 					-- Create category buttons for bundles
-					scope:ForValues(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, bundleType)
+					scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, index, bundleType)
 						return CategoryButton(scope, {
 							text = bundleType.Name,
 							size = UDim2.fromScale(0.8, 0.1),
+							layoutOrder = index + #AssetFilterCategories.getAllAssetTypes(),
 							isSelected = scope:Computed(function(use)
 								if use(allSelected) then
 									return false
