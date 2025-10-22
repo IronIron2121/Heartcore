@@ -6,17 +6,41 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
+local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
 -- Remotes
 local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
 local PlayerDeletedTastemakerOutfit = Remotes:WaitForChild("PlayerDeletedTastemakerOutfit")
+local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
+
+-- Variables
+local currentlyResetting = false
 
 --
 
 local OutfitClientService = {}
+
+function OutfitClientService.ResetPlayerOutfit(player: Player)
+	if currentlyResetting then 
+		warn("Already resetting!")
+	end
+
+	currentlyResetting = true
+
+	local success, result = callWithRetry(
+		function()	
+			return PlayerResetOutfit:InvokeServer()
+		end
+	)
+
+	currentlyResetting = false
+
+	return result
+end
 
 function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 	local character = player.Character or player.CharacterAdded:Wait()

@@ -109,6 +109,20 @@ function AvatarViewport(
 			scope:New "UICorner" {
 				CornerRadius = UDim.new(0.05)
 			},
+
+			Button(scope, {
+				name = "ResetButton",
+				text = "Reset Outfit",
+				size = UDim2.fromScale(0.3, 0.1),
+				position = UDim2.fromScale(1,0),
+				anchorPoint = Vector2.new(1,0),
+				zIndex = 2,
+				
+				onActivated = function()
+					OutfitClientService.ResetPlayerOutfit(localPlayer)
+				end,
+			}),
+
 			
 			Button(scope, {
 				text = scope:Computed(function(use)

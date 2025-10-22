@@ -1,6 +1,5 @@
 --[[
 	Server Placer
-
 ]]
 
 --!strict

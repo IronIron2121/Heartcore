@@ -77,6 +77,22 @@ function AvatarCustomisationService.RemoveAllAccessories(player: Player)
 	AvatarCustomisationService.applyDescription(player, clonedDescription)
 end  
 
+function AvatarCustomisationService.ResetPlayerOutfit(player: Player): boolean
+	local originalHumanoidDescription = Players:GetHumanoidDescriptionFromUserId(player.UserId)
+
+	local humanoid = GetHumanoidFromPlayer(player)
+
+
+	if not originalHumanoidDescription or not humanoid then 
+		warn("Failed to get player original outfit", originalHumanoidDescription, humanoid)
+		return false
+	end
+
+	humanoid:ApplyDescriptionReset(originalHumanoidDescription)	
+
+	return true
+end
+
 function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId: number, assetType: string)
 
 	local clonedDescription = getClonedDescription(player)
