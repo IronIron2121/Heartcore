@@ -19,17 +19,15 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Remotes
+local AvatarCustomisationService = require(Utility:WaitForChild("AvatarCustomisationService"))
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
-local AvatarCustomisationService = require(Utility:WaitForChild("AvatarCustomisationService"))
 
 -- Module Scripts
 local getItemIcon 		= require(ReplicatedStorage.Utility.getItemIcon)
-
 local itemButtonTemplate = ReplicatedStorage.UI.Objects.ItemButton
 
 local function ItemButton(itemId: number, productType: Enum.MarketplaceProductType, assetType: string, itemType: string): ImageButton
-
 	local icon = getItemIcon(itemId, productType)
 	
 	local itemButton = itemButtonTemplate:Clone()
@@ -46,7 +44,6 @@ local function ItemButton(itemId: number, productType: Enum.MarketplaceProductTy
 		else
 			PlayerEquippedItem:FireServer(itemId, assetType, itemType)
 			itemButton.TryOnFrame.Visible = true
-
 		end
 	end
 

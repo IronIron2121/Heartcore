@@ -65,11 +65,14 @@ local function refreshOutfitVoteTiles()
     
     -- Clear selection and existing tiles
     selectedTileId:set(nil)
+
+    --[[
     for _, tile in ipairs(peek(outfitVoteTiles)) do
         if tile and tile.Destroy then
             tile:Destroy()
         end
     end
+    ]]
     
     outfitVoteTiles:set({})
     
@@ -317,11 +320,14 @@ function VotingGuiController.Initialise(
                                         CornerRadius = UDim.new(0.05)
                                     },
 
-                                    scope:ForValues(outfitVoteTiles, function(use, scope, outfitData)
+                                    scope:ForPairs(outfitVoteTiles, function(use, scope, index, outfitData)
                                         local randomId = math.random(1, 99999)
                                         local tileName = "OutfitTile_" .. randomId
-                                        return OutfitVoteTile(scope, {
+                                        local userId = outfitData.userId
+
+                                        return index, OutfitVoteTile(scope, {
                                             Name = tileName,
+                                            layoutOrder = index,
                                             userId = outfitData.userId,
                                             humanoidDescription = outfitData.humanoidDescription,
                                             playerName = outfitData.playerName,
@@ -329,16 +335,14 @@ function VotingGuiController.Initialise(
                                             views = outfitData.views,
                                             size = UDim2.fromScale(0.3, 0.9),
                                             IsSelected = scope:Computed(function(use)
-                                                return use(selectedTileId) == outfitData.userId
-                                            end),
+                                                return use(selectedTileId) == userId
+                                            end), 
+
                                             OnSelected = function()
                                                 if outfitData.userId ~= 0 then
-                                                    warn("Selecting yeah!")
-                                                    VotingGuiController.setSelectedOutfit(outfitData.userId)
+                                                    VotingGuiController.setSelectedOutfit(userId)
                                                 else
                                                     warn("No outfitData user id!")
-                                                    print("OutfitData == ", outfitData)
-                                                    print(peek(outfitVoteTiles))
                                                 end
                                             end
                                         })
