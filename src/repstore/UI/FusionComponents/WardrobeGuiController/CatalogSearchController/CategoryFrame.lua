@@ -48,7 +48,6 @@ function CategoryFrame(
 	local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 	local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
 	
-	-- TODO: this is a little hacky but it'll do for now...
 	local allSelected = scope:Computed(function(use)
 		if #use(searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes() and #use(searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes() then
 			return true
@@ -174,17 +173,25 @@ function CategoryFrame(
 							end),
 							
 							onActivated = function()
+								if use(allSelected) then
+									searchBundleCategories:set({})
+									searchAssetCategories:set({assetType})
+									return
+								end
+
 								local currentAssets = peek(searchAssetCategories) -- Use peek instead of use
 								local assetIndex = table.find(currentAssets, assetType)
 
 								if assetIndex then
 									-- Create new array without the asset
 									local newAssets = {}
+
 									for i, asset in ipairs(currentAssets) do
-										if i ~= assetIndex then
+										if i ~= assetIndex then 
 											table.insert(newAssets, asset)
 										end
 									end
+
 									searchAssetCategories:set(newAssets) -- Set the new array
 								else
 									-- Create new array with the asset added
@@ -211,6 +218,12 @@ function CategoryFrame(
 							end),
 
 							onActivated = function()
+								if use(allSelected) then
+									searchBundleCategories:set({bundleType})
+									searchAssetCategories:set({})
+									return
+								end
+
 								local currentBundles = peek(searchBundleCategories) -- Use peek instead of use
 								local assetIndex = table.find(currentBundles, bundleType)
 
