@@ -123,8 +123,12 @@ function SerialisationService.UnserialiseBodyPartDescription(serialisedBodyPartD
 	return bodyPartDescription
 end
 
-function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: HumanoidDescription) : {any}
-	
+function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: HumanoidDescription) : {any}?
+	if not humanoidDescription then
+		assert(humanoidDescription, "attempt to serialise NIL for description!")
+		return nil
+	end
+
 	local serialisedHumanoidDescription = {}
 	
 	for _, description in ipairs(humanoidDescription:GetChildren()) do
