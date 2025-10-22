@@ -9,7 +9,6 @@ local Players = game:GetService("Players")
 -- Folders
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 local Checkers = ReplicatedStorage:WaitForChild("Checkers")
-local Utility = ReplicatedStorage:WaitForChild("Constants")
 
 -- Modules
 local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
@@ -49,6 +48,7 @@ function AvatarCustomisationService.applyDescription(player: Player, description
 
 	humanoid:applyDescription(description)
 
+	-- For some reason, 2d clothing doesn't update locally unless something is added to the character
 	local refresher = Instance.new("Pants", humanoid.Parent)
 	refresher:Destroy()
 end
@@ -59,6 +59,7 @@ local function getUserOutfitIdFromBundleItems(bundleItems: {}): number?
 			return item.Id
 		end
 	end
+
 	return nil
 end
 
@@ -215,6 +216,23 @@ function AvatarCustomisationService.RemoveItemFromAvatar(player: Player, itemId:
 	end
 
 	AvatarCustomisationService.applyDescription(player, clonedDescription)
+	return true
+end
+
+function AvatarCustomisationService.RemoveClassicClothingFromAvatar(player: Player, itemId: number, itemType: string)
+	local defaultId = Constants.DEFAULT_CLASSIC_CLOTHING[itemType]
+
+	if not defaultId then 
+		warn("Invalid classic clothing ID", itemType) 
+		return 
+	end
+
+	local clonedDescription = getClonedDescription(player)
+
+	clonedDescription[itemType] = defaultId
+
+	AvatarCustomisationService.applyDescription(player, clonedDescription)
+
 	return true
 end
 
