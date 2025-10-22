@@ -18,6 +18,7 @@ local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem"
 local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
+local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
 
 -- Variables
 local equippingCache = {}
@@ -87,10 +88,20 @@ local function playerEquippedTastemakerOutfit(player: Player, tastemakerOutfit: 
 	setPlayerEquipping(player, false)
 end
 
+local function playerResetOutfit(player: Player)
+	if isPlayerEquipping(player) then return end
+	setPlayerEquipping(player, true)
+	local success = AvatarCustomisationService.ResetPlayerOutfit(player)
+	setPlayerEquipping(player, false)
+
+	return success
+end
+
 PlayerEquippedOutfit.OnServerEvent:Connect(playerEquippedOutfit)
 PlayerEquippedTastemakerOutfit.OnServerEvent:Connect(playerEquippedTastemakerOutfit)
 PlayerRemovedClassicItem.OnServerEvent:Connect(playerRemovedClassicItem)
 PlayerEquippedItem.OnServerEvent:Connect(playerEquippedItem)
 PlayerRemovedItem.OnServerEvent:Connect(playerRemovedItem)
+PlayerResetOutfit.OnServerInvoke = playerResetOutfit
 Plrs.PlayerRemoving:Connect(onPlayerRemoving)
 Plrs.PlayerAdded:Connect(onPlayerAdded)
