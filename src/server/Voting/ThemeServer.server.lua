@@ -31,7 +31,7 @@ end
 
 -- Get voting theme from server to client
 local function playerRequestedVotingTheme()
-    return ThemeManager.getPreviousPhaseTheme().theme
+    return ThemeManager.getPreviousPhaseTheme() and ThemeManager.getPreviousPhaseTheme().theme or "Loading..."
 end
 
 PhasedChanged.Event:Connect(onPhaseChanged)  
