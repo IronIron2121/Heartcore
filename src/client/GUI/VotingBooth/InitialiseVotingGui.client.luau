@@ -30,10 +30,8 @@ local VoteGuiVisible = scope:Value(false)
 
 local function onVotePromptActivated()
     if peek(VoteGuiVisible) == true then
-        warn("setting voting gui invisible", peek(VoteGuiVisible))
         VoteGuiVisible:set(false)
     else
-        warn("Making voting GUI visible")
         VoteGuiVisible:set(true)
         VotingGuiController.refreshOutfits()
     end

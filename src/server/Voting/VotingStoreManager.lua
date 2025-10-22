@@ -547,6 +547,8 @@ function VotingStoreManager.onPhaseTransition()
     if next(pendingUpdates) then
         VotingStoreManager.flushPendingUpdates() 
     end
+
+    balancedSelector:resetCache()
     
     -- Set voting to yesterday's submissions (theme will be loaded and billboard updated automatically)
     local previousPrefix = GameTimer.getPreviousPhasePrefix()
@@ -555,6 +557,7 @@ function VotingStoreManager.onPhaseTransition()
     else
         warn("No previous phase available for voting")
     end
+
 end
 
 return VotingStoreManager

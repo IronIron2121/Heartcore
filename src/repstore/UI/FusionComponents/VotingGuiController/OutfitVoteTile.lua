@@ -79,10 +79,10 @@ function OutfitVoteTile(
 		scope:Computed(function(use)
 			if use(isHeld) then
 				return strokeColor:Lerp(HOLD_COLOR, 1)
-			elseif use(props.IsSelected) then
-				return strokeColor:Lerp(UI_CONSTANTS.TASTEMAKER_PURPLE, 1)
 			elseif use(props.IsSelected) and use(isHovering) then
 				return UI_CONSTANTS.TASTEMAKER_PURPLE:Lerp(HOVER_COLOR, 0.5)
+			elseif use(props.IsSelected) then
+				return strokeColor:Lerp(UI_CONSTANTS.TASTEMAKER_PURPLE, 1)
 			elseif use(isHovering) then
 				return strokeColor:Lerp(HOVER_COLOR, 0.7)
 			else

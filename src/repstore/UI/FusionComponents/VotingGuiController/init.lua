@@ -341,15 +341,8 @@ function VotingGuiController.Initialise(
                                             OnSelected = function()
                                                 if outfitData.userId ~= 0 then
                                                     VotingGuiController.setSelectedOutfit(userId)
-                                                    warn("Selecting yeah!")
-                                                    print(tostring(use(selectedTileId)))
-                                                    print(tostring((userId)))
-                                                    print(tostring((userId)) == tostring(use(selectedTileId)))
-                                                    print(userId == use(selectedTileId))
                                                 else
                                                     warn("No outfitData user id!")
-                                                    print("OutfitData == ", outfitData)
-                                                    print(use(outfitVoteTiles))
                                                 end
                                             end
                                         })
