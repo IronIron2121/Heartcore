@@ -51,7 +51,7 @@ function ExpBar(
             scope:New "ImageLabel" {
             Name = props.name or "XpBar",
             Image = ImageUris.XpBar,
-            Visible = props.visible or true,
+            Visible = props.visible or false,
             AnchorPoint = props.anchorPoint or Vector2.new(0.5,0.5),
             Position = props.position or UDim2.fromScale(0.5,0.5),
             Size = props.size or UDim2.fromScale(1,1),
