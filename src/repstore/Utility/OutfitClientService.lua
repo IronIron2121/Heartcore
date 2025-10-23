@@ -51,11 +51,30 @@ function OutfitClientService.PurchasePlayerOutfit(player: Player): boolean
 	local shoppingCart = {}
 
 	for _, description in ipairs(humanoidDescription:GetChildren()) do
-		if (description:IsA("AccessoryDescription") or description:IsA("BodyPartDescription")) and description.AssetId ~= 0 and not MarketplaceService:PlayerOwnsAsset(player, description.AssetId) then
+		if description:IsA("AccessoryDescription") and description.AssetId ~= 0 and not MarketplaceService:PlayerOwnsAsset(player, description.AssetId) then
 			table.insert(shoppingCart, {
-				["Type"] = description:IsA("AccessoryDescription") and Enum.MarketplaceProductType.AvatarAsset or description:IsA("BodyPartDescription") and Enum.MarketplaceProductType.AvatarBundle,
+				["Type"] = Enum.MarketplaceProductType.AvatarAsset,
 				["Id"] = tostring(description.AssetId)
 			})
+		elseif description:IsA("BodyPartDescription") and description.AssetId ~= 0 and not MarketplaceService:PlayerOwnsAsset(player, description.AssetId) then
+			local success, assetDetails = callWithRetry(function()
+				return MarketplaceService:GetProductInfo(description.AssetId, Enum.MarketplaceProductType.AvatarAsset)
+			end)
+
+			if not success or not assetDetails then
+				continue
+			end
+
+			if not assetDetails["IsForSale"] then
+				continue
+			end
+			
+			-- TODO: We will probably have to disambiguate with dynamic heads etcee
+			table.insert(shoppingCart, {
+				["Type"] = Enum.MarketplaceProductType.AvatarAsset,
+				["Id"] = tostring(description.AssetId)
+			})
+
 		end
 	end
 
