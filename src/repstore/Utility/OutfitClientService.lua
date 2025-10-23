@@ -54,7 +54,7 @@ function OutfitClientService.PurchasePlayerOutfit(player: Player): boolean
 		if (description:IsA("AccessoryDescription") or description:IsA("BodyPartDescription")) and description.AssetId ~= 0 and not MarketplaceService:PlayerOwnsAsset(player, description.AssetId) then
 			table.insert(shoppingCart, {
 				["Type"] = description:IsA("AccessoryDescription") and Enum.MarketplaceProductType.AvatarAsset or description:IsA("BodyPartDescription") and Enum.MarketplaceProductType.AvatarBundle,
-				["Id"] = description.AssetId
+				["Id"] = tostring(description.AssetId)
 			})
 		end
 	end
@@ -64,12 +64,13 @@ function OutfitClientService.PurchasePlayerOutfit(player: Player): boolean
 		if not table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, classicItemId) and not MarketplaceService:PlayerOwnsAsset(player, classicItemId) then
 			table.insert(shoppingCart, {
 				["Type"] = Enum.MarketplaceProductType.AvatarAsset,
-				["Id"] = classicItemId
+				["Id"] = tostring(classicItemId)
 			})
 		end
 	end
+	
 	warn("Prompting purchase now!")
-	if shoppingCart == {} then
+	if #shoppingCart == 0 then
 		warn("No items to purchase!")
 		return false
 	else
