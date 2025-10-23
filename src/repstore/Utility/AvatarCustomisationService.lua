@@ -236,7 +236,7 @@ function AvatarCustomisationService.RemoveItemFromAvatar(player: Player, itemId:
 end
 
 function AvatarCustomisationService.RemoveClassicClothingFromAvatar(player: Player, itemId: number, itemType: string)
-	local defaultId = Constants.DEFAULT_CLASSIC_CLOTHING[itemType]
+	local defaultId = Constants.DEFAULT_CLASSIC_CLOTHING_IDS[itemType]
 
 	if not defaultId then 
 		warn("Invalid classic clothing ID", itemType) 

@@ -13,8 +13,9 @@ local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
 -- Remotes
-local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
 local PlayerDeletedTastemakerOutfit = Remotes:WaitForChild("PlayerDeletedTastemakerOutfit")
+local PlayerPurchasedCurrentOutfit = Remotes:WaitForChild("PlayerPurchasedCurrentOutfit")
+local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
 local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
 
 -- Variables
@@ -41,6 +42,43 @@ function OutfitClientService.ResetPlayerOutfit(player: Player)
 
 	return result
 end
+
+function OutfitClientService.PurchasePlayerOutfit(player: Player): boolean
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoid = character:WaitForChild("Humanoid") :: Humanoid
+	local humanoidDescription = humanoid:GetAppliedDescription()
+	
+	local shoppingCart = {}
+
+	for _, description in ipairs(humanoidDescription:GetChildren()) do
+		if (description:IsA("AccessoryDescription") or description:IsA("BodyPartDescription")) and description.AssetId ~= 0 and not MarketplaceService:PlayerOwnsAsset(player, description.AssetId) then
+			table.insert(shoppingCart, {
+				["Type"] = description:IsA("AccessoryDescription") and Enum.MarketplaceProductType.AvatarAsset or description:IsA("BodyPartDescription") and Enum.MarketplaceProductType.AvatarBundle,
+				["Id"] = description.AssetId
+			})
+		end
+	end
+
+	for _, itemType in Constants.CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES do
+		local classicItemId = humanoidDescription[itemType] :: number
+		if not table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, classicItemId) and not MarketplaceService:PlayerOwnsAsset(player, classicItemId) then
+			table.insert(shoppingCart, {
+				["Type"] = Enum.MarketplaceProductType.AvatarAsset,
+				["Id"] = classicItemId
+			})
+		end
+	end
+	warn("Prompting purchase now!")
+	if shoppingCart == {} then
+		warn("No items to purchase!")
+		return false
+	else
+		warn("purchasing with ", shoppingCart)
+		return PlayerPurchasedCurrentOutfit:InvokeServer(shoppingCart)
+	end
+end
+
+
 
 function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 	local character = player.Character or player.CharacterAdded:Wait()

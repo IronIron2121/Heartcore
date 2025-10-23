@@ -138,10 +138,17 @@ local Constants = {
 		Enum.AssetType.Pants.Name
 	},
 	
-	DEFAULT_CLASSIC_CLOTHING = {
+	DEFAULT_CLASSIC_CLOTHING_IDS = {
 		["GraphicTShirt"] = 0,
 		["Shirt"] = 855779323,
 		["Pants"] = 855785499,
+	},
+
+	
+	DEFAULT_CLASSIC_CLOTHING_IDS_TABLE = {
+		0,
+		855779323,
+		855785499,
 	},
 
 	QUERY_ATTEMPTS = 3,
