@@ -3,12 +3,14 @@
 local AvatarEditorService = game:GetService("AvatarEditorService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DatastoreService = game:GetService("DataStoreService")
+local MarketplaceService = game:GetService("MarketplaceService")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
+local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
 -- Datastores
@@ -58,6 +60,17 @@ function OutfitServerService.DeleteOutfit(outfitId: number)
 	AvatarEditorService.PromptDeleteOutfitCompleted:Wait() 
 end
 
+function OutfitServerService.PlayerPurchasedCurrentOutfit(player: Player, shoppingCart: {Type: Enum.MarketplaceProductType, itemId: number})
+	local success = callWithRetry(
+		function()
+			return MarketplaceService:PromptBulkPurchase(player, shoppingCart, {})
+		end,
+		3 
+	)
+
+	return success
+end
+
 function OutfitServerService.playerDeletedTastemakerOutfit(player: Player, index: number)
 	local success, result = pcall(function()
 		PlayerOutfitsDatastore:UpdateAsync(player.UserId, function(oldData)
@@ -70,4 +83,4 @@ function OutfitServerService.playerDeletedTastemakerOutfit(player: Player, index
 	return success
 end
 
-return OutfitServerService
+return OutfitServerService 

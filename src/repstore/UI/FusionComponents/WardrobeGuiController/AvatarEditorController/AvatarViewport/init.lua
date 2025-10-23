@@ -138,7 +138,7 @@ function AvatarViewport(
 					if peek(WardrobeGuiState.currentView) == "Catalog" then
 						OutfitClientService.SaveCurrentPlayerOutfit(localPlayer)
 					else
-						warn("Myeeee")
+						OutfitClientService.PurchasePlayerOutfit(localPlayer)
 					end
 				end,
 			}),

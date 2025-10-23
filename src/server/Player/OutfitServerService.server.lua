@@ -4,7 +4,6 @@
 
 -- Services
 local RepStore = game:GetService("ReplicatedStorage")
-local Plrs = game:GetService("Players")
 local AvatarEditorService = game:GetService("AvatarEditorService")
 local MarketplaceService = game:GetService("MarketplaceService")
 
@@ -17,6 +16,7 @@ local OutfitServerService = require(Utility:WaitForChild("OutfitServerService"))
 
 -- Remotes
 local PlayerDeletedTastemakerOutfit = Remotes:WaitForChild("PlayerDeletedTastemakerOutfit")
+local PlayerPurchasedCurrentOutfit = Remotes:WaitForChild("PlayerPurchasedCurrentOutfit")
 local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
 local GetPlayerTastemakerOutfits = Remotes:WaitForChild("GetPlayerTastemakerOutfits")
 local PlayerPurchasedOutfit = Remotes:WaitForChild("PlayerPurchasedOutfit")
@@ -32,7 +32,6 @@ local function playerPurchasedOutfit(player: Player, outfitId: number)
 	local outfitDetails = AvatarEditorService:GetOutfitDetails(outfitId)
 	
 	for _, asset in ipairs(outfitDetails["Assets"]) do
-		--print(AvatarEditorService:GetItemDetails(asset["Id"], Enum.AvatarItemType.Asset))
 		
 		local success, result = pcall(function()
 			return MarketplaceService:GetProductInfo(asset["Id"], Enum.InfoType.Asset)
@@ -48,6 +47,10 @@ local function playerPurchasedOutfit(player: Player, outfitId: number)
 	isCurrentlyPurchasing = false
 end
 
+local function playerPurchasedCurrentOutfit(player: Player, shoppingCart: {Type: Enum.MarketplaceProductType, itemId: number})
+	OutfitServerService.PlayerPurchasedCurrentOutfit(player, shoppingCart)
+end
+
 local function playerSavedTastemakerOutfit(player: Player)
 	OutfitServerService.SaveCurrentOutfitWithUnownedItems(player)
 end
@@ -61,7 +64,9 @@ local function getPlayerTastemakerOutfits(player: Player)
 	return playerTastemakerOutfits
 end
 
+PlayerDeletedTastemakerOutfit.OnServerInvoke = playerDeletedTastemakerOutfit
+PlayerPurchasedCurrentOutfit.OnServerInvoke = playerPurchasedCurrentOutfit
+GetPlayerTastemakerOutfits.OnServerInvoke = getPlayerTastemakerOutfits
+
 PlayerSavedTastemakerOutfit.OnServerEvent:Connect(playerSavedTastemakerOutfit)
 PlayerPurchasedOutfit.OnServerEvent:Connect(playerPurchasedOutfit)
-PlayerDeletedTastemakerOutfit.OnServerInvoke = playerDeletedTastemakerOutfit
-GetPlayerTastemakerOutfits.OnServerInvoke = getPlayerTastemakerOutfits

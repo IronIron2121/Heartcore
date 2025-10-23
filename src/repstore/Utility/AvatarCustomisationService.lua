@@ -162,11 +162,11 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		-- Check for UserOutfit first (simpler approach)
 		local userOutfitId = getUserOutfitIdFromBundleItems(bundleItems)
 		if userOutfitId then
-			local success, outfitDescription = pcall(function()
+			local descSuccess, outfitDescription = pcall(function()
 				return Players:GetHumanoidDescriptionFromOutfitId(userOutfitId)
 			end)
 
-			if success then
+			if descSuccess then
 				AvatarCustomisationService.applyDescription(player, outfitDescription)
 				return
 			else
@@ -236,7 +236,7 @@ function AvatarCustomisationService.RemoveItemFromAvatar(player: Player, itemId:
 end
 
 function AvatarCustomisationService.RemoveClassicClothingFromAvatar(player: Player, itemId: number, itemType: string)
-	local defaultId = Constants.DEFAULT_CLASSIC_CLOTHING[itemType]
+	local defaultId = Constants.DEFAULT_CLASSIC_CLOTHING_IDS[itemType]
 
 	if not defaultId then 
 		warn("Invalid classic clothing ID", itemType) 
