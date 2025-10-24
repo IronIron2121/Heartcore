@@ -150,6 +150,8 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 end
 
 function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidDescription: {[string] : any}) : HumanoidDescription
+	 
+
 	local humanoidDescription = Instance.new("HumanoidDescription") 
 	
 	for assetId, description in pairs(serialisedHumanoidDescription) do

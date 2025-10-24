@@ -130,6 +130,7 @@ end
 
 -- Select an outfit using the pre-built buckets (main selection method)
 function CacheBasedBalancedSelector:selectOutfit()
+    warn("Selecting balanced outfit")
     self.stats.selectionsServed = self.stats.selectionsServed + 1
     
     -- Check if we have valid buckets
@@ -160,6 +161,7 @@ function CacheBasedBalancedSelector:selectOutfit()
     end
     
     -- Step 2: Within tier, prefer outfits with fewer views (weighted by inverse view count)
+    warn("selecting from bucket", selectedBucket)
     return self:selectFromBucket(selectedBucket)
 end
 
@@ -235,7 +237,7 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket)
     for i, weight in ipairs(weights) do
         currentWeight = currentWeight + weight
         if randomValue <= currentWeight then
-            return outfits[i].entryKey
+            return outfits[i]
         end
     end
     

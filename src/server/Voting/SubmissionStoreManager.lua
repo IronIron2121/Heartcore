@@ -500,7 +500,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             Constants.MEMORYSTORE_STORE_DURATION,
             DateTime.now().UnixTimestamp
         )
-    end, 5)
+    end, 3)
 
     if success then
         print("Successfully submitted outfit for player:", player.Name)

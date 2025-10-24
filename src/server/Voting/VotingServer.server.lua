@@ -14,7 +14,6 @@ local Data = ServerScriptService:WaitForChild("Data")
 local GetContestSubmissionsCache = Remotes:WaitForChild("GetContestSubmissionsCache")
 local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 local PhaseChanged = Bindables:WaitForChild("PhaseChanged") 
-local PhaseChangedRemote = Remotes:WaitForChild("PhaseChangedRemote")
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 
 -- Modules 

@@ -80,7 +80,7 @@ local function onOutfitSubmitted(player: Player)
 	end
 
 	if not canPlayerSubmit(player) then
-		SubmissionResultRE:FireClient(player, {
+		SubmissionResultRE:FireClient(player, { 
 			ok = false, 
 			msg = "You've already submitted this phase. Try again tomorrow!"
 		})
@@ -98,8 +98,9 @@ local function onOutfitSubmitted(player: Player)
 	end
 
 	-- Serialise it
+	warn("About to serialise", humanoidDescription)
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
-
+	warn("Just serialised,", serialisedHumanoidDescription)
 	local success = SubmissionStoreManager:AddEntryToStore(player, serialisedHumanoidDescription)
 	
 	if not success then return end
