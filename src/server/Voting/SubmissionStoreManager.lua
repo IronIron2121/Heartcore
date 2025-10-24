@@ -469,7 +469,7 @@ end
 function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumanoidDescription: {}): boolean
     -- Check if rollover is happening
     if isRolloverLockActive() then
-        print("Rollover in progress for player " .. player.Name .. ", adding to cache instead")
+        warn("Rollover in progress for player " .. player.Name .. ", adding to cache instead")
         SubmissionStoreManager:AddEntryToCache(player, serialisedHumanoidDescription)
         SubmissionResultRE:FireClient(player, {
             ok = false,
@@ -538,7 +538,7 @@ end
 
 -- Phase transition handler - called when the day changes
 function SubmissionStoreManager.onThemeTransition()
-    warn("Updating after theme transition")
+    print("Updating after theme transition")
     -- Update the submission billboard with new theme
     updateSubmissionThemeBillboard() 
 end

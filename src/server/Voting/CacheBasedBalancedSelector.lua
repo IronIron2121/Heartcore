@@ -122,15 +122,11 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
     local rebuildTime = tick() - startTime
     self.stats.lastRebuildTime = rebuildTime
     
-    print(string.format("Bucket rebuild complete: %d outfits processed in %.2fs, %d weighted selections available", 
-        totalProcessed, rebuildTime, totalWeighted))
-    
     return true
 end
 
 -- Select an outfit using the pre-built buckets (main selection method)
 function CacheBasedBalancedSelector:selectOutfit()
-    warn("Selecting balanced outfit")
     self.stats.selectionsServed = self.stats.selectionsServed + 1
     
     -- Check if we have valid buckets
@@ -161,7 +157,6 @@ function CacheBasedBalancedSelector:selectOutfit()
     end
     
     -- Step 2: Within tier, prefer outfits with fewer views (weighted by inverse view count)
-    warn("selecting from bucket", selectedBucket)
     return self:selectFromBucket(selectedBucket)
 end
 
@@ -208,7 +203,6 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket)
     local outfits = bucket.outfits
     
     if #outfits == 1 then
-        warn("Only one outfit!")
         return outfits[1]
     end
     
@@ -243,7 +237,6 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket)
     
     -- Fallback to random selection
     local randomIndex = math.random(1, #outfits)
-    print("returning", outfits[randomIndex])
     return outfits[randomIndex]
 end
 
