@@ -122,9 +122,6 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
     local rebuildTime = tick() - startTime
     self.stats.lastRebuildTime = rebuildTime
     
-    print(string.format("Bucket rebuild complete: %d outfits processed in %.2fs, %d weighted selections available", 
-        totalProcessed, rebuildTime, totalWeighted))
-    
     return true
 end
 
@@ -206,7 +203,6 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket)
     local outfits = bucket.outfits
     
     if #outfits == 1 then
-        warn("Only one outfit!")
         return outfits[1]
     end
     
@@ -235,13 +231,12 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket)
     for i, weight in ipairs(weights) do
         currentWeight = currentWeight + weight
         if randomValue <= currentWeight then
-            return outfits[i].entryKey
+            return outfits[i]
         end
     end
     
     -- Fallback to random selection
     local randomIndex = math.random(1, #outfits)
-    print("returning", outfits[randomIndex])
     return outfits[randomIndex]
 end
 

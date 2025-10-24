@@ -28,7 +28,6 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
-
 -- Instances
 local SubmissionPad = centralPond:WaitForChild("SubmissionPad") 
 
@@ -48,7 +47,6 @@ end
 local function canPlayerSubmit(player: Player)
 	local lastSubmit = DataManager.GetLastOutfitSubmittedTime(player)
 	if not lastSubmit or lastSubmit == 0 then
-		warn("no previous submission")
 		return true
 	end
 
@@ -80,7 +78,7 @@ local function onOutfitSubmitted(player: Player)
 	end
 
 	if not canPlayerSubmit(player) then
-		SubmissionResultRE:FireClient(player, {
+		SubmissionResultRE:FireClient(player, { 
 			ok = false, 
 			msg = "You've already submitted this phase. Try again tomorrow!"
 		})
@@ -92,14 +90,13 @@ local function onOutfitSubmitted(player: Player)
 	-- Get humanoid description
 	local humanoidDescription = getHumanoidDescriptionFromPlayer(player)
 	if not humanoidDescription then
-		warn("No Humanoid Description")
+		warn("No Humanoid Description when submitting for player", player.Name)
 		SubmissionResultRE:FireClient(player, {ok=false, msg = "humanoidDescription not loaded"})
 		return
 	end
 
 	-- Serialise it
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
-
 	local success = SubmissionStoreManager:AddEntryToStore(player, serialisedHumanoidDescription)
 	
 	if not success then return end

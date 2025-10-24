@@ -148,7 +148,6 @@ function VotingStoreManager.setActiveVotingPhase(phasePrefix: string)
     -- Load the theme for this phase (yesterday's theme)
     currentTheme = ThemeManager.getThemeForPhase(phasePrefix)
     if currentTheme then
-        print("Loaded theme for voting phase:", currentTheme.theme)
         updateVotingThemeBillboard()
     else
         warn("Could not load theme for voting phase:", phasePrefix)
@@ -246,8 +245,6 @@ function VotingStoreManager.rotateStore()
         VotingStoreManager.flushPendingUpdates()
     end
     
-    print("Rotating to a new submission store...")
-    
     -- Get all available stores for this phase
     local storeNames = getSubmissionStoreNames(activeVotingPhasePrefix)
     
@@ -259,8 +256,6 @@ function VotingStoreManager.rotateStore()
     -- Pick a random store
     local randomIndex = math.random(1, #storeNames)
     local selectedStoreName = storeNames[randomIndex]
-    
-    print("Selected store:", selectedStoreName)
     
     -- Get the store
     local success, store = callWithRetry(function()
@@ -326,11 +321,6 @@ function VotingStoreManager.loadCacheFromCurrentStore()
     
     -- Rebuild selection buckets
     local rebuildSuccess = balancedSelector:onCacheUpdated(publicCache)
-    if rebuildSuccess then
-        print("Selection buckets rebuilt successfully")
-    else
-        warn("Failed to rebuild selection buckets")
-    end
     
     isCacheUpdating = false
     
@@ -354,7 +344,6 @@ end
 
 function VotingStoreManager.addViews(entryKey: string, viewAmount: number): ()
     if not currentActiveStore then
-        warn("No active store set")
         return
     end
     
@@ -387,7 +376,6 @@ end
 
 function VotingStoreManager.addVotes(entryKey: string, voteAmount: number): ()
     if not currentActiveStore then
-        warn("No active store set")
         return
     end
     
@@ -428,7 +416,6 @@ function VotingStoreManager.flushPendingUpdates(): ()
     end
     
     if not currentActiveStore or not currentActiveStoreName then
-        warn("No active store, cannot flush updates")
         return
     end
     
@@ -442,8 +429,6 @@ function VotingStoreManager.flushPendingUpdates(): ()
         }
     end
     pendingUpdates = {}
-    
-    print("Flushing", #updatesToFlush, "updates to store:", currentActiveStoreName)
     
     -- Update entries in the current active store
     for entryKey, updates in pairs(updatesToFlush) do
@@ -469,12 +454,9 @@ function VotingStoreManager.flushPendingUpdates(): ()
     
     lastFlush = tick()
     isFlushingInProgress = false
-    print("Flush completed")
 end
 
 function VotingStoreManager.startPeriodicFlush(): ()
-    print("Starting periodic flush!")
-    
     task.spawn(function()
         while true do
             task.wait(FLUSH_INTERVAL)
@@ -486,8 +468,6 @@ function VotingStoreManager.startPeriodicFlush(): ()
 end
 
 function VotingStoreManager.startStoreRotation(): ()
-    print("Starting store rotation (every", STORE_ROTATION_INTERVAL, "seconds)")
-    
     task.spawn(function()
         while true do
             task.wait(STORE_ROTATION_INTERVAL)
@@ -541,8 +521,6 @@ end
 
 -- Phase transition handler
 function VotingStoreManager.onPhaseTransition()
-    print("VotingStoreManager handling phase transition...")
-    
     -- Flush any pending updates before switching phases
     if next(pendingUpdates) then
         VotingStoreManager.flushPendingUpdates() 

@@ -3,8 +3,6 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
-local ServerScriptService = game:GetService("ServerScriptService")
-
 
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
@@ -14,7 +12,6 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 
-
 -- Instances
 local localPlayer = Players.LocalPlayer
 
@@ -23,10 +20,10 @@ local PlayerGui = localPlayer.PlayerGui
 local OutfitVoteTile = require(script:WaitForChild("OutfitVoteTile"))
 
 -- Modules
-local Fusion = require(Utility:WaitForChild("Fusion"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
+local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -52,7 +49,7 @@ local VotingGuiController = {}
 local outfitVoteTiles = scope:Value({})
 local selectedTileId = scope:Value(nil)
 local isRefreshing = false
-
+ 
 
 
 local function refreshOutfitVoteTiles()
@@ -66,14 +63,6 @@ local function refreshOutfitVoteTiles()
     -- Clear selection and existing tiles
     selectedTileId:set(nil)
 
-    --[[
-    for _, tile in ipairs(peek(outfitVoteTiles)) do
-        if tile and tile.Destroy then
-            tile:Destroy()
-        end
-    end
-    ]]
-    
     outfitVoteTiles:set({})
     
     -- Fetch new outfits
@@ -82,11 +71,22 @@ local function refreshOutfitVoteTiles()
     local usedIds = {}
 
     for i = 1, maxDisplayedOutfits do
-        local success, outfitData = pcall(function()
-            return GetBalancedOutfit:InvokeServer()
-        end)
+        local success, outfitData = callWithRetry(
+            function()
+                return GetBalancedOutfit:InvokeServer()
+            end,
+            5
+        )
         
         if success and outfitData and not table.find(usedIds, outfitData.userId) then
+            if not outfitData.humanoidDescription then 
+                warn("outfit == ", outfitData)
+                print("outfit == ", outfitData)
+                assert(outfitData.humanoid, "No humanoid description here!")
+                warn("outfit == ", outfitData)
+                print("outfit == ", outfitData)
+                return
+            end
             newTiles[i] = {
                 userId = outfitData.userId,
                 humanoidDescription = SerialisationService.UnserialiseHumanoidDescription(outfitData.humanoidDescription),
