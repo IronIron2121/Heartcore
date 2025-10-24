@@ -118,7 +118,7 @@ function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 	end
 
 	for _, itemType in Constants.CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES do
-		if MarketplaceService:PlayerOwnsAsset(player, humanoidDescription[itemType]) then
+		if not humanoidDescription[itemType] or table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, humanoidDescription[itemType]) or MarketplaceService:PlayerOwnsAsset(player, humanoidDescription[itemType]) then
 			continue
 		else
 			PlayerSavedTastemakerOutfit:FireServer()
