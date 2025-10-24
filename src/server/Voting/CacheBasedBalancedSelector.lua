@@ -1,5 +1,5 @@
 -- CacheBasedBalancedSelector.lua
--- Uses ContestStoreManager's public cache to build selection buckets
+-- Uses VotingStoreManager's public cache to build selection buckets
 
 local CacheBasedBalancedSelector = {}
 CacheBasedBalancedSelector.__index = CacheBasedBalancedSelector
@@ -50,7 +50,7 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
     print("Rebuilding selection buckets from cache...")
     print(publicCache)
      
-    -- Initialize empty buckets for each tier
+    -- initialise empty buckets for each tier
     local newBuckets = {}
     for i, tier in ipairs(CONFIG.VIEW_TIERS) do
         newBuckets[i] = {
@@ -121,9 +121,6 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
     
     local rebuildTime = tick() - startTime
     self.stats.lastRebuildTime = rebuildTime
-    
-    print(string.format("Bucket rebuild complete: %d outfits processed in %.2fs, %d weighted selections available", 
-        totalProcessed, rebuildTime, totalWeighted))
     
     return true
 end
@@ -206,7 +203,6 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket)
     local outfits = bucket.outfits
     
     if #outfits == 1 then
-        warn("Only one outfit!")
         return outfits[1]
     end
     
@@ -235,13 +231,12 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket)
     for i, weight in ipairs(weights) do
         currentWeight = currentWeight + weight
         if randomValue <= currentWeight then
-            return outfits[i].entryKey
+            return outfits[i]
         end
     end
     
     -- Fallback to random selection
     local randomIndex = math.random(1, #outfits)
-    print("returning", outfits[randomIndex])
     return outfits[randomIndex]
 end
 
@@ -267,7 +262,7 @@ function CacheBasedBalancedSelector:hashBasedFallback()
     return nil -- Return nil to indicate fallback selection needed
 end
 
--- Integration helper: call this method in ContestStoreManager.updatePublicCache()
+-- Integration helper: call this method in VotingStoreManager.updatePublicCache()
 function CacheBasedBalancedSelector:onCacheUpdated(publicCache)
     warn("Cache updated - rebuilding")
     return self:rebuildFromCache(publicCache)
@@ -308,6 +303,25 @@ function CacheBasedBalancedSelector:getStats()
         totalWeightedOutfits = self.totalWeightedOutfits,
         bucketsAge = math.floor(tick() - self.lastBucketUpdate)
     }
+end
+
+function CacheBasedBalancedSelector:resetCache()
+    print("Resetting selection cache...")
+    
+    -- Clear all buckets
+    self.selectionBuckets = {}
+    self.totalWeightedOutfits = 0
+    self.lastBucketUpdate = 0
+    
+    -- Reset stats
+    self.stats = {
+        selectionsServed = 0,
+        cacheHits = 0,
+        fallbackSelections = 0,
+        lastRebuildTime = 0
+    }
+    
+    print("Selection cache reset complete")
 end
 
 return CacheBasedBalancedSelector

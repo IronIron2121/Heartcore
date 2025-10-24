@@ -40,8 +40,8 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
     Level.Value = profile.Data.Level or 1
 
     local Flair = Instance.new("NumberValue", leaderstats)
-    Level.Name = "Flair"
-    Level.Value = profile.Data.Flair or 1
+    Flair.Name = "Flair" 
+    Flair.Value = profile.Data.Flair or 1
 
     -- Process login bonuses and streaks
     DataManager.ProcessLogin(player)

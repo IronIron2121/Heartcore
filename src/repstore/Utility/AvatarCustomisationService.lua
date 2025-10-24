@@ -14,6 +14,7 @@ local Checkers = ReplicatedStorage:WaitForChild("Checkers")
 local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
 local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessoryTypeFromAssetType"))
 local PlayerHasMaxOfAccessoryTypeEquipped = require(Checkers:WaitForChild("PlayerHasMaxOfAccessoryTypeEquipped"))
+local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
 -- Constants
 local DEFAULT_BODY_COLOR = Color3.fromRGB(200, 200, 200)
@@ -46,6 +47,10 @@ function AvatarCustomisationService.applyDescription(player: Player, description
 	end)
 
 	humanoid:applyDescription(description)
+
+	-- For some reason, 2d clothing doesn't update locally unless something is added to the character
+	local refresher = Instance.new("Pants", humanoid.Parent)
+	refresher:Destroy()
 end
 
 local function getUserOutfitIdFromBundleItems(bundleItems: {}): number?
@@ -54,6 +59,7 @@ local function getUserOutfitIdFromBundleItems(bundleItems: {}): number?
 			return item.Id
 		end
 	end
+
 	return nil
 end
 
@@ -71,14 +77,33 @@ function AvatarCustomisationService.RemoveAllAccessories(player: Player)
 	AvatarCustomisationService.applyDescription(player, clonedDescription)
 end  
 
-function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId: number, assetType: string)
+function AvatarCustomisationService.ResetPlayerOutfit(player: Player): boolean
+	local originalHumanoidDescription = Players:GetHumanoidDescriptionFromUserId(player.UserId)
 
+	local humanoid = GetHumanoidFromPlayer(player)
+
+
+	if not originalHumanoidDescription or not humanoid then 
+		warn("Failed to get player original outfit", originalHumanoidDescription, humanoid)
+		return false
+	end
+
+	humanoid:ApplyDescriptionReset(originalHumanoidDescription)	
+
+	return true
+end
+
+function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId: number, assetType: string)
 
 	local clonedDescription = getClonedDescription(player)
 
 	local accessoryDescription = Instance.new("AccessoryDescription")
 	accessoryDescription.AssetId = itemId
 	accessoryDescription.AccessoryType = Enum.AccessoryType[GetAccessoryTypeFromAssetType(assetType)]
+
+	warn("Item accessory type == ", accessoryDescription.AccessoryType)
+	-- note - this is where we will want to check asset type, probably...yes. line 84
+	warn(assetType)
 
 	-- TODO: Give this a cleaner implementation
 	if PlayerHasMaxOfAccessoryTypeEquipped(player, accessoryDescription.AccessoryType) then
@@ -137,11 +162,11 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		-- Check for UserOutfit first (simpler approach)
 		local userOutfitId = getUserOutfitIdFromBundleItems(bundleItems)
 		if userOutfitId then
-			local success, outfitDescription = pcall(function()
+			local descSuccess, outfitDescription = pcall(function()
 				return Players:GetHumanoidDescriptionFromOutfitId(userOutfitId)
 			end)
 
-			if success then
+			if descSuccess then
 				AvatarCustomisationService.applyDescription(player, outfitDescription)
 				return
 			else
@@ -160,9 +185,25 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 	end
 end
 
+function AvatarCustomisationService.AddClassicClothingToAvatar(player: Player, itemId: number, assetType: string)
+	local clonedDescription = getClonedDescription(player)
+
+	if assetType == "TShirt" then
+		clonedDescription.GraphicTShirt = itemId
+	elseif assetType == "Shirt" then
+		clonedDescription.Shirt = itemId 
+	elseif assetType == "Pants" then 
+		clonedDescription.Pants = itemId
+	end
+ 
+	AvatarCustomisationService.applyDescription(player, clonedDescription)
+end
+
 -- Public API
 function AvatarCustomisationService.AddItemToAvatar(player: Player, itemId: number, assetOrBundleType: string, itemType: string)
-	if itemType == "Asset" then
+	if itemType == "Asset" and table.find(Constants.CLASSIC_CLOTHING_ASSET_TYPES, assetOrBundleType) then
+		AvatarCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
+	elseif itemType == "Asset" then
 		AvatarCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Bundle" then
 		AvatarCustomisationService.AddBundleToAvatar(player, itemId, assetOrBundleType)
@@ -191,6 +232,23 @@ function AvatarCustomisationService.RemoveItemFromAvatar(player: Player, itemId:
 	end
 
 	AvatarCustomisationService.applyDescription(player, clonedDescription)
+	return true
+end
+
+function AvatarCustomisationService.RemoveClassicClothingFromAvatar(player: Player, itemId: number, itemType: string)
+	local defaultId = Constants.DEFAULT_CLASSIC_CLOTHING_IDS[itemType]
+
+	if not defaultId then 
+		warn("Invalid classic clothing ID", itemType) 
+		return 
+	end
+
+	local clonedDescription = getClonedDescription(player)
+
+	clonedDescription[itemType] = defaultId
+
+	AvatarCustomisationService.applyDescription(player, clonedDescription)
+
 	return true
 end
 

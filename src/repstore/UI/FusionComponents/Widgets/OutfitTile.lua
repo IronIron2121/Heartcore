@@ -38,7 +38,7 @@ function OutfitTile(
 		onDelete: () -> ()?,
 	}
 ): Frame
-
+	warn("making outfit tile for, ", props.humanoidDescription)
 	-- Create avatar model from HumanoidDescription
 	local avatarModel = scope:Computed(function(use)
 		if not props.humanoidDescription then return nil end

@@ -51,16 +51,16 @@ local function hideTeleportButton()
 end
 
 -- Runs when a player enters their own shop
-local function onPlayerEnteredOwnShop()
-	showEditButton()
-	hideTeleportButton()
-end
+-- local function onPlayerEnteredOwnShop()
+-- 	showEditButton()
+-- 	hideTeleportButton()
+-- end
 
 -- Runs when a player leaves their own shop
-local function onPlayerExitedShop()
-	hideEditButton()
-	showTeleportButton()
-end
+-- local function onPlayerExitedShop()
+-- 	hideEditButton()
+-- 	showTeleportButton()
+-- end
 
 -- Teleports player to shop if they have one, points them towards the closest one to claim if they don't
 local function onGoToShopButtonPressed()
@@ -80,6 +80,10 @@ local function onGoToShopButtonPressed()
 	end
 end
 
+--[[
+
 PlayerEnteredOwnShopAsync.OnClientEvent:Connect(onPlayerEnteredOwnShop)
 PlayerExitedShopAsync.OnClientEvent:Connect(onPlayerExitedShop)
 GoToShopButton.Activated:Connect(onGoToShopButtonPressed)
+
+]]

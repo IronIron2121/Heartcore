@@ -12,7 +12,6 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local TryOn = require(Libraries:WaitForChild("TryOn"))
 local getItemIcon = require(Utility:WaitForChild("getItemIcon"))
 
 -- GUI Components
@@ -46,8 +45,7 @@ function AccessoryTile(itemId : number, itemType : Enum.MarketplaceProductType)
 	end
 	
 	local function onDeleteButtonActivated()
-		TryOn.removeItem(itemId, itemType)
-		accessoryTile:Destroy()
+		Destroy()
 	end
 	
 	local function onButtonActivated()

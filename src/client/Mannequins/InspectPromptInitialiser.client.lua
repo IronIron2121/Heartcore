@@ -44,8 +44,8 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 		-- parent to player gui so buttons are interactable
 		local player = Players.LocalPlayer
 		local playerGui = player:WaitForChild("PlayerGui")
-		
-		local billboard = Instance.new("BillboardGui")
+		local allPrompts = Instance.new("Folder", playerGui)
+		local billboard = Instance.new("BillboardGui", allPrompts)
 		billboard.Name = "CustomInspectPrompt"
 		billboard.Adornee = adornee
 		billboard.Size = UDim2.new(0, 100, 0, 30)

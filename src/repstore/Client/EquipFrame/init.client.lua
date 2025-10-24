@@ -206,31 +206,31 @@ local function onInputBegan(inputObject: InputObject, processed: boolean)
 	end
 end
 
-local function initialize()
+local function initialise()
 	closeButton.Activated:Connect(onCloseButtonActivated)
 	searchBox.Focused:Connect(onSearchBoxFocused)
 	searchBox.FocusLost:Connect(onSearchBoxFocusLost)
 	-- TODO: Use ContextActionService instead of UIS
 	UserInputService.InputBegan:Connect(onInputBegan)
 
-	-- Initialize items frame
+	-- initialise items frame
 	equipsFrame = ResponsiveGrid(Constants.ITEM_TILE_SIZE, Constants.ITEM_TILE_PADDING)
 	equipsFrame.LayoutOrder = 1
 	equipsFrame.Parent = equipFrame
 
-	-- Initialize filters dropdown
+	-- initialise filters dropdown
 	local initialItemFilter = ItemFilters.list[1]
 	itemFilterDropdown = DropdownButton(ItemFilters.list, initialItemFilter, onItemFilterChanged)
 	itemFilterDropdown.LayoutOrder = 1
 	itemFilterDropdown.Parent = topBar
 
-	-- Initialize sorting dropdown
+	-- initialise sorting dropdown
 	local initialSortingFilter = SortingFilters.list[1]
 	sortingFilterDropdown = DropdownButton(SortingFilters.list, initialSortingFilter, onSortingFilterChangedAsync)
 	sortingFilterDropdown.LayoutOrder = 2
 	sortingFilterDropdown.Parent = topBar
 
-	-- Initialize loading display
+	-- initialise loading display
 	loadingDisplay = LoadingDisplay()
 	loadingDisplay.Parent = equipFrame	
 
@@ -244,6 +244,6 @@ local function initialize()
 	--searchAsync()
 end
 
-initialize()
+initialise()
 
 

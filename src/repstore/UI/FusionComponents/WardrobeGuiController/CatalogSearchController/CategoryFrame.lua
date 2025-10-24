@@ -48,9 +48,6 @@ function CategoryFrame(
 	local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 	local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
 	
-	-- TODO: this is a little hacky but it'll do for now...
-	-- TODO: NOTE: Apologies to any engineers that potentially get to this point after me. At this point I have been the sole dev on this project for around 6 months -
-	-- My sanity is beginning to wane. I know this isn't beautiful code to look at. I hope you don't take this personally.
 	local allSelected = scope:Computed(function(use)
 		if #use(searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes() and #use(searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes() then
 			return true
@@ -163,10 +160,11 @@ function CategoryFrame(
 					}),
 
 					-- Create category buttons for assets
-					scope:ForValues(scope:Value(AssetFilterCategories.getAllAssetTypes()), function(use, scope, assetType)
-						return CategoryButton(scope, {
+					scope:ForPairs(scope:Value(AssetFilterCategories.getAllAssetTypes()), function(use, scope, index, assetType)
+						return index, CategoryButton(scope, {
 							text = assetType.Name,
 							size = UDim2.fromScale(0.8, 0.1),
+							layoutOrder = index,
 							isSelected = scope:Computed(function(use)
 								if use(allSelected) then
 									return false
@@ -174,19 +172,27 @@ function CategoryFrame(
 									return table.find(use(searchAssetCategories), assetType) ~= nil
 								end
 							end),
-							
+							 
 							onActivated = function()
+								if use(allSelected) then
+									searchBundleCategories:set({})
+									searchAssetCategories:set({assetType})
+									return
+								end
+
 								local currentAssets = peek(searchAssetCategories) -- Use peek instead of use
 								local assetIndex = table.find(currentAssets, assetType)
 
 								if assetIndex then
 									-- Create new array without the asset
 									local newAssets = {}
+
 									for i, asset in ipairs(currentAssets) do
-										if i ~= assetIndex then
+										if i ~= assetIndex then 
 											table.insert(newAssets, asset)
 										end
 									end
+
 									searchAssetCategories:set(newAssets) -- Set the new array
 								else
 									-- Create new array with the asset added
@@ -200,10 +206,11 @@ function CategoryFrame(
 					end),
 					
 					-- Create category buttons for bundles
-					scope:ForValues(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, bundleType)
+					scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, index, bundleType)
 						return CategoryButton(scope, {
 							text = bundleType.Name,
 							size = UDim2.fromScale(0.8, 0.1),
+							layoutOrder = index + #AssetFilterCategories.getAllAssetTypes(),
 							isSelected = scope:Computed(function(use)
 								if use(allSelected) then
 									return false
@@ -213,6 +220,12 @@ function CategoryFrame(
 							end),
 
 							onActivated = function()
+								if use(allSelected) then
+									searchBundleCategories:set({bundleType})
+									searchAssetCategories:set({})
+									return
+								end
+
 								local currentBundles = peek(searchBundleCategories) -- Use peek instead of use
 								local assetIndex = table.find(currentBundles, bundleType)
 

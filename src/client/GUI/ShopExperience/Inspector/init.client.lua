@@ -5,6 +5,8 @@
 	created in each mannequin, which when triggered opens up the inspect menu.
 --]]
 
+-- TODO: If we see this later this script is useless and can be deleted
+
 
 -- Services
 local CollectionService 	   	= game:GetService("CollectionService")
@@ -14,7 +16,6 @@ local Players 				   	= game:GetService("Players")
 
 -- Folders
 local GettersFolder 			= ReplicatedStorage:WaitForChild("Getters")
-local CheckersFolder			= ReplicatedStorage:WaitForChild("Checkers")
 local UtiltyFolder				= ReplicatedStorage:WaitForChild("Utility")
 local BindablesFolder 			= ReplicatedStorage:WaitForChild("Bindables")
 local LibrariesFolder			= ReplicatedStorage:WaitForChild("Libraries")
@@ -33,7 +34,6 @@ local topBar 				   	= inspectFrame:WaitForChild("TopBar")
 local buyAllButton 			   	= topBar:WaitForChild("BuyAllButton")
 local deleteButton 			   	= topBar:WaitForChild("DeleteButton") 
 local closeButton 			   	= topBar:WaitForChild("CloseButton")
-local tryOnButton 			   	= topBar:WaitForChild("TryOnButton")
 local editButton 			   	= topBar:WaitForChild("EditButton")
 local addButton 			   	= topBar:WaitForChild("AddButton")
 local itemsFrame: ScrollingFrame
@@ -48,20 +48,12 @@ local CartButton 			   	= require(UIComponentsFolder:WaitForChild("CartButton"))
 local ItemTile 				   	= require(UIComponentsFolder:WaitForChild("ItemTile"))
 local ItemDetailsCache  	   	= require(LibrariesFolder:WaitForChild("ItemDetailsCache"))
 local ModalManager 			  	= require(LibrariesFolder:WaitForChild("ModalManager"))
-local TryOn 				   	= require(LibrariesFolder:WaitForChild("TryOn"))
 
 -- Module script functions
 local getMannequinFromId 	   	= require(GettersFolder:WaitForChild("getMannequinFromId"))
 local getRecentMannequinId		= require(GettersFolder:WaitForChild("getRecentMannequinId"))
 
 -- Remotes | Bindables
-local RepositionShopItemBindable= BindablesFolder:WaitForChild("RepositionShopItemBindable")
-local shopClosedBindable 	   	= BindablesFolder:WaitForChild("PlayerClosedShopBindable")
-local PlayerDestroyedPreview	= BindablesFolder:WaitForChild("PlayerDestroyedPreview")
-local HideAllPromptsBindable	= BindablesFolder:WaitForChild("HideAllPromptsBindable")
-local ShowAllPromptsBindable	= BindablesFolder:WaitForChild("ShowAllPromptsBindable")
-local PlayerCreatedPreview 		= BindablesFolder:WaitForChild("PlayerCreatedPreview")
-local UpdateInspector 			= BindablesFolder:WaitForChild("UpdateInspector")
 local remotes 				   	= ReplicatedStorage:WaitForChild("Remotes")
 local bulkPurchaseRemote 	   	= remotes:WaitForChild("BulkPurchase")
 
@@ -239,7 +231,6 @@ end
 -- Restores inspect GUI to its default state
 local function resetInspectGui()
 	topBar.BuyAllButton.Visible = true
-	topBar.TryOnButton.Visible 	= true
 	topBar.CartButton.Visible 	= true
 	deleteButton.Visible 		= false
 	addButton.Visible 			= false
@@ -251,13 +242,6 @@ local function onCloseButtonActivated()
 	ModalManager.pop(inspectFrame)
 	resetInspectGui()
 end
-
-
--- Try on all items in inspect frame
-local function onTryOnButtonActivated()
-	TryOn.setItemsAsync(inspectingItems)
-end
-
 
 -- Deletes a given mannequin from player store
 local function onDeleteButtonActivated()
@@ -290,7 +274,6 @@ local function onEditButtonActivated()
 		addButton.Visible = true
 		topBar.DeleteButton.Visible = true
 		topBar.BuyAllButton.Visible = false
-		topBar.TryOnButton.Visible 	= false
 		topBar.CartButton.Visible 	= false
 		makeItemsDeletable()
 
@@ -298,18 +281,19 @@ local function onEditButtonActivated()
 		addButton.Visible 			= false
 		topBar.DeleteButton.Visible = false
 		topBar.BuyAllButton.Visible = true
-		topBar.TryOnButton.Visible 	= true
 		topBar.CartButton.Visible 	= true
 		makeItemsBuyable()
 	end
 end
 
 local function initialize()
+
+	warn("Initialising inspector")
+
 	-- Initialise buttons	
 	deleteButton.Activated:Connect(onDeleteButtonActivated)
 	buyAllButton.Activated:Connect(onBuyAllButtonActivated)
 	closeButton.Activated:Connect(onCloseButtonActivated)
-	tryOnButton.Activated:Connect(onTryOnButtonActivated)
 	editButton.Activated:Connect(onEditButtonActivated)
 	addButton.Activated:Connect(onAddButtonActivated)
 
@@ -337,8 +321,8 @@ local function initialize()
 	end
 end
 
-initialize()
-
+--initialize()
+--[[
 -- Connections
 shopClosedBindable.Event:Connect(onCloseButtonActivated)
 PlayerCreatedPreview.Event:Connect(hideAllPrompts)
@@ -348,3 +332,4 @@ HideAllPromptsBindable.Event:Connect(hideAllPrompts)
 ShowAllPromptsBindable.Event:Connect(showAllPrompts)
 
 UpdateInspector.Event:Connect(updateInspector)
+]]
