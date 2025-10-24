@@ -12,11 +12,13 @@ game.Players.PlayerAdded:Connect(function(player)
             track:Stop(0)
         end
         local animScript = char:WaitForChild("Animate")
-        -- All custom animations go here vvv --
-        -- animScript.jump.JumpAnim.AnimationId = script:WaitForChild("FrontFlip").AnimationId
+        
+        
+        --All custom animations go here vvv --
+        animScript.jump.JumpAnim.AnimationId = script:WaitForChild("FrontFlip").AnimationId
 
-        --animScript.jump.JumpAnim.AnimationId = animPrefix .. tostring(flipId)
-        --animScript.fall.FallAnim.AnimationId = animPrefix .. tostring(fallId)
+        animScript.jump.JumpAnim.AnimationId = animPrefix .. tostring(flipId)
+        animScript.fall.FallAnim.AnimationId = animPrefix .. tostring(fallId)
 
     end)
 end)
