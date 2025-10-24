@@ -21,14 +21,14 @@ local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 -- Instances
 local leaderboard = dailyWinners:WaitForChild("leaderboard")
 local leaderboardScreen = leaderboard:WaitForChild("leaderboardScreen")
-local WinnersThemeHolder = leaderboardScreen:WaitForChild("WinnersThemeHolder")
+--local WinnersThemeHolder = leaderboardScreen:WaitForChild("WinnersThemeHolder")
 
 
 -- GUI Instances
 local leaderboardGui = leaderboardScreen:WaitForChild("LeaderboardGui")
 local leaderboardFrame = leaderboardGui:WaitForChild("LeaderboardFrame")
 
-local WinnersThemeGui = WinnersThemeHolder:WaitForChild("WinnersThemeGui")
+local WinnersThemeGui = leaderboardScreen:WaitForChild("WinnersThemeGui")
 local WinnersThemeFrame = WinnersThemeGui:WaitForChild("WinnersThemeFrame")
 local ThemeLabel = WinnersThemeFrame:WaitForChild("ThemeLabel")
 
@@ -146,8 +146,8 @@ function WinnersStoreManager.updateTopTwentyLeaderboard()
         newLabel.Text = i .. ". " .. playerName .. " - " .. currentEntry.votes .. " votes"
         newLabel.Size = UDim2.new(1, 0, 0, 30)
         newLabel.BackgroundTransparency = 1
-        newLabel.TextColor3 = Color3.new(1, 1, 1)
-        newLabel.TextScaled = true
+        newLabel.TextColor3 = Color3.fromRGB(92, 96, 214)
+        newLabel.TextSize = 75
         newLabel.Font = Enum.Font.GothamBold
     end
 end
