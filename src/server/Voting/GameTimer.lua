@@ -20,7 +20,7 @@ local TransitionLockStore = MemoryStoreService:GetHashMap("TransitionLocks")
 
 -- DEBUG MODE - SET TO FALSE FOR PRODUCTION
 local DEBUG_MODE = true
-local DEBUG_PHASE_DURATION = 60 -- 2 minutes per phase in debug mode
+local DEBUG_PHASE_DURATION = 120 -- 2 minutes per phase in debug mode
 
 -- Constants
 local CHECK_TIME_LAPSE_INTERVAL = DEBUG_MODE and 5 or 10

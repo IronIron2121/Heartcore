@@ -12,6 +12,7 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 
+
 -- Instances
 local localPlayer = Players.LocalPlayer
 local localPlayerGui = localPlayer:WaitForChild("PlayerGui")
