@@ -156,33 +156,30 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		return
 	end
 
-	if bundleType == Enum.BundleType.BodyParts.Name then
-		local bundleItems = bundleInfo.Items
+	local bundleItems = bundleInfo.Items
 
-		-- Check for UserOutfit first (simpler approach)
-		local userOutfitId = getUserOutfitIdFromBundleItems(bundleItems)
-		if userOutfitId then
-			local descSuccess, outfitDescription = pcall(function()
-				return Players:GetHumanoidDescriptionFromOutfitId(userOutfitId)
-			end)
+	-- Check for UserOutfit first (simpler approach)
+	local userOutfitId = getUserOutfitIdFromBundleItems(bundleItems)
+	if userOutfitId then
+		local descSuccess, outfitDescription = pcall(function()
+			return Players:GetHumanoidDescriptionFromOutfitId(userOutfitId)
+		end)
 
-			if descSuccess then
-				AvatarCustomisationService.applyDescription(player, outfitDescription)
-				return
-			else
-				warn("Failed to get outfit description for ID:", userOutfitId)
-			end
+		if descSuccess then
+			AvatarCustomisationService.applyDescription(player, outfitDescription)
+			return
+		else
+			warn("Failed to get outfit description for ID:", userOutfitId)
 		end
-
-		-- Fallback: Add individual items
-		for _, item in ipairs(bundleItems) do
-			if item.Type ~= "UserOutfit" then
-				AvatarCustomisationService.AddAccessoryToAvatar(player, item.Id, item.Type)
-			end
-		end
-	else
-		warn("Unsupported bundle type:", bundleType)
 	end
+
+	-- Fallback: Add individual items
+	for _, item in ipairs(bundleItems) do
+		if item.Type ~= "UserOutfit" then
+			AvatarCustomisationService.AddAccessoryToAvatar(player, item.Id, item.Type)
+		end
+	end
+
 end
 
 function AvatarCustomisationService.AddClassicClothingToAvatar(player: Player, itemId: number, assetType: string)
@@ -206,6 +203,7 @@ function AvatarCustomisationService.AddItemToAvatar(player: Player, itemId: numb
 	elseif itemType == "Asset" then
 		AvatarCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Bundle" then
+		warn("adding bundle to avatar!")
 		AvatarCustomisationService.AddBundleToAvatar(player, itemId, assetOrBundleType)
 	else
 		warn("Invalid item type:", itemType, "Expected 'Asset' or 'Bundle'")
