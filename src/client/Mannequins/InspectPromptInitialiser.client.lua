@@ -26,6 +26,12 @@ local HideAllPromptsBindable = BindablesFolder:WaitForChild("HideAllPromptsBinda
 local ShowAllPromptsBindable = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
 local PlayerInspectedMannequin = BindablesFolder:WaitForChild("PlayerInspectedMannequin")
 
+		-- parent to player gui so buttons are interactable
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local allPrompts = Instance.new("ScreenGui", playerGui)
+allPrompts.Name = "allPrompts"
+
 -- Create custom GUI when proximity prompt appears (Cece addition)
 
 local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
@@ -41,10 +47,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 			return
 		end
 
-		-- parent to player gui so buttons are interactable
-		local player = Players.LocalPlayer
-		local playerGui = player:WaitForChild("PlayerGui")
-		local allPrompts = Instance.new("Folder", playerGui)
+
 		local billboard = Instance.new("BillboardGui", allPrompts)
 		billboard.Name = "CustomInspectPrompt"
 		billboard.Adornee = adornee
@@ -53,7 +56,6 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 		billboard.AlwaysOnTop = true
 		billboard.Active = true
 		billboard.Enabled = false
-		billboard.Parent = playerGui
 
 		local frame = Instance.new("Frame")
 		frame.Size = UDim2.new(1, 0, 1, 0)
