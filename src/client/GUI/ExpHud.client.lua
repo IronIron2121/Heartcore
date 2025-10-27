@@ -46,7 +46,7 @@ local function initialiseGUI()
 		Parent = screenGUI,
 		BackgroundColor3 = Color3.new(1, 1, 1),
         BackgroundTransparency = 1,
-        Visible = false,
+        --Visible = true,
 
         [Children] = {
             scope:New "UIListLayout"{
@@ -56,10 +56,12 @@ local function initialiseGUI()
             },
 
             scope:New "Frame" {
-                Name = "ExpBarContainer",
+                Name = "Container",
                 Size = UDim2.fromScale(1,1),
                 Position = UDim2.fromScale(0,0),
                 LayoutOrder = 0,
+                BackgroundColor3 = Color3.new(0.654902, 0.215686, 0.215686),
+                BackgroundTransparency = 1,
 
                 [Children] = {
                     ExpBar(scope, {
