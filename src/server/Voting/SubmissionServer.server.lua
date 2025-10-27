@@ -27,6 +27,7 @@ local DataManager = require(Data:WaitForChild("DataManager"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
+local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
 -- Instances
 local SubmissionPad = centralPond:WaitForChild("SubmissionPad") 
@@ -56,6 +57,15 @@ local function canPlayerSubmit(player: Player)
 		end,
 		5
 	)
+
+	if not currentPhaseStart then
+		SubmissionResultRE:FireClient(player, {
+			ok = false,
+			msg = Constants.NO_CURRENT_PHASE_MESSAGE
+		})
+		
+		return false
+	end
 
 	if not success or lastSubmit >= currentPhaseStart then
 		warn("no, they can't submit")

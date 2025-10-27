@@ -7,6 +7,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local centralPond = workspace:WaitForChild("centralPond")
 
+-- Modules
+local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
+
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
 local SubmissionResultRF = Remotes:WaitForChild("SubmissionResultRF")
@@ -40,6 +43,13 @@ local function onSubmissionResult(
     }
 ): ()
     warn("Got result....")
+
+    if result.msg == Constants.NO_CURRENT_PHASE_MESSAGE then
+        warn(result.msg)
+        task.wait(5)
+        updateSubmitButton()
+        return
+    end
 
     if result.ok then
         warn("Player submitted successfully!")

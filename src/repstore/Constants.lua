@@ -160,6 +160,8 @@ local Constants = {
 	SUBMISSION_INFO_INDEX = "currentStoreNumber",
 	CURRENT_SUBMISSION_INFO_KEY = "currentSubmissionsInfo",
 
+	NO_CURRENT_PHASE_MESSAGE = "NO_CURRENT_PHASE",
+
 }
 
 return Constants
