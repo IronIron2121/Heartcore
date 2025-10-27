@@ -28,7 +28,8 @@ local leaderboardScreen = leaderboard:WaitForChild("leaderboardScreen")
 local leaderboardGui = leaderboardScreen:WaitForChild("LeaderboardGui")
 local leaderboardFrame = leaderboardGui:WaitForChild("LeaderboardFrame")
 
-local WinnersThemeGui = leaderboardScreen:WaitForChild("WinnersThemeGui")
+local WinnersThemeHolder = leaderboardScreen:WaitForChild("WinnersThemeHolder")
+local WinnersThemeGui = WinnersThemeHolder:WaitForChild("WinnersThemeGui")
 local WinnersThemeFrame = WinnersThemeGui:WaitForChild("WinnersThemeFrame")
 local ThemeLabel = WinnersThemeFrame:WaitForChild("ThemeLabel")
 
