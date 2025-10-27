@@ -4,17 +4,20 @@
 -- Services
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AssetService = game:GetService("AssetService")
 local Players = game:GetService("Players")
 
 -- Folders
-local Getters = ReplicatedStorage:WaitForChild("Getters")
 local Checkers = ReplicatedStorage:WaitForChild("Checkers")
+local Getters = ReplicatedStorage:WaitForChild("Getters")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
-local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessoryTypeFromAssetType"))
 local PlayerHasMaxOfAccessoryTypeEquipped = require(Checkers:WaitForChild("PlayerHasMaxOfAccessoryTypeEquipped"))
+local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessoryTypeFromAssetType"))
+local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
+local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
 -- Constants
 local DEFAULT_BODY_COLOR = Color3.fromRGB(200, 200, 200)
@@ -145,7 +148,7 @@ end
 function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: number, bundleType: string)
 	-- Clear existing accessories first
 	
-	AvatarCustomisationService.RemoveAllAccessories(player)
+	--AvatarCustomisationService.RemoveAllAccessories(player)
 
 	local success, bundleInfo = pcall(function()
 		return MarketplaceService:GetProductInfo(bundleId, Enum.InfoType.Bundle)
@@ -174,11 +177,19 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 	end
 
 	-- Fallback: Add individual items
+	warn("bundle items:", bundleItems)
 	for _, item in ipairs(bundleItems) do
 		if item.Type ~= "UserOutfit" then
+			warn("adding accessory", item)
+			local assetInfo = MarketplaceService:GetProductInfo(item.Id, item.Type)
+			print(assetInfo)
 			AvatarCustomisationService.AddAccessoryToAvatar(player, item.Id, item.Type)
 		end
 	end
+
+end
+
+function AvatarCustomisationService.AddBodyPartToAvatar(player: Player, itemId: number, bodyPartType: string)
 
 end
 

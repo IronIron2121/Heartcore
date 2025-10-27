@@ -3,15 +3,10 @@
 -- AvatarViewport.lua
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local MarketplaceService = game:GetService("MarketplaceService")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local Getters = ReplicatedStorage:WaitForChild("Getters")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
@@ -19,14 +14,10 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
-local getItemIcon = require(Utility:WaitForChild("getItemIcon"))
 local BuyButton = require(Widgets:WaitForChild("BuyButton"))
 local TryButton = require(Widgets:WaitForChild("TryButton"))
 local NameLabel = require(Widgets:WaitForChild("NameLabel"))
 local PriceLabel = require(Widgets:WaitForChild("PriceLabel"))
-
--- Remotes
-local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 
 -- Fusion
 local Children = Fusion.Children
@@ -34,7 +25,6 @@ local OnEvent = Fusion.OnEvent
 
 -- Colors
 local COLOUR_WHITE = UI_CONSTANTS.COLOUR_WHITE
-local COLOUR_BLACK = UI_CONSTANTS.COLOUR_BLACK
 local COLOUR_GREY = UI_CONSTANTS.COLOUR_GREY
 -- LERP
 local COLOUR_HOVER = COLOUR_WHITE:Lerp(COLOUR_GREY, 0.5)
@@ -56,8 +46,6 @@ function FusionItemTile(
 		Price: number,
 	}
 )
-	
-	print(itemDetails)
 	-- Get info type for product info query
 	local infoType
 	
@@ -155,13 +143,11 @@ function FusionItemTile(
 						BackgroundTransparency = 1,
 						ImageColor3 = backgroundColorSpring,
 						Size = UDim2.fromScale(1, 1),
-						-- TODO: We have to make this compatible with bundles my guy...
 						Image = "rbxthumb://type=" .. (itemDetails.ItemType == "Asset" and "Asset" or "BundleThumbnail") .. "&id=" .. itemDetails.Id .. "&w=420&h=420",
 						ZIndex = 1,
 						Active = false
 					},
 					
-					-- TODO: Turn this into a module component
 					scope:New "Frame"{
 						Name = "ButtonsFrame",
 						ZIndex = 2,

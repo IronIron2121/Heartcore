@@ -27,13 +27,13 @@ local function combineItemButtons(scope: Fusion.Scope, itemButtons, classicItemB
 		
 		-- Add all regular item buttons
 		for _, button in use(itemButtons) do
-			warn("item new", button)
+			--warn("item new", button)
 			table.insert(combined, button)
 		end
 		
 		-- Add all classic item buttons
 		for _, button in pairs(use(classicItemButtons)) do
-			warn("item classic: ", button)
+			--warn("item classic: ", button)
 			table.insert(combined, button)
 		end
 		
