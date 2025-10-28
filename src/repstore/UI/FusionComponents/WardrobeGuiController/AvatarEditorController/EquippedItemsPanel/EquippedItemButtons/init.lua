@@ -27,13 +27,13 @@ local function combineItemButtons(scope: Fusion.Scope, itemButtons, classicItemB
 		
 		-- Add all regular item buttons
 		for _, button in use(itemButtons) do
-			warn("item new", button)
+			--warn("item new", button)
 			table.insert(combined, button)
 		end
 		
 		-- Add all classic item buttons
 		for _, button in pairs(use(classicItemButtons)) do
-			warn("item classic: ", button)
+			--warn("item classic: ", button)
 			table.insert(combined, button)
 		end
 		
@@ -104,16 +104,6 @@ function EquippedItemButtons(
 			})
 		end
 	end)
-
-	warn("CLASSICS!")
-	print(Fusion.peek(currentClassicItems))
-
-	warn("ITEM BUTTONS!")
-	print(Fusion.peek(equippedClassicItemButtons))
-	print(Fusion.peek(equippedItemButtons)) 
-	
-	print(equippedClassicItemButtons)
-	print(equippedItemButtons) 
 
 	-- Combine both button lists into one reactive table
 	local allEquippedButtons = combineItemButtons(scope, equippedItemButtons, equippedClassicItemButtons)

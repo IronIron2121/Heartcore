@@ -143,12 +143,26 @@ local Constants = {
 		["Shirt"] = 855779323,
 		["Pants"] = 855785499,
 	},
-
 	
 	DEFAULT_CLASSIC_CLOTHING_IDS_TABLE = {
 		0,
 		855779323,
 		855785499,
+	},
+
+	ANIMATION_ASSET_TYPE_IDS = {
+		24,
+		48,
+		49,
+		50,
+		51,
+		52,
+		53,
+		54,
+		55,
+		56,
+		61,
+		78
 	},
 
 	QUERY_ATTEMPTS = 3,

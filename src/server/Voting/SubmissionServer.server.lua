@@ -72,7 +72,6 @@ local function canPlayerSubmit(player: Player)
 		return false
 	end
 
-	warn("yes, they can submit", lastSubmit, currentPhaseStart)
 	return true
 end
  
