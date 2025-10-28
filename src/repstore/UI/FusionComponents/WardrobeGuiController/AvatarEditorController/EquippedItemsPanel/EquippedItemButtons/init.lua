@@ -105,16 +105,6 @@ function EquippedItemButtons(
 		end
 	end)
 
-	warn("CLASSICS!")
-	print(Fusion.peek(currentClassicItems))
-
-	warn("ITEM BUTTONS!")
-	print(Fusion.peek(equippedClassicItemButtons))
-	print(Fusion.peek(equippedItemButtons)) 
-	
-	print(equippedClassicItemButtons)
-	print(equippedItemButtons) 
-
 	-- Combine both button lists into one reactive table
 	local allEquippedButtons = combineItemButtons(scope, equippedItemButtons, equippedClassicItemButtons)
 

@@ -49,7 +49,7 @@ function AvatarCustomisationService.applyDescription(player: Player, description
 		connection:Disconnect()
 	end)
 
-	humanoid:applyDescription(description)
+	humanoid:ApplyDescription(description)
 
 	-- For some reason, 2d clothing doesn't update locally unless something is added to the character
 	local refresher = Instance.new("Pants", humanoid.Parent)
@@ -84,9 +84,7 @@ end
 
 function AvatarCustomisationService.ResetPlayerOutfit(player: Player): boolean
 	local originalHumanoidDescription = Players:GetHumanoidDescriptionFromUserId(player.UserId)
-
 	local humanoid = GetHumanoidFromPlayer(player)
-
 
 	if not originalHumanoidDescription or not humanoid then 
 		warn("Failed to get player original outfit", originalHumanoidDescription, humanoid)
@@ -99,24 +97,19 @@ function AvatarCustomisationService.ResetPlayerOutfit(player: Player): boolean
 end
 
 function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId: number, assetType: string)
-
 	local clonedDescription = getClonedDescription(player)
 
 	local accessoryDescription = Instance.new("AccessoryDescription")
 	accessoryDescription.AssetId = itemId
 	accessoryDescription.AccessoryType = Enum.AccessoryType[GetAccessoryTypeFromAssetType(assetType)]
 
-	warn("Item accessory type == ", accessoryDescription.AccessoryType)
-	-- note - this is where we will want to check asset type, probably...yes. line 84
-	warn(assetType)
-
-	-- TODO: Give this a cleaner implementation
+	-- Check if at max capacity for this accessory type
 	if PlayerHasMaxOfAccessoryTypeEquipped(player, accessoryDescription.AccessoryType) then
 		if accessoryDescription.AccessoryType == Enum.AccessoryType.Hat then
 			warn("Cannot equip more than 3 hats!")
 			return
 		else
-			warn("Maxxed out! Deleting previous one...`")
+			warn("Maxed out! Deleting previous one...")
 			for _, description in ipairs(clonedDescription:GetChildren()) do
 				if description:IsA("AccessoryDescription") and description.AccessoryType == accessoryDescription.AccessoryType then
 					description:Destroy()
@@ -124,16 +117,48 @@ function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 			end
 		end
 	else
-		print("Equipping ", itemId)
+		print("Equipping", itemId)
 	end
 	
 	accessoryDescription.IsLayered = true
 	accessoryDescription.Order = 1
 	accessoryDescription.Parent = clonedDescription
- 
+
 	AvatarCustomisationService.applyDescription(player, clonedDescription)
 end
 
+function AvatarCustomisationService.AddAccessoriesToAvatar(player: Player, accessories: {{itemId: number, assetType: string}})
+	local clonedDescription = getClonedDescription(player)
+
+	for _, accessory in ipairs(accessories) do
+		local accessoryDescription = Instance.new("AccessoryDescription")
+		accessoryDescription.AssetId = accessory.itemId
+		accessoryDescription.AccessoryType = Enum.AccessoryType[GetAccessoryTypeFromAssetType(accessory.assetType)]
+
+		-- Check if at max capacity for this accessory type
+		if PlayerHasMaxOfAccessoryTypeEquipped(player, accessoryDescription.AccessoryType) then
+			if accessoryDescription.AccessoryType == Enum.AccessoryType.Hat then
+				warn("Cannot equip more than 3 hats!")
+				continue
+			else
+				warn("Maxed out! Deleting previous one...")
+				for _, description in ipairs(clonedDescription:GetChildren()) do
+					if description:IsA("AccessoryDescription") and description.AccessoryType == accessoryDescription.AccessoryType then
+						description:Destroy()
+					end
+				end
+			end
+		else
+			print("Equipping", accessory.itemId)
+		end
+
+		accessoryDescription.IsLayered = true
+		accessoryDescription.Order = 1
+		accessoryDescription.Parent = clonedDescription
+	end
+
+	AvatarCustomisationService.applyDescription(player, clonedDescription)
+end
 
 function AvatarCustomisationService.AddBodyPartToAvatar(player: Player, itemId: number, bodyPartType: string)
 	if not player or not itemId or not bodyPartType then 
@@ -143,33 +168,62 @@ function AvatarCustomisationService.AddBodyPartToAvatar(player: Player, itemId: 
 
 	local clonedDescription = getClonedDescription(player)
 
-	local bodyPartDescription = Instance.new("BodyPartDescription")
-	bodyPartDescription.AssetId = itemId
-
-	local bodyPart = Enum.BodyPart:FromName(bodyPartType)
-
-	if not bodyPart then
-		warn("Bad bodypart!", bodyPart, bodyPartType)
+	-- Get the bodypart enum
+	local bodyPartEnum = Enum.BodyPart[bodyPartType]
+	if not bodyPartEnum then
+		warn("Bad bodypart type:", bodyPartType)
 		return false
 	end
 
-	bodyPartDescription.BodyPart = bodyPart 
-
-	-- TODO: Give this a cleaner implementation
-	warn("Maxxed out! Deleting previous one...`")
+	-- Remove existing body part on the same slot
 	for _, description in ipairs(clonedDescription:GetChildren()) do
-		if description:IsA("BodyPartDescription") and bodyPartDescription.BodyPart == bodyPartDescription.BodyPart then
+		if description:IsA("BodyPartDescription") and description.BodyPart == bodyPartEnum then
 			description:Destroy()
 		end
 	end
-	
+
+	-- Create and add new body part
+	local bodyPartDescription = Instance.new("BodyPartDescription")
+	bodyPartDescription.AssetId = itemId
+	bodyPartDescription.BodyPart = bodyPartEnum
 	bodyPartDescription.Parent = clonedDescription
- 
+
 	return AvatarCustomisationService.applyDescription(player, clonedDescription)
 end
 
+function AvatarCustomisationService.AddBodyPartsToAvatar(player: Player, bodyParts: {{itemId: number, bodyPartType: string}})
+	if not player or not bodyParts then 
+		warn("Bad parameters at add bodyparts!", player, bodyParts)
+		return false
+	end
 
--- TODO: This is a little redundant, consider optimising...
+	local clonedDescription = getClonedDescription(player)
+
+	for _, bodyPart in ipairs(bodyParts) do
+		-- Get the bodypart enum
+		local bodyPartEnum = Enum.BodyPart[bodyPart.bodyPartType]
+		if not bodyPartEnum then
+			warn("Bad bodypart type:", bodyPart.bodyPartType)
+			continue
+		end
+
+		-- Remove existing body part on the same slot
+		for _, description in ipairs(clonedDescription:GetChildren()) do
+			if description:IsA("BodyPartDescription") and description.BodyPart == bodyPartEnum then
+				description:Destroy()
+			end
+		end
+
+		-- Create and add new body part
+		local bodyPartDescription = Instance.new("BodyPartDescription")
+		bodyPartDescription.AssetId = bodyPart.itemId
+		bodyPartDescription.BodyPart = bodyPartEnum
+		bodyPartDescription.Parent = clonedDescription
+	end
+
+	return AvatarCustomisationService.applyDescription(player, clonedDescription)
+end
+
 function AvatarCustomisationService.ApplyOutfitToAvatar(player: Player, outfitId: number)
 	local success, outfitDescription = pcall(function()
 		return Players:GetHumanoidDescriptionFromOutfitId(outfitId)
@@ -182,15 +236,24 @@ function AvatarCustomisationService.ApplyOutfitToAvatar(player: Player, outfitId
 	end
 end
 
-function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: number, bundleType: string)
-	-- Clear existing accessories first
-	local success, bundleInfo = pcall(function()
-		return AssetService:GetBundleDetailsAsync(bundleId)
-	end)
+--[[
+function AvatarCustomisationService.AddDynamicHeadToAvatar(player: Player, itemId: number)
+	local assetSuccess, assetInfo = callWithRetry(function()
+		return MarketplaceService:GetProductInfo(item.Id, Enum.InfoType.Asset)
+	end, 3)
 
-	local serviceSuccess, serviceInfo = callWithRetry(function()
+	-- AssetTypeId 79 is DynamicHead
+	if assetSuccess and assetInfo and assetInfo.AssetTypeId == 79 then
+		AvatarCustomisationService.AddBodyPartToAvatar(player, item.Id, "Head")
+		return
+	end
+end
+]]
+
+function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: number, bundleType: string)
+	local success, bundleInfo = callWithRetry(function()
 		return AssetService:GetBundleDetailsAsync(bundleId)
-	end)
+	end, 3)
 
 	if not success then
 		warn("Failed to get bundle details for ID:", bundleId)
@@ -199,33 +262,71 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 
 	local bundleItems = bundleInfo.Items
 
+	-- Handle Dynamic Head bundles
 	if bundleInfo.BundleType == Enum.BundleType.DynamicHead.Name then
-		warn("equipping dynamic head")
-		-- TODO: We should also equip the animations
 		for _, item in ipairs(bundleItems) do
 			if item.Type ~= "UserOutfit" then
-				local success, assetInfo = callWithRetry(function()
-					return MarketplaceService:GetProductInfo(item.Id, item.Type)
-				end)
+				local assetSuccess, assetInfo = callWithRetry(function()
+					return MarketplaceService:GetProductInfo(item.Id, Enum.InfoType.Asset)
+				end, 3)
 
-				if assetInfo and assetInfo.AssetTypeId == 79 then
-					AvatarCustomisationService.AddBodyPartToAvatar(player, item.Id, Enum.BodyPart.Head.Name)
-					warn("Found head! adding and returning...")
+				-- AssetTypeId 79 is DynamicHead
+				if assetSuccess and assetInfo and assetInfo.AssetTypeId == 79 then
+					AvatarCustomisationService.AddBodyPartToAvatar(player, item.Id, "Head")
 					return
-				else
-					continue
 				end
 			end
 		end
-	else
-		print(bundleInfo.bundleType)
-		print(bundleInfo)
+		return
 	end
 
-	-- Check for UserOutfit first (simpler approach)
+	-- Handle Body Parts bundles
+	if bundleInfo.BundleType == Enum.BundleType.BodyParts.Name then
+		local bodyParts = {}
+		
+		for _, item in ipairs(bundleItems) do
+			if item.Type ~= "UserOutfit" then
+				local assetSuccess, assetInfo = callWithRetry(function()
+					return MarketplaceService:GetProductInfo(item.Id, Enum.InfoType.Asset)
+				end, 3)
+
+				if assetSuccess and assetInfo then
+					if assetInfo.AssetTypeId == 19 then
+						warn("gear!")
+						continue
+					elseif assetInfo.AssetTypeId == 79 then
+						table.insert(bodyParts, {
+							itemId = item.Id,
+							bodyPartType = Enum.BodyPart.Head.Name
+						})
+					elseif table.find(Constants.ANIMATION_ASSET_TYPE_IDS, assetInfo.AssetTypeId) then
+						warn("Item is an animation!")
+						continue
+					else
+						-- We should probably disambiguate between Accessories and Bodyparts here
+						local assetTypeEnum = Enum.AssetType:FromValue(assetInfo.AssetTypeId)
+						if assetTypeEnum then
+							table.insert(bodyParts, {
+								itemId = item.Id,
+								bodyPartType = assetTypeEnum.Name
+							})
+						else
+							warn("Failed to get assetType for", assetTypeEnum)
+						end
+					end
+				end
+			end
+		end
+
+		if #bodyParts > 0 then
+			AvatarCustomisationService.AddBodyPartsToAvatar(player, bodyParts)
+		end
+		return
+	end
+
+	-- Check for UserOutfit (simpler approach for other bundle types)
 	local userOutfitId = getUserOutfitIdFromBundleItems(bundleItems)
 	if userOutfitId then
-		warn("found outfit id and adding it!")
 		local descSuccess, outfitDescription = pcall(function()
 			return Players:GetHumanoidDescriptionFromOutfitId(userOutfitId)
 		end)
@@ -238,19 +339,19 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		end
 	end
 
-	-- Fallback: Add individual items
-	warn("bundle items:", bundleItems)
+	-- Fallback: Add individual items as accessories
 	for _, item in ipairs(bundleItems) do
 		if item.Type ~= "UserOutfit" then
-			warn("adding accessory", item)
-			local assetInfo = MarketplaceService:GetProductInfo(item.Id, item.Type)
-			print(assetInfo)
-			AvatarCustomisationService.AddAccessoryToAvatar(player, item.Id, item.Type)
+			local assetSuccess, assetInfo = callWithRetry(function()
+				return MarketplaceService:GetProductInfo(item.Id, Enum.InfoType.Asset)
+			end, 3)
+			
+			if assetSuccess and assetInfo then
+				AvatarCustomisationService.AddAccessoryToAvatar(player, item.Id, assetInfo.AssetTypeId)
+			end
 		end
 	end
-
 end
-
 
 function AvatarCustomisationService.AddClassicClothingToAvatar(player: Player, itemId: number, assetType: string)
 	local clonedDescription = getClonedDescription(player)
@@ -262,7 +363,7 @@ function AvatarCustomisationService.AddClassicClothingToAvatar(player: Player, i
 	elseif assetType == "Pants" then 
 		clonedDescription.Pants = itemId
 	end
- 
+
 	AvatarCustomisationService.applyDescription(player, clonedDescription)
 end
 
@@ -273,7 +374,6 @@ function AvatarCustomisationService.AddItemToAvatar(player: Player, itemId: numb
 	elseif itemType == "Asset" then
 		AvatarCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Bundle" then
-		warn("adding bundle to avatar!")
 		AvatarCustomisationService.AddBundleToAvatar(player, itemId, assetOrBundleType)
 	else
 		warn("Invalid item type:", itemType, "Expected 'Asset' or 'Bundle'")
@@ -307,12 +407,11 @@ function AvatarCustomisationService.RemoveClassicClothingFromAvatar(player: Play
 	local defaultId = Constants.DEFAULT_CLASSIC_CLOTHING_IDS[itemType]
 
 	if not defaultId then 
-		warn("Invalid classic clothing ID", itemType) 
-		return 
+		warn("Invalid classic clothing type:", itemType) 
+		return false
 	end
 
 	local clonedDescription = getClonedDescription(player)
-
 	clonedDescription[itemType] = defaultId
 
 	AvatarCustomisationService.applyDescription(player, clonedDescription)
