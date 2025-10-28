@@ -54,6 +54,8 @@ function AvatarCustomisationService.applyDescription(player: Player, description
 	-- For some reason, 2d clothing doesn't update locally unless something is added to the character
 	local refresher = Instance.new("Pants", humanoid.Parent)
 	refresher:Destroy()
+
+	return true
 end
 
 local function getUserOutfitIdFromBundleItems(bundleItems: {}): number?
@@ -132,6 +134,41 @@ function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 	AvatarCustomisationService.applyDescription(player, clonedDescription)
 end
 
+
+function AvatarCustomisationService.AddBodyPartToAvatar(player: Player, itemId: number, bodyPartType: string)
+	if not player or not itemId or not bodyPartType then 
+		warn("Bad parameters at add bodypart!", player, itemId, bodyPartType)
+		return false
+	end
+
+	local clonedDescription = getClonedDescription(player)
+
+	local bodyPartDescription = Instance.new("BodyPartDescription")
+	bodyPartDescription.AssetId = itemId
+
+	local bodyPart = Enum.BodyPart:FromName(bodyPartType)
+
+	if not bodyPart then
+		warn("Bad bodypart!", bodyPart, bodyPartType)
+		return false
+	end
+
+	bodyPartDescription.BodyPart = bodyPart 
+
+	-- TODO: Give this a cleaner implementation
+	warn("Maxxed out! Deleting previous one...`")
+	for _, description in ipairs(clonedDescription:GetChildren()) do
+		if description:IsA("BodyPartDescription") and bodyPartDescription.BodyPart == bodyPartDescription.BodyPart then
+			description:Destroy()
+		end
+	end
+	
+	bodyPartDescription.Parent = clonedDescription
+ 
+	return AvatarCustomisationService.applyDescription(player, clonedDescription)
+end
+
+
 -- TODO: This is a little redundant, consider optimising...
 function AvatarCustomisationService.ApplyOutfitToAvatar(player: Player, outfitId: number)
 	local success, outfitDescription = pcall(function()
@@ -147,11 +184,12 @@ end
 
 function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: number, bundleType: string)
 	-- Clear existing accessories first
-	
-	--AvatarCustomisationService.RemoveAllAccessories(player)
-
 	local success, bundleInfo = pcall(function()
-		return MarketplaceService:GetProductInfo(bundleId, Enum.InfoType.Bundle)
+		return AssetService:GetBundleDetailsAsync(bundleId)
+	end)
+
+	local serviceSuccess, serviceInfo = callWithRetry(function()
+		return AssetService:GetBundleDetailsAsync(bundleId)
 	end)
 
 	if not success then
@@ -161,9 +199,33 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 
 	local bundleItems = bundleInfo.Items
 
+	if bundleInfo.BundleType == Enum.BundleType.DynamicHead.Name then
+		warn("equipping dynamic head")
+		-- TODO: We should also equip the animations
+		for _, item in ipairs(bundleItems) do
+			if item.Type ~= "UserOutfit" then
+				local success, assetInfo = callWithRetry(function()
+					return MarketplaceService:GetProductInfo(item.Id, item.Type)
+				end)
+
+				if assetInfo and assetInfo.AssetTypeId == 79 then
+					AvatarCustomisationService.AddBodyPartToAvatar(player, item.Id, Enum.BodyPart.Head.Name)
+					warn("Found head! adding and returning...")
+					return
+				else
+					continue
+				end
+			end
+		end
+	else
+		print(bundleInfo.bundleType)
+		print(bundleInfo)
+	end
+
 	-- Check for UserOutfit first (simpler approach)
 	local userOutfitId = getUserOutfitIdFromBundleItems(bundleItems)
 	if userOutfitId then
+		warn("found outfit id and adding it!")
 		local descSuccess, outfitDescription = pcall(function()
 			return Players:GetHumanoidDescriptionFromOutfitId(userOutfitId)
 		end)
@@ -189,9 +251,6 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 
 end
 
-function AvatarCustomisationService.AddBodyPartToAvatar(player: Player, itemId: number, bodyPartType: string)
-
-end
 
 function AvatarCustomisationService.AddClassicClothingToAvatar(player: Player, itemId: number, assetType: string)
 	local clonedDescription = getClonedDescription(player)
