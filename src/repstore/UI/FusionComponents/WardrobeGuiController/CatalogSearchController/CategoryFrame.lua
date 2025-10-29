@@ -16,11 +16,12 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
+local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
 
 -- Fusion
 local Children = Fusion.Children
 local peek = Fusion.peek
-local OnEvent = Fusion.OnEvent
 type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI Components
@@ -30,7 +31,7 @@ local BaseButton = require(Widgets:WaitForChild("BaseButton"))
 
 function CategoryFrame(
 	scope: Fusion.Scope,
-	currentView: UsedAs<string>,
+	currentView: Fusion.Value<string>,
 	searchAssetCategories: Fusion.Value<{Enum.AvatarAssetType}>,
 	searchBundleCategories: Fusion.Value<{Enum.BundleType}>,
 	props: {
@@ -45,8 +46,7 @@ function CategoryFrame(
 		isSelected: UsedAs<boolean>?
 	}?
 ): Frame
-	local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
-	local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
+
 	
 	local allSelected = scope:Computed(function(use)
 		if #use(searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes() and #use(searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes() then
@@ -56,7 +56,10 @@ function CategoryFrame(
 		end
 	end)
 
-
+	local function SelectAll()
+		searchAssetCategories:set(AssetFilterCategories.getAllAssetTypes())
+		searchBundleCategories:set(BundleFilterCategories.getAllRobloxBundleTypes())
+	end
 
 	-- Outer container frame
 	local categoryFrame = scope:New "Frame" {
@@ -150,8 +153,7 @@ function CategoryFrame(
 						isSelected = allSelected,
 						onActivated = function()
 							if not peek(allSelected) then
-								searchAssetCategories:set(AssetFilterCategories.getAllAssetTypes())
-								searchBundleCategories:set(BundleFilterCategories.getAllRobloxBundleTypes())
+								SelectAll()
 							else
 								searchAssetCategories:set({})
 								searchBundleCategories:set({})
@@ -184,6 +186,8 @@ function CategoryFrame(
 								local assetIndex = table.find(currentAssets, assetType)
 
 								if assetIndex then
+									SelectAll()
+									--[[
 									-- Create new array without the asset
 									local newAssets = {}
 
@@ -194,11 +198,10 @@ function CategoryFrame(
 									end
 
 									searchAssetCategories:set(newAssets) -- Set the new array
+									]]
 								else
 									-- Create new array with the asset added
-									local newAssets = {table.unpack(currentAssets)}
-									table.insert(newAssets, assetType)
-									searchAssetCategories:set(newAssets) -- Set the new array
+									searchAssetCategories:set({assetType}) -- Set the new array
 								end
 							end
 
@@ -224,11 +227,19 @@ function CategoryFrame(
 									searchBundleCategories:set({bundleType})
 									searchAssetCategories:set({})
 									return
-								end
+								end 
 
 								local currentBundles = peek(searchBundleCategories) -- Use peek instead of use
 								local assetIndex = table.find(currentBundles, bundleType)
 
+								if assetIndex then
+									SelectAll()
+								else
+									searchBundleCategories:set({bundleType})
+									searchAssetCategories:set({})
+								end
+
+								--[[
 								if assetIndex then
 									-- Create new array without the asset
 									local newAssets = {}
@@ -244,6 +255,7 @@ function CategoryFrame(
 									table.insert(newAssets, bundleType)
 									searchBundleCategories:set(newAssets) -- Set the new array
 								end
+								]]
 							end
 						})
 					end)
