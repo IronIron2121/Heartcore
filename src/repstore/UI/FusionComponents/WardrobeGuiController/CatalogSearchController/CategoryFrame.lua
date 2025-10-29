@@ -1,10 +1,7 @@
 -- CategoryFrame.lua
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AvatarEditorService = game:GetService("AvatarEditorService")
 
 -- Folders
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
@@ -95,7 +92,6 @@ function CategoryFrame(
 				Size = UDim2.fromScale(0.8, 0.1),
 				
 				[Children] = {
-
 					BaseButton(scope, {
 						name = "MyOutfits",
 						text = "My Outfits",

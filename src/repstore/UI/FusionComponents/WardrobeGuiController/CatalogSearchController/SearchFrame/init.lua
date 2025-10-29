@@ -19,7 +19,6 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion
 local Children = Fusion.Children
-local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 type UsedAs<T> = Fusion.UsedAs<T>
 
