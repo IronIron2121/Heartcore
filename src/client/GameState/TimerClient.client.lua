@@ -13,7 +13,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local LocalTimer = require(GameState:WaitForChild("LocalTimer"))
 
 -- Remotes / Bindables
-local UpdateAllLocalNextPhaseStartTimes = Remotes:WaitForChild("UpdateAllLocalNextPhaseStartTimes")
+local UpdateLocalPhaseTimes = Remotes:WaitForChild("UpdateLocalPhaseTimes")
 
 --
 
@@ -23,9 +23,8 @@ end
 
 local function initialiseLocalTimer()
     LocalTimer.initialiseLocalTimer()
-    print("Local timer initialised")
 end
 
 initialiseLocalTimer()
 
-UpdateAllLocalNextPhaseStartTimes.OnClientEvent:Connect(nextPhaseUpdated)
+UpdateLocalPhaseTimes.OnClientEvent:Connect(nextPhaseUpdated)

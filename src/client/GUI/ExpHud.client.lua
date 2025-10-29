@@ -1,8 +1,5 @@
 --!strict
 
-warn("initialising exp gui (top of script)")
-
-
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -31,7 +28,6 @@ local ExpBar = require(FusionComponents:WaitForChild("ExpBar"))
 
  
 local function initialiseGUI()
-    warn("initialising exp gui (in function)")
 	local screenGUI = scope:New "ScreenGui" {
 		Parent = PlayerGui
 	} 
