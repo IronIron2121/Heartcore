@@ -6,14 +6,12 @@ warn("initialising exp gui (top of script)")
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
-local ServerScriptService = game:GetService("ServerScriptService")
 
 
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -24,7 +22,6 @@ local localPlayer = Players.LocalPlayer
 
 
 local scope = Fusion:scoped()
-local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 

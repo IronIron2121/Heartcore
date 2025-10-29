@@ -404,7 +404,7 @@ function GameTimer.initialiseTimer(): ()
             task.wait(PHASE_CLOCK_UPDATE_INTERVAL)
         end
     end)
-
+ 
     print("GameTimer system started successfully!")
 end
 
