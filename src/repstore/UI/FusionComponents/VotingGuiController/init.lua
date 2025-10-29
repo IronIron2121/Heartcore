@@ -117,7 +117,8 @@ end
 local votingTheme = scope:Value("")
 
 function VotingGuiController.Initialise(
-    VoteGuiVisible: UsedAs<boolean>
+    VoteGuiVisible: UsedAs<boolean>,
+    TimeText: UsedAs<string>
 )
     local visibilityObserver = scope:Observer(VoteGuiVisible)
 
@@ -202,7 +203,7 @@ function VotingGuiController.Initialise(
                                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
                             },
 
-                                                        scope:New "Frame"{
+                                scope:New "Frame"{
                                 Name = "TopBar",
                                 Size = UDim2.fromScale(1, 0.1),
                                 LayoutOrder = 1,
@@ -270,7 +271,8 @@ function VotingGuiController.Initialise(
 
                                             scope:New "TextLabel" {
                                                 Name = "Timer",
-                                                Text = "HH:MM:SS",
+                                                -- Text = "HH:MM:SS",
+                                                Text = TimeText,
                                                 TextScaled = true,
                                                 Size = UDim2.fromScale(1, 1),
                                                 LayoutOrder = 2,
