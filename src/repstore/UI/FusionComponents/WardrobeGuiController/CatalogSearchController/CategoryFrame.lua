@@ -207,7 +207,7 @@ function CategoryFrame(
 					
 					-- Create category buttons for bundles
 					scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, index, bundleType)
-						return CategoryButton(scope, {
+						return index, CategoryButton(scope, {
 							text = bundleType.Name,
 							size = UDim2.fromScale(0.8, 0.1),
 							layoutOrder = index + #AssetFilterCategories.getAllAssetTypes(),
