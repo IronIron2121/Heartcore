@@ -20,7 +20,6 @@ local CategoryFrame = require(script:WaitForChild("CategoryFrame"))
 local OutfitsFrame = require(script:WaitForChild("OutfitsFrame"))
 local SearchFrame = require(script:WaitForChild("SearchFrame"))
 
-
 --
 
 local CatalogSearchController = {}
