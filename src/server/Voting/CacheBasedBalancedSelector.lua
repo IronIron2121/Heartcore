@@ -126,7 +126,7 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
 end
 
 -- Select an outfit using the pre-built buckets (main selection method)
-function CacheBasedBalancedSelector:selectOutfit()
+function CacheBasedBalancedSelector:selectOutfit(userId: number)
     self.stats.selectionsServed = self.stats.selectionsServed + 1
     
     -- Check if we have valid buckets
@@ -157,7 +157,7 @@ function CacheBasedBalancedSelector:selectOutfit()
     end
     
     -- Step 2: Within tier, prefer outfits with fewer views (weighted by inverse view count)
-    return self:selectFromBucket(selectedBucket)
+    return self:selectFromBucket(selectedBucket, userId)
 end
 
 -- Select tier using weighted random selection
@@ -199,7 +199,7 @@ function CacheBasedBalancedSelector:selectWeightedTier()
 end
 
 -- Select outfit from within a bucket (weighted by inverse view count)
-function CacheBasedBalancedSelector:selectFromBucket(bucket)
+function CacheBasedBalancedSelector:selectFromBucket(bucket: {outfits: {}}, userId: number)
     local outfits = bucket.outfits
     
     if #outfits == 1 then

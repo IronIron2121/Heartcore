@@ -29,9 +29,8 @@ local function getContestSubmissionsCache()
     return VotingStoreManager.getPublicCache()
 end
 
-local function getBalancedOutfit()
-    local balancedOutfit = VotingStoreManager.getBalancedOutfit()
-    print("Now returning", balancedOutfit)
+local function getBalancedOutfit(player: Player)
+    local balancedOutfit = VotingStoreManager.getBalancedOutfit(player.UserId)
     return balancedOutfit
 end
 
