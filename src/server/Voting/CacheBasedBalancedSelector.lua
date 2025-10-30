@@ -199,11 +199,23 @@ function CacheBasedBalancedSelector:selectWeightedTier()
 end
 
 -- Select outfit from within a bucket (weighted by inverse view count)
-function CacheBasedBalancedSelector:selectFromBucket(bucket: {outfits: {}}, userId: number)
+function CacheBasedBalancedSelector:selectFromBucket(
+    bucket: {
+        outfits: {{
+            entryKey: string,
+            humanoidDescription: {},
+            userId: number,
+            views: number,
+            votes: number
+        }}
+    },
+    player: Player
+)
     local outfits = bucket.outfits
     
     if #outfits == 1 then
-        return outfits[1]
+        if outfits[1].userId == player.UserId then warn("Own player outfit") end
+        return outfits[1].userId ~= player.UserId and outfits[1] or nil
     end
     
     -- Calculate weights (inverse of view count + 1)
@@ -237,7 +249,8 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket: {outfits: {}}, user
     
     -- Fallback to random selection
     local randomIndex = math.random(1, #outfits)
-    return outfits[randomIndex]
+    local randomOutfit = outfits[randomIndex]
+    return randomOutfit.userId ~= player.UserId and randomOutfit or nil
 end
 
 -- Hash-based fallback for when buckets aren't available
