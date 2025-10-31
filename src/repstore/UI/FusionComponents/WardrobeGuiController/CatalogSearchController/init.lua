@@ -40,9 +40,9 @@ function CatalogSearchController.new(parentFrame: Frame)
 	self.searchText = self.scope:Value("")
 	self.currentView = WardrobeGuiState.currentView
 
-	self.searchCallback = function()
+	self.searchCallback = function(keyword: string?)
 		local catalogParams = CatalogSearchParams.new()
-		catalogParams.SearchKeyword = peek(self.searchText)
+		catalogParams.SearchKeyword = keyword or peek(self.searchText)
 		catalogParams.SortType = peek(self.searchSort)
 		catalogParams.Limit = 60
 		catalogParams.AssetTypes = peek(self.searchAssetCategories)
@@ -66,6 +66,7 @@ function CatalogSearchController:Initialise()
 	self:_initialiseCategoryFrame()
 	self:_initialiseSearchFrame()
 	self:_intialiseOutfitFrame()
+	self.searchCallback("swag")
 end
 
 function CatalogSearchController:_initialiseCategoryFrame()
