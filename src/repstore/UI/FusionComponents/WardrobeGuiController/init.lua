@@ -17,7 +17,7 @@ local WardrobeGuiController = {}
 function WardrobeGuiController.Initialise()
 	-- Get the open outfit catalog button so we can pass it to the catalog gui that uses it
 	local MainHudGui, WardrobeButtonToggled = MainHudGui()
-	local WardrobeGui, AvatarContainer, CatalogContainer = WardrobeGui(WardrobeButtonToggled) 
+	local WardrobeGui, AvatarContainer, CatalogContainer = WardrobeGui(WardrobeButtonToggled)
 	
 	-- The above just initialises the surrounding framework
 	-- The actual avatar interaction gui (preview viewport, equipment tracking) will be initialised in the "AvatarEditorController" itself - 

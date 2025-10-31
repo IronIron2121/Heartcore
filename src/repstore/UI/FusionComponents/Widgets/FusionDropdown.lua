@@ -122,7 +122,7 @@ function FusionDropdown<T>(
 	props: {
 		name: UsedAs<string>?,
 		options: {T},
-		selectedValue: Fusion.Value<T>,
+		selectedValue: UsedAs<Enum.CatalogSortType>,
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
 		layoutOrder: UsedAs<number>?,
@@ -130,7 +130,6 @@ function FusionDropdown<T>(
 		placeholder: UsedAs<string>?,
 	}
 ): Frame
-
 	local isHovering = scope:Value(false)
 	local isOpen = scope:Value(false)
 	local currentDisplay = scope:Value(nil)
