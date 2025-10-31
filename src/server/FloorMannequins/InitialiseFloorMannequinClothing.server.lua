@@ -28,7 +28,7 @@ local function makeMannequinInvisible(mannequin: Instance)
 end
 
 local function setupMannequinAsync(mannequin: Instance)
-	makeMannequinInvisible(mannequin)
+	--makeMannequinInvisible(mannequin)
 	-- Get the list of accessories, bundles, and skin color to apply to the mannequin
 	local accessoryIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_ACCESSORY_IDS_ATTRIBUTE)
 	local bundleIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE)
@@ -68,11 +68,6 @@ local function setupMannequinAsync(mannequin: Instance)
 end
 
 local function onMannequinAdded(mannequin: Model)
-	--print("Setting up mannequin clothing:", mannequin.Name)
-end
-
-local function onMannequinAdded(mannequin: Model)
-	
 	-- Wait for humanoid to be ready
 	local humanoid = mannequin:WaitForChild("Humanoid", 5)
 	if not humanoid then
