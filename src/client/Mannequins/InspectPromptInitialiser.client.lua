@@ -35,84 +35,84 @@ allPrompts.Name = "allPrompts"
 -- Create custom GUI when proximity prompt appears (Cece addition)
 
 local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
-		prompt.Style = Enum.ProximityPromptStyle.Custom
-		prompt.ActionText = "" -- hide Roblox default
-		prompt.ObjectText = ""
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	prompt.ActionText = "" -- hide Roblox default
+	prompt.ObjectText = ""
 
-		local adornee = mannequin.PrimaryPart or mannequin:FindFirstChild("Base")
-		if not adornee then return end
+	local adornee = mannequin.PrimaryPart or mannequin:FindFirstChild("Base")
+	if not adornee then return end
 
-		-- Prevent duplicates
-		if adornee:FindFirstChild("CustomInspectPrompt") then
-			return
-		end
-
-
-		local billboard = Instance.new("BillboardGui", allPrompts)
-		billboard.Name = "CustomInspectPrompt"
-		billboard.Adornee = adornee
-		billboard.Size = UDim2.new(0, 100, 0, 30)
-		billboard.StudsOffset = Vector3.new(0, 2, 0)
-		billboard.AlwaysOnTop = true
-		billboard.Active = true
-		billboard.Enabled = false
-
-		local frame = Instance.new("Frame")
-		frame.Size = UDim2.new(1, 0, 1, 0)
-		frame.BackgroundColor3 = Color3.fromRGB(90, 47, 243)
-		frame.BackgroundTransparency = 0.3
-		frame.BorderSizePixel = 0
-		frame.Parent = billboard
-		
-		-- rounded corners
-		local corner = Instance.new("UICorner")
-		corner.CornerRadius = UDim.new(3,0)
-		corner.Parent = frame
-
-		-- Add border
-		local stroke = Instance.new("UIStroke")
-		stroke.Color = Color3.fromRGB(255, 255, 255)
-		stroke.Thickness = 2
-		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		stroke.Parent = frame
-
-		-- add text button
-		local button = Instance.new("TextButton")
-		button.Size = UDim2.new(1, 0, 1, 0)
-		button.BackgroundTransparency = 1 -- invisible background, just shows text
-		button.TextColor3 = Color3.fromRGB(255, 255, 255)
-		button.Font = Enum.Font.FredokaOne
-		button.TextSize = 15
-		button.Text = "" -- will be set dynamically
-		button.AutoButtonColor = false -- stop Roblox’s default hover effect
-		button.Parent = frame
-
-		-- rounded button corners
-		local buttonCorner = Instance.new("UICorner")
-		buttonCorner.CornerRadius = UDim.new(3,0)
-		buttonCorner.Parent = button
-
-		-- tween settings
-		local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad,	Enum.EasingDirection.Out)
-		local function tweenStroke(targetColor: Color3, targetThickness: number)
-			TweenService:Create(stroke, tweenInfo, {Color = targetColor, Thickness = targetThickness}):Play()
-		end
-
-		-- hover animations
-		button.MouseEnter:Connect(function()
-			tweenStroke(UI_CONSTANTS.TASTEMAKER_GREEN)
-		end)
-
-		button.MouseLeave:Connect(function()
-			tweenStroke(Color3.fromRGB(255, 255, 255), 2) -- back to white
-		end)
+	-- Prevent duplicates
+	if adornee:FindFirstChild("CustomInspectPrompt") then
+		return
+	end
 
 
-		--button activate on click
-		button.Activated:Connect(function()
-			prompt:InputHoldBegin()
-			prompt:InputHoldEnd()
-		end)
+	local billboard = Instance.new("BillboardGui", allPrompts)
+	billboard.Name = "CustomInspectPrompt"
+	billboard.Adornee = adornee
+	billboard.Size = UDim2.new(0, 100, 0, 30)
+	billboard.StudsOffset = Vector3.new(0, 2, 0)
+	billboard.AlwaysOnTop = true
+	billboard.Active = true
+	billboard.Enabled = false
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(1, 0, 1, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(90, 47, 243)
+	frame.BackgroundTransparency = 0.3
+	frame.BorderSizePixel = 0
+	frame.Parent = billboard
+	
+	-- rounded corners
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(3,0)
+	corner.Parent = frame
+
+	-- Add border
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(255, 255, 255)
+	stroke.Thickness = 2
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Parent = frame
+
+	-- add text button
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(1, 0, 1, 0)
+	button.BackgroundTransparency = 1 -- invisible background, just shows text
+	button.TextColor3 = Color3.fromRGB(255, 255, 255)
+	button.Font = Enum.Font.FredokaOne
+	button.TextSize = 15
+	button.Text = "" -- will be set dynamically
+	button.AutoButtonColor = false -- stop Roblox’s default hover effect
+	button.Parent = frame
+
+	-- rounded button corners
+	local buttonCorner = Instance.new("UICorner")
+	buttonCorner.CornerRadius = UDim.new(3,0)
+	buttonCorner.Parent = button
+
+	-- tween settings
+	local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad,	Enum.EasingDirection.Out)
+	local function tweenStroke(targetColor: Color3, targetThickness: number)
+		TweenService:Create(stroke, tweenInfo, {Color = targetColor, Thickness = targetThickness}):Play()
+	end
+
+	-- hover animations
+	button.MouseEnter:Connect(function()
+		tweenStroke(UI_CONSTANTS.TASTEMAKER_GREEN)
+	end)
+
+	button.MouseLeave:Connect(function()
+		tweenStroke(Color3.fromRGB(255, 255, 255), 2) -- back to white
+	end)
+
+
+	--button activate on click
+	button.Activated:Connect(function()
+		prompt:InputHoldBegin()
+		prompt:InputHoldEnd()
+	end)
 
 
 	-- Update the text key prompt dynamically
@@ -204,11 +204,8 @@ local function showAllPrompts()
 end
  
 local function onMannequinAdded(mannequin: Model)
-	--print("Adding inspect prompt to mannequin:", mannequin.Name)
-	local base = mannequin:WaitForChild("Base", 1)
-
 	-- Create a new ProximityPrompt in the mannequin
-	local inspectPrompt = getInspectPrompt()
+	local inspectPrompt = getInspectPrompt() 
 	inspectPrompt:AddTag(Constants.INSPECT_PROMPT_TAG)
 	inspectPrompt.Parent = mannequin.PrimaryPart or mannequin:FindFirstChildOfClass("BasePart")
 
