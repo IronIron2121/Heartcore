@@ -28,10 +28,13 @@ local function makeMannequinInvisible(mannequin: Instance)
 end
 
 local function setupMannequinAsync(mannequin: Instance)
-	--makeMannequinInvisible(mannequin)
 	-- Get the list of accessories, bundles, and skin color to apply to the mannequin
 	local accessoryIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_ACCESSORY_IDS_ATTRIBUTE)
 	local bundleIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE)
+
+	if bundleIdsString == "" then
+		makeMannequinInvisible(mannequin)
+	end
 
 	-- Convert the accessory and bundle ID strings into arrays
 	local accessoryIds = stringOfNumbersToArray(accessoryIdsString)
@@ -58,13 +61,9 @@ local function setupMannequinAsync(mannequin: Instance)
 		end
 	end
 
-	-- Note: Bundle handling might need additional logic depending on your requirements
-	-- You may want to apply bundles to the humanoid description here as well
 	if #bundleIds > 0 then
 		-- Add bundle handling logic here if needed
 	end
-	
-	--print("Finished setting up clothing for mannequin:", mannequin.Name)
 end
 
 local function onMannequinAdded(mannequin: Model)
