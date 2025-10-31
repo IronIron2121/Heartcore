@@ -1,21 +1,23 @@
 --!strict
 
 -- Services
+local ServerScriptService 		= game:GetService("ServerScriptService")
 local ReplicatedStorage 		= game:GetService("ReplicatedStorage")
-local UserInputService 			= game:GetService("UserInputService")
 local DataStoreService 			= game:GetService("DataStoreService")
-local InsertService 			= game:GetService("InsertService")
 local Players 					= game:GetService("Players")
 
--- s
+-- Folders
 local DataTables	= ReplicatedStorage:WaitForChild("DataTables")
-local Libraries		= ReplicatedStorage:WaitForChild("Libraries")
 local Trackers 		= ReplicatedStorage:WaitForChild("Trackers")
 local Classes 		= ReplicatedStorage:WaitForChild("Classes")
 local Utility 		= ReplicatedStorage:WaitForChild("Utility")
 local Remotes 		= ReplicatedStorage:WaitForChild("Remotes") 
+local Voting 		= ServerScriptService:WaitForChild("Voting")
+
+
 
 -- Module Scripts
+local PlayerViewedOutfitsTracker = require(Voting:WaitForChild("PlayerViewedOutfitsTracker"))
 local arrayOfNumbersToString 	= require(Utility:WaitForChild("arrayOfNumbersToString"))
 local Constants 				= require(ReplicatedStorage:WaitForChild("Constants")) 
 local BuyableShopItems			= require(DataTables:WaitForChild("BuyableShopItems"))
@@ -109,6 +111,8 @@ local function onPlayerAdded(player: Player)
 		assert(playerDetails, "Failed to create player details")
 	end
 	initialiseOwnedItemsDatastore(player.UserId)
+
+	PlayerViewedOutfitsTracker.OnPlayerAdded(player)
 end
 
 

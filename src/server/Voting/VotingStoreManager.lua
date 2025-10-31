@@ -507,8 +507,12 @@ function VotingStoreManager.getCachedEntry(entryKey: string): {}?
 end
 
 -- Get a balanced outfit selection
-function VotingStoreManager.getBalancedOutfit(): string?
-    return balancedSelector:selectOutfit()
+function VotingStoreManager.getBalancedOutfit(player: Player): string?
+    local outfit = balancedSelector:selectOutfit(player)
+    if outfit then
+        PlayerViewedOutfitsTracker.AddOutfitToPlayerList(player, outfit.userId)
+    end
+    return balancedSelector:selectOutfit(player)
 end
 
 function VotingStoreManager.forceFlush(): ()

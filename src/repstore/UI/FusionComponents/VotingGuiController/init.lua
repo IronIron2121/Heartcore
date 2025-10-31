@@ -78,11 +78,6 @@ local function refreshOutfitVoteTiles()
         
         if success and outfitData and not table.find(usedIds, outfitData.userId) then
             if not outfitData.humanoidDescription then 
-                warn("outfit == ", outfitData)
-                print("outfit == ", outfitData)
-                assert(outfitData.humanoid, "No humanoid description here!")
-                warn("outfit == ", outfitData)
-                print("outfit == ", outfitData)
                 return
             end
             newTiles[i] = {
