@@ -2,9 +2,7 @@
 -- AvatarViewport.lua
 
 -- Services
-local AvatarEditorService = game:GetService("AvatarEditorService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 
 
@@ -16,14 +14,11 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
--- TODO: get the actual URL, so to speak...this is hard to parse
-local WardrobeGuiState = require(script.Parent.Parent.WardrobeGuiState)
 local OutfitClientService = require(Utility:WaitForChild("OutfitClientService"))
 
 -- Fusion
 local peek = Fusion.peek
 local Children = Fusion.Children
-local OnEvent = Fusion.OnEvent
 
 -- GUI Components
 local RotateButton = require(script:WaitForChild("RotateButton"))
