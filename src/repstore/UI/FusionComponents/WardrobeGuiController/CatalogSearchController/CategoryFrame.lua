@@ -28,9 +28,6 @@ local BaseButton = require(Widgets:WaitForChild("BaseButton"))
 
 function CategoryFrame(
 	scope: Fusion.Scope,
-	currentView: Fusion.Value<string>,
-	searchAssetCategories: Fusion.Value<{Enum.AvatarAssetType}>,
-	searchBundleCategories: Fusion.Value<{Enum.BundleType}>,
 	props: {
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
@@ -40,13 +37,17 @@ function CategoryFrame(
 		backgroundTransparency: UsedAs<number>?,
 		visible: UsedAs<boolean>?,
 		name: UsedAs<string>?,
-		isSelected: UsedAs<boolean>?
-	}?
+		isSelected: UsedAs<boolean>?,
+		currentView: Fusion.Value<string>,
+		searchAssetCategories: Fusion.Value<{Enum.AvatarAssetType}>,
+		searchBundleCategories: Fusion.Value<{Enum.BundleType}>,
+		searchCallback: () -> ()
+	}
 ): Frame
 
 	
 	local allSelected = scope:Computed(function(use)
-		if #use(searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes() and #use(searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes() then
+		if #use(props.searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes() and #use(props.searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes() then
 			return true
 		else
 			return false
@@ -54,8 +55,8 @@ function CategoryFrame(
 	end)
 
 	local function SelectAll()
-		searchAssetCategories:set(AssetFilterCategories.getAllAssetTypes())
-		searchBundleCategories:set(BundleFilterCategories.getAllRobloxBundleTypes())
+		props.searchAssetCategories:set(AssetFilterCategories.getAllAssetTypes())
+		props.searchBundleCategories:set(BundleFilterCategories.getAllRobloxBundleTypes())
 	end
 
 	-- Outer container frame
@@ -68,7 +69,7 @@ function CategoryFrame(
 		BackgroundColor3 = (props and props.backgroundColor3) or UI_CONSTANTS.TASTEMAKER_PURPLE,
 		BackgroundTransparency = (props and props.backgroundTransparency) or UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
 		Visible = scope:Computed(function(use)
-			return use(currentView) == "Catalog"
+			return use(props.currentView) == "Catalog"
 		end),
 
 		[Children] = {
@@ -103,7 +104,7 @@ function CategoryFrame(
 						textColor = Color3.new(1,1,1),
 
 						onActivated = function()
-							currentView:set("Outfits")
+							props.currentView:set("Outfits")
 						end,
 						
 						[Children] = {
@@ -150,9 +151,11 @@ function CategoryFrame(
 						onActivated = function()
 							if not peek(allSelected) then
 								SelectAll()
+								props.searchCallback()
 							else
-								searchAssetCategories:set({})
-								searchBundleCategories:set({})
+								props.searchAssetCategories:set({})
+								props.searchBundleCategories:set({})
+								props.searchCallback()
 							end
 						end
 					}),
@@ -167,37 +170,29 @@ function CategoryFrame(
 								if use(allSelected) then
 									return false
 								else
-									return table.find(use(searchAssetCategories), assetType) ~= nil
+									return table.find(use(props.searchAssetCategories), assetType) ~= nil
 								end
 							end),
 							 
 							onActivated = function()
 								if use(allSelected) then
-									searchBundleCategories:set({})
-									searchAssetCategories:set({assetType})
+									props.searchBundleCategories:set({})
+									props.searchAssetCategories:set({assetType})
+									props.searchCallback()
 									return
 								end
 
-								local currentAssets = peek(searchAssetCategories) -- Use peek instead of use
+								local currentAssets = peek(props.searchAssetCategories) -- Use peek instead of use
 								local assetIndex = table.find(currentAssets, assetType)
 
 								if assetIndex then
 									SelectAll()
-									--[[
-									-- Create new array without the asset
-									local newAssets = {}
-
-									for i, asset in ipairs(currentAssets) do
-										if i ~= assetIndex then 
-											table.insert(newAssets, asset)
-										end
-									end
-
-									searchAssetCategories:set(newAssets) -- Set the new array
-									]]
+									props.searchCallback()
 								else
 									-- Create new array with the asset added
-									searchAssetCategories:set({assetType}) -- Set the new array
+									props.searchAssetCategories:set({assetType}) -- Set the new array
+									props.searchBundleCategories:set({})
+									props.searchCallback()
 								end
 							end
 
@@ -214,44 +209,29 @@ function CategoryFrame(
 								if use(allSelected) then
 									return false
 								else
-									return table.find(use(searchBundleCategories), bundleType) ~= nil
+									return table.find(use(props.searchBundleCategories), bundleType) ~= nil
 								end
 							end),
 
 							onActivated = function()
 								if use(allSelected) then
-									searchBundleCategories:set({bundleType})
-									searchAssetCategories:set({})
+									props.searchBundleCategories:set({bundleType})
+									props.searchAssetCategories:set({})
+									props.searchCallback()
 									return
 								end 
 
-								local currentBundles = peek(searchBundleCategories) -- Use peek instead of use
+								local currentBundles = peek(props.searchBundleCategories) -- Use peek instead of use
 								local assetIndex = table.find(currentBundles, bundleType)
 
 								if assetIndex then
 									SelectAll()
+									props.searchCallback()
 								else
-									searchBundleCategories:set({bundleType})
-									searchAssetCategories:set({})
+									props.searchBundleCategories:set({bundleType})
+									props.searchAssetCategories:set({})
+									props.searchCallback()
 								end
-
-								--[[
-								if assetIndex then
-									-- Create new array without the asset
-									local newAssets = {}
-									for i, asset in ipairs(currentBundles) do
-										if i ~= assetIndex then
-											table.insert(newAssets, asset)
-										end
-									end
-									searchBundleCategories:set(newAssets) -- Set the new array
-								else
-									-- Create new array with the asset added
-									local newAssets = {table.unpack(currentBundles)}
-									table.insert(newAssets, bundleType)
-									searchBundleCategories:set(newAssets) -- Set the new array
-								end
-								]]
 							end
 						})
 					end)
