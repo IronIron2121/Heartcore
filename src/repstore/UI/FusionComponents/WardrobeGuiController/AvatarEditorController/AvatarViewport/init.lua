@@ -125,33 +125,28 @@ function AvatarViewport(
 
 			
 			Button(scope, {
-				text = scope:Computed(function(use)
-					return use(WardrobeGuiState.currentView) == "Catalog" and "Save This Outfit" or "BUY outfit"
-				end),
-				
+				text = "Buy outfit",
 				size = UDim2.fromScale(0.3, 0.1),
 				position = UDim2.fromScale(1,1),
 				anchorPoint = Vector2.new(1,1),
 				zIndex = 2,
+				visible = true,
 				
 				onActivated = function()
-					if peek(WardrobeGuiState.currentView) == "Catalog" then
-						OutfitClientService.SaveCurrentPlayerOutfit(localPlayer)
-					else
-						OutfitClientService.PurchasePlayerOutfit(localPlayer)
-					end
+					OutfitClientService.PurchasePlayerOutfit(localPlayer)
 				end,
 			}),
 			
 			Button(scope, {
-				text = "Alt 1",
-				visible = scope:Computed(function(use)
-					return use(WardrobeGuiState.currentView) ~= "Catalog"
-				end),
+				text = "Save This Outfit",
+				visible = true,
 				size = UDim2.fromScale(0.3, 0.1),
 				position = UDim2.fromScale(0,1),
 				anchorPoint = Vector2.new(0,1),
 				zIndex = 2,
+				onActivated = function()
+					OutfitClientService.SaveCurrentPlayerOutfit(localPlayer)
+				end
 			}),
 
 			viewportCamera:set(
