@@ -76,7 +76,8 @@ function SearchResultsFrame(
 			scope:ForValues(currentPage, 
 				function(use, scope, itemDetails)
 					return FusionItemTile(scope, itemDetails)
-				end)
+				end
+			)
 		}
 
 	} :: ScrollingFrame

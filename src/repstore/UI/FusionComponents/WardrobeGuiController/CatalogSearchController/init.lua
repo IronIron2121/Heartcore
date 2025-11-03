@@ -39,8 +39,14 @@ function CatalogSearchController.new(parentFrame: Frame)
 	self.searchResults = self.scope:Value(nil)
 	self.searchText = self.scope:Value("")
 	self.currentView = WardrobeGuiState.currentView
+	
+	self.clearCatalogCallback = function()
+
+	end
 
 	self.searchCallback = function(keyword: string?)
+		self.clearCatalogCallback()
+
 		local catalogParams = CatalogSearchParams.new()
 		catalogParams.SearchKeyword = keyword or peek(self.searchText)
 		catalogParams.SortType = peek(self.searchSort)
@@ -53,7 +59,13 @@ function CatalogSearchController.new(parentFrame: Frame)
 		end)
 
 		if success then
-			self.searchResults:set(results)
+			--self.searchResults:set(results)
+			--[[
+			for _, item in pairs(self.searchResults:GetCurrentPage) do
+				itemTile()
+			end
+			
+			]]
 		else
 			warn("Failed to search catalog for keyword:", self.searchText)
 		end
