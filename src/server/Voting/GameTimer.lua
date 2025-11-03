@@ -30,6 +30,7 @@ local PHASE_CLOCK_UPDATE_INTERVAL = 1
 -- Remotes / Bindables
 local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
 local PhaseChangedRemote = Remotes:WaitForChild("PhaseChangedRemote")
+local UpdateLocalPhaseTimes = Remotes:WaitForChild("UpdateLocalPhaseTimes")
 
 -- Instances
 local centralPondModel = centralPond:WaitForChild("centralPond")
@@ -69,8 +70,8 @@ local function getErePreviousPhaseUnixTime()
     return GameTimerCache.erePreviousPhaseUnixTime
 end
 
-local function getNextPhaseUnixTime()
-    return GameTimerCache.nextPhaseUnixTime
+function GameTimer.getNextPhaseUnixTime()
+    return GameTimerCache.nextPhaseUnixTime or nil
 end
 
 function GameTimer.getCurrentPhasePrefix(): string?
@@ -201,11 +202,7 @@ local function currentPhaseHasExpired()
 end
 
 local function updatePhase()
-    if DEBUG_MODE then
-        print("=== DEBUG MODE: Starting phase transition ===")
-    else
-        print("Starting phase transition...")
-    end
+    print("Starting phase transition...")
     
     local currentUnixTime = DateTime.now().UnixTimestamp 
     
@@ -231,7 +228,7 @@ local function updatePhase()
         GameTimerCache.erePreviousPhaseUnixTime = GameTimerCache.previousPhaseUnixTime
         GameTimerCache.previousPhaseUnixTime = GameTimerCache.currentPhaseUnixTime
         GameTimerCache.currentPhaseUnixTime = currentUnixTime
-        GameTimerCache.nextPhaseUnixTime = nil -- Invalidate cache so it recalculates
+        GameTimerCache.nextPhaseUnixTime = nil
         
         PhaseChanged:Fire()
         PhaseChangedRemote:FireAllClients()
@@ -356,11 +353,7 @@ function GameTimer.initialiseTimer(): ()
         while true do
             task.wait(CHECK_TIME_LAPSE_INTERVAL)
             
-            if DEBUG_MODE then
-                warn("DEBUG: Checking phase expiry...")
-            else
-                warn("Checking phase expiry...")
-            end
+            warn("Checking phase expiry...")
             
             if currentPhaseHasExpired() then
                 print("Phase has expired, attempting transition...")
@@ -384,7 +377,7 @@ function GameTimer.initialiseTimer(): ()
     task.spawn(function()
         while true do
             local timestampNow = DateTime.now().UnixTimestamp
-            local nextPhaseTime = getNextPhaseUnixTime()
+            local nextPhaseTime = GameTimer.getNextPhaseUnixTime()
             
             if not nextPhaseTime or nextPhaseTime <= timestampNow then
                 TimeLabel.Text = DEBUG_MODE and "DEBUG: LOADING..." or "LOADING..."
@@ -404,7 +397,7 @@ function GameTimer.initialiseTimer(): ()
             task.wait(PHASE_CLOCK_UPDATE_INTERVAL)
         end
     end)
-
+ 
     print("GameTimer system started successfully!")
 end
 

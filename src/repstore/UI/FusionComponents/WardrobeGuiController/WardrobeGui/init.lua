@@ -24,9 +24,11 @@ local Out = Fusion.Out
 local peek = Fusion.peek
 local scope = Fusion:scoped()
 
+type UsedAs<T> = Fusion.UsedAs<T>
 
 return function(Toggled: Fusion.Value<boolean>)
-	local WardrobeContainer, AvatarContainer, CatalogContainer = WardrobeContainer(scope) 
+	local wardrobeContainerVisible = Value(scope, true)
+	local WardrobeContainer, AvatarContainer, CatalogContainer = WardrobeContainer(scope, Toggled) 
 
 	local isToggled = scope:Computed(function(use, _) 
 		return use(Toggled) == true

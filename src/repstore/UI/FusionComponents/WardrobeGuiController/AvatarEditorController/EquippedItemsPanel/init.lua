@@ -65,7 +65,7 @@ function EquippedItemsPanel(
 		Size = UDim2.fromScale(1, 1),
 		Position = UDim2.fromScale(0, 0),
 
-		BackgroundTransparency = backgroundTransparencySpring,
+		BackgroundTransparency = 1,
 		BackgroundColor3 = backgroundColourSpring,
 
 		-- Canvas
@@ -82,8 +82,25 @@ function EquippedItemsPanel(
 				ItemLineAlignment = Enum.ItemLineAlignment.Center,
 				Padding = UDim.new(0, 10),
 				SortOrder = Enum.SortOrder.Name
-			},
+			},			
+			equippedItemButtons,
+			scope:New "Frame" {
+				Name = "rightBuffer",
+				Size = UDim2.fromScale(0.03, 1),
+				BackgroundTransparency = 1,
+			}
+		}
+	} :: ScrollingFrame
 
+	
+	local EquippedItemsPanel = scope:New "Frame" {
+			Size = UDim2.fromScale(1, 0.1),
+			LayoutOrder = 2,
+			BackgroundTransparency = backgroundTransparencySpring,
+			BackgroundColor3 = backgroundColourSpring,
+			AnchorPoint = Vector2.new(0, 0),
+
+		[Children] = {
 			scope:New "UICorner" {
 				CornerRadius = UDim.new(0.2,0)
 			},
@@ -94,19 +111,6 @@ function EquippedItemsPanel(
 				PaddingLeft = UDim.new(0.01,0),
 				PaddingRight = UDim.new(0.01,0),
 			},
-			
-			equippedItemButtons
-		}
-	} :: ScrollingFrame
-
-	
-	local EquippedItemsPanel = scope:New "Frame" {
-			Size = UDim2.fromScale(1, 0.1),
-			LayoutOrder = 2,
-			BackgroundTransparency = 1,
-			AnchorPoint = Vector2.new(0, 0),
-
-		[Children] = {
 			scrollFrame,
 		}
 	}

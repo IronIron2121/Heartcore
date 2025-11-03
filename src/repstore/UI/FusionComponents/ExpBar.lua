@@ -40,45 +40,49 @@ function ExpBar(
 ): Frame 
 
 
+
+
     local frame = scope:New "Frame" {
         Name = "ExpBarContainer",
         BackgroundColor3 = Color3.new(1,1,1),
         BackgroundTransparency = 1,
-        Size = UDim2.fromScale(0.3,1),
-        Position = UDim2.fromScale(1, 1),
+        AnchorPoint = Vector2.new(0,0),
+        Size = UDim2.fromScale(0.15,0.5),
+        Position = UDim2.fromScale(0,0),
 
         [Children] = {
             scope:New "ImageLabel" {
-            Name = props.name or "XpBar",
-            Image = ImageUris.XpBar,
-            Visible = props.visible or true,
-            AnchorPoint = props.anchorPoint or Vector2.new(0.5,0.5),
-            Position = props.position or UDim2.fromScale(0.5,0.5),
+            Name = props.name or "ExpBar",
+            Image = ImageUris.ExpBar,
+            Visible = true,
+            AnchorPoint = props.anchorPoint or Vector2.new(0,0.5),
+            Position = props.position or UDim2.fromScale(0,0.5),
             Size = props.size or UDim2.fromScale(1,1),
             BackgroundTransparency = 1,
             ZIndex = 2,
 
                 [Children] = {
                     scope:New "UIAspectRatioConstraint" {
-                        AspectRatio = 2,
+                        AspectRatio = 3,
                     }
                 }
             },
             
             scope:New "Frame" {
                 Name = "ProgressFill",
-                AnchorPoint = Vector2.new(0.5,0.5),
-                Size = UDim2.fromScale(0.3,0.7),    
-                Position = UDim2.fromScale(0.2,1),
+                AnchorPoint = Vector2.new(0,0.5),
+                Size = UDim2.fromScale(0.75,0.15),
+                Position = UDim2.fromScale(0.2,0.47),
                 BackgroundColor3 = Color3.new(1,1,1),
+                ZIndex = 1,
 
                 [Children] = {
                     scope:New "UIGradient"{
                         Color = ColorSequence.new(Color3.fromRGB(24, 107, 79), Color3.fromRGB(130, 194, 144)),
                     },
-                    
-                    scope:New "UIAspectRatioConstraint" {
-                        AspectRatio = 2,
+
+                    scope:New "UICorner" {
+                        CornerRadius = UDim.new(0.5,0)
                     }
                 }
             }

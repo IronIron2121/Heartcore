@@ -7,20 +7,23 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
+local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
-local localPlayerGui = localPlayer:WaitForChild("PlayerGui")
+local ImageUris = require(DataTables:WaitForChild("ImageUris"))
+
 
 -- Gui Components
 local AvatarContainer = require(script:WaitForChild("AvatarContainer"))
-local CatalogContainer = require(script:WaitForChild("CatalogContainer"))
+local CatalogContainer = require(script:WaitForChild("CatalogContainer")) 
 
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
+type UsedAs<T> = Fusion.UsedAs<T>
 
-return function(scope: Fusion.Scope)
+return function(scope: Fusion.Scope, wardrobeContainerVisible: UsedAs<boolean>)
 	local isNewTopBar = GuiService.TopbarInset.Max.Y > 36
 	local avatarContainer = AvatarContainer(scope)
 	local catalogContainer = CatalogContainer(scope)
@@ -35,15 +38,41 @@ return function(scope: Fusion.Scope)
 		Size = UDim2.fromScale(0.8, 0.8),
 		
 		[Fusion.Children] = {
-			scope:New "UIListLayout" {
-				Padding = UDim.new(0, 20),
-				FillDirection = Enum.FillDirection.Horizontal,
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				HorizontalAlignment = Enum.HorizontalAlignment.Left,
-				VerticalAlignment = Enum.VerticalAlignment.Top,
+            scope:New "ImageButton" {
+				Name = "CloseButton",
+				Image = ImageUris["CloseButton"],
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Size = UDim2.fromScale(0.05, 0.05),
+				BackgroundTransparency = 1,
+				Position = UDim2.fromScale(1.01,0.01),
+                ZIndex = 3,
+						
+					[Fusion.Children] = {
+						scope:New "UIAspectRatioConstraint" {
+							AspectRatio = 1
+						}
+					},
+						
+					[Fusion.OnEvent "Activated"] = function()
+						wardrobeContainerVisible:set(not Fusion.peek(wardrobeContainerVisible))
+					end,
 			},
-			avatarContainer,
-			catalogContainer
+			scope:New "Folder" {
+				Name = "ContainerFolder",
+
+				[Fusion.Children] = {
+					scope:New "UIListLayout" {
+						Padding = UDim.new(0, 20),
+						FillDirection = Enum.FillDirection.Horizontal,
+						SortOrder = Enum.SortOrder.LayoutOrder,
+						HorizontalAlignment = Enum.HorizontalAlignment.Left,
+						VerticalAlignment = Enum.VerticalAlignment.Top,
+					},
+					avatarContainer,
+					catalogContainer
+				}
+			}
+
 		}
 	},
 		avatarContainer,

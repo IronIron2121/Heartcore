@@ -4,6 +4,8 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+
+
 -- Folders
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local Voting = ServerScriptService:WaitForChild("Voting")
@@ -14,12 +16,13 @@ local Data = ServerScriptService:WaitForChild("Data")
 local GetContestSubmissionsCache = Remotes:WaitForChild("GetContestSubmissionsCache")
 local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 local PhaseChanged = Bindables:WaitForChild("PhaseChanged") 
-local PhaseChangedRemote = Remotes:WaitForChild("PhaseChangedRemote")
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 
 -- Modules 
 local VotingStoreManager = require(Voting:WaitForChild("VotingStoreManager"))
 local DataManager = require(Data:WaitForChild("DataManager"))
+
+--
 
 local function onPhaseChanged()
     -- Handle phase transition - voting manager will update theme and point to yesterday
@@ -30,9 +33,8 @@ local function getContestSubmissionsCache()
     return VotingStoreManager.getPublicCache()
 end
 
-local function getBalancedOutfit()
-    local balancedOutfit = VotingStoreManager.getBalancedOutfit()
-    print("Now returning", balancedOutfit)
+local function getBalancedOutfit(player: Player)
+    local balancedOutfit = VotingStoreManager.getBalancedOutfit(player)
     return balancedOutfit
 end
 

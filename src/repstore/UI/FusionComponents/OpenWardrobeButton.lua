@@ -65,6 +65,10 @@ local function OpenWardrobeButton(
 		AutomaticSize = Enum.AutomaticSize.X,
 		
 		Transparency = 1,
+
+		Visible = scope:Computed(function(use)
+			return not use(Toggled)
+		end),
 		
 		[OnEvent "Activated"] = function()
 			if OnClick ~= nil then

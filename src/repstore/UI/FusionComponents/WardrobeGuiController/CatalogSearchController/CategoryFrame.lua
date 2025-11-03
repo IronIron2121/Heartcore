@@ -1,10 +1,7 @@
 -- CategoryFrame.lua
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AvatarEditorService = game:GetService("AvatarEditorService")
 
 -- Folders
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
@@ -16,11 +13,12 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
+local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
 
 -- Fusion
 local Children = Fusion.Children
 local peek = Fusion.peek
-local OnEvent = Fusion.OnEvent
 type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI Components
@@ -30,9 +28,6 @@ local BaseButton = require(Widgets:WaitForChild("BaseButton"))
 
 function CategoryFrame(
 	scope: Fusion.Scope,
-	currentView: UsedAs<string>,
-	searchAssetCategories: Fusion.Value<{Enum.AvatarAssetType}>,
-	searchBundleCategories: Fusion.Value<{Enum.BundleType}>,
 	props: {
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
@@ -42,24 +37,27 @@ function CategoryFrame(
 		backgroundTransparency: UsedAs<number>?,
 		visible: UsedAs<boolean>?,
 		name: UsedAs<string>?,
-		isSelected: UsedAs<boolean>?
-	}?
+		isSelected: UsedAs<boolean>?,
+		currentView: Fusion.Value<string>,
+		searchAssetCategories: Fusion.Value<{Enum.AvatarAssetType}>,
+		searchBundleCategories: Fusion.Value<{Enum.BundleType}>,
+		searchCallback: () -> ()
+	}
 ): Frame
-	local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
-	local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
+
 	
-	-- TODO: this is a little hacky but it'll do for now...
-	-- TODO: NOTE: Apologies to any engineers that potentially get to this point after me. At this point I have been the sole dev on this project for around 6 months -
-	-- My sanity is beginning to wane. I know this isn't beautiful code to look at. I hope you don't take this personally.
 	local allSelected = scope:Computed(function(use)
-		if #use(searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes() and #use(searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes() then
+		if #use(props.searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes() and #use(props.searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes() then
 			return true
 		else
 			return false
 		end
 	end)
 
-
+	local function SelectAll()
+		props.searchAssetCategories:set(AssetFilterCategories.getAllAssetTypes())
+		props.searchBundleCategories:set(BundleFilterCategories.getAllRobloxBundleTypes())
+	end
 
 	-- Outer container frame
 	local categoryFrame = scope:New "Frame" {
@@ -71,7 +69,7 @@ function CategoryFrame(
 		BackgroundColor3 = (props and props.backgroundColor3) or UI_CONSTANTS.TASTEMAKER_PURPLE,
 		BackgroundTransparency = (props and props.backgroundTransparency) or UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
 		Visible = scope:Computed(function(use)
-			return use(currentView) == "Catalog"
+			return use(props.currentView) == "Catalog"
 		end),
 
 		[Children] = {
@@ -95,7 +93,6 @@ function CategoryFrame(
 				Size = UDim2.fromScale(0.8, 0.1),
 				
 				[Children] = {
-
 					BaseButton(scope, {
 						name = "MyOutfits",
 						text = "My Outfits",
@@ -107,7 +104,7 @@ function CategoryFrame(
 						textColor = Color3.new(1,1,1),
 
 						onActivated = function()
-							currentView:set("Outfits")
+							props.currentView:set("Outfits")
 						end,
 						
 						[Children] = {
@@ -153,46 +150,49 @@ function CategoryFrame(
 						isSelected = allSelected,
 						onActivated = function()
 							if not peek(allSelected) then
-								searchAssetCategories:set(AssetFilterCategories.getAllAssetTypes())
-								searchBundleCategories:set(BundleFilterCategories.getAllRobloxBundleTypes())
+								SelectAll()
+								props.searchCallback()
 							else
-								searchAssetCategories:set({})
-								searchBundleCategories:set({})
+								props.searchAssetCategories:set({})
+								props.searchBundleCategories:set({})
+								props.searchCallback()
 							end
 						end
 					}),
 
 					-- Create category buttons for assets
-					scope:ForValues(scope:Value(AssetFilterCategories.getAllAssetTypes()), function(use, scope, assetType)
-						return CategoryButton(scope, {
+					scope:ForPairs(scope:Value(AssetFilterCategories.getAllAssetTypes()), function(use, scope, index, assetType)
+						return index, CategoryButton(scope, {
 							text = assetType.Name,
 							size = UDim2.fromScale(0.8, 0.1),
+							layoutOrder = index,
 							isSelected = scope:Computed(function(use)
 								if use(allSelected) then
 									return false
 								else
-									return table.find(use(searchAssetCategories), assetType) ~= nil
+									return table.find(use(props.searchAssetCategories), assetType) ~= nil
 								end
 							end),
-							
+							 
 							onActivated = function()
-								local currentAssets = peek(searchAssetCategories) -- Use peek instead of use
+								if use(allSelected) then
+									props.searchBundleCategories:set({})
+									props.searchAssetCategories:set({assetType})
+									props.searchCallback()
+									return
+								end
+
+								local currentAssets = peek(props.searchAssetCategories) -- Use peek instead of use
 								local assetIndex = table.find(currentAssets, assetType)
 
 								if assetIndex then
-									-- Create new array without the asset
-									local newAssets = {}
-									for i, asset in ipairs(currentAssets) do
-										if i ~= assetIndex then
-											table.insert(newAssets, asset)
-										end
-									end
-									searchAssetCategories:set(newAssets) -- Set the new array
+									SelectAll()
+									props.searchCallback()
 								else
 									-- Create new array with the asset added
-									local newAssets = {table.unpack(currentAssets)}
-									table.insert(newAssets, assetType)
-									searchAssetCategories:set(newAssets) -- Set the new array
+									props.searchAssetCategories:set({assetType}) -- Set the new array
+									props.searchBundleCategories:set({})
+									props.searchCallback()
 								end
 							end
 
@@ -200,36 +200,37 @@ function CategoryFrame(
 					end),
 					
 					-- Create category buttons for bundles
-					scope:ForValues(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, bundleType)
-						return CategoryButton(scope, {
+					scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, index, bundleType)
+						return index, CategoryButton(scope, {
 							text = bundleType.Name,
 							size = UDim2.fromScale(0.8, 0.1),
+							layoutOrder = index + #AssetFilterCategories.getAllAssetTypes(),
 							isSelected = scope:Computed(function(use)
 								if use(allSelected) then
 									return false
 								else
-									return table.find(use(searchBundleCategories), bundleType) ~= nil
+									return table.find(use(props.searchBundleCategories), bundleType) ~= nil
 								end
 							end),
 
 							onActivated = function()
-								local currentBundles = peek(searchBundleCategories) -- Use peek instead of use
+								if use(allSelected) then
+									props.searchBundleCategories:set({bundleType})
+									props.searchAssetCategories:set({})
+									props.searchCallback()
+									return
+								end 
+
+								local currentBundles = peek(props.searchBundleCategories) -- Use peek instead of use
 								local assetIndex = table.find(currentBundles, bundleType)
 
 								if assetIndex then
-									-- Create new array without the asset
-									local newAssets = {}
-									for i, asset in ipairs(currentBundles) do
-										if i ~= assetIndex then
-											table.insert(newAssets, asset)
-										end
-									end
-									searchBundleCategories:set(newAssets) -- Set the new array
+									SelectAll()
+									props.searchCallback()
 								else
-									-- Create new array with the asset added
-									local newAssets = {table.unpack(currentBundles)}
-									table.insert(newAssets, bundleType)
-									searchBundleCategories:set(newAssets) -- Set the new array
+									props.searchBundleCategories:set({bundleType})
+									props.searchAssetCategories:set({})
+									props.searchCallback()
 								end
 							end
 						})

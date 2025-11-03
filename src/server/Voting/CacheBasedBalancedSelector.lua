@@ -25,6 +25,41 @@ local CONFIG = {
     FALLBACK_SAMPLE_SIZE = 200     -- When tiers fail
 }
 
+-- Player viewed outfits tracker (integrated)
+local playerViewedOutfits = {}
+
+local function addOutfitToPlayerList(player: Player, outfitId: number)
+    if not playerViewedOutfits[player] then
+        playerViewedOutfits[player] = {}
+    end
+    table.insert(playerViewedOutfits[player], outfitId)
+end
+
+local function hasPlayerViewedOutfit(player: Player, outfitId: number): boolean
+    if not playerViewedOutfits[player] then
+        return false
+    end
+    return table.find(playerViewedOutfits[player], outfitId) ~= nil
+end
+
+local function onPlayerAdded(player: Player)
+    playerViewedOutfits[player] = {}
+end
+
+local function onPlayerRemoved(player: Player)
+    playerViewedOutfits[player] = nil
+end
+
+-- Initialize player tracking
+local Players = game:GetService("Players")
+Players.PlayerAdded:Connect(onPlayerAdded)
+Players.PlayerRemoving:Connect(onPlayerRemoved)
+
+-- Initialize for existing players
+for _, player in ipairs(Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
+
 function CacheBasedBalancedSelector.new()
     local self = setmetatable({}, CacheBasedBalancedSelector)
     
@@ -48,7 +83,6 @@ end
 function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
     local startTime = tick()
     print("Rebuilding selection buckets from cache...")
-    print(publicCache)
      
     -- initialise empty buckets for each tier
     local newBuckets = {}
@@ -65,7 +99,6 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
     -- Distribute outfits into tiers based on view count
     local totalProcessed = 0
     for entryKey, entryData in pairs(publicCache) do
-        warn("Processing entry: ", entryKey, entryData)
         totalProcessed = totalProcessed + 1
         local views = entryData.views or 0
         
@@ -129,12 +162,11 @@ function CacheBasedBalancedSelector:rebuildFromCache(publicCache)
 end
 
 -- Select an outfit using the pre-built buckets (main selection method)
-function CacheBasedBalancedSelector:selectOutfit()
+function CacheBasedBalancedSelector:selectOutfit(player: Player)
     self.stats.selectionsServed = self.stats.selectionsServed + 1
     
     -- Check if we have valid buckets
     if #self.selectionBuckets == 0 or self.totalWeightedOutfits == 0 then
-        --warn("No selection buckets available, using fallback")
         self.stats.fallbackSelections = self.stats.fallbackSelections + 1
         return self:hashBasedFallback()
     end
@@ -160,7 +192,14 @@ function CacheBasedBalancedSelector:selectOutfit()
     end
     
     -- Step 2: Within tier, prefer outfits with fewer views (weighted by inverse view count)
-    return self:selectFromBucket(selectedBucket)
+    local selectedOutfit = self:selectFromBucket(selectedBucket, player)
+    
+    -- Track that this player has viewed this outfit
+    if selectedOutfit then
+        addOutfitToPlayerList(player, selectedOutfit.userId)
+    end
+    
+    return selectedOutfit
 end
 
 -- Select tier using weighted random selection
@@ -202,12 +241,34 @@ function CacheBasedBalancedSelector:selectWeightedTier()
 end
 
 -- Select outfit from within a bucket (weighted by inverse view count)
-function CacheBasedBalancedSelector:selectFromBucket(bucket)
+function CacheBasedBalancedSelector:selectFromBucket(bucket, player: Player)
     local outfits = bucket.outfits
     
-    if #outfits == 1 then
-        warn("Only one outfit!")
-        return outfits[1]
+    -- Filter out already-viewed outfits and player's own outfit
+    local availableOutfits = {}
+    for _, outfit in ipairs(outfits) do
+        if not hasPlayerViewedOutfit(player, outfit.userId) and outfit.userId ~= player.UserId then
+            table.insert(availableOutfits, outfit)
+        end
+    end
+    
+    -- If all outfits have been viewed, reset and use all (except player's own)
+    if #availableOutfits == 0 then
+        print("Player has viewed all outfits in bucket, showing all again")
+        for _, outfit in ipairs(outfits) do
+            if outfit.userId ~= player.UserId then
+                table.insert(availableOutfits, outfit)
+            end
+        end
+    end
+    
+    -- If still no outfits (only player's own outfit), return nil
+    if #availableOutfits == 0 then
+        return nil
+    end
+    
+    if #availableOutfits == 1 then
+        return availableOutfits[1]
     end
     
     -- Calculate weights (inverse of view count + 1)
@@ -216,12 +277,12 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket)
     local maxViews = 0
     
     -- Find max views for normalization
-    for _, outfit in ipairs(outfits) do
+    for _, outfit in ipairs(availableOutfits) do
         maxViews = math.max(maxViews, outfit.views)
     end
     
     -- Calculate inverse weights
-    for i, outfit in ipairs(outfits) do
+    for i, outfit in ipairs(availableOutfits) do
         -- Higher weight for lower view counts
         local weight = (maxViews + 1) - outfit.views
         weights[i] = weight
@@ -235,14 +296,13 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket)
     for i, weight in ipairs(weights) do
         currentWeight = currentWeight + weight
         if randomValue <= currentWeight then
-            return outfits[i].entryKey
+            return availableOutfits[i]
         end
     end
     
     -- Fallback to random selection
-    local randomIndex = math.random(1, #outfits)
-    print("returning", outfits[randomIndex])
-    return outfits[randomIndex]
+    local randomIndex = math.random(1, #availableOutfits)
+    return availableOutfits[randomIndex]
 end
 
 -- Hash-based fallback for when buckets aren't available
@@ -260,16 +320,11 @@ function CacheBasedBalancedSelector:hashBasedFallback()
     
     local bucketNumber = hash % CONFIG.HASH_BUCKETS
     
-    -- This is a simplified fallback - in practice you might want to
-    -- use this hash to select from a pre-sampled set of outfit IDs
-    --warn("Using hash-based fallback selection (bucket " .. bucketNumber .. ")")
-    
     return nil -- Return nil to indicate fallback selection needed
 end
 
 -- Integration helper: call this method in VotingStoreManager.updatePublicCache()
 function CacheBasedBalancedSelector:onCacheUpdated(publicCache)
-    warn("Cache updated - rebuilding")
     return self:rebuildFromCache(publicCache)
 end
 
@@ -308,6 +363,25 @@ function CacheBasedBalancedSelector:getStats()
         totalWeightedOutfits = self.totalWeightedOutfits,
         bucketsAge = math.floor(tick() - self.lastBucketUpdate)
     }
+end
+
+function CacheBasedBalancedSelector:resetCache()
+    print("Resetting selection cache...")
+    
+    -- Clear all buckets
+    self.selectionBuckets = {}
+    self.totalWeightedOutfits = 0
+    self.lastBucketUpdate = 0
+    
+    -- Reset stats
+    self.stats = {
+        selectionsServed = 0,
+        cacheHits = 0,
+        fallbackSelections = 0,
+        lastRebuildTime = 0
+    }
+    
+    print("Selection cache reset complete")
 end
 
 return CacheBasedBalancedSelector

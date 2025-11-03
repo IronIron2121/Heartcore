@@ -1,27 +1,28 @@
 --!strict
 
 -- Services
+local ServerScriptService 		= game:GetService("ServerScriptService")
 local ReplicatedStorage 		= game:GetService("ReplicatedStorage")
-local UserInputService 			= game:GetService("UserInputService")
 local DataStoreService 			= game:GetService("DataStoreService")
-local InsertService 			= game:GetService("InsertService")
 local Players 					= game:GetService("Players")
 
--- s
+-- Folders
 local DataTables	= ReplicatedStorage:WaitForChild("DataTables")
-local Libraries		= ReplicatedStorage:WaitForChild("Libraries")
 local Trackers 		= ReplicatedStorage:WaitForChild("Trackers")
 local Classes 		= ReplicatedStorage:WaitForChild("Classes")
 local Utility 		= ReplicatedStorage:WaitForChild("Utility")
 local Remotes 		= ReplicatedStorage:WaitForChild("Remotes") 
+local Voting 		= ServerScriptService:WaitForChild("Voting")
+
+
 
 -- Module Scripts
+local PlayerViewedOutfitsTracker = require(Voting:WaitForChild("PlayerViewedOutfitsTracker"))
 local arrayOfNumbersToString 	= require(Utility:WaitForChild("arrayOfNumbersToString"))
 local Constants 				= require(ReplicatedStorage:WaitForChild("Constants")) 
 local BuyableShopItems			= require(DataTables:WaitForChild("BuyableShopItems"))
 local PlayerTracker 			= require(Trackers:WaitForChild("PlayerTracker"))
 local PlayerDetails 			= require(Classes:WaitForChild("PlayerDetails"))
-local TryOn						= require(Libraries:WaitForChild("TryOn"))
 
 -- Datastores
 local ownedItemsDataStore		= DataStoreService:GetDataStore(Constants.OWNEDITEMS_DATASTORE)
@@ -61,7 +62,6 @@ local function getAccessoryAttributes(humanoid: Humanoid, attributesArray: {})
 		local accessoryId = tonumber((humanoidDescription :: any)[attribute])
 		if accessoryId ~= 0 and accessoryId ~= nil then
 			table.insert(clothingTable, accessoryId)
-			TryOn.addItemAsync(accessoryId, Enum.MarketplaceProductType.AvatarAsset)
 		end
 	end
 	return clothingTable
@@ -79,6 +79,7 @@ end
 local function initialiseOwnedItemsDatastore(userId: number)
 	local stringId = tostring(userId)
 	local playerOwnedItems
+	
 	-- Make sure the data is there
 	local success, error = pcall(function()
 		ownedItemsDataStore:UpdateAsync(tostring(userId), function(oldData)
@@ -110,6 +111,8 @@ local function onPlayerAdded(player: Player)
 		assert(playerDetails, "Failed to create player details")
 	end
 	initialiseOwnedItemsDatastore(player.UserId)
+
+	PlayerViewedOutfitsTracker.OnPlayerAdded(player)
 end
 
 

@@ -15,7 +15,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 
 local AvatarPreviewModel = {}
 AvatarPreviewModel.__index = AvatarPreviewModel
-
+ 
 -- Simple helper to fix AccessoryTypes
 local function fixAccessoryTypes(humanoidDescription: HumanoidDescription)
 	for _, description in ipairs(humanoidDescription:GetChildren()) do

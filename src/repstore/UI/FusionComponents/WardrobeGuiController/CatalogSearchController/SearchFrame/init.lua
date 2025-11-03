@@ -19,8 +19,6 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion
 local Children = Fusion.Children
-local OnEvent = Fusion.OnEvent
-local peek = Fusion.peek
 type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI Components
@@ -30,44 +28,25 @@ local FusionDropdown = require(Widgets:WaitForChild("FusionDropdown"))
 
 function SearchFrame(
 	scope: Fusion.Scope,
-	currentView: UsedAs<string>,
-	searchAssetCategories: UsedAs<{Enum.AvatarAssetType}>, 
-	searchBundleCategories: UsedAs<Enum.BundleType>,
 	props: {
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
 		anchorPoint: UsedAs<Vector2>?,
 		layoutOrder: UsedAs<number>?,
 		backgroundTransparency: UsedAs<number>?,
-	}?
+		currentView: UsedAs<string>,
+		searchAssetCategories: UsedAs<{Enum.AvatarAssetType}>, 
+		searchBundleCategories: UsedAs<Enum.BundleType>,
+		searchSort: UsedAs<Enum.CatalogSortType>,
+		searchResults: UsedAs<CatalogPages>,
+		searchText: UsedAs<string>,
+		searchCallback: () -> ()
+	}
 ): Frame
-
-	local searchResults = scope:Value(nil)
-	local searchSort = scope:Value(Enum.CatalogSortType.Relevance)
-
-	local searchCallback = function(keyword: string)
-		local catalogParams = CatalogSearchParams.new()
-		catalogParams.SearchKeyword = keyword
-		catalogParams.SortType = peek(searchSort)
-		catalogParams.Limit = 60
-		catalogParams.AssetTypes = peek(searchAssetCategories)
-		catalogParams.BundleTypes = peek(searchBundleCategories)
-
-		local success, results = pcall(function()
-			return AvatarEditorService:SearchCatalog(catalogParams)
-		end)
-
-		if success then
-			searchResults:set(results)
-		else
-			warn("Failed to search catalog for keyword:", keyword)
-		end
-	end
-
 	local searchFrame = scope:New "Frame" {
 		Name = "SearchFrame",
 		Visible = scope:Computed(function(use)
-			return use(currentView) == "Catalog"
+			return use(props.currentView) == "Catalog"
 		end),
 		Size = (props and props.size) or UDim2.fromScale(1, 1),
 		Position = (props and props.position) or UDim2.fromScale(0.5, 0.5),
@@ -118,23 +97,24 @@ function SearchFrame(
 						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
 						layoutOrder = 2,
 						placeholder = "Search for items...",
-						onSearch = searchCallback
+						searchText = props.searchText,
+						searchCallback = props.searchCallback
 					}),
 
 					-- Sort dropdown
 					FusionDropdown(scope, {
 						name = "SortDropdown",
 						options = Enum.CatalogSortType:GetEnumItems(),
-						selectedValue = searchSort,
+						selectedValue = props.searchSort,
 						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
 						layoutOrder = 3,
 						placeholder = "Sort by..."
 					})
 				}
 			},
-
+ 
 			-- Search results
-			SearchResultsFrame(scope, searchResults)
+			SearchResultsFrame(scope, props.searchResults)
 		}
 	} :: Frame
 

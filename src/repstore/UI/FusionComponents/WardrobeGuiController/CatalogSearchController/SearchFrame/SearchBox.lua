@@ -32,12 +32,11 @@ function SearchBox(
 		placeholder: UsedAs<string>?,
 		onSearch: (keyword: string) -> ()?,
 		searchResults: Fusion.UsedAs<{}>?,
+		searchText: UsedAs<string>,
 		textScaled: UsedAs<boolean>?,
-
+		searchCallback: () -> ()
 	}
 ): TextBox
-
-	local searchText = scope:Value("")
 	local isFocused = scope:Value(false)
 	local isHovering = scope:Value(false)
 
@@ -70,7 +69,7 @@ function SearchBox(
 
 	-- Display text logic
 	local displayText = scope:Computed(function(use)
-		local currentText = use(searchText)
+		local currentText = use(props.searchText)
 		local focused = use(isFocused)
 
 		if focused then
@@ -97,22 +96,19 @@ function SearchBox(
 		TextScaled = props.textScaled or true,
 		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 
-		[Out "Text"] = searchText,
+		[Out "Text"] = props.searchText,
 
 		[OnEvent "Focused"] = function()
 			isFocused:set(true)
 			-- Clear placeholder text when focused
-			searchText:set("")
+			props.searchText:set("")
 		end,
 
 		[OnEvent "FocusLost"] = function(enterPressed: boolean)
 			isFocused:set(false)
 
-			if enterPressed and props.onSearch then
-				local keyword = peek(searchText)
-				if keyword ~= "" then
-					props.onSearch(keyword)
-				end
+			if enterPressed and props.searchCallback then
+				props.searchCallback()
 			end
 		end,
 

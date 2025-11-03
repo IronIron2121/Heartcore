@@ -45,7 +45,7 @@ local function update()
 	-- Update gamepad cursor visibility
 	updateGamepadCursor()
 
-	-- Update leaderboard visibility
+	-- Update leaderboard visibility 
 	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, not isModalVisible)
 
 	-- Update shop button

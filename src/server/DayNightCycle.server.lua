@@ -21,30 +21,30 @@ local hoursPerSecond = 24 / fullDayLength
 
 -- Function to set lighting based on current time
 local function updateLightingColors(time)
-	-- Morning (6�8)
+	-- Morning (6-8)
 	if time >= 6 and time < 8 then
 		lighting.Ambient = Color3.fromRGB(111, 133, 206) -- Warm sunrise
-		lighting.OutdoorAmbient = Color3.fromRGB(200, 180, 160)
-		lighting.Brightness = 1.5
-		lighting.ColorShift_Top = Color3.fromRGB(255, 243, 112)
+		lighting.OutdoorAmbient = Color3.fromRGB(192, 152, 113)
+		lighting.Brightness = 1
+		lighting.ColorShift_Top = Color3.fromRGB(255, 137, 172)
  
-		-- Daytime (8�17)
+		-- Daytime (8-17)
 	elseif time >= 8 and time < 17 then
 		lighting.Ambient = Color3.fromRGB(74, 75, 124)
 		lighting.OutdoorAmbient = Color3.fromRGB(200, 180, 160)
-		lighting.Brightness = 2
+		lighting.Brightness = 1.5
 		lighting.ColorShift_Top = Color3.fromRGB(216, 235, 255)
 
 
-		-- Sunset (17�19)
+		-- Sunset (17-19)
 	elseif time >= 17 and time < 19 then
 		lighting.Ambient = Color3.fromRGB(74, 75, 124)
 		lighting.OutdoorAmbient = Color3.fromRGB(180, 120, 90)
-		lighting.Brightness = 1.5
+		lighting.Brightness = 1
 		lighting.ColorShift_Top = Color3.fromRGB(255, 76, 44)
 
 
-		-- Night (19�6)
+		-- Night (19-6)
 	else
 		lighting.Ambient = Color3.fromRGB(100, 100, 150)
 		lighting.OutdoorAmbient = Color3.fromRGB(50, 50, 80)

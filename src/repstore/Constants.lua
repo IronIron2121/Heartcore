@@ -48,7 +48,7 @@ local Constants = {
 	UI_BUTTON_TAG = "UIButton",
 	INSPECT_PROMPT_TAG = "InspectPrompt",
 	CLAIM_PROMPT_TAG = "ClaimPrompt",
-	CATALOG_CONSOLE_TAG = "Catalog",
+	CATALOG_CONSOLE_TAG = "Console",
 	-- Attributes
 	ITEM_ID_ATTRIBUTE = "Id",
 	ITEM_COLOUR_ATTRIBUTE = "itemColour",
@@ -124,14 +124,57 @@ local Constants = {
 		"RightLeg",
 		"Torso",
 	},
+
+	-- We have to list this slightly differently as the actual assetType in Enum does not appear in the humanoid description
+	CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES = {
+		"GraphicTShirt",
+		Enum.AssetType.Shirt.Name,
+		Enum.AssetType.Pants.Name
+	},
+
+	CLASSIC_CLOTHING_ASSET_TYPES = {
+		Enum.AssetType.TShirt.Name,
+		Enum.AssetType.Shirt.Name,
+		Enum.AssetType.Pants.Name
+	},
 	
+	DEFAULT_CLASSIC_CLOTHING_IDS = {
+		["GraphicTShirt"] = 0,
+		["Shirt"] = 855779323,
+		["Pants"] = 855785499,
+	},
+	
+	DEFAULT_CLASSIC_CLOTHING_IDS_TABLE = {
+		0,
+		855779323,
+		855785499,
+	},
+
+	ANIMATION_ASSET_TYPE_IDS = {
+		24,
+		48,
+		49,
+		50,
+		51,
+		52,
+		53,
+		54,
+		55,
+		56,
+		61,
+		78
+	},
+
 	QUERY_ATTEMPTS = 3,
 
-	MEMORYSTORE_STORE_DURATION = 259200, -- 72 hours
+	MEMORYSTORE_STORE_DURATION = 600, -- 10 minutes
+	--MEMORYSTORE_STORE_DURATION = 259200, -- 72 hours - production timing limit
 	MAX_SUBMISSIONS_PER_MEMORYSTORE = 500,
 	SUBMISSION_INFO_MEMORYSTORE_NAME = "SubmissionsInfo",
 	SUBMISSION_INFO_INDEX = "currentStoreNumber",
 	CURRENT_SUBMISSION_INFO_KEY = "currentSubmissionsInfo",
+
+	NO_CURRENT_PHASE_MESSAGE = "NO_CURRENT_PHASE",
 
 }
 

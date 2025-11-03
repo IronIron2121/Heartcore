@@ -6,7 +6,7 @@ local UI_CONSTANTS = {
 	COLOUR_WHITE = Color3.new(1, 1, 1),
 	COLOUR_BLACK = Color3.new(0, 0, 0),
 	COLOUR_GREY = Color3.new(0.5, 0.5, 0.5),
-	DEFAULT_FONT = "rbxasset://fonts/families/GothamSSm.json",
+	DEFAULT_FONT = "rbxasset://fonts/families/FredokaOne.json",
 	SEARCH_SORT_BOX_SIZE = UDim2.fromScale(.4, .5)
 }
 

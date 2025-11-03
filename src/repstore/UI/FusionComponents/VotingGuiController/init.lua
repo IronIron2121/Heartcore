@@ -3,8 +3,6 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
-local ServerScriptService = game:GetService("ServerScriptService")
-
 
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
@@ -13,8 +11,6 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
---local Voting = ServerScriptService:WaitForChild("Voting")
-
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -24,17 +20,18 @@ local PlayerGui = localPlayer.PlayerGui
 local OutfitVoteTile = require(script:WaitForChild("OutfitVoteTile"))
 
 -- Modules
-local Fusion = require(Utility:WaitForChild("Fusion"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
+local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
---local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
+local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion Modules
 local scope = Fusion:scoped()
+local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
+local Value = Fusion.Value
 
 -- GUI Modules
 local BaseButton = require(Widgets:WaitForChild("BaseButton"))
@@ -43,15 +40,16 @@ local BaseButton = require(Widgets:WaitForChild("BaseButton"))
 local maxDisplayedOutfits = 3
 
 -- Remotes / Bindables
-local PlayerRequestedCurrentTheme = Remotes:WaitForChild("PlayerRequestedCurrentTheme")
+local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTheme")
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 
 local VotingGuiController = {}
 
 local outfitVoteTiles = scope:Value({})
-local selectedTileId = scope:Value(nil)
 local isRefreshing = false
+ 
+
 
 local function refreshOutfitVoteTiles()
     if isRefreshing then
@@ -62,13 +60,7 @@ local function refreshOutfitVoteTiles()
     isRefreshing = true
     
     -- Clear selection and existing tiles
-    selectedTileId:set(nil)
-    for _, tile in ipairs(peek(outfitVoteTiles)) do
-        if tile and tile.Destroy then
-            tile:Destroy()
-        end
-    end
-    
+
     outfitVoteTiles:set({})
     
     -- Fetch new outfits
@@ -77,11 +69,17 @@ local function refreshOutfitVoteTiles()
     local usedIds = {}
 
     for i = 1, maxDisplayedOutfits do
-        local success, outfitData = pcall(function()
-            return GetBalancedOutfit:InvokeServer()
-        end)
+        local success, outfitData = callWithRetry(
+            function()
+                return GetBalancedOutfit:InvokeServer()
+            end,
+            5
+        )
         
         if success and outfitData and not table.find(usedIds, outfitData.userId) then
+            if not outfitData.humanoidDescription then 
+                return
+            end
             newTiles[i] = {
                 userId = outfitData.userId,
                 humanoidDescription = SerialisationService.UnserialiseHumanoidDescription(outfitData.humanoidDescription),
@@ -111,34 +109,26 @@ function VotingGuiController.refreshOutfits()
     refreshOutfitVoteTiles()
 end
 
-function VotingGuiController.getSelectedOutfit()
-    return peek(selectedTileId)
-end
-
-function VotingGuiController.setSelectedOutfit(userId: number)
-    selectedTileId:set(userId)
-end
-
--- local currentTheme = ThemeManager.getCurrentTheme()
--- local themeName = currentTheme or "Unknown"
-    
-local currentTheme = scope:Value("")
+local votingTheme = scope:Value("")
 
 function VotingGuiController.Initialise(
-    visibilityBoolean: UsedAs<boolean>
+    VoteGuiVisible: UsedAs<boolean>,
+    TimeText: UsedAs<string>
 )
-    local visibilityObserver = scope:Observer(visibilityBoolean) 
+    local visibilityObserver = scope:Observer(VoteGuiVisible)
 
     -- TODO: Make this more efficient with caching or something such...
     visibilityObserver:onChange(function()
-        if peek(visibilityBoolean) == true then
-            currentTheme:set(PlayerRequestedCurrentTheme:InvokeServer())
+        if peek(VoteGuiVisible) == true then
+            votingTheme:set(PlayerRequestedVotingTheme:InvokeServer())
+        elseif peek(VoteGuiVisible) == false then
+            -- delete / reset the mannequins? ...
         end
     end)
 
     local _VoteGui = scope:New "ScreenGui" {
         Name = "VotingGui",
-        Enabled = visibilityBoolean,
+        Enabled = true,
         Parent = PlayerGui,
 
         [Children] = {
@@ -148,98 +138,50 @@ function VotingGuiController.Initialise(
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 Position = UDim2.fromScale(0.5, 0.48),
                 BackgroundColor3 = Color3.new(1,1,1),
-                BackgroundTransparency = 0.2,
+                BackgroundTransparency = 1,
+                Visible = VoteGuiVisible,
 
-                [Children] = {    
-                    scope:New "UIListLayout" {
-                        FillDirection = Enum.FillDirection.Vertical,
-                        SortOrder = Enum.SortOrder.LayoutOrder
-                    },
+                [Children] = {
+                    scope:New "ImageButton" {
+						Name = "CloseButton",
+						Image = ImageUris["CloseButton"],
+						AnchorPoint = Vector2.new(0.5, 0),
+						Size = UDim2.fromScale(0.05, 0.05),
+						BackgroundTransparency = 1,
+						Position = UDim2.fromScale(1,0),
+                        ZIndex = 3,
+						
+						[Children] = {
+							scope:New "UIAspectRatioConstraint" {
+								AspectRatio = 1
+							}
+						},
+						
+						[OnEvent "Activated"] = function()
+							VoteGuiVisible:set(not peek(VoteGuiVisible))
+						end,
+					},
 
-                    scope:New "UICorner" {
-                                        CornerRadius = UDim.new(0.05)
-                                    },
+                    scope:New "Frame" {
+                        Name = "Background",
+                        Size = UDim2.fromScale(1,1),
+                        AnchorPoint = Vector2.new(0.5, 0.5),
+                        Position = UDim2.fromScale(0.5, 0.48),
+                        BackgroundColor3 = Color3.new(1,1,1),
+                        BackgroundTransparency = 0.2,
+                        
 
-                    scope:New "UIPadding" {
-                        PaddingBottom = UDim.new(0.05,0),
-                        PaddingTop = UDim.new(0.05,0),
-                        PaddingRight = UDim.new(0.05,0),
-                        PaddingLeft = UDim.new(0.05,0)
-                    },
-
-                    scope:New "Frame"{
-                        Name = "TopBar",
-                        Size = UDim2.fromScale(1, 0.1),
-                        LayoutOrder = 1,
-                        BackgroundTransparency = 1,
-
-                        [Children] = {
+                        [Children] = {    
                             scope:New "UIListLayout" {
-                                FillDirection = Enum.FillDirection.Horizontal,
+                                FillDirection = Enum.FillDirection.Vertical,
                                 SortOrder = Enum.SortOrder.LayoutOrder
                             },
 
-                            scope:New "TextLabel" {
-                                Name = "VoteFor",
-                                Text = "Vote for best fit:",
-                                TextScaled = true,
-                                Size = UDim2.fromScale(0.3, 1),
-                                LayoutOrder = 1,
-                                BackgroundTransparency = 1,
-                                TextColor3 = Color3.fromRGB(92, 96, 214)
+                            scope:New "UICorner" {
+                                CornerRadius = UDim.new(0.05)
                             },
 
-                            scope:New "TextLabel" {
-                                Name = "TodaysTheme",
-                                Text = currentTheme,--themeName,
-                                TextScaled = true,
-                                Size = UDim2.fromScale(0.3, 1),
-                                LayoutOrder = 1,
-                                BackgroundTransparency = 1,
-                                TextColor3 = Color3.fromRGB(92, 96, 214)
-                            },
-
-                            scope:New "Frame"{
-                                Name = "Buffer",
-                                Size = UDim2.fromScale(0.1, 1),
-                                LayoutOrder = 2,
-                                BackgroundTransparency = 1,
-                            },
-
-                            scope:New "Frame"{
-                                Name = "TimerContainer",
-                                Size = UDim2.fromScale(0.2, 1),
-                                LayoutOrder = 3,
-                                BackgroundTransparency = 1,
-                                
-                                [Children] = {
-                                    scope:New "UIListLayout" {
-                                        FillDirection = Enum.FillDirection.Horizontal,
-                                        SortOrder = Enum.SortOrder.LayoutOrder
-                                    },
-                                    scope:New "ImageLabel"{
-                                        Image = ImageUris.StopwatchIcon,
-                                        Size = UDim2.fromScale(1, 1),
-                                        LayoutOrder = 1,
-                                        BackgroundTransparency = 1,
-                                        [Children] = {
-                                            scope:New "UIAspectRatioConstraint" {
-                                                AspectRatio = 1,
-                                                DominantAxis = Enum.DominantAxis.Width,
-                                            }
-                                        }
-                                    },
-                                    scope:New "TextLabel" {
-                                        Name = "Timer",
-                                        Text = "HH:MM:SS",
-                                        TextScaled = true,
-                                        Size = UDim2.fromScale(1, 1),
-                                        LayoutOrder = 2,
-                                        BackgroundTransparency = 1,
-                                        TextColor3 = Color3.fromRGB(92, 96, 214)
-                                    }
-                                }
-                            }
+                            
                         }
                     },
 
@@ -254,6 +196,87 @@ function VotingGuiController.Initialise(
                                 FillDirection = Enum.FillDirection.Vertical,
                                 SortOrder = Enum.SortOrder.LayoutOrder,
                                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                            },
+
+                                scope:New "Frame"{
+                                Name = "TopBar",
+                                Size = UDim2.fromScale(1, 0.1),
+                                LayoutOrder = 1,
+                                BackgroundTransparency = 1,
+
+                                [Children] = {
+                                    scope:New "UIListLayout" {
+                                        FillDirection = Enum.FillDirection.Horizontal,
+                                        SortOrder = Enum.SortOrder.LayoutOrder
+                                    },
+
+                                    scope:New "TextLabel" {
+                                        Name = "VoteFor",
+                                        Text = "Vote for best fit:",
+                                        TextScaled = true,
+                                        Size = UDim2.fromScale(0.3, 1),
+                                        LayoutOrder = 0,
+                                        BackgroundTransparency = 1,
+                                        TextColor3 = Color3.fromRGB(92, 96, 214)
+                                    },
+
+                                    scope:New "TextLabel" {
+                                        Name = "TodaysTheme",
+                                        Text = votingTheme,--themeName,
+                                        TextScaled = true,
+                                        Size = UDim2.fromScale(0.3, 1),
+                                        LayoutOrder = 1,
+                                        BackgroundTransparency = 1,
+                                        TextColor3 = Color3.fromRGB(92, 96, 214)
+                                    },
+
+                                    scope:New "Frame"{
+                                        Name = "Buffer",
+                                        Size = UDim2.fromScale(0.1, 1),
+                                        LayoutOrder = 2,
+                                        BackgroundTransparency = 1,
+                                    },
+
+                                    scope:New "Frame"{
+                                        Name = "TimerContainer",
+                                        Size = UDim2.fromScale(0.2, 1),
+                                        LayoutOrder = 3,
+                                        BackgroundTransparency = 1,
+                                        
+                                        [Children] = {
+
+                                            scope:New "UIListLayout" {
+                                                FillDirection = Enum.FillDirection.Horizontal,
+                                                SortOrder = Enum.SortOrder.LayoutOrder
+                                            },
+
+                                            scope:New "ImageLabel"{
+                                                Image = ImageUris.StopwatchIcon,
+                                                Size = UDim2.fromScale(1, 1),
+                                                LayoutOrder = 1,
+                                                BackgroundTransparency = 1,
+                                                
+                                                [Children] = {
+                                                    scope:New "UIAspectRatioConstraint" {
+                                                        AspectRatio = 1,
+                                                        DominantAxis = Enum.DominantAxis.Width,
+                                                    }
+                                                }
+                                            },
+
+                                            scope:New "TextLabel" {
+                                                Name = "Timer",
+                                                -- Text = "HH:MM:SS",
+                                                Text = TimeText,
+                                                TextScaled = true,
+                                                Size = UDim2.fromScale(1, 1),
+                                                LayoutOrder = 2,
+                                                BackgroundTransparency = 1,
+                                                TextColor3 = Color3.fromRGB(92, 96, 214)
+                                            }
+                                        }
+                                    }
+                                }
                             },
                             
                             scope:New "Frame" {
@@ -283,11 +306,14 @@ function VotingGuiController.Initialise(
                                         CornerRadius = UDim.new(0.05)
                                     },
 
-                                    scope:ForValues(outfitVoteTiles, function(use, scope, outfitData)
+                                    scope:ForPairs(outfitVoteTiles, function(use, scope, index, outfitData)
                                         local randomId = math.random(1, 99999)
                                         local tileName = "OutfitTile_" .. randomId
-                                        return OutfitVoteTile(scope, {
+                                        local userId = outfitData.userId
+
+                                        return index, OutfitVoteTile(scope, {
                                             Name = tileName,
+                                            layoutOrder = index,
                                             userId = outfitData.userId,
                                             humanoidDescription = outfitData.humanoidDescription,
                                             playerName = outfitData.playerName,
@@ -295,14 +321,25 @@ function VotingGuiController.Initialise(
                                             views = outfitData.views,
                                             size = UDim2.fromScale(0.3, 0.9),
                                             IsSelected = scope:Computed(function(use)
-                                                return use(selectedTileId) == outfitData.userId
-                                            end),
+                                                return use(selectedTileId) == userId
+                                            end), 
+
                                             OnSelected = function()
                                                 if outfitData.userId ~= 0 then
-                                                    VotingGuiController.setSelectedOutfit(outfitData.userId)
+                                                    local viewIds = {}
+                                                    for _, tile in ipairs(peek(outfitVoteTiles)) do
+                                                        if tile.userId ~= 0 then
+                                                            table.insert(viewIds, tile.userId)
+                                                        end
+                                                    end
+
+                                                    PlayerSubmittedVote:FireServer(outfitData.userId, viewIds)
+                                                    VotingGuiController.refreshOutfits()
+                                                else
+                                                    warn("No outfitData user id!")
                                                 end
-                                            end
-                                        })
+                                            end}
+                                        )
                                     end)
                                 } 
                             },
@@ -319,40 +356,6 @@ function VotingGuiController.Initialise(
                                 Size = UDim2.fromScale(0.5, 0.2),
                                 LayoutOrder = 4,
                                 BackgroundTransparency = 1,
-                                
-                                [Children] = {
-                                                                       
-                                    BaseButton(scope, {
-                                        name = "SubmitButton",
-                                        text = "Submit Vote",
-                                        textScaled = true,
-                                        size = UDim2.fromScale(0.8, 1),
-                                        backgroundColor = Color3.new(1, 1, 1),
-                                        strokeColor = Color3.new(0.360784, 0.376471, 0.839216),
-                                        strokeThickness = 5,
-                                        textColor = Color3.new(0.360784, 0.376471, 0.839216),
-
-                                        layoutOrder = 1,
-                                        onActivated = function()
-                                            local selectedUserId = VotingGuiController.getSelectedOutfit()
-                                            if selectedUserId then
-                                                local viewIds = {}
-                                                for _, tile in ipairs(peek(outfitVoteTiles)) do
-                                                    if tile.userId ~= 0 then
-                                                        table.insert(viewIds, tile.userId)
-                                                    end
-                                                end
-                                                
-                                                PlayerSubmittedVote:FireServer(selectedUserId, viewIds)
-                                                VotingGuiController.refreshOutfits()
-                                            else
-                                                warn("No outfit selected for voting")
-                                            end
-                                        end
-                                    }),
-
-                                    
-                                }
                             }
                         }
                     },
