@@ -128,6 +128,7 @@ function FusionDropdown<T>(
 		layoutOrder: UsedAs<number>?,
 		anchorPoint: UsedAs<Vector2>?,
 		placeholder: UsedAs<string>?,
+		searchCallback: () -> ()
 	}
 ): Frame
 	local isHovering = scope:Value(false)
@@ -191,6 +192,7 @@ function FusionDropdown<T>(
 						props.selectedValue:set(selectedOption)
 					end
 					isOpen:set(false)
+					props.searchCallback()
 				end
 			)
 			newDisplay.Parent = playerGui
