@@ -108,7 +108,8 @@ function SearchFrame(
 						selectedValue = props.searchSort,
 						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
 						layoutOrder = 3,
-						placeholder = "Sort by..."
+						placeholder = "Sort by...",
+						searchCallback = props.searchCallback
 					})
 				}
 			},
