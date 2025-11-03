@@ -201,6 +201,8 @@ function AvatarCustomisationService.AddBodyPartsToAvatar(player: Player, bodyPar
 
 	for _, bodyPart in ipairs(bodyParts) do
 		-- Get the bodypart enum
+		warn("equipping", bodyPart)
+
 		local bodyPartEnum = Enum.BodyPart[bodyPart.bodyPartType]
 		if not bodyPartEnum then
 			warn("Bad bodypart type:", bodyPart.bodyPartType)
@@ -235,20 +237,6 @@ function AvatarCustomisationService.ApplyOutfitToAvatar(player: Player, outfitId
 		warn("Failed to get outfit description for ID:", outfitId)
 	end
 end
-
---[[
-function AvatarCustomisationService.AddDynamicHeadToAvatar(player: Player, itemId: number)
-	local assetSuccess, assetInfo = callWithRetry(function()
-		return MarketplaceService:GetProductInfo(item.Id, Enum.InfoType.Asset)
-	end, 3)
-
-	-- AssetTypeId 79 is DynamicHead
-	if assetSuccess and assetInfo and assetInfo.AssetTypeId == 79 then
-		AvatarCustomisationService.AddBodyPartToAvatar(player, item.Id, "Head")
-		return
-	end
-end
-]]
 
 function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: number, bundleType: string)
 	local success, bundleInfo = callWithRetry(function()
