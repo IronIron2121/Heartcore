@@ -22,7 +22,6 @@ local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 local leaderboard = dailyWinners:WaitForChild("leaderboard")
 local leaderboardScreen = leaderboard:WaitForChild("leaderboardScreen")
 
-
 -- GUI Instances
 local leaderboardGui = leaderboardScreen:WaitForChild("LeaderboardGui")
 local leaderboardFrame = leaderboardGui:WaitForChild("LeaderboardFrame")

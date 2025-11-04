@@ -54,6 +54,7 @@ function AvatarCustomisationService.applyDescription(player: Player, description
 	-- For some reason, 2d clothing doesn't update locally unless something is added to the character
 	local refresher = Instance.new("Pants", humanoid.Parent)
 	refresher:Destroy()
+	description:Destroy()
 
 	return true
 end
