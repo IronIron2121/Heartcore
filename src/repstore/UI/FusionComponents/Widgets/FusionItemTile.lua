@@ -46,6 +46,7 @@ function FusionItemTile(
 		Price: number,
 	}
 )
+	warn("Making ItemTile with details", itemDetails)
 	-- Get info type for product info query
 	local infoType
 	
@@ -70,10 +71,12 @@ function FusionItemTile(
 	)
 	
 	local fusionItemTile = scope:New "Frame" {
-		Name = itemDetails.Name,
+		--Name = itemDetails.Name,
+		Name = "FusionItemTile",
 		Size = CONFIG.SIZE,
 		BackgroundTransparency = 1,
 		Active = false,
+		--Parent = parent,
 		
 		[Children] = {
 			scope:New "UIListLayout" {

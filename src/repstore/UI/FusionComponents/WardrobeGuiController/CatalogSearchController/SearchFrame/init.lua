@@ -2,10 +2,7 @@
 -- SearchFrame.lua
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AvatarEditorService = game:GetService("AvatarEditorService")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -20,6 +17,7 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 -- Fusion
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
+
 
 -- GUI Components
 local SearchBox = require(script:WaitForChild("SearchBox"))
@@ -42,7 +40,9 @@ function SearchFrame(
 		searchText: UsedAs<string>,
 		searchCallback: () -> ()
 	}
-): Frame
+): (Frame, ScrollingFrame)
+	local searchResultsFrame = SearchResultsFrame(scope, props.searchResults) :: ScrollingFrame
+
 	local searchFrame = scope:New "Frame" {
 		Name = "SearchFrame",
 		Visible = scope:Computed(function(use)
@@ -115,11 +115,11 @@ function SearchFrame(
 			},
  
 			-- Search results
-			SearchResultsFrame(scope, props.searchResults)
+			searchResultsFrame
 		}
 	} :: Frame
 
-	return searchFrame
+	return searchFrame, searchResultsFrame
 end
 
 return SearchFrame
