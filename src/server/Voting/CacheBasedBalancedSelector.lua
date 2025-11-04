@@ -32,13 +32,23 @@ local function addOutfitToPlayerList(player: Player, outfitId: number)
     if not playerViewedOutfits[player] then
         playerViewedOutfits[player] = {}
     end
+    warn("adding " .. tostring(outfitId) .. " to " .. player.Name .. " list")
     table.insert(playerViewedOutfits[player], outfitId)
 end
 
 local function hasPlayerViewedOutfit(player: Player, outfitId: number): boolean
     if not playerViewedOutfits[player] then
+        warn("player has no outfits list!")
         return false
     end
+
+    warn("Checking if viewed outfit: ", outfitId)
+    print(table.find(playerViewedOutfits[player], outfitId) ~= nil)
+    print("all entries == ")
+    for index, value in ipairs(playerViewedOutfits[player]) do
+        print(index, value)
+    end
+
     return table.find(playerViewedOutfits[player], outfitId) ~= nil
 end
 
@@ -52,6 +62,8 @@ end
 
 -- Initialize player tracking
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local nameOf = require(ReplicatedStorage.Utility.Fusion.Utility.nameOf)
 Players.PlayerAdded:Connect(onPlayerAdded)
 Players.PlayerRemoving:Connect(onPlayerRemoved)
 
@@ -247,23 +259,15 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket, player: Player)
     -- Filter out already-viewed outfits and player's own outfit
     local availableOutfits = {}
     for _, outfit in ipairs(outfits) do
-        if not hasPlayerViewedOutfit(player, outfit.userId) and outfit.userId ~= player.UserId then
+        if outfit.userId ~= player.UserId and not hasPlayerViewedOutfit(player, outfit.userId) then
+            warn("Inserting available outfit!")
             table.insert(availableOutfits, outfit)
         end
     end
     
-    -- If all outfits have been viewed, reset and use all (except player's own)
+    -- If no outfits (only player's own outfit), return nil
     if #availableOutfits == 0 then
-        print("Player has viewed all outfits in bucket, showing all again")
-        for _, outfit in ipairs(outfits) do
-            if outfit.userId ~= player.UserId then
-                table.insert(availableOutfits, outfit)
-            end
-        end
-    end
-    
-    -- If still no outfits (only player's own outfit), return nil
-    if #availableOutfits == 0 then
+        warn("No available outfits!")
         return nil
     end
     

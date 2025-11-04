@@ -50,7 +50,6 @@ function FusionItemTile(
 		layoutOrder: number
 	}
 )
-	warn("Making ItemTile with details", props.itemDetails)
 	-- Get info type for product info query
 	local infoType
 	

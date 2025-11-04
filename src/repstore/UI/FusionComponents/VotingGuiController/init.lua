@@ -363,9 +363,7 @@ function VotingGuiController.Initialise(
             },
         }
     }
-    
-    task.wait(0.1)
-    refreshOutfitVoteTiles()
+    --refreshOutfitVoteTiles()
 end 
 
 return VotingGuiController
