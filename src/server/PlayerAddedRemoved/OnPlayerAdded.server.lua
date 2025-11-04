@@ -17,7 +17,7 @@ local Voting 		= ServerScriptService:WaitForChild("Voting")
 
 
 -- Module Scripts
-local PlayerViewedOutfitsTracker = require(Voting:WaitForChild("PlayerViewedOutfitsTracker"))
+local PlayerVotedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
 local arrayOfNumbersToString 	= require(Utility:WaitForChild("arrayOfNumbersToString"))
 local Constants 				= require(ReplicatedStorage:WaitForChild("Constants")) 
 local BuyableShopItems			= require(DataTables:WaitForChild("BuyableShopItems"))
@@ -112,7 +112,7 @@ local function onPlayerAdded(player: Player)
 	end
 	initialiseOwnedItemsDatastore(player.UserId)
 
-	PlayerViewedOutfitsTracker.OnPlayerAdded(player)
+	PlayerVotedOutfitsTracker.OnPlayerAdded(player)
 end
 
 

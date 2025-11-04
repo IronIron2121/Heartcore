@@ -10,7 +10,7 @@ local Trackers 					= ReplicatedStorage:WaitForChild("Trackers")
 local Voting 					= ServerScriptService:WaitForChild("Voting")
 
 -- Module Scripts
-local PlayerViewedOutfitsTracker = require(Voting:WaitForChild("PlayerViewedOutfitsTracker"))
+local PlayerVotedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
 local PlayerTracker 			= require(Trackers:WaitForChild("PlayerTracker"))
 
 -- Modules
@@ -25,7 +25,7 @@ local function onPlayerRemoved(player: Player)
 		--assert(playerDetails, "player has no details")
 	end
 
-	PlayerViewedOutfitsTracker.OnPlayerRemoved(player)
+	PlayerVotedOutfitsTracker.OnPlayerRemoved(player)
 end
 
 Players.PlayerRemoving:Connect(onPlayerRemoved)
