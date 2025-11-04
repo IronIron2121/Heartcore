@@ -54,7 +54,6 @@ function CatalogSearchController:Initialise()
 	self:_initialiseSearchFrame()
 	self:_initialiseCategoryFrame()
 
-
 	self.searchCallback("swag")
 end
 
@@ -81,24 +80,28 @@ function CatalogSearchController:_initialiseSearchFrame()
     
     self.loadMoreCallback = function()
         if self.isLoadingMore or not self.SearchResultsFrame then return end
+		warn("Loading more!")
         self.isLoadingMore = true
         
         -- Load next page
         local success, nextPageResults = pcall(function()
-            return self.searchResults:AdvanceToNextPageAsync()
+            return peek(self.searchResults):AdvanceToNextPageAsync()
         end)
         
         if success then
-			for index, itemDetails in ipairs(nextPageResults:GetCurrentPage()) do
+			for index, itemDetails in ipairs(peek(self.searchResults):GetCurrentPage()) do
+				warn("making new tile!")
 				local newTile = FusionItemTile(self.scope, {
 					itemDetails = itemDetails,
-					layoutOrder = #self.SearchResultsFrame + index
+					layoutOrder = #self.SearchResultsFrame:GetChildren() + index
 				})
-				
+
 				newTile.Parent = self.SearchResultsFrame
 			end
+		else
+			warn("Failed to load more!", success, nextPageResults)
         end
-        
+         
         self.isLoadingMore = false
     end
 
@@ -115,7 +118,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 		local catalogParams = CatalogSearchParams.new()
 		catalogParams.SearchKeyword = keyword or peek(self.searchText)
 		catalogParams.SortType = peek(self.searchSort)
-		catalogParams.Limit = 60
+		catalogParams.Limit = 60 
 		catalogParams.AssetTypes = peek(self.searchAssetCategories)
 		catalogParams.BundleTypes = peek(self.searchBundleCategories)
 
@@ -160,6 +163,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 		searchSort = self.searchSort,
 		searchResults = self.searchResults,
 		searchText = self.searchText, 
+		loadMoreCallback = self.loadMoreCallback,
 		searchCallback = self.searchCallback 
 	})    
 	
