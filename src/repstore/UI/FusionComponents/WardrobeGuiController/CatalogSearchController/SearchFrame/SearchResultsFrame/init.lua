@@ -1,20 +1,22 @@
 --!strict
 -- SearchResultsFrame.lua
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
+local UI = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents = UI:WaitForChild("FusionComponents")
+local Widgets = FusionComponents:WaitForChild("Widgets")
+
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+
 -- Gui Components
-local FusionItemTile = require(script:WaitForChild("FusionItemTile"))
+local FusionItemTile = require(Widgets:WaitForChild("FusionItemTile"))
+
 -- Fusion
 local Children = Fusion.Children
-local OnEvent = Fusion.OnEvent
-local ForValues = Fusion.ForValues
 local peek = Fusion.peek
 -- Config
 local CONFIG = {
@@ -26,7 +28,7 @@ local CONFIG = {
 function SearchResultsFrame(
 	scope: Fusion.Scope,
 	searchResults: Fusion.UsedAs<CatalogPages>?
-): Frame
+): ScrollingFrame
 
 	local currentPage = scope:Computed(function(use)
 		local results = use(searchResults)
@@ -73,10 +75,13 @@ function SearchResultsFrame(
 				PaddingLeft = UDim.new(0.01,0),
 			},
 
+			--[[
 			scope:ForValues(currentPage, 
 				function(use, scope, itemDetails)
 					return FusionItemTile(scope, itemDetails)
-				end)
+				end
+			)
+				]]
 		}
 
 	} :: ScrollingFrame

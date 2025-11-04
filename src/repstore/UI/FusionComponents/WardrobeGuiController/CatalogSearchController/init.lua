@@ -1,4 +1,5 @@
 --!strict
+
 -- CatalogSearchController.lua
 
 -- Services
@@ -8,12 +9,17 @@ local AvatarEditorService = game:GetService("AvatarEditorService")
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
+local UI = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents = UI:WaitForChild("FusionComponents")
+local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
 local WardrobeGuiState = require(script.Parent:WaitForChild("WardrobeGuiState"))
+local FusionItemTile = require(Widgets:WaitForChild("FusionItemTile"))
+
 
 -- Fusion Components
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -36,36 +42,18 @@ function CatalogSearchController.new(parentFrame: Frame)
 	self.searchAssetCategories = self.scope:Value(AssetFilterCategories.getAllAssetTypes())
 	self.searchBundleCategories = self.scope:Value(BundleFilterCategories.getAllRobloxBundleTypes())
 	self.searchSort = self.scope:Value(Enum.CatalogSortType.Relevance)
-	self.searchResults = self.scope:Value(nil)
+	self.searchResults = self.scope:Value("")
 	self.searchText = self.scope:Value("")
 	self.currentView = WardrobeGuiState.currentView
-
-	self.searchCallback = function(keyword: string?)
-		local catalogParams = CatalogSearchParams.new()
-		catalogParams.SearchKeyword = keyword or peek(self.searchText)
-		catalogParams.SortType = peek(self.searchSort)
-		catalogParams.Limit = 60
-		catalogParams.AssetTypes = peek(self.searchAssetCategories)
-		catalogParams.BundleTypes = peek(self.searchBundleCategories)
-
-		local success, results = pcall(function()
-			return AvatarEditorService:SearchCatalog(catalogParams)
-		end)
-
-		if success then
-			self.searchResults:set(results)
-		else
-			warn("Failed to search catalog for keyword:", self.searchText)
-		end
-	end
 
 	return self
 end
 
 function CatalogSearchController:Initialise()
-	self:_initialiseCategoryFrame()
-	self:_initialiseSearchFrame()
 	self:_intialiseOutfitFrame()
+	self:_initialiseSearchFrame()
+	self:_initialiseCategoryFrame()
+
 	self.searchCallback("swag")
 end
 
@@ -88,24 +76,102 @@ function CatalogSearchController:_initialiseCategoryFrame()
 end
 
 function CatalogSearchController:_initialiseSearchFrame()
-	warn("initialising search frame")
-	local searchFrame = SearchFrame(self.scope, {
+    self.isLoadingMore = false
+    
+    self.loadMoreCallback = function()
+        if self.isLoadingMore or not self.SearchResultsFrame then return end
+		warn("Loading more!")
+        self.isLoadingMore = true
+        
+        -- Load next page
+        local success, nextPageResults = pcall(function()
+            return peek(self.searchResults):AdvanceToNextPageAsync()
+        end)
+        
+        if success then
+			for index, itemDetails in ipairs(peek(self.searchResults):GetCurrentPage()) do
+				warn("making new tile!")
+				local newTile = FusionItemTile(self.scope, {
+					itemDetails = itemDetails,
+					layoutOrder = #self.SearchResultsFrame:GetChildren() + index
+				})
+
+				newTile.Parent = self.SearchResultsFrame
+			end
+		else
+			warn("Failed to load more!", success, nextPageResults)
+        end
+         
+        self.isLoadingMore = false
+    end
+
+	-- Define callbacks FIRST
+	self.searchCallback = function(keyword: string?)
+		if not self.SearchResultsFrame then
+			warn("SearchResultsFrame not ready yet")
+			return
+		end
+		
+		self.clearCatalogCallback()
+		warn("Searching!")
+
+		local catalogParams = CatalogSearchParams.new()
+		catalogParams.SearchKeyword = keyword or peek(self.searchText)
+		catalogParams.SortType = peek(self.searchSort)
+		catalogParams.Limit = 60 
+		catalogParams.AssetTypes = peek(self.searchAssetCategories)
+		catalogParams.BundleTypes = peek(self.searchBundleCategories)
+
+		local success, results = pcall(function()
+			return AvatarEditorService:SearchCatalog(catalogParams)
+		end)
+
+		if success then
+			self.searchResults:set(results)
+			for index, itemDetails in ipairs(results:GetCurrentPage()) do
+				local newTile = FusionItemTile(self.scope, {
+					itemDetails = itemDetails,
+					layoutOrder = index
+				})
+				newTile.Parent = self.SearchResultsFrame
+			end
+		else
+			warn("Failed to search catalog for keyword:", peek(self.searchText))
+		end
+	end
+
+	self.clearCatalogCallback = function()
+		if not self.SearchResultsFrame then return end
+		-- clear all children of the searchresults frame
+		for _, child in self.SearchResultsFrame:GetChildren() do
+			if child:IsA("GuiObject") then
+				child:Destroy()
+			end
+		end
+	end
+
+	-- NOW create SearchFrame with the callbacks defined
+	local searchFrame, searchResultsFrame = SearchFrame(self.scope, {
 		size = UDim2.fromScale(0.8, 1),
 		position = UDim2.fromScale(0.5, 0.5),
 		anchorPoint = Vector2.new(0.5, 0.5),
 		layoutOrder = 2,
 		currentView = self.currentView, 
 		backgroundTransparency = UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
-		searchAssetCategories = self.searchAssetCategories,
+		searchAssetCategories = self.searchAssetCategories, 
 		searchBundleCategories = self.searchBundleCategories,
 		searchSort = self.searchSort,
 		searchResults = self.searchResults,
-		searchText = self.searchText,
-		searchCallback = self.searchCallback
-	})
-
+		searchText = self.searchText, 
+		loadMoreCallback = self.loadMoreCallback,
+		searchCallback = self.searchCallback 
+	})    
+	
 	searchFrame.Parent = self.parentFrame
-end 
+	self.SearchResultsFrame = searchResultsFrame
+
+	return searchFrame, searchResultsFrame
+end
 
 function CatalogSearchController:_intialiseOutfitFrame()
 	local outfitsFrame = OutfitsFrame(self.scope, 
