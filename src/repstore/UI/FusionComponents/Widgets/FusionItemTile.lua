@@ -37,22 +37,26 @@ local CONFIG = {
 -- BIG NOTE / TODO: This should really be what we use for all item tiles, i.e. also the ones when we equip
 function FusionItemTile(
 	scope: Fusion.Scope,
-	itemDetails: {
-		Id: number,
-		Name: string,
-		ItemType: string,
-		AssetType: string?,
-		BundleType: string?,
-		Price: number,
+	props: {
+		itemDetails: {
+			Id: number,
+			Name: string,
+			ItemType: string,
+			AssetType: string?,
+			BundleType: string?,
+			Price: number,
+		},
+		
+		layoutOrder: number
 	}
 )
-	warn("Making ItemTile with details", itemDetails)
+	warn("Making ItemTile with details", props.itemDetails)
 	-- Get info type for product info query
 	local infoType
 	
-	if itemDetails.ItemType == Enum.InfoType.Asset.Name then
+	if props.itemDetails.ItemType == Enum.InfoType.Asset.Name then
 		infoType = Enum.InfoType.Asset.Name
-	elseif itemDetails.ItemType == Enum.InfoType.Bundle.Name then
+	elseif props.itemDetails.ItemType == Enum.InfoType.Bundle.Name then
 		infoType = Enum.InfoType.Bundle.Name
 	end
 	
@@ -76,7 +80,7 @@ function FusionItemTile(
 		Size = CONFIG.SIZE,
 		BackgroundTransparency = 1,
 		Active = false,
-		--Parent = parent,
+		LayoutOrder = props.layoutOrder,
 		
 		[Children] = {
 			scope:New "UIListLayout" {
@@ -109,14 +113,14 @@ function FusionItemTile(
 			
 			NameLabel(scope, {
 				layoutOrder = 0, 
-				text = itemDetails.Name,
+				text = props.itemDetails.Name,
 				textSize = 20,
 			}),
 			
 			scope:New "TextButton" {
 				Name = "ItemButton",
 				LayoutOrder = 1,
-				Text = itemDetails.Name,
+				Text = props.itemDetails.Name,
 				TextTransparency = 1,
 				Size = UDim2.fromScale(0.8, 0.8),
 				BackgroundColor3 = backgroundColorSpring,
@@ -146,7 +150,7 @@ function FusionItemTile(
 						BackgroundTransparency = 1,
 						ImageColor3 = backgroundColorSpring,
 						Size = UDim2.fromScale(1, 1),
-						Image = "rbxthumb://type=" .. (itemDetails.ItemType == "Asset" and "Asset" or "BundleThumbnail") .. "&id=" .. itemDetails.Id .. "&w=420&h=420",
+						Image = "rbxthumb://type=" .. (props.itemDetails.ItemType == "Asset" and "Asset" or "BundleThumbnail") .. "&id=" .. props.itemDetails.Id .. "&w=420&h=420",
 						ZIndex = 1,
 						Active = false
 					},
@@ -175,14 +179,14 @@ function FusionItemTile(
 							},
 
 							TryButton(scope, {
-								assetId = itemDetails.Id,
-								assetOrBundleType = itemDetails.AssetType or itemDetails.BundleType,
-								itemType = itemDetails.ItemType,
+								assetId = props.itemDetails.Id,
+								assetOrBundleType = props.itemDetails.AssetType or props.itemDetails.BundleType,
+								itemType = props.itemDetails.ItemType,
 								layoutOrder = 1 
 							}), 
 
 							BuyButton(scope, {
-								assetId = itemDetails.Id,
+								assetId = props.itemDetails.Id,
 								layoutOrder = 2,  
 							})
 						}
@@ -193,7 +197,7 @@ function FusionItemTile(
 			-- PriceLabel
 			PriceLabel(scope, {
 				layoutOrder = 2,
-				text = itemDetails.Price,
+				text = props.itemDetails.Price,
 			}),
 		}
 	}

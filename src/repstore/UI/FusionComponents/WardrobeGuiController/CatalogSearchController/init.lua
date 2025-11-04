@@ -50,9 +50,10 @@ function CatalogSearchController.new(parentFrame: Frame)
 end
 
 function CatalogSearchController:Initialise()
-	self:_initialiseCategoryFrame()
 	self:_intialiseOutfitFrame()
 	self:_initialiseSearchFrame()
+	self:_initialiseCategoryFrame()
+
 
 	self.searchCallback("swag")
 end
@@ -76,6 +77,31 @@ function CatalogSearchController:_initialiseCategoryFrame()
 end
 
 function CatalogSearchController:_initialiseSearchFrame()
+    self.isLoadingMore = false
+    
+    self.loadMoreCallback = function()
+        if self.isLoadingMore or not self.SearchResultsFrame then return end
+        self.isLoadingMore = true
+        
+        -- Load next page
+        local success, nextPageResults = pcall(function()
+            return self.searchResults:AdvanceToNextPageAsync()
+        end)
+        
+        if success then
+			for index, itemDetails in ipairs(nextPageResults:GetCurrentPage()) do
+				local newTile = FusionItemTile(self.scope, {
+					itemDetails = itemDetails,
+					layoutOrder = #self.SearchResultsFrame + index
+				})
+				
+				newTile.Parent = self.SearchResultsFrame
+			end
+        end
+        
+        self.isLoadingMore = false
+    end
+
 	-- Define callbacks FIRST
 	self.searchCallback = function(keyword: string?)
 		if not self.SearchResultsFrame then
@@ -99,10 +125,12 @@ function CatalogSearchController:_initialiseSearchFrame()
 
 		if success then
 			self.searchResults:set(results)
-			for _, itemDetails in pairs(results:GetCurrentPage()) do
-				local newTile = FusionItemTile(self.scope, itemDetails)
+			for index, itemDetails in ipairs(results:GetCurrentPage()) do
+				local newTile = FusionItemTile(self.scope, {
+					itemDetails = itemDetails,
+					layoutOrder = index
+				})
 				newTile.Parent = self.SearchResultsFrame
-				print("Newtile parent ", newTile.Parent)
 			end
 		else
 			warn("Failed to search catalog for keyword:", peek(self.searchText))

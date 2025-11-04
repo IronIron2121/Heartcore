@@ -38,10 +38,23 @@ function SearchFrame(
 		searchSort: UsedAs<Enum.CatalogSortType>,
 		searchResults: UsedAs<CatalogPages>,
 		searchText: UsedAs<string>,
-		searchCallback: () -> ()
+		searchCallback: () -> (),
+		loadMoreCallback: () -> ()
 	}
 ): (Frame, ScrollingFrame)
 	local searchResultsFrame = SearchResultsFrame(scope, props.searchResults) :: ScrollingFrame
+
+	local canvasPositionObserver = scope:Observer(searchResultsFrame:GetPropertyChangedSignal("CanvasPosition"))
+    canvasPositionObserver:onChange(function()
+        local scrollPosition = searchResultsFrame.CanvasPosition.Y
+        local canvasSize = searchResultsFrame.AbsoluteCanvasSize.Y
+        local frameSize = searchResultsFrame.AbsoluteSize.Y
+        
+        -- If scrolled to within 200 pixels of bottom, load more
+        if scrollPosition + frameSize >= canvasSize - 200 then
+            props.loadMoreCallback()
+        end
+    end)
 
 	local searchFrame = scope:New "Frame" {
 		Name = "SearchFrame",
