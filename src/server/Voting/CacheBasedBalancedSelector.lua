@@ -1,6 +1,17 @@
 -- CacheBasedBalancedSelector.lua
 -- Uses VotingStoreManager's public cache to build selection buckets
 
+-- Services
+local ServerScriptService = game:GetService("ServerScriptService")
+
+-- Folders
+local Voting = ServerScriptService:WaitForChild("Voting")
+
+--
+local PlayerVotedOutfitsTracker = require(script.Parent.PlayerVotedOutfitsTracker)
+local PlayerOutedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
+--
+
 local CacheBasedBalancedSelector = {}
 CacheBasedBalancedSelector.__index = CacheBasedBalancedSelector
 
@@ -24,41 +35,6 @@ local CONFIG = {
     HASH_BUCKETS = 500,            -- For deterministic distribution
     FALLBACK_SAMPLE_SIZE = 200     -- When tiers fail
 }
-
--- Player viewed outfits tracker (integrated)
-local playerViewedOutfits = {}
-
-local function addOutfitToPlayerList(player: Player, outfitId: number)
-    if not playerViewedOutfits[player] then
-        playerViewedOutfits[player] = {}
-    end
-    table.insert(playerViewedOutfits[player], outfitId)
-end
-
-local function hasPlayerViewedOutfit(player: Player, outfitId: number): boolean
-    if not playerViewedOutfits[player] then
-        return false
-    end
-    return table.find(playerViewedOutfits[player], outfitId) ~= nil
-end
-
-local function onPlayerAdded(player: Player)
-    playerViewedOutfits[player] = {}
-end
-
-local function onPlayerRemoved(player: Player)
-    playerViewedOutfits[player] = nil
-end
-
--- Initialize player tracking
-local Players = game:GetService("Players")
-Players.PlayerAdded:Connect(onPlayerAdded)
-Players.PlayerRemoving:Connect(onPlayerRemoved)
-
--- Initialize for existing players
-for _, player in ipairs(Players:GetPlayers()) do
-    onPlayerAdded(player)
-end
 
 function CacheBasedBalancedSelector.new()
     local self = setmetatable({}, CacheBasedBalancedSelector)
@@ -193,12 +169,7 @@ function CacheBasedBalancedSelector:selectOutfit(player: Player)
     
     -- Step 2: Within tier, prefer outfits with fewer views (weighted by inverse view count)
     local selectedOutfit = self:selectFromBucket(selectedBucket, player)
-    
-    -- Track that this player has viewed this outfit
-    if selectedOutfit then
-        addOutfitToPlayerList(player, selectedOutfit.userId)
-    end
-    
+
     return selectedOutfit
 end
 
@@ -244,26 +215,18 @@ end
 function CacheBasedBalancedSelector:selectFromBucket(bucket, player: Player)
     local outfits = bucket.outfits
     
-    -- Filter out already-viewed outfits and player's own outfit
+    -- Filter out already-voted outfits and player's own outfit
     local availableOutfits = {}
     for _, outfit in ipairs(outfits) do
-        if not hasPlayerViewedOutfit(player, outfit.userId) and outfit.userId ~= player.UserId then
+        if outfit.userId ~= player.UserId and not PlayerVotedOutfitsTracker.HasPlayerVotedOutfit(player, outfit.userId) then
+            warn("Inserting available outfit!")
             table.insert(availableOutfits, outfit)
         end
     end
     
-    -- If all outfits have been viewed, reset and use all (except player's own)
+    -- If no outfits (only player's own outfit), return nil
     if #availableOutfits == 0 then
-        print("Player has viewed all outfits in bucket, showing all again")
-        for _, outfit in ipairs(outfits) do
-            if outfit.userId ~= player.UserId then
-                table.insert(availableOutfits, outfit)
-            end
-        end
-    end
-    
-    -- If still no outfits (only player's own outfit), return nil
-    if #availableOutfits == 0 then
+        warn("No available outfits!")
         return nil
     end
     

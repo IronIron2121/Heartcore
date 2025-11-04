@@ -509,10 +509,7 @@ end
 -- Get a balanced outfit selection
 function VotingStoreManager.getBalancedOutfit(player: Player): string?
     local outfit = balancedSelector:selectOutfit(player)
-    if outfit then
-        PlayerViewedOutfitsTracker.AddOutfitToPlayerList(player, outfit.userId)
-    end
-    return balancedSelector:selectOutfit(player)
+    return outfit
 end
 
 function VotingStoreManager.forceFlush(): ()

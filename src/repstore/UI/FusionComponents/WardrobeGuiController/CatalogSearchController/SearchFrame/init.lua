@@ -2,10 +2,7 @@
 -- SearchFrame.lua
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AvatarEditorService = game:GetService("AvatarEditorService")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -20,6 +17,7 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 -- Fusion
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
+
 
 -- GUI Components
 local SearchBox = require(script:WaitForChild("SearchBox"))
@@ -40,9 +38,24 @@ function SearchFrame(
 		searchSort: UsedAs<Enum.CatalogSortType>,
 		searchResults: UsedAs<CatalogPages>,
 		searchText: UsedAs<string>,
-		searchCallback: () -> ()
+		searchCallback: () -> (),
+		loadMoreCallback: () -> ()
 	}
-): Frame
+): (Frame, ScrollingFrame)
+	local searchResultsFrame = SearchResultsFrame(scope, props.searchResults) :: ScrollingFrame
+
+	local canvasPositionObserver = searchResultsFrame:GetPropertyChangedSignal("CanvasPosition")
+
+    canvasPositionObserver:Connect(function()
+        local scrollPosition = searchResultsFrame.CanvasPosition.Y
+        local canvasSize = searchResultsFrame.AbsoluteCanvasSize.Y
+        local frameSize = searchResultsFrame.AbsoluteSize.Y
+        -- If scrolled to within 200 pixels of bottom, load more
+        if scrollPosition + frameSize >= canvasSize - 200 then
+            props.loadMoreCallback()
+        end
+    end)
+
 	local searchFrame = scope:New "Frame" {
 		Name = "SearchFrame",
 		Visible = scope:Computed(function(use)
@@ -108,17 +121,18 @@ function SearchFrame(
 						selectedValue = props.searchSort,
 						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
 						layoutOrder = 3,
-						placeholder = "Sort by..."
+						placeholder = "Sort by...",
+						searchCallback = props.searchCallback
 					})
 				}
 			},
  
 			-- Search results
-			SearchResultsFrame(scope, props.searchResults)
+			searchResultsFrame
 		}
 	} :: Frame
 
-	return searchFrame
+	return searchFrame, searchResultsFrame
 end
 
 return SearchFrame

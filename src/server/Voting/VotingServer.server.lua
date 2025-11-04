@@ -4,8 +4,6 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-
-
 -- Folders
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local Voting = ServerScriptService:WaitForChild("Voting")
@@ -19,6 +17,7 @@ local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 
 -- Modules 
+local PlayerVotedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
 local VotingStoreManager = require(Voting:WaitForChild("VotingStoreManager"))
 local DataManager = require(Data:WaitForChild("DataManager"))
 
@@ -42,15 +41,18 @@ end
 -- Each vote: player chooses one outfit to vote on out of three options (all three get a view)
 local function submitVote(player: Player, voteId: string, viewIds: {string})    
     VotingStoreManager.addVotes(tostring(voteId), 1)
+    PlayerVotedOutfitsTracker.AddOutfitToPlayerList(player, voteId)
 
     for _, id in ipairs(viewIds) do
         VotingStoreManager.addViews(tostring(id), 1)
     end
 
     DataManager.AddExp(player, 1)
+
+    return true
 end
 
 GetContestSubmissionsCache.OnServerInvoke = getContestSubmissionsCache
 PhaseChanged.Event:Connect(onPhaseChanged)
 GetBalancedOutfit.OnServerInvoke = getBalancedOutfit
-PlayerSubmittedVote.OnServerEvent:Connect(submitVote)
+PlayerSubmittedVote.OnServerInvoke = submitVote

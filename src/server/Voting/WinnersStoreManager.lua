@@ -21,15 +21,13 @@ local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 -- Instances
 local leaderboard = dailyWinners:WaitForChild("leaderboard")
 local leaderboardScreen = leaderboard:WaitForChild("leaderboardScreen")
---local WinnersThemeHolder = leaderboardScreen:WaitForChild("WinnersThemeHolder")
 
 
 -- GUI Instances
 local leaderboardGui = leaderboardScreen:WaitForChild("LeaderboardGui")
 local leaderboardFrame = leaderboardGui:WaitForChild("LeaderboardFrame")
 
-local WinnersThemeHolder = leaderboardScreen:WaitForChild("WinnersThemeHolder")
-local WinnersThemeGui = WinnersThemeHolder:WaitForChild("WinnersThemeGui")
+local WinnersThemeGui = leaderboardScreen:WaitForChild("WinnersThemeGui")
 local WinnersThemeFrame = WinnersThemeGui:WaitForChild("WinnersThemeFrame")
 local ThemeLabel = WinnersThemeFrame:WaitForChild("ThemeLabel")
 

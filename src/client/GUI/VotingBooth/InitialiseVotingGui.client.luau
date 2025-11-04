@@ -43,7 +43,6 @@ end
 
 local function updateTimeText(newText: string)
     TimeText:set(newText)
-    warn("updating timetext at voting gui == ", peek(TimeText))
 end
 
 local function initialiseVoteGui()
