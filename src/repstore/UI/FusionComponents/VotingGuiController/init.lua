@@ -31,10 +31,6 @@ local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
-local Value = Fusion.Value
-
--- GUI Modules
-local BaseButton = require(Widgets:WaitForChild("BaseButton"))
 
 -- Constants
 local maxDisplayedOutfits = 3
@@ -333,7 +329,7 @@ function VotingGuiController.Initialise(
                                                         end
                                                     end
 
-                                                    PlayerSubmittedVote:FireServer(outfitData.userId, viewIds)
+                                                    PlayerSubmittedVote:InvokeServer(outfitData.userId, viewIds)
                                                     VotingGuiController.refreshOutfits()
                                                 else
                                                     warn("No outfitData user id!")

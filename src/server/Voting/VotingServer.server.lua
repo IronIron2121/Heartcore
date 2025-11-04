@@ -48,9 +48,11 @@ local function submitVote(player: Player, voteId: string, viewIds: {string})
     end
 
     DataManager.AddExp(player, 1)
+
+    return true
 end
 
 GetContestSubmissionsCache.OnServerInvoke = getContestSubmissionsCache
 PhaseChanged.Event:Connect(onPhaseChanged)
 GetBalancedOutfit.OnServerInvoke = getBalancedOutfit
-PlayerSubmittedVote.OnServerEvent:Connect(submitVote)
+PlayerSubmittedVote.OnServerInvoke = submitVote
