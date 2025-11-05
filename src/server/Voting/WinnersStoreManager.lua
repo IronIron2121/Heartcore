@@ -110,7 +110,7 @@ end
 function WinnersStoreManager.updateWinnersThemeDisplay()
     warn("UPDATING WINNERS THEME DISPLAY")
     local erePreviousTheme = ThemeManager.getErePreviousThemeName()
-    ThemeLabel.Text = erePreviousTheme .. " FIT CHECK WINNERS"
+    ThemeLabel.Text = "Previous fit check winners for : " .. tostring(erePreviousTheme) 
 end
 
 function WinnersStoreManager.updateTopTwentyLeaderboard()
