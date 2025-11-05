@@ -5,15 +5,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
-local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
-
--- Gui Components
-local FusionItemTile = require(Widgets:WaitForChild("FusionItemTile"))
 
 -- Fusion
 local Children = Fusion.Children
@@ -29,15 +23,6 @@ function SearchResultsFrame(
 	scope: Fusion.Scope,
 	searchResults: Fusion.UsedAs<CatalogPages>?
 ): ScrollingFrame
-
-	local currentPage = scope:Computed(function(use)
-		local results = use(searchResults)
-		if results then
-			return results:GetCurrentPage()
-		else
-			return {} -- Return empty table as fallback
-		end
-	end)
 
 	-- Reactive values for responsive grid
 	local cellSize = scope:Value(UDim2.fromOffset(CONFIG.MIN_CELL_SIZE.X, CONFIG.MIN_CELL_SIZE.Y))
@@ -74,14 +59,6 @@ function SearchResultsFrame(
 				PaddingRight = UDim.new(0.01,0),
 				PaddingLeft = UDim.new(0.01,0),
 			},
-
-			--[[
-			scope:ForValues(currentPage, 
-				function(use, scope, itemDetails)
-					return FusionItemTile(scope, itemDetails)
-				end
-			)
-				]]
 		}
 
 	} :: ScrollingFrame

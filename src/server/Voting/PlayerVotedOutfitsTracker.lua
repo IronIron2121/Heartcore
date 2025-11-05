@@ -23,4 +23,12 @@ function PlayerVotedOutfitsTracker.OnPlayerRemoved(player: Player)
     playerList[player] = nil
 end
 
+function PlayerVotedOutfitsTracker.ResetPlayerList()
+    warn("Resetting player list!")
+    for player, list in pairs(playerList) do
+        playerList[player] = {}
+    end
+    warn(playerList)
+end
+
 return PlayerVotedOutfitsTracker

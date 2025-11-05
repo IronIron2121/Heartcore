@@ -13,6 +13,7 @@ local Getters = ReplicatedStorage:WaitForChild("Getters")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local connectTreeVisibilityChanged = require(script.Parent.connectTreeVisibilityChanged)
 local PlayerHasMaxOfAccessoryTypeEquipped = require(Checkers:WaitForChild("PlayerHasMaxOfAccessoryTypeEquipped"))
 local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessoryTypeFromAssetType"))
 local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
@@ -175,15 +176,15 @@ function AvatarCustomisationService.AddBodyPartToAvatar(player: Player, itemId: 
 		return false
 	end
 
-	-- Remove existing body part on the same slot
+	-- Remove existing body part on the same slot after copying its colours
+	local bodyPartDescription = Instance.new("BodyPartDescription")
 	for _, description in ipairs(clonedDescription:GetChildren()) do
 		if description:IsA("BodyPartDescription") and description.BodyPart == bodyPartEnum then
+			bodyPartDescription.Color = description.Color
 			description:Destroy()
 		end
 	end
 
-	-- Create and add new body part
-	local bodyPartDescription = Instance.new("BodyPartDescription")
 	bodyPartDescription.AssetId = itemId
 	bodyPartDescription.BodyPart = bodyPartEnum
 	bodyPartDescription.Parent = clonedDescription
@@ -235,20 +236,6 @@ function AvatarCustomisationService.ApplyOutfitToAvatar(player: Player, outfitId
 		warn("Failed to get outfit description for ID:", outfitId)
 	end
 end
-
---[[
-function AvatarCustomisationService.AddDynamicHeadToAvatar(player: Player, itemId: number)
-	local assetSuccess, assetInfo = callWithRetry(function()
-		return MarketplaceService:GetProductInfo(item.Id, Enum.InfoType.Asset)
-	end, 3)
-
-	-- AssetTypeId 79 is DynamicHead
-	if assetSuccess and assetInfo and assetInfo.AssetTypeId == 79 then
-		AvatarCustomisationService.AddBodyPartToAvatar(player, item.Id, "Head")
-		return
-	end
-end
-]]
 
 function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: number, bundleType: string)
 	local success, bundleInfo = callWithRetry(function()
