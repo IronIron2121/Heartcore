@@ -79,8 +79,8 @@ function CatalogSearchController:_initialiseSearchFrame()
     self.isLoadingMore = false
     
     self.loadMoreCallback = function()
-        if self.isLoadingMore or not self.SearchResultsFrame then return end
-		warn("Loading more!")
+        if self.isLoadingMore or not self.SearchResultsFrame or peek(self.searchResults).isFinished then return end
+		warn("Loading more!") 
         self.isLoadingMore = true
         
         -- Load next page
