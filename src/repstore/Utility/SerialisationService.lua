@@ -4,6 +4,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Modules
+local nameOf = require(ReplicatedStorage.Utility.Fusion.Utility.nameOf)
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
 local accessoryDescriptionProperties = {
@@ -134,9 +135,9 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 	
 	for _, description in ipairs(humanoidDescription:GetChildren()) do
 		if description:IsA("AccessoryDescription") then
-			serialisedHumanoidDescription[description.AssetId] = SerialisationService.SerialiseAccessoryDescription(description)
+			serialisedHumanoidDescription[description.AccessoryType.Name .. tostring(description.AssetId)] = SerialisationService.SerialiseAccessoryDescription(description)
 		elseif description:IsA("BodyPartDescription") then
-			serialisedHumanoidDescription[description.AssetId] = SerialisationService.SerialiseBodyPartDescription(description)
+			serialisedHumanoidDescription[description.BodyPart.Name .. tostring(description.AssetId)] = SerialisationService.SerialiseBodyPartDescription(description)
 		end
 	end
 
