@@ -30,7 +30,6 @@ local PHASE_CLOCK_UPDATE_INTERVAL = 1
 -- Remotes / Bindables
 local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
 local PhaseChangedRemote = Remotes:WaitForChild("PhaseChangedRemote")
-local UpdateLocalPhaseTimes = Remotes:WaitForChild("UpdateLocalPhaseTimes")
 
 -- Instances
 local centralPondModel = centralPond:WaitForChild("centralPond")
@@ -359,7 +358,7 @@ function GameTimer.initialiseTimer(): ()
             local nextPhaseTime = GameTimer.getNextPhaseUnixTime()
             
             if not nextPhaseTime or nextPhaseTime <= timestampNow then
-                TimeLabel.Text = DEBUG_MODE and "DEBUG: LOADING..." or "LOADING..."
+                TimeLabel.Text = "LOADING..."
             else
                 local timeRemaining = nextPhaseTime - timestampNow
                 local hours = timeRemaining // 3600

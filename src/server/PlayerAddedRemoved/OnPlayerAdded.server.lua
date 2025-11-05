@@ -18,7 +18,6 @@ local Voting 		= ServerScriptService:WaitForChild("Voting")
 
 -- Module Scripts
 local PlayerVotedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
-local arrayOfNumbersToString 	= require(Utility:WaitForChild("arrayOfNumbersToString"))
 local Constants 				= require(ReplicatedStorage:WaitForChild("Constants")) 
 local BuyableShopItems			= require(DataTables:WaitForChild("BuyableShopItems"))
 local PlayerTracker 			= require(Trackers:WaitForChild("PlayerTracker"))
@@ -26,32 +25,10 @@ local PlayerDetails 			= require(Classes:WaitForChild("PlayerDetails"))
 
 -- Datastores
 local ownedItemsDataStore		= DataStoreService:GetDataStore(Constants.OWNEDITEMS_DATASTORE)
-local PlayerClothingDatastore 	= DataStoreService:GetDataStore(Constants.PLAYER_CLOTHING_DATASTORE)
 
 -- Remotes / Bindables
 local UpdateLocalPlayerDetailsAsync = Remotes:WaitForChild("UpdateLocalPlayerDetails")
 
-
--- A table with all names of accessory attributes in a HumanoidDescription
-local HUMANOID_ACCESSORY_ATTRIBUTES = {
-	"BackAccessory",
-	"FaceAccessory",
-	"FrontAccessory",
-	"HairAccessory",
-	"HatAccessory",
-	"NeckAccessory",
-	"ShouldersAccessory",
-	"WaistAccessory",
-	"Shirt",
-	"Pants",
-	"GraphicTShirt",
-	"Head",
-	"LeftArm",
-	"LeftLeg",
-	"RightArm",
-	"RightLeg",
-	"Torso",
-}
 
 -- Grabs all accessory IDs from player and adds them to a table
 local function getAccessoryAttributes(humanoid: Humanoid, attributesArray: {})
@@ -72,14 +49,7 @@ local function onCharacterAdded(character: Model)
 	humanoid.WalkSpeed 	= 32
 end
 
-local function updatePlayerOwnedItems(playerOwnedItems: {})
-
-end
-
 local function initialiseOwnedItemsDatastore(userId: number)
-	local stringId = tostring(userId)
-	local playerOwnedItems
-	
 	-- Make sure the data is there
 	local success, error = pcall(function()
 		ownedItemsDataStore:UpdateAsync(tostring(userId), function(oldData)

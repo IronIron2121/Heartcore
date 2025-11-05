@@ -63,7 +63,7 @@ local function getCacheUpdateLockStore()
     end
     
     local success, lockStore = callWithRetry(function()
-        return MemoryStoreService:GetSortedMap(activeVotingPhasePrefix .. "_VotingCacheUpdateLocks")
+        return MemoryStoreService:GetSortedMap(tostring(activeVotingPhasePrefix) .. "_VotingCacheUpdateLocks")
     end, 3)
     
     if success then
@@ -72,7 +72,7 @@ local function getCacheUpdateLockStore()
     return nil
 end
 
-local function acquireCacheUpdateLock(): boolean
+local function acquireCacheUpdateLock(): boolean?
     local lockStore = getCacheUpdateLockStore()
     if not lockStore then
         warn("Failed to get cache update lock store")
