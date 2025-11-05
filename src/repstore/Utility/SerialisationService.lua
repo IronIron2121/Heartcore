@@ -108,6 +108,7 @@ function SerialisationService.SerialiseBodyPartDescription(bodyPartDescription: 
 end
 
 function SerialisationService.UnserialiseBodyPartDescription(serialisedBodyPartDescription: {[string] : any})
+	warn("Unserialising ", serialisedBodyPartDescription)
 	local bodyPartDescription = Instance.new("BodyPartDescription")
 	
 	for property, value in pairs(serialisedBodyPartDescription) do
@@ -132,13 +133,10 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 	local serialisedHumanoidDescription = {}
 	
 	for _, description in ipairs(humanoidDescription:GetChildren()) do
-		
 		if description:IsA("AccessoryDescription") then
 			serialisedHumanoidDescription[description.AssetId] = SerialisationService.SerialiseAccessoryDescription(description)
-			
 		elseif description:IsA("BodyPartDescription") then
 			serialisedHumanoidDescription[description.AssetId] = SerialisationService.SerialiseBodyPartDescription(description)
-			
 		end
 	end
 
@@ -150,8 +148,6 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 end
 
 function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidDescription: {[string] : any}) : HumanoidDescription
-	 
-
 	local humanoidDescription = Instance.new("HumanoidDescription") 
 	
 	for assetId, description in pairs(serialisedHumanoidDescription) do
