@@ -18,9 +18,9 @@ local GameTimer = require(Voting:WaitForChild("GameTimer"))
 local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 
 -- Instances
-local BillboardHolder = votingZone:WaitForChild("BillboardHolder")
-local ThemeNameBillboard = BillboardHolder:WaitForChild("ThemeNameBillboard")
-local ThemeText = ThemeNameBillboard:WaitForChild("ThemeText")
+local themeDisplay = votingZone:WaitForChild("themeDisplay")
+local ThemeNameGui = themeDisplay:WaitForChild("ThemeNameGui")
+local ThemeText = ThemeNameGui:WaitForChild("ThemeText")
 
 local VotingStoreManager = {}
 

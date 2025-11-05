@@ -102,7 +102,7 @@ function WinnersStoreManager.getCurrentTopTwenty(): {}?
     if success then 
         return topTwenty
     else
-        warn("Failed to get current top twenty")
+        warn("Failed to get current top twenty") 
         return nil
     end
 end
@@ -110,7 +110,7 @@ end
 function WinnersStoreManager.updateWinnersThemeDisplay()
     warn("UPDATING WINNERS THEME DISPLAY")
     local erePreviousTheme = ThemeManager.getErePreviousThemeName()
-    ThemeLabel.Text = erePreviousTheme
+    ThemeLabel.Text = erePreviousTheme .. " FIT CHECK WINNERS"
 end
 
 function WinnersStoreManager.updateTopTwentyLeaderboard()
