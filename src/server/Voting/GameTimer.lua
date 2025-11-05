@@ -238,17 +238,9 @@ local function updatePhase()
         local nextPhaseUnixTime = getNextPhaseStartTime()
         local tomorrowDateTime = nextPhaseUnixTime and DateTime.fromUnixTimestamp(nextPhaseUnixTime) or nil
         
-        if DEBUG_MODE then
-            print("=== DEBUG: Phase transition completed ===")
-            print("Current phase prefix:", GameTimer.getCurrentPhasePrefix())
-            print("Previous phase prefix:", GameTimer.getPreviousPhasePrefix())
-            print("Ere-previous phase prefix:", GameTimer.getErePreviousPhasePrefix())
-            print("Next transition in:", DEBUG_PHASE_DURATION, "seconds")
-        else
-            print("Phase transition completed at:", currentDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
-            if tomorrowDateTime then
-                print("Next transition at:", tomorrowDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
-            end
+        print("Phase transition completed at:", currentDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
+        if tomorrowDateTime then
+            print("Next transition at:", tomorrowDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
         end
     else
         warn("Failed to update phase transition times in GameTimerMemoryStore")
@@ -306,11 +298,6 @@ local function initialiseGameTimerCache()
             local timeUntilNext = nextPhaseTimestamp - DateTime.now().UnixTimestamp
             print("Loaded recent phase transition time:", recentUnixTime)
             print("Time until next phase:", math.max(0, timeUntilNext), "seconds")
-            
-            if DEBUG_MODE then
-                print("DEBUG MODE: Current prefix:", GameTimer.getCurrentPhasePrefix())
-                print("DEBUG MODE: Previous prefix:", GameTimer.getPreviousPhasePrefix())
-            end
         end
     else
         GameTimerCache.currentPhaseUnixTime = nil
@@ -337,14 +324,6 @@ end
 function GameTimer.initialiseTimer(): ()
     if TimerStarted then return end
     TimerStarted = true
-
-    if DEBUG_MODE then
-        warn("=================================================")
-        warn("DEBUG MODE ENABLED - PHASES EVERY", DEBUG_PHASE_DURATION, "SECONDS")
-        warn("SET DEBUG_MODE = false FOR PRODUCTION")
-        warn("=================================================")
-    end
-
     print("Initializing GameTimer system...")
     
     initialiseGameTimerCache()

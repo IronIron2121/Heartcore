@@ -30,4 +30,4 @@ function WardrobeGuiController.Initialise()
 	controllers["CatalogSearchController"]:Initialise()
 end 
 
-return WardrobeGuiController 
+return WardrobeGuiController
