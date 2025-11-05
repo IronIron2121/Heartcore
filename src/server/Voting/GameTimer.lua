@@ -387,11 +387,7 @@ function GameTimer.initialiseTimer(): ()
                 local minutes = (timeRemaining % 3600) // 60
                 local seconds = timeRemaining % 60
                 
-                if DEBUG_MODE then
-                    TimeLabel.Text = string.format("DEBUG: %d:%02d", minutes, seconds)
-                else
-                    TimeLabel.Text = string.format("%d:%02d:%02d", hours, minutes, seconds)
-                end
+                TimeLabel.Text = string.format("%d:%02d:%02d", hours, minutes, seconds)
             end
 
             task.wait(PHASE_CLOCK_UPDATE_INTERVAL)
