@@ -2,10 +2,7 @@
 -- SearchBox.lua
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AvatarEditorService = game:GetService("AvatarEditorService")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -20,6 +17,9 @@ local OnEvent = Fusion.OnEvent
 local Out = Fusion.Out
 type UsedAs<T> = Fusion.UsedAs<T>
 local peek = Fusion.peek
+
+-- Constants
+local INITIAL_SEARCH_TEXT = "Search..."
 
 function SearchBox(
 	scope: Fusion.Scope,
@@ -47,20 +47,6 @@ function SearchBox(
 				return 0
 			else
 				return UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT
-			end
-		end),
-		20,
-		1
-	)
-
-	local textColorSpring = scope:Spring(
-		scope:Computed(function(use)
-			if use(isFocused) then
-				return UI_CONSTANTS.COLOUR_BLACK
-			elseif use(isHovering) then
-				return UI_CONSTANTS.COLOUR_BLACK:Lerp(UI_CONSTANTS.COLOUR_WHITE, 0.50)
-			else
-				return UI_CONSTANTS.COLOUR_WHITE
 			end
 		end),
 		20,
@@ -101,7 +87,9 @@ function SearchBox(
 		[OnEvent "Focused"] = function()
 			isFocused:set(true)
 			-- Clear placeholder text when focused
-			props.searchText:set("")
+			if peek(props.searchText) == peek(props.placeholder) or peek(props.searchText) == peek(INITIAL_SEARCH_TEXT) then
+				props.searchText:set("")
+			end
 		end,
 
 		[OnEvent "FocusLost"] = function(enterPressed: boolean)

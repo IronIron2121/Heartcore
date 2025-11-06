@@ -18,7 +18,6 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
-
 -- GUI Components
 local SearchBox = require(script:WaitForChild("SearchBox"))
 local SearchResultsFrame = require(script:WaitForChild("SearchResultsFrame"))

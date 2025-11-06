@@ -4,6 +4,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Modules
+local nameOf = require(ReplicatedStorage.Utility.Fusion.Utility.nameOf)
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
 local accessoryDescriptionProperties = {
@@ -108,6 +109,7 @@ function SerialisationService.SerialiseBodyPartDescription(bodyPartDescription: 
 end
 
 function SerialisationService.UnserialiseBodyPartDescription(serialisedBodyPartDescription: {[string] : any})
+	warn("Unserialising ", serialisedBodyPartDescription)
 	local bodyPartDescription = Instance.new("BodyPartDescription")
 	
 	for property, value in pairs(serialisedBodyPartDescription) do
@@ -125,33 +127,36 @@ end
 
 function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: HumanoidDescription) : {any}?
 	if not humanoidDescription then
-		assert(humanoidDescription, "attempt to serialise NIL for description!")
+		assert(humanoidDescription, "Error: Attempt to serialise NIL for description!")
 		return nil
 	end
 
 	local serialisedHumanoidDescription = {}
 	
 	for _, description in ipairs(humanoidDescription:GetChildren()) do
-		
 		if description:IsA("AccessoryDescription") then
-			serialisedHumanoidDescription[description.AssetId] = SerialisationService.SerialiseAccessoryDescription(description)
-			
+			serialisedHumanoidDescription[description.AccessoryType.Name .. tostring(description.AssetId)] = SerialisationService.SerialiseAccessoryDescription(description)
 		elseif description:IsA("BodyPartDescription") then
-			serialisedHumanoidDescription[description.AssetId] = SerialisationService.SerialiseBodyPartDescription(description)
-			
+			serialisedHumanoidDescription[description.BodyPart.Name .. tostring(description.AssetId)] = SerialisationService.SerialiseBodyPartDescription(description)
 		end
 	end
 
 	serialisedHumanoidDescription.GraphicTShirt = humanoidDescription.GraphicTShirt
 	serialisedHumanoidDescription.Shirt = humanoidDescription.Shirt
 	serialisedHumanoidDescription.Pants = humanoidDescription.Pants
+
+	-- If this doesn't work, try again with dicrete number values rather than humDesc attributes
+	serialisedHumanoidDescription.BodyTypeScale = humanoidDescription.BodyTypeScale
+	serialisedHumanoidDescription.DepthScale = humanoidDescription.DepthScale
+	serialisedHumanoidDescription.HeadScale = humanoidDescription.HeadScale
+	serialisedHumanoidDescription.HeightScale = humanoidDescription.HeightScale
+	serialisedHumanoidDescription.ProportionScale = humanoidDescription.ProportionScale
+	serialisedHumanoidDescription.WidthScale = humanoidDescription.WidthScale
 		
 	return serialisedHumanoidDescription
 end
 
 function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidDescription: {[string] : any}) : HumanoidDescription
-	 
-
 	local humanoidDescription = Instance.new("HumanoidDescription") 
 	
 	for assetId, description in pairs(serialisedHumanoidDescription) do
@@ -179,6 +184,12 @@ function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidD
 		end
 	end
 
+	humanoidDescription.BodyTypeScale = serialisedHumanoidDescription.BodyTypeScale
+	humanoidDescription.DepthScale = serialisedHumanoidDescription.DepthScale
+	humanoidDescription.HeadScale = serialisedHumanoidDescription.HeadScale
+	humanoidDescription.HeightScale = serialisedHumanoidDescription.HeightScale
+	humanoidDescription.ProportionScale = serialisedHumanoidDescription.ProportionScale 
+	humanoidDescription.WidthScale = serialisedHumanoidDescription.WidthScale
 	
 	return humanoidDescription
 end

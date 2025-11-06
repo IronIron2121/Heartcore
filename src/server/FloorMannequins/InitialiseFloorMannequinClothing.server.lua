@@ -40,6 +40,10 @@ local function setupMannequinAsync(mannequin: Instance)
 	local accessoryIds = stringOfNumbersToArray(accessoryIdsString)
 	local bundleIds = stringOfNumbersToArray(bundleIdsString)
 
+	if bundleIdsString == "" or not bundleIdsString then
+		makeMannequinInvisible(mannequin)
+	end
+
 	local humanoid = mannequin:FindFirstChildOfClass("Humanoid")
 	assert(humanoid, "No humanoid found for " .. mannequin.Name .. "!!")
 
