@@ -3,8 +3,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 -- Folders
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
@@ -12,17 +10,13 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local localPlayer = Players.LocalPlayer
 
 -- GUI
--- local PlayerGui = localPlayer.PlayerGui
 local PlayerGui = localPlayer:WaitForChild("PlayerGui")
-
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion Modules
 local scope = Fusion:scoped()
-local OnEvent = Fusion.OnEvent
-local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
@@ -33,14 +27,11 @@ local SubmissionGuiController = {}
 
 local currentTheme = scope:Value("")
 
-
 function SubmissionGuiController.Initialise(
     SubmissionGuiVisible: UsedAs<boolean>,
     TimeText: UsedAs<string>
 )
-
     currentTheme:set(PlayerRequestedCurrentTheme:InvokeServer())
-
 
     local _SubmisionGui = scope:New "ScreenGui" {
         Name = "SubmissionGui",
@@ -75,4 +66,3 @@ function SubmissionGuiController.Initialise(
 end
 
 return SubmissionGuiController
-
