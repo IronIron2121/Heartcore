@@ -127,7 +127,7 @@ end
 
 function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: HumanoidDescription) : {any}?
 	if not humanoidDescription then
-		assert(humanoidDescription, "attempt to serialise NIL for description!")
+		assert(humanoidDescription, "Error: Attempt to serialise NIL for description!")
 		return nil
 	end
 
@@ -144,6 +144,14 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 	serialisedHumanoidDescription.GraphicTShirt = humanoidDescription.GraphicTShirt
 	serialisedHumanoidDescription.Shirt = humanoidDescription.Shirt
 	serialisedHumanoidDescription.Pants = humanoidDescription.Pants
+
+	-- If this doesn't work, try again with dicrete number values rather than humDesc attributes
+	serialisedHumanoidDescription.BodyTypeScale = humanoidDescription.BodyTypeScale
+	serialisedHumanoidDescription.DepthScale = humanoidDescription.DepthScale
+	serialisedHumanoidDescription.HeadScale = humanoidDescription.HeadScale
+	serialisedHumanoidDescription.HeightScale = humanoidDescription.HeightScale
+	serialisedHumanoidDescription.ProportionScale = humanoidDescription.ProportionScale
+	serialisedHumanoidDescription.WidthScale = humanoidDescription.WidthScale
 		
 	return serialisedHumanoidDescription
 end
