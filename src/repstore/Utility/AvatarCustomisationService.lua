@@ -13,7 +13,6 @@ local Getters = ReplicatedStorage:WaitForChild("Getters")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local connectTreeVisibilityChanged = require(script.Parent.connectTreeVisibilityChanged)
 local PlayerHasMaxOfAccessoryTypeEquipped = require(Checkers:WaitForChild("PlayerHasMaxOfAccessoryTypeEquipped"))
 local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessoryTypeFromAssetType"))
 local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
@@ -275,7 +274,6 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 	-- Handle Body Parts bundles
 	if bundleInfo.BundleType == Enum.BundleType.BodyParts.Name then
 		local bodyParts = {}
-		
 		for _, item in ipairs(bundleItems) do
 			if item.Type ~= "UserOutfit" then
 				local assetSuccess, assetInfo = callWithRetry(function()
@@ -284,7 +282,7 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 
 				if assetSuccess and assetInfo then
 					if assetInfo.AssetTypeId == 19 then
-						warn("gear!")
+						warn("Item is a gear! Skipping equip...")
 						continue
 					elseif assetInfo.AssetTypeId == 79 then
 						table.insert(bodyParts, {
@@ -292,7 +290,7 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 							bodyPartType = Enum.BodyPart.Head.Name
 						})
 					elseif table.find(Constants.ANIMATION_ASSET_TYPE_IDS, assetInfo.AssetTypeId) then
-						warn("Item is an animation!")
+						warn("Item is an animation! Skipping equip...")
 						continue
 					else
 						-- We should probably disambiguate between Accessories and Bodyparts here
@@ -313,6 +311,7 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		if #bodyParts > 0 then
 			AvatarCustomisationService.AddBodyPartsToAvatar(player, bodyParts)
 		end
+
 		return
 	end
 
