@@ -18,7 +18,6 @@ local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local UI_CONSTANTS = require(ReplicatedStorage.Utility:WaitForChild("UI_CONSTANTS"))
  
-
 -- Bindables
 local PlayerCreatedPreview = BindablesFolder:WaitForChild("PlayerCreatedPreview")
 local PlayerDestroyedPreview = BindablesFolder:WaitForChild("PlayerDestroyedPreview")
@@ -26,14 +25,13 @@ local HideAllPromptsBindable = BindablesFolder:WaitForChild("HideAllPromptsBinda
 local ShowAllPromptsBindable = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
 local PlayerInspectedMannequin = BindablesFolder:WaitForChild("PlayerInspectedMannequin")
 
-		-- parent to player gui so buttons are interactable
+-- parent to player gui so buttons are interactable
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local allPrompts = Instance.new("ScreenGui", playerGui)
 allPrompts.Name = "allPrompts"
 
 -- Create custom GUI when proximity prompt appears (Cece addition)
-
 local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 	prompt.Style = Enum.ProximityPromptStyle.Custom
 	prompt.ActionText = "" -- hide Roblox default
@@ -46,7 +44,6 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 	if adornee:FindFirstChild("CustomInspectPrompt") then
 		return
 	end
-
 
 	local billboard = Instance.new("BillboardGui", allPrompts)
 	billboard.Name = "CustomInspectPrompt"
@@ -107,13 +104,9 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 		tweenStroke(Color3.fromRGB(255, 255, 255), 2) -- back to white
 	end)
 
-
-	--button activate on click
 	button.Activated:Connect(function()
-		prompt:InputHoldBegin()
-		prompt:InputHoldEnd()
+		PlayerInspectedMannequin:Fire(mannequin)
 	end)
-
 
 	-- Update the text key prompt dynamically
 	local function keyCodeToLabel(keyCode: Enum.KeyCode): string
@@ -168,8 +161,6 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 	end)
 end
 
-
-
 -- State
 local inspectPrompts: { [Instance]: ProximityPrompt } = {}
 
@@ -222,13 +213,7 @@ local function onMannequinAdded(mannequin: Model)
 		print(mannequin)
 		print(mannequin.Name)
 		assert(inspectPrompt.Parent, "Error: No parent of inspect prompt!")
-
 	end
-
-	inspectPrompt.Triggered:Connect(function(_: Player)
-		-- Fire bindable to trigger inspection in the other script
-		PlayerInspectedMannequin:Fire(mannequin)
-	end)
 
 	inspectPrompts[mannequin] = inspectPrompt
 end
@@ -249,7 +234,6 @@ local function initialise()
 	for _, mannequin in CollectionService:GetTagged(Constants.FLOOR_MANNEQUIN_TAG) do
 		onMannequinAdded(mannequin)
 	end
-
 
 	-- Connect prompt visibility controls
 	PlayerCreatedPreview.Event:Connect(hideAllPrompts)
