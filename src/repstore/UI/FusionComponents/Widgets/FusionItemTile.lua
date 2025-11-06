@@ -74,8 +74,7 @@ function FusionItemTile(
 	)
 	
 	local fusionItemTile = scope:New "Frame" {
-		--Name = itemDetails.Name,
-		Name = "FusionItemTile",
+		Name = props.itemDetails.Name,
 		Size = CONFIG.SIZE,
 		BackgroundTransparency = 1,
 		Active = false,
