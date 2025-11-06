@@ -53,20 +53,6 @@ function SearchBox(
 		1
 	)
 
-	local textColorSpring = scope:Spring(
-		scope:Computed(function(use)
-			if use(isFocused) then
-				return UI_CONSTANTS.COLOUR_BLACK
-			elseif use(isHovering) then
-				return UI_CONSTANTS.COLOUR_BLACK:Lerp(UI_CONSTANTS.COLOUR_WHITE, 0.50)
-			else
-				return UI_CONSTANTS.COLOUR_WHITE
-			end
-		end),
-		20,
-		1
-	)
-
 	-- Display text logic
 	local displayText = scope:Computed(function(use)
 		local currentText = use(props.searchText)
