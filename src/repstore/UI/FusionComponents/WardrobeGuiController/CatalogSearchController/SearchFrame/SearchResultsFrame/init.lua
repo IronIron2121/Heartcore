@@ -54,10 +54,10 @@ function SearchResultsFrame(
 			),
 
 			scope:New "UIPadding" {
-				PaddingTop = UDim.new(0.01,0),
-				PaddingBottom = UDim.new(0.01,0),
-				PaddingRight = UDim.new(0.01,0),
-				PaddingLeft = UDim.new(0.01,0),
+				PaddingTop = UDim.new(0,10),
+				PaddingBottom = UDim.new(0,0),
+				PaddingRight = UDim.new(0,0),
+				PaddingLeft = UDim.new(0,0),
 			},
 		}
 
