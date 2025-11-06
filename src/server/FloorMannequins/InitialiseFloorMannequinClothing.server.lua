@@ -28,7 +28,6 @@ local function makeMannequinInvisible(mannequin: Instance)
 end
 
 local function setupMannequinAsync(mannequin: Instance)
-	--makeMannequinInvisible(mannequin)
 	-- Get the list of accessories, bundles, and skin color to apply to the mannequin
 	local accessoryIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_ACCESSORY_IDS_ATTRIBUTE)
 	local bundleIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE)
@@ -36,6 +35,10 @@ local function setupMannequinAsync(mannequin: Instance)
 	-- Convert the accessory and bundle ID strings into arrays
 	local accessoryIds = stringOfNumbersToArray(accessoryIdsString)
 	local bundleIds = stringOfNumbersToArray(bundleIdsString)
+
+	if bundleIdsString == "" or not bundleIdsString then
+		makeMannequinInvisible(mannequin)
+	end
 
 	local humanoid = mannequin:FindFirstChildOfClass("Humanoid")
 	assert(humanoid, "No humanoid found for " .. mannequin.Name .. "!!")
