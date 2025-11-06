@@ -89,11 +89,12 @@ function CatalogSearchController:_initialiseSearchFrame()
         end)
         
         if success then
+			warn("making new tiles!")
+			local numChildren = #self.SearchResultsFrame:GetChildren()
 			for index, itemDetails in ipairs(peek(self.searchResults):GetCurrentPage()) do
-				warn("making new tile!")
 				local newTile = FusionItemTile(self.scope, {
 					itemDetails = itemDetails,
-					layoutOrder = #self.SearchResultsFrame:GetChildren() + index
+					layoutOrder = numChildren + index
 				})
 
 				newTile.Parent = self.SearchResultsFrame
@@ -118,7 +119,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 		local catalogParams = CatalogSearchParams.new()
 		catalogParams.SearchKeyword = keyword or peek(self.searchText)
 		catalogParams.SortType = peek(self.searchSort)
-		catalogParams.Limit = 60 
+		catalogParams.Limit = 28
 		catalogParams.AssetTypes = peek(self.searchAssetCategories)
 		catalogParams.BundleTypes = peek(self.searchBundleCategories)
 
