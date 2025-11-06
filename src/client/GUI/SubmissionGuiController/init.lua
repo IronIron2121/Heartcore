@@ -24,14 +24,15 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local PlayerRequestedCurrentTheme = Remotes:WaitForChild("PlayerRequestedCurrentTheme")
 
 local SubmissionGuiController = {}
-
-local currentTheme = scope:Value("")
+--local currentTheme = scope:Value("")
 
 function SubmissionGuiController.Initialise(
     SubmissionGuiVisible: UsedAs<boolean>,
     TimeText: UsedAs<string>
 )
-    currentTheme:set(PlayerRequestedCurrentTheme:InvokeServer())
+    local function getCurrentTheme()
+        return PlayerRequestedCurrentTheme:InvokeServer()
+    end
 
     local _SubmisionGui = scope:New "ScreenGui" {
         Name = "SubmissionGui",
@@ -49,8 +50,8 @@ function SubmissionGuiController.Initialise(
                 [Children] = {
                     scope:New "TextLabel" {
                         Name = "SubmissionGui",
-                        Text = scope:Computed(function()
-                            return "Current Fit Check theme: " .. (currentTheme:get() or "Unknown")
+                        Text = scope:Computed(function(use)
+                            return "Current Fit Check theme: " .. (getCurrentTheme() or "Unknown")
                         end),
                         TextScaled = true,
                         Size = UDim2.fromScale(0.4, 1),
