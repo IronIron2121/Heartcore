@@ -201,6 +201,7 @@ function AvatarCustomisationService.AddBodyPartsToAvatar(player: Player, bodyPar
 	local clonedDescription = getClonedDescription(player)
 
 	for _, bodyPart in ipairs(bodyParts) do
+		-- TODO: Modularise this with the redundant code in above singular add body part function
 		-- Get the bodypart enum
 		local bodyPartEnum = Enum.BodyPart[bodyPart.bodyPartType]
 		if not bodyPartEnum then
@@ -208,15 +209,16 @@ function AvatarCustomisationService.AddBodyPartsToAvatar(player: Player, bodyPar
 			continue
 		end
 
-		-- Remove existing body part on the same slot
+		-- Remove existing body part on the same slot after copying its colours
+		local bodyPartDescription = Instance.new("BodyPartDescription")
 		for _, description in ipairs(clonedDescription:GetChildren()) do
 			if description:IsA("BodyPartDescription") and description.BodyPart == bodyPartEnum then
+				bodyPartDescription.Color = description.Color
 				description:Destroy()
 			end
 		end
 
 		-- Create and add new body part
-		local bodyPartDescription = Instance.new("BodyPartDescription")
 		bodyPartDescription.AssetId = bodyPart.itemId
 		bodyPartDescription.BodyPart = bodyPartEnum
 		bodyPartDescription.Parent = clonedDescription
