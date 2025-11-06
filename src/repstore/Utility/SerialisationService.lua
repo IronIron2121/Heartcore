@@ -184,6 +184,12 @@ function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidD
 		end
 	end
 
+	humanoidDescription.BodyTypeScale = serialisedHumanoidDescription.BodyTypeScale
+	humanoidDescription.DepthScale = serialisedHumanoidDescription.DepthScale
+	humanoidDescription.HeadScale = serialisedHumanoidDescription.HeadScale
+	humanoidDescription.HeightScale = serialisedHumanoidDescription.HeightScale
+	humanoidDescription.ProportionScale = serialisedHumanoidDescription.ProportionScale 
+	humanoidDescription.WidthScale = serialisedHumanoidDescription.WidthScale
 	
 	return humanoidDescription
 end
