@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local votingZone = workspace:WaitForChild("votingZone")
+local Values = ReplicatedStorage:WaitForChild("Values")
 
 -- Modules
 local CacheBasedBalancedSelector = require(Voting:WaitForChild("CacheBasedBalancedSelector"))
@@ -39,6 +40,7 @@ local lastFlush = tick()
 local FLUSH_INTERVAL = 60 
 local MAX_PENDING_UPDATES = 50
 local isFlushingInProgress = false
+local TIMER_TICK_INTERVAL = 1
 
 -- Public cache for current voting entries (from the current active store)
 local publicCache = {} -- {entryKey = {userId, description, votes, views}}
@@ -49,8 +51,32 @@ local CACHE_UPDATE_LOCK_DURATION = 120 -- 2 minutes for crash recovery
 local CACHE_UPDATE_COOLDOWN = 60 -- 1 minute cooldown between cache updates
 local CACHE_UPDATE_LOCK_KEY = "voting_cache_update_lock"
 
+local LastRotationTime = Instance.new("IntValue")
+LastRotationTime.Name = "LastStoreRotationTime"
+LastRotationTime.Value = 0
+LastRotationTime.Parent = Values
+
+local TimeToNextRotation = Instance.new("IntValue")
+TimeToNextRotation.Name = "TimeToNextRotation"
+TimeToNextRotation.Value = 0
+TimeToNextRotation.Parent = Values
+
+local rotationTimerStarted = false
+
 -- Balanced selector instance
 local balancedSelector = CacheBasedBalancedSelector.new()
+
+--
+
+local function initialiseRotationTimer()
+    task.spawn(function()
+        if rotationTimerStarted then return end
+        rotationTimerStarted = true
+        while true do
+            task.wait(TIMER_TICK_INTERVAL)
+        end
+    end)
+end
 
 local function updateVotingThemeBillboard()
     local themeName = currentTheme and currentTheme.theme or "Loading..."
