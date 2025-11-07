@@ -1,5 +1,6 @@
 --!strict
 
+--[[
 -- Services
 local StarterPlayer = game:GetService("StarterPlayer")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,3 +29,4 @@ end
 initialiseLocalTimer()
 
 UpdateLocalPhaseTimes.OnClientEvent:Connect(nextPhaseUpdated)
+]]
