@@ -120,7 +120,7 @@ function OutfitVoteTile(
 
 
                         [OnEvent "Activated"] = function()
-                            props.OnSelected()
+							print("Nothing to do.")
                         end,
 
 						[OnEvent "MouseButton1Down"] = function()
