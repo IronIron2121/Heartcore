@@ -10,6 +10,7 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Modules
+local Constants = require(ReplicatedStorage.Constants)
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
@@ -92,6 +93,63 @@ function OutfitVoteTile(
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				Color = strokeColorSpring,
 				Thickness = 5,
+			},
+			-- Outfit thumbnail viewport
+			scope:New "Frame" {
+				Name = "EmptyVoteFrame",
+				Size = UDim2.fromScale(1, 1),
+				LayoutOrder = 1,
+				BackgroundColor3 = Color3.fromRGB(218, 214, 231),
+				BackgroundTransparency = 0,
+				BorderSizePixel = 5,
+				Ambient = Color3.new(1,1,1),
+				LightColor = Color3.fromRGB(255, 249, 228),
+				LightDirection = Vector3.new(1,1,1),
+
+
+				[Children] = {
+					scope:New "UICorner" {
+						CornerRadius = UDim.new(0.05, 0)
+					},
+
+                    scope:New "ImageButton" {
+                        Size = UDim2.fromScale(1, 1),
+						BackgroundColor3 = Color3.new(UI_CONSTANTS.COLOUR_GREY),
+                        ImageTransparency = 1,
+                        BackgroundTransparency = 0.7,
+
+
+                        [OnEvent "Activated"] = function()
+                            props.OnSelected()
+                        end,
+
+						[OnEvent "MouseButton1Down"] = function()
+							isHeld:set(true)
+						end,
+						
+						[OnEvent "MouseButton1Up"] = function()
+							isHeld:set(false)
+						end,
+						
+						[OnEvent "MouseEnter"] = function()
+							isHovering:set(true)
+						end,
+						
+						[OnEvent "MouseLeave"] = function()
+							isHovering:set(false)
+						end,
+
+                    },
+
+					scope:New "TextLabel" {
+						AnchorPoint = Vector2.new(0.5, 0.5),
+						Position = UDim2.fromScale(0.5, 0.5),
+						Size = UDim2.fromScale(0.5, 0.5),
+						Text = "Out of outfits to load! Please wait for next cache refresh in ... [Time Goes Here]",
+						TextScaled = true
+					}
+				},
+
 			},
 		}
 	} :: Frame
