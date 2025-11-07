@@ -34,6 +34,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- Constants
 local maxDisplayedOutfits = 3
+local PLACEHOLDER_DESCRIPTION = Instance.new("HumanoidDescription")
 
 -- Remotes / Bindables
 local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTheme")
@@ -44,9 +45,18 @@ local VotingGuiController = {}
 
 local outfitVoteTiles = scope:Value({})
 local isRefreshing = false
+
+-- Types
+type TileData = {
+    userId: number,
+    humanoidDescription: HumanoidDescription?,  -- Note the ?
+    playerName: string,
+    votes: number,
+    views: number
+}
+
+--
  
-
-
 local function refreshOutfitVoteTiles()
     if isRefreshing then
         warn("Already refreshing outfit tiles, skipping...")
@@ -56,7 +66,6 @@ local function refreshOutfitVoteTiles()
     isRefreshing = true
     
     -- Clear selection and existing tiles
-
     outfitVoteTiles:set({})
     
     -- Fetch new outfits
@@ -82,17 +91,18 @@ local function refreshOutfitVoteTiles()
                 playerName = outfitData.playerName,
                 votes = outfitData.votes or "FAILURE_NO_VOTES",
                 views = outfitData.views or "FAILURE_NO_VIEWS"
-            }
+            } :: TileData
+            
             table.insert(usedIds, outfitData.userId)
             successCount = successCount + 1
         else
             newTiles[i] = {
                 userId = 0,
-                humanoidDescription = Instance.new("HumanoidDescription"),
+                humanoidDescription = nil,
                 playerName = "NO_MORE_OUTFITS_AVAILABLE",
                 votes = 0,
                 views = 0
-            }
+            } :: TileData
         end
     end
     
@@ -307,35 +317,40 @@ function VotingGuiController.Initialise(
                                         local tileName = "OutfitTile_" .. randomId
                                         local userId = outfitData.userId
 
-                                        return index, OutfitVoteTile(scope, {
-                                            Name = tileName,
-                                            layoutOrder = index,
-                                            userId = outfitData.userId,
-                                            humanoidDescription = outfitData.humanoidDescription,
-                                            playerName = outfitData.playerName,
-                                            votes = outfitData.votes,
-                                            views = outfitData.views,
-                                            size = UDim2.fromScale(0.3, 0.9),
-                                            IsSelected = scope:Computed(function(use)
-                                                return use(selectedTileId) == userId
-                                            end), 
+                                        if outfitData.humanoidDescription then
+                                            return index, OutfitVoteTile(scope, {
+                                                Name = tileName,
+                                                layoutOrder = index,
+                                                userId = outfitData.userId,
+                                                humanoidDescription = outfitData.humanoidDescription,
+                                                playerName = outfitData.playerName,
+                                                votes = outfitData.votes,
+                                                views = outfitData.views,
+                                                size = UDim2.fromScale(0.3, 0.9),
+                                                IsSelected = scope:Computed(function(use)
+                                                    return use(selectedTileId) == userId
+                                                end), 
 
-                                            OnSelected = function()
-                                                if outfitData.userId ~= 0 then
-                                                    local viewIds = {}
-                                                    for _, tile in ipairs(peek(outfitVoteTiles)) do
-                                                        if tile.userId ~= 0 then
-                                                            table.insert(viewIds, tile.userId)
+                                                OnSelected = function()
+                                                    if outfitData.userId ~= 0 then
+                                                        local viewIds = {}
+                                                        for _, tile in ipairs(peek(outfitVoteTiles)) do
+                                                            if tile.userId ~= 0 then
+                                                                table.insert(viewIds, tile.userId)
+                                                            end
                                                         end
-                                                    end
 
-                                                    PlayerSubmittedVote:InvokeServer(outfitData.userId, viewIds)
-                                                    VotingGuiController.refreshOutfits()
-                                                else
-                                                    warn("No outfitData user id!")
+                                                        PlayerSubmittedVote:InvokeServer(outfitData.userId, viewIds)
+                                                        VotingGuiController.refreshOutfits()
+                                                    else
+                                                        warn("No outfitData user id!")
+                                                    end
                                                 end
-                                            end}
-                                        )
+                                            })
+                                        else
+                                            return index, 
+                                        end
+                                        
                                     end)
                                 } 
                             },
@@ -359,7 +374,6 @@ function VotingGuiController.Initialise(
             },
         }
     }
-    --refreshOutfitVoteTiles()
 end 
 
 return VotingGuiController
