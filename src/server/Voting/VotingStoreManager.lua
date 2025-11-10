@@ -57,10 +57,20 @@ LastRotationTime.Name = "LastStoreRotationTime"
 LastRotationTime.Value = 0
 LastRotationTime.Parent = Values
 
+local NextRotationTime = Instance.new("IntValue")
+NextRotationTime.Name = "NextRotationTime"
+NextRotationTime.Value = 0
+NextRotationTime.Parent = Values
+
 local TimeToNextRotation = Instance.new("IntValue")
 TimeToNextRotation.Name = "TimeToNextRotation"
 TimeToNextRotation.Value = 0
 TimeToNextRotation.Parent = Values
+
+local NextRotationText = Instance.new("StringValue")
+NextRotationText.Name = "NextRotationText"
+NextRotationText.Value = "LOADING..."
+NextRotationText.Parent = Values
 
 local rotationTimerStarted = false
 
@@ -68,9 +78,21 @@ local rotationTimerStarted = false
 local balancedSelector = CacheBasedBalancedSelector.new()
 
 -- Rotation timer functions
+local function updateNextRotationText()
+	if LastRotationTime.Value == 0 or TimeToNextRotation.Value == 0 then
+		NextRotationText.Value = "LOADING..."
+	else
+		local minutes = math.floor(TimeToNextRotation.Value / 60)
+		local seconds = TimeToNextRotation.Value % 60
+		NextRotationText.Value = string.format("%d:%02d", minutes, seconds)
+	end
+end
+
 local function updateTimeUntilNextRotation()
 	if LastRotationTime.Value == 0 then
 		TimeToNextRotation.Value = 0
+		NextRotationTime.Value = 0
+		updateNextRotationText()
 		return
 	end
 	
@@ -78,7 +100,9 @@ local function updateTimeUntilNextRotation()
 	local currentTime = DateTime.now().UnixTimestamp
 	local timeRemaining = nextRotationTime - currentTime
 	
+	NextRotationTime.Value = nextRotationTime
 	TimeToNextRotation.Value = math.max(0, timeRemaining)
+	updateNextRotationText()
 end
 
 local function updateLastRotationTime(newTime: number)

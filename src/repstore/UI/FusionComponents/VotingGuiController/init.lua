@@ -5,9 +5,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 -- Folders
+local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
+local Values = ReplicatedStorage:WaitForChild("Values")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -38,6 +39,10 @@ local VOTE_TILE_SIZE = UDim2.fromScale(0.3, 0.9)
 local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTheme")
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
+
+-- Variables
+-- TODO - or get next round if that's closer
+local timeToNextRotation = scope:Value("LOADING...")
 
 --
 
@@ -114,6 +119,15 @@ function VotingGuiController.refreshOutfits()
     refreshOutfitVoteTiles()
 end
 
+local function initialiseRotationTimer()
+    task.spawn(function()
+        local NextRotationText = Values:WaitForChild("NextRotationText", 10) :: StringValue
+        while true do
+            task.wait(1) 
+            timeToNextRotation:set("Out of outfits to load! Please wait for next cache refresh in " .. NextRotationText.Value)        end
+    end)
+end
+
 local votingTheme = scope:Value("")
 
 function VotingGuiController.Initialise(
@@ -121,6 +135,8 @@ function VotingGuiController.Initialise(
     TimeText: UsedAs<string>
 )
     local visibilityObserver = scope:Observer(VoteGuiVisible)
+
+    initialiseRotationTimer()
 
     -- TODO: Make this more efficient with caching or something such...
     visibilityObserver:onChange(function()
@@ -347,7 +363,8 @@ function VotingGuiController.Initialise(
                                             return index, EmptyVoteTile(scope, {
                                                 name = tileName,
                                                 layoutOrder = index,
-                                                size = VOTE_TILE_SIZE
+                                                size = VOTE_TILE_SIZE,
+                                                timeToNextRotation = timeToNextRotation
                                             })
                                         end
                                         

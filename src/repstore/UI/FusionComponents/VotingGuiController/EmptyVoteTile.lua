@@ -24,6 +24,8 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 local peek = Fusion.peek
 
+--
+
 function OutfitVoteTile(
 	scope: Fusion.Scope,
 	props: {
@@ -39,6 +41,7 @@ function OutfitVoteTile(
 		anchorPoint: UsedAs<Vector2>?,
 		strokeColor: UsedAs<Color3>?,
 		strokeThickness: UsedAs<number>?,
+		timeToNextRotation: UsedAs<string>,
 		OnSelected: () -> (),
 	}
 ): Frame
@@ -141,7 +144,7 @@ function OutfitVoteTile(
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						Position = UDim2.fromScale(0.5, 0.5),
 						Size = UDim2.fromScale(0.5, 0.5),
-						Text = "Out of outfits to load! Please wait for next cache refresh in ... [Time Goes Here]",
+						Text = props.timeToNextRotation,
 						TextScaled = true
 					}
 				},
