@@ -35,7 +35,7 @@ local function initialiseGUI()
 	
 	local _hudTopBar = scope:New "Frame" {
 		Size = UDim2.fromScale(1,0.2),
-		Position = UDim2.fromScale(0,0),
+		Position = UDim2.fromScale(0,0.88),
 		AnchorPoint = Vector2.new(0,0),
 		Parent = screenGUI,
 		BackgroundColor3 = Color3.new(1, 1, 1),
