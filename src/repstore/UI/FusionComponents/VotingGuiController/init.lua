@@ -5,12 +5,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 -- Folders
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Widgets = FusionComponents:WaitForChild("Widgets")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local Values = ReplicatedStorage:WaitForChild("Values")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -18,6 +16,7 @@ local localPlayer = Players.LocalPlayer
 -- GUI
 local PlayerGui = localPlayer.PlayerGui
 local OutfitVoteTile = require(script:WaitForChild("OutfitVoteTile"))
+local EmptyVoteTile = require(script:WaitForChild("EmptyVoteTile"))
 
 -- Modules
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
@@ -34,19 +33,35 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- Constants
 local maxDisplayedOutfits = 3
+local VOTE_TILE_SIZE = UDim2.fromScale(0.3, 0.9)
 
 -- Remotes / Bindables
 local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTheme")
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 
+-- Variables
+-- TODO - or get next round if that's closer
+local timeToNextRotation = scope:Value("LOADING...")
+
+--
+
 local VotingGuiController = {}
 
 local outfitVoteTiles = scope:Value({})
 local isRefreshing = false
+
+-- Types
+type TileData = {
+    userId: number,
+    humanoidDescription: HumanoidDescription?,
+    playerName: string,
+    votes: number,
+    views: number
+}
+
+--
  
-
-
 local function refreshOutfitVoteTiles()
     if isRefreshing then
         warn("Already refreshing outfit tiles, skipping...")
@@ -56,7 +71,6 @@ local function refreshOutfitVoteTiles()
     isRefreshing = true
     
     -- Clear selection and existing tiles
-
     outfitVoteTiles:set({})
     
     -- Fetch new outfits
@@ -82,27 +96,36 @@ local function refreshOutfitVoteTiles()
                 playerName = outfitData.playerName,
                 votes = outfitData.votes or "FAILURE_NO_VOTES",
                 views = outfitData.views or "FAILURE_NO_VIEWS"
-            }
+            } :: TileData
+            
             table.insert(usedIds, outfitData.userId)
             successCount = successCount + 1
         else
             newTiles[i] = {
                 userId = 0,
-                humanoidDescription = Instance.new("HumanoidDescription"),
+                humanoidDescription = nil,
                 playerName = "NO_MORE_OUTFITS_AVAILABLE",
                 votes = 0,
                 views = 0
-            }
+            } :: TileData
         end
     end
     
     outfitVoteTiles:set(newTiles)
-    print("Refreshed outfit tiles: " .. successCount .. "/" .. maxDisplayedOutfits .. " loaded successfully")
     isRefreshing = false
 end
 
 function VotingGuiController.refreshOutfits()
     refreshOutfitVoteTiles()
+end
+
+local function initialiseRotationTimer()
+    task.spawn(function()
+        local NextRotationText = Values:WaitForChild("NextRotationText", 10) :: StringValue
+        while true do
+            task.wait(1) 
+            timeToNextRotation:set("Out of outfits to load! Please wait for next cache refresh in " .. NextRotationText.Value)        end
+    end)
 end
 
 local votingTheme = scope:Value("")
@@ -112,6 +135,8 @@ function VotingGuiController.Initialise(
     TimeText: UsedAs<string>
 )
     local visibilityObserver = scope:Observer(VoteGuiVisible)
+
+    initialiseRotationTimer()
 
     -- TODO: Make this more efficient with caching or something such...
     visibilityObserver:onChange(function()
@@ -165,7 +190,6 @@ function VotingGuiController.Initialise(
                         Position = UDim2.fromScale(0.5, 0.48),
                         BackgroundColor3 = Color3.new(1,1,1),
                         BackgroundTransparency = 0.2,
-                        
 
                         [Children] = {    
                             scope:New "UIListLayout" {
@@ -176,8 +200,6 @@ function VotingGuiController.Initialise(
                             scope:New "UICorner" {
                                 CornerRadius = UDim.new(0.05)
                             },
-
-                            
                         }
                     },
 
@@ -194,7 +216,7 @@ function VotingGuiController.Initialise(
                                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
                             },
 
-                                scope:New "Frame"{
+                            scope:New "Frame" {
                                 Name = "TopBar",
                                 Size = UDim2.fromScale(1, 0.1),
                                 LayoutOrder = 1,
@@ -307,35 +329,45 @@ function VotingGuiController.Initialise(
                                         local tileName = "OutfitTile_" .. randomId
                                         local userId = outfitData.userId
 
-                                        return index, OutfitVoteTile(scope, {
-                                            Name = tileName,
-                                            layoutOrder = index,
-                                            userId = outfitData.userId,
-                                            humanoidDescription = outfitData.humanoidDescription,
-                                            playerName = outfitData.playerName,
-                                            votes = outfitData.votes,
-                                            views = outfitData.views,
-                                            size = UDim2.fromScale(0.3, 0.9),
-                                            IsSelected = scope:Computed(function(use)
-                                                return use(selectedTileId) == userId
-                                            end), 
+                                        if outfitData.humanoidDescription then
+                                            return index, OutfitVoteTile(scope, {
+                                                Name = tileName,
+                                                layoutOrder = index,
+                                                userId = outfitData.userId,
+                                                humanoidDescription = outfitData.humanoidDescription,
+                                                playerName = outfitData.playerName,
+                                                votes = outfitData.votes,
+                                                views = outfitData.views,
+                                                size = VOTE_TILE_SIZE,
+                                                IsSelected = scope:Computed(function(use)
+                                                    return use(selectedTileId) == userId
+                                                end), 
 
-                                            OnSelected = function()
-                                                if outfitData.userId ~= 0 then
-                                                    local viewIds = {}
-                                                    for _, tile in ipairs(peek(outfitVoteTiles)) do
-                                                        if tile.userId ~= 0 then
-                                                            table.insert(viewIds, tile.userId)
+                                                OnSelected = function()
+                                                    if outfitData.userId ~= 0 then
+                                                        local viewIds = {}
+                                                        for _, tile in ipairs(peek(outfitVoteTiles)) do
+                                                            if tile.userId ~= 0 then
+                                                                table.insert(viewIds, tile.userId)
+                                                            end
                                                         end
-                                                    end
 
-                                                    PlayerSubmittedVote:InvokeServer(outfitData.userId, viewIds)
-                                                    VotingGuiController.refreshOutfits()
-                                                else
-                                                    warn("No outfitData user id!")
+                                                        PlayerSubmittedVote:InvokeServer(outfitData.userId, viewIds)
+                                                        VotingGuiController.refreshOutfits()
+                                                    else
+                                                        warn("No outfitData user id!")
+                                                    end
                                                 end
-                                            end}
-                                        )
+                                            })
+                                        else
+                                            return index, EmptyVoteTile(scope, {
+                                                name = tileName,
+                                                layoutOrder = index,
+                                                size = VOTE_TILE_SIZE,
+                                                timeToNextRotation = timeToNextRotation
+                                            })
+                                        end
+                                        
                                     end)
                                 } 
                             },
@@ -359,7 +391,6 @@ function VotingGuiController.Initialise(
             },
         }
     }
-    --refreshOutfitVoteTiles()
 end 
 
 return VotingGuiController

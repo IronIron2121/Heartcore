@@ -158,6 +158,8 @@ end
 
 function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidDescription: {[string] : any}) : HumanoidDescription
 	local humanoidDescription = Instance.new("HumanoidDescription") 
+
+	warn("Unserialising ", serialisedHumanoidDescription)
 	
 	for assetId, description in pairs(serialisedHumanoidDescription) do
 		-- for the classic clothing items, the key / value pair is better described as "ClothingType" / "itemId"
