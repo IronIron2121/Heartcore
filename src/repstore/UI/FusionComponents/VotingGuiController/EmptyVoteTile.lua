@@ -102,10 +102,6 @@ function OutfitVoteTile(
 				BackgroundColor3 = Color3.fromRGB(218, 214, 231),
 				BackgroundTransparency = 0,
 				BorderSizePixel = 5,
-				Ambient = Color3.new(1,1,1),
-				LightColor = Color3.fromRGB(255, 249, 228),
-				LightDirection = Vector3.new(1,1,1),
-
 
 				[Children] = {
 					scope:New "UICorner" {
