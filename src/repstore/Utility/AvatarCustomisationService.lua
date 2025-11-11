@@ -272,6 +272,7 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 	-- Handle Body Parts bundles
 	if bundleInfo.BundleType == Enum.BundleType.BodyParts.Name then
 		local bodyParts = {}
+		local accessories = {}
 		
 		for _, item in ipairs(bundleItems) do
 			if item.Type ~= "UserOutfit" then
@@ -292,13 +293,25 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 						warn("Item is an animation!")
 						continue
 					else
-						-- We should probably disambiguate between Accessories and Bodyparts here
+						-- Check if it's a body part or accessory
 						local assetTypeEnum = Enum.AssetType:FromValue(assetInfo.AssetTypeId)
 						if assetTypeEnum then
-							table.insert(bodyParts, {
-								itemId = item.Id,
-								bodyPartType = assetTypeEnum.Name
-							})
+							local assetTypeName = assetTypeEnum.Name
+							-- Body part asset types
+							if assetTypeName == "LeftArm" or assetTypeName == "RightArm" 
+								or assetTypeName == "LeftLeg" or assetTypeName == "RightLeg" 
+								or assetTypeName == "Torso" or assetTypeName == "Head" then
+								table.insert(bodyParts, {
+									itemId = item.Id,
+									bodyPartType = assetTypeName
+								})
+							else
+								-- It's an accessory
+								table.insert(accessories, {
+									itemId = item.Id,
+									assetType = assetTypeName
+								})
+							end
 						else
 							warn("Failed to get assetType for", assetTypeEnum)
 						end
@@ -309,6 +322,9 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 
 		if #bodyParts > 0 then
 			AvatarCustomisationService.AddBodyPartsToAvatar(player, bodyParts)
+		end
+		if #accessories > 0 then
+			AvatarCustomisationService.AddAccessoriesToAvatar(player, accessories)
 		end
 		return
 	end
