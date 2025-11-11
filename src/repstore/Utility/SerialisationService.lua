@@ -135,9 +135,9 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 	
 	for _, description in ipairs(humanoidDescription:GetChildren()) do
 		if description:IsA("AccessoryDescription") then
-			serialisedHumanoidDescription[description.AccessoryType.Name .. tostring(description.AssetId)] = SerialisationService.SerialiseAccessoryDescription(description)
+			serialisedHumanoidDescription[tostring(description.AssetId) .. description.AccessoryType.Name] = SerialisationService.SerialiseAccessoryDescription(description)
 		elseif description:IsA("BodyPartDescription") then
-			serialisedHumanoidDescription[description.BodyPart.Name .. tostring(description.AssetId)] = SerialisationService.SerialiseBodyPartDescription(description)
+			serialisedHumanoidDescription[tostring(description.AssetId) .. description.BodyPart.Name] = SerialisationService.SerialiseBodyPartDescription(description)
 		end
 	end
 
@@ -152,20 +152,22 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 	serialisedHumanoidDescription.HeightScale = humanoidDescription.HeightScale
 	serialisedHumanoidDescription.ProportionScale = humanoidDescription.ProportionScale
 	serialisedHumanoidDescription.WidthScale = humanoidDescription.WidthScale
+
+	warn("Just serialised", humanoidDescription:GetChildren(), serialisedHumanoidDescription)
 		
 	return serialisedHumanoidDescription
 end
 
+
+
 function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidDescription: {[string] : any}) : HumanoidDescription
 	local humanoidDescription = Instance.new("HumanoidDescription") 
-
-	warn("Unserialising ", serialisedHumanoidDescription)
 	
-	for assetId, description in pairs(serialisedHumanoidDescription) do
+	for assetIdOrType, description in pairs(serialisedHumanoidDescription) do
 		-- for the classic clothing items, the key / value pair is better described as "ClothingType" / "itemId"
-		if table.find(Constants.CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES, assetId) then
+		if table.find(Constants.CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES, assetIdOrType) or table.find(Constants.HUMANOID_SCALE_VARIABLES, assetIdOrType) then
 			-- This should be safe - if we run into any errors, we'll use an if-statement to validate here
-			humanoidDescription[assetId] = description
+			humanoidDescription[assetIdOrType] = description
 		else
 			local newDescription = description.BodyPart and Instance.new("BodyPartDescription") or Instance.new("AccessoryDescription")
 
@@ -186,13 +188,14 @@ function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidD
 		end
 	end
 
-	humanoidDescription.BodyTypeScale = serialisedHumanoidDescription.BodyTypeScale
+	--[[
 	humanoidDescription.DepthScale = serialisedHumanoidDescription.DepthScale
 	humanoidDescription.HeadScale = serialisedHumanoidDescription.HeadScale
 	humanoidDescription.HeightScale = serialisedHumanoidDescription.HeightScale
 	humanoidDescription.ProportionScale = serialisedHumanoidDescription.ProportionScale 
 	humanoidDescription.WidthScale = serialisedHumanoidDescription.WidthScale
-	
+	]]
+
 	return humanoidDescription
 end
 
