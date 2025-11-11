@@ -207,7 +207,7 @@ function VotingGuiController.Initialise(
                     scope:New "Frame" {
                         Name = "Body",
                         LayoutOrder = 2,
-                        Size = UDim2.fromScale(1, 0.8),
+                        Size = UDim2.fromScale(1, 1),
                         BackgroundTransparency = 1,
 
                         [Children] = { 
@@ -373,19 +373,19 @@ function VotingGuiController.Initialise(
                                 } 
                             },
 
-                            scope:New "Frame" {
-                                Name = "Buffer",
-                                Size = UDim2.fromScale(1, 0.05),
-                                LayoutOrder = 3,
-                                BackgroundTransparency = 1
-                            },
+                            -- scope:New "Frame" {
+                            --     Name = "Buffer",
+                            --     Size = UDim2.fromScale(1, 0.05),
+                            --     LayoutOrder = 3,
+                            --     BackgroundTransparency = 1
+                            -- },
 
-                            scope:New "Frame" {
-                                Name = "SubmitFrame",
-                                Size = UDim2.fromScale(0.5, 0.2),
-                                LayoutOrder = 4,
-                                BackgroundTransparency = 1,
-                            }
+                            -- scope:New "Frame" {
+                            --     Name = "SubmitFrame",
+                            --     Size = UDim2.fromScale(0.5, 0.2),
+                            --     LayoutOrder = 4,
+                            --     BackgroundTransparency = 1,
+                            -- }
                         }
                     },
                 }
