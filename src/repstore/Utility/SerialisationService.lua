@@ -165,10 +165,8 @@ function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidD
 	
 	for assetIdOrType, description in pairs(serialisedHumanoidDescription) do
 		-- for the classic clothing items, the key / value pair is better described as "ClothingType" / "itemId"
-		if table.find(Constants.CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES, assetIdOrType) then
+		if table.find(Constants.CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES, assetIdOrType) or table.find(Constants.HUMANOID_SCALE_VARIABLES, assetIdOrType) then
 			-- This should be safe - if we run into any errors, we'll use an if-statement to validate here
-			humanoidDescription[assetIdOrType] = description
-		elseif table.find(Constants.HUMANOID_SCALE_VARIABLES, assetIdOrType) then
 			humanoidDescription[assetIdOrType] = description
 		else
 			local newDescription = description.BodyPart and Instance.new("BodyPartDescription") or Instance.new("AccessoryDescription")
@@ -197,7 +195,7 @@ function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidD
 	humanoidDescription.ProportionScale = serialisedHumanoidDescription.ProportionScale 
 	humanoidDescription.WidthScale = serialisedHumanoidDescription.WidthScale
 	]]
-	
+
 	return humanoidDescription
 end
 
