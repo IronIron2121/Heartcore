@@ -83,6 +83,10 @@ function ExpBar(
 
                     scope:New "UICorner" {
                         CornerRadius = UDim.new(0.5,0)
+                    },
+
+                    scope:New "UIAspectRatioConstraint" {
+                        AspectRatio = 10,
                     }
                 }
             }
