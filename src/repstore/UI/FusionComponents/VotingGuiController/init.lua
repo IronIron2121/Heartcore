@@ -124,7 +124,8 @@ local function initialiseRotationTimer()
         local NextRotationText = Values:WaitForChild("NextRotationText", 10) :: StringValue
         while true do
             task.wait(1) 
-            timeToNextRotation:set("Out of outfits to load! Please wait for next cache refresh in " .. NextRotationText.Value)        end
+            timeToNextRotation:set("Out of outfits to load! Please wait for next voting phase!") --.. NextRotationText.Value)        
+        end
     end)
 end
 

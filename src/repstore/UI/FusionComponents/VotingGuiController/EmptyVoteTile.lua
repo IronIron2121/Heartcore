@@ -138,6 +138,11 @@ function OutfitVoteTile(
 							isHovering:set(false)
 						end,
 
+						[Children] = {
+							scope:New "UICorner" {
+							CornerRadius = UDim.new(0.05, 0)
+							}
+						}
                     },
 
 					scope:New "TextLabel" {
@@ -145,7 +150,10 @@ function OutfitVoteTile(
 						Position = UDim2.fromScale(0.5, 0.5),
 						Size = UDim2.fromScale(0.5, 0.5),
 						Text = props.timeToNextRotation,
-						TextScaled = true
+						TextScaled = true,
+						BackgroundTransparency = 1,
+						FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+						TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
 					}
 				},
 
