@@ -135,9 +135,9 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 	
 	for _, description in ipairs(humanoidDescription:GetChildren()) do
 		if description:IsA("AccessoryDescription") then
-			serialisedHumanoidDescription[tostring(description.AssetId)] = SerialisationService.SerialiseAccessoryDescription(description)
+			serialisedHumanoidDescription[tostring(description.AssetId) .. description.AccessoryType.Name] = SerialisationService.SerialiseAccessoryDescription(description)
 		elseif description:IsA("BodyPartDescription") then
-			serialisedHumanoidDescription[tostring(description.AssetId)] = SerialisationService.SerialiseBodyPartDescription(description)
+			serialisedHumanoidDescription[tostring(description.AssetId) .. description.BodyPart.Name] = SerialisationService.SerialiseBodyPartDescription(description)
 		end
 	end
 
@@ -152,6 +152,8 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 	serialisedHumanoidDescription.HeightScale = humanoidDescription.HeightScale
 	serialisedHumanoidDescription.ProportionScale = humanoidDescription.ProportionScale
 	serialisedHumanoidDescription.WidthScale = humanoidDescription.WidthScale
+
+	warn("Just serialised", humanoidDescription:GetChildren(), serialisedHumanoidDescription)
 		
 	return serialisedHumanoidDescription
 end
