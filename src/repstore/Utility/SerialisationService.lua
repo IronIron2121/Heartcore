@@ -169,7 +169,7 @@ function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidD
 			-- This should be safe - if we run into any errors, we'll use an if-statement to validate here
 			humanoidDescription[assetIdOrType] = description
 		elseif table.find(Constants.HUMANOID_SCALE_VARIABLES, assetIdOrType) then
-			continue
+			humanoidDescription[assetIdOrType] = description
 		else
 			local newDescription = description.BodyPart and Instance.new("BodyPartDescription") or Instance.new("AccessoryDescription")
 
@@ -190,12 +190,13 @@ function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidD
 		end
 	end
 
-	humanoidDescription.BodyTypeScale = serialisedHumanoidDescription.BodyTypeScale
+	--[[
 	humanoidDescription.DepthScale = serialisedHumanoidDescription.DepthScale
 	humanoidDescription.HeadScale = serialisedHumanoidDescription.HeadScale
 	humanoidDescription.HeightScale = serialisedHumanoidDescription.HeightScale
 	humanoidDescription.ProportionScale = serialisedHumanoidDescription.ProportionScale 
 	humanoidDescription.WidthScale = serialisedHumanoidDescription.WidthScale
+	]]
 	
 	return humanoidDescription
 end
