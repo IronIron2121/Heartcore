@@ -398,7 +398,6 @@ function AvatarCustomisationService.RemoveItemFromAvatar(player: Player, itemId:
 		itemDescription:Destroy()
 	elseif itemDescription:IsA("BodyPartDescription") then
 		itemDescription.AssetId = 0
-		itemDescription.Color = DEFAULT_BODY_COLOR
 	else
 		warn("Unknown description type for item", itemId)
 		return false
