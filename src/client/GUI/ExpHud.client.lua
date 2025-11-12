@@ -3,6 +3,7 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
@@ -37,7 +38,62 @@ levelName:GetPropertyChangedSignal("Value"):Connect(function()
     rankText:set(levelName.Value .. " (Lv. " .. level.Value .. ")")
 end)
 
-
+local function animateLevelName(label)
+	
+	-- Store original properties
+	local originalSize = label.Size
+	local originalPosition = label.Position
+	
+	-- --- 1. Size "Pop" Animation ---
+	
+	-- How big it will pop (1.3x its original scale)
+	local popSize = UDim2.new(
+		originalSize.X.Scale * 1.3, originalSize.X.Offset,
+		originalSize.Y.Scale * 1.3, originalSize.Y.Offset
+	)
+	
+	-- Animation settings
+	-- Using "Back" EasingStyle gives it a nice "pop" or "overshoot" effect
+	local popInfo = TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+	local returnInfo = TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+	
+	-- Create the tweens
+	local tweenPop = TweenService:Create(label, popInfo, {Size = popSize})
+	local tweenReturn = TweenService:Create(label, returnInfo, {Size = originalSize})
+	
+	-- Play the pop
+	tweenPop:Play()
+	tweenPop.Completed:Wait() -- Wait for it to finish popping
+	
+	-- Play the return to normal size
+	tweenReturn:Play()
+	tweenReturn.Completed:Wait() -- Wait for it to return
+	
+	-- --- 2. Shake Animation ---
+	
+	local SHAKE_INTENSITY = 5 -- How many pixels it will shake
+	local SHAKE_DURATION = 0.25 -- How long it will shake
+	
+	local startTime = tick()
+	
+	while tick() - startTime < SHAKE_DURATION do
+		-- Calculate random offsets
+		local offsetX = math.random(-SHAKE_INTENSITY, SHAKE_INTENSITY)
+		local offsetY = math.random(-SHAKE_INTENSITY, SHAKE_INTENSITY)
+		
+		-- Apply the offset from the original position
+		label.Position = UDim2.new(
+			originalPosition.X.Scale, originalPosition.X.Offset + offsetX,
+			originalPosition.Y.Scale, originalPosition.Y.Offset + offsetY
+		)
+		
+		task.wait() -- Wait one frame
+	end
+	
+	-- --- 3. Reset ---
+	-- Always reset to the original position to stop the shake
+	label.Position = originalPosition
+end
 
 local function initialiseGUI()
 	local screenGUI = scope:New "ScreenGui" {
