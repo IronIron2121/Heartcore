@@ -38,10 +38,6 @@ function ExpBar(
 		onActivated: (() -> ())?,
 	}
 ): Frame 
-
-
-
-
     local frame = scope:New "Frame" {
         Name = "ExpBarContainer",
         BackgroundColor3 = Color3.new(1,1,1),
@@ -85,9 +81,11 @@ function ExpBar(
                         CornerRadius = UDim.new(0.5,0)
                     },
 
+                    --[[
                     scope:New "UIAspectRatioConstraint" {
                         AspectRatio = 10,
                     }
+                    ]]
                 }
             }
         }
