@@ -69,10 +69,13 @@ function DataManager.AddExp(player: Player, amount: number)
         
         print(player.Name, "leveled up to level", newLevel, "(" .. DataManager.GetLevelName(newLevel) .. ")!")
         
-        -- Update leaderstats if they exist
+        -- Update leaderstats
         if player:FindFirstChild("leaderstats") then
             if player.leaderstats:FindFirstChild("Level") then
                 player.leaderstats.Level.Value = newLevel
+            end
+            if player.leaderstats:FindFirstChild("LevelName") then
+                player.leaderstats.LevelName.Value = DataManager.GetLevelName(newLevel)
             end
         end
     end

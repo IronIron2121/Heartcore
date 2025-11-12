@@ -39,15 +39,26 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
     Level.Name = "Level"
     Level.Value = profile.Data.Level or 1
 
+    local LevelName = Instance.new("StringValue", leaderstats)
+    LevelName.Name = "LevelName"
+    LevelName.Value = DataManager.GetLevelName(profile.Data.Level or 1)
+
+    local LoginStreak = Instance.new("IntValue", leaderstats)
+    LoginStreak.Name = "LoginStreak"
+    LoginStreak.Value = profile.Data.LoginStreak or 0
+
     local Flair = Instance.new("NumberValue", leaderstats)
     Flair.Name = "Flair" 
     Flair.Value = profile.Data.Flair or 1
 
-    -- Process login bonuses and streaks
+    -- Process login bonuses and streaks (this might update the values)
     DataManager.ProcessLogin(player)
-
-    -- Sync player data
-    --ReplicatedStorage
+    
+    -- Update leaderstats after processing login (in case values changed)
+    Exp.Value = profile.Data.Exp
+    Level.Value = profile.Data.Level or 1
+    LevelName.Value = DataManager.GetLevelName(profile.Data.Level or 1)
+    LoginStreak.Value = profile.Data.LoginStreak or 0
 end
 
 
