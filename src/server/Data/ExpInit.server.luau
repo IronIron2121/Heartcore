@@ -11,11 +11,15 @@ local Players = game:GetService("Players")
 -- Folders
 local Libraries = ServerScriptService:WaitForChild("Libraries")
 local Data = ServerScriptService:WaitForChild("Data")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local ProfileStore = require(Libraries:WaitForChild("ProfileStore"))
 local ProfileTemplate = require(Data:WaitForChild("ProfileTemplate"))
 local DataManager = require(Data:WaitForChild("DataManager"))
+
+-- Remotes
+local XPHack = Remotes:WaitForChild("XPHack")
 
 local function GetStoreName()
     return RunService:IsStudio() and "Test" or "Live"
@@ -61,6 +65,9 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
     LoginStreak.Value = profile.Data.LoginStreak or 0
 end
 
+local function XpHack(player)
+    DataManager.AddExp(player, 1)
+end
 
 -- Creates and stores a profile
 local function PlayerAdded(player: Player)
@@ -112,3 +119,4 @@ end
 
 Players.PlayerAdded:Connect(PlayerAdded)
 Players.PlayerRemoving:Connect(PlayerRemoved)
+XPHack.OnServerEvent:Connect(XpHack)
