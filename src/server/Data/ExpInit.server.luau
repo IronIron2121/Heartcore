@@ -20,6 +20,7 @@ local DataManager = require(Data:WaitForChild("DataManager"))
 
 -- Remotes
 local XPHack = Remotes:WaitForChild("XPHack")
+local ResetLevel = Remotes:WaitForChild("ResetLevel")
 
 local function GetStoreName()
     return RunService:IsStudio() and "Test" or "Live"
@@ -67,6 +68,10 @@ end
 
 local function XpHack(player)
     DataManager.AddExp(player, 1)
+end
+
+local function ResetPlayerLevel(player: Player)
+    DataManager.ResetPlayerLevel(player)
 end
 
 -- Creates and stores a profile
@@ -120,3 +125,4 @@ end
 Players.PlayerAdded:Connect(PlayerAdded)
 Players.PlayerRemoving:Connect(PlayerRemoved)
 XPHack.OnServerEvent:Connect(XpHack)
+ResetLevel.OnServerEvent:Connect(ResetPlayerLevel)

@@ -78,6 +78,21 @@ function DataManager.AddExp(player: Player, amount: number)
                 player.leaderstats.LevelName.Value = DataManager.GetLevelName(newLevel)
             end
         end
+    else
+        profile.Data.Level = newLevel
+        profile.Data.LevelUpTime = DateTime.now().UnixTimestamp
+        
+        print(player.Name, "down-levelled to", newLevel, "(" .. DataManager.GetLevelName(newLevel) .. ")!")
+        
+        -- Update leaderstats
+        if player:FindFirstChild("leaderstats") then
+            if player.leaderstats:FindFirstChild("Level") then
+                player.leaderstats.Level.Value = newLevel
+            end
+            if player.leaderstats:FindFirstChild("LevelName") then
+                player.leaderstats.LevelName.Value = DataManager.GetLevelName(newLevel)
+            end
+        end
     end
     
     -- Update exp leaderstats
@@ -85,6 +100,19 @@ function DataManager.AddExp(player: Player, amount: number)
         player.leaderstats.Exp.Value = profile.Data.Exp
     end
 end
+
+function DataManager.ResetPlayerLevel(player: Player)
+    local profile = DataManager.Profiles[player]
+
+    if not profile then
+        return
+    end
+
+    profile.Data.Exp = 0
+    
+    DataManager.AddExp(player, 1)
+end
+
 
 function DataManager.ProcessLogin(player: Player)
     local profile = DataManager.Profiles[player]
