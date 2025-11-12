@@ -34,10 +34,13 @@ local loginStreak = leaderstats:WaitForChild("LoginStreak")
 
 local rankText = Fusion.Value(scope, levelName.Value)
 
+
 levelName:GetPropertyChangedSignal("Value"):Connect(function()
     rankText:set(levelName.Value .. " (Lv. " .. level.Value .. ")")
 end)
- 
+
+
+
 local function initialiseGUI()
 	local screenGUI = scope:New "ScreenGui" {
 		Parent = PlayerGui,
