@@ -40,7 +40,8 @@ end)
  
 local function initialiseGUI()
 	local screenGUI = scope:New "ScreenGui" {
-		Parent = PlayerGui
+		Parent = PlayerGui,
+        ZIndexBehavior = Enum.ZIndexBehavior.Global
 	} 
 	
 	local _hudTopBar = scope:New "Frame" {
@@ -91,9 +92,6 @@ local function initialiseGUI()
                     }
                 }
             }
-
-                
-                
         }
     }
 end

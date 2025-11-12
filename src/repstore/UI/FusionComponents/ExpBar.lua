@@ -60,34 +60,36 @@ function ExpBar(
                 [Children] = {
                     scope:New "UIAspectRatioConstraint" {
                         AspectRatio = 3,
+                    },
+                    
+                    scope:New "Frame" {
+                        Name = "ProgressFill",
+                        AnchorPoint = Vector2.new(0,0.5),
+                        Size = UDim2.fromScale(0.75,0.15),
+                        Position = UDim2.fromScale(0.2,0.47),
+                        BackgroundColor3 = Color3.new(1,1,1),
+                        ZIndex = 1,
+
+                        [Children] = {
+                            scope:New "UIGradient"{
+                                Color = ColorSequence.new(Color3.fromRGB(24, 107, 79), Color3.fromRGB(130, 194, 144)),
+                            },
+
+                            scope:New "UICorner" {
+                                CornerRadius = UDim.new(0.5,0)
+                            },
+
+                            --[[
+                            scope:New "UIAspectRatioConstraint" {
+                                AspectRatio = 10,
+                            }
+                            ]]
+                        }
                     }
                 }
             },
             
-            scope:New "Frame" {
-                Name = "ProgressFill",
-                AnchorPoint = Vector2.new(0,0.5),
-                Size = UDim2.fromScale(0.75,0.15),
-                Position = UDim2.fromScale(0.2,0.47),
-                BackgroundColor3 = Color3.new(1,1,1),
-                ZIndex = 1,
 
-                [Children] = {
-                    scope:New "UIGradient"{
-                        Color = ColorSequence.new(Color3.fromRGB(24, 107, 79), Color3.fromRGB(130, 194, 144)),
-                    },
-
-                    scope:New "UICorner" {
-                        CornerRadius = UDim.new(0.5,0)
-                    },
-
-                    --[[
-                    scope:New "UIAspectRatioConstraint" {
-                        AspectRatio = 10,
-                    }
-                    ]]
-                }
-            }
         }
     } :: Frame
 
