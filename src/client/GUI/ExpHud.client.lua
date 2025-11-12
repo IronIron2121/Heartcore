@@ -4,6 +4,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
+
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
@@ -16,7 +17,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 -- Instances
 local localPlayer = Players.LocalPlayer
 
--- Fusion Modules
+
 local scope = Fusion:scoped()
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
@@ -25,27 +26,12 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local PlayerGui = localPlayer.PlayerGui
 local ExpBar = require(FusionComponents:WaitForChild("ExpBar"))
 
-
-local leaderstats = localPlayer:WaitForChild("leaderstats")
-local level = leaderstats:WaitForChild("Level")
-local levelName = leaderstats:WaitForChild("LevelName")
-local exp = leaderstats:WaitForChild("Exp")
-local loginStreak = leaderstats:WaitForChild("LoginStreak")
-
-local rankText = Fusion.Value(scope, levelName.Value)
-
-
-levelName:GetPropertyChangedSignal("Value"):Connect(function()
-    rankText:set(levelName.Value .. " (Lv. " .. level.Value .. ")")
-end)
-
-
-
+ 
 local function initialiseGUI()
 	local screenGUI = scope:New "ScreenGui" {
-		Parent = PlayerGui,
-        ZIndexBehavior = Enum.ZIndexBehavior.Global
+		Parent = PlayerGui
 	} 
+	
 	
 	local _hudTopBar = scope:New "Frame" {
 		Size = UDim2.fromScale(1,0.2),
@@ -84,7 +70,7 @@ local function initialiseGUI()
                         Size = UDim2.fromScale(1, 1),
                         Position = UDim2.fromScale(0,0),
                         BackgroundTransparency = 1,
-                        Text = rankText,
+                        Text = "Junior Fashionista",
                         TextColor3 = Color3.new(1,1,1),
                         TextStrokeColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
                         TextStrokeTransparency = 0,
@@ -95,8 +81,13 @@ local function initialiseGUI()
                     }
                 }
             }
+
+                
+                
         }
     }
+	
+	
 end
 
 initialiseGUI()
