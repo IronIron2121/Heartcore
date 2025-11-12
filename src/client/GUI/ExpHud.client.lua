@@ -29,8 +29,6 @@ local ExpBar = require(FusionComponents:WaitForChild("ExpBar"))
 local leaderstats = localPlayer:WaitForChild("leaderstats")
 local level = leaderstats:WaitForChild("Level")
 local levelName = leaderstats:WaitForChild("LevelName")
-local exp = leaderstats:WaitForChild("Exp")
-local loginStreak = leaderstats:WaitForChild("LoginStreak")
 
 local rankText = Fusion.Value(scope, levelName.Value)
 
