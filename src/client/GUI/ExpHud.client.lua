@@ -41,16 +41,7 @@ local function animateLevelName(label)
 	-- Store original properties
 	local originalSize = label.Size
 	local originalPosition = label.Position
-    local originalParent = label.Parent
 
---reparent to screenGui
-    local screenGui = label:FindFirstAncestorOfClass("ScreenGui")
-	if not screenGui then
-		warn("Could not find ScreenGui for temporary reparenting!")
-		return
-	end
-
-    label.Parent = screenGui
 	
 -- Size anim
 	local popScale = 3 
@@ -59,14 +50,10 @@ local function animateLevelName(label)
 		originalSize.Y.Scale * popScale, originalSize.Y.Offset
 	)
 
-    --find screen centre
-    local viewportCenter = UDim2.fromScale(0.5,0.5)
 	
 	-- Instantly set the size
 	label.Size = popSize
 
-    --instantly set the position
-    label.Position = viewportCenter
 	
 	task.wait(0.3)
 	
@@ -83,9 +70,6 @@ local function animateLevelName(label)
 	
 	tweenFall:Play()
 	tweenFall.Completed:Wait()
-	
---reparent to frame
-    label.Parent = originalParent
 
 -- shake anim	
 	local SHAKE_INTENSITY = 5 
