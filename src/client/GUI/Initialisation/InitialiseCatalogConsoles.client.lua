@@ -1,7 +1,5 @@
 --!strict
 
-warn("Initialising catalog consoles! Top of script")
-
 -- Services
 local CollectionService =  game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
