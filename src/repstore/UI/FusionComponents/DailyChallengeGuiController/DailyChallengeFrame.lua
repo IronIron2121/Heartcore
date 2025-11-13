@@ -23,6 +23,8 @@ type Value<T> = Fusion.Value<T>
 
 --
 
+-- Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy
+
 local function DailyChallengeFrame(
     scope: Fusion.Scope,
     props: {
@@ -46,6 +48,10 @@ local function DailyChallengeFrame(
                 visibilityBoolean = props.visible
             }),
 
+            scope:New "UICorner" {
+                CornerRadius = UDim.new(0, 30)
+            },
+
             scope:New "Frame" {
                 Name = "ChallengesFrame",
                 Size = UDim2.fromScale(1, 1),
@@ -58,6 +64,7 @@ local function DailyChallengeFrame(
                         VerticalAlignment = Enum.VerticalAlignment.Center,
                         Padding = UDim.new(0.01, 0)
                     },
+                    
                     scope:New "Frame" {
                         Name = "PlaceholderExample",
                         Size = UDim2.fromScale(0.3, 0.8),
