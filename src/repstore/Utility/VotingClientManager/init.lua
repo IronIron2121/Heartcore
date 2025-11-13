@@ -22,7 +22,7 @@ local TimeText = scope:Value("Loading...")
 
 -- Main toggle function
 local function onVotePromptActivated()
-	if peek(VoteGuiVisible) == true then
+	if peek(VoteGuiVisible) then
 		VoteGuiVisible:set(false)
 	else
 		VoteGuiVisible:set(true)
@@ -30,17 +30,14 @@ local function onVotePromptActivated()
 	end
 end
 
--- Function to update the time label text
 local function updateTimeText(newText: string)
 	TimeText:set(newText)
 end
 
--- Initialise GUI once
 local function initialiseVotingGui()
 	VotingGuiController.Initialise(VoteGuiVisible, TimeText)
 end
 
--- Export everything for other scripts to use
 return {
 	onVotePromptActivated = onVotePromptActivated,
 	updateTimeText = updateTimeText,
