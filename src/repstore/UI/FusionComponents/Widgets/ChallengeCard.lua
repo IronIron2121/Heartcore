@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion
@@ -182,11 +183,11 @@ local function ChallengeCard(
                     }
                 }
             },
-
+ 
             scope:New "Frame" {
                 Name = "HoverOverlay",
                 Size = UDim2.fromScale(1, 1),
-                BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
                 BackgroundTransparency = 0.5,
                 Visible = scope:Computed(function(use)
                     return use(isHovered)
@@ -198,16 +199,14 @@ local function ChallengeCard(
                         CornerRadius = UDim.new(0, 30)
                     },
 
-                    scope:New "TextButton" {
+                    scope:New "ImageButton" {
                         Name = "ClaimButton",
-                        Size = UDim2.fromScale(0.6, 0.2),
+                        Size = UDim2.fromScale(0.5,0.5),
                         AnchorPoint = Vector2.new(0.5, 0.5),
                         Position = UDim2.fromScale(0.5, 0.5),
-                        BackgroundColor3 = Color3.fromRGB(255, 153, 0),
-                        Text = "CLAIM !",
-                        TextSize = 28,
-                        TextColor3 = Color3.fromRGB(255, 255, 255),
-                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+                        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                        BackgroundTransparency = 1,
+                        Image = ImageUris.ClaimButton,
 
                         [Fusion.OnEvent "Activated"] = function()
                             if props.onClaim then
@@ -216,14 +215,8 @@ local function ChallengeCard(
                         end,
 
                         [Children] = {
-                            scope:New "UICorner" {
-                                CornerRadius = UDim.new(0.5, 0)
-                            },
-
-                            scope:New "UIStroke" {
-                                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                                Thickness = 3,
-                                Color = Color3.fromRGB(200, 120, 0)
+                            scope:New "UIAspectRatioConstraint" {
+                                AspectRatio = 1
                             }
                         }
                     }

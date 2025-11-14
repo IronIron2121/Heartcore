@@ -53,7 +53,7 @@ local function DailyChallengeFrame(
                 Position = UDim2.fromScale(0.5, 0),
                 BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
                 BackgroundTransparency = 0,
-                Text = "DAILY CHALLENGES",
+                Text = "DAILY MISSIONS",
                 TextScaled = true,
                 TextSize = 20,
                 TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
@@ -69,6 +69,13 @@ local function DailyChallengeFrame(
                         Thickness = 3,
                         Color = UI_CONSTANTS.COLOUR_WHITE
                     },
+
+                    scope:New "UIPadding" {
+                        PaddingTop = UDim.new(0.02,0),
+                        PaddingBottom = UDim.new(0.02,0),
+                        PaddingLeft = UDim.new(0.05,0),
+                        PaddingRight = UDim.new(0.05,0),
+                    }
                 }
             },
 
