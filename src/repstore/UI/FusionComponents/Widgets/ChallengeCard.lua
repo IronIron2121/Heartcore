@@ -201,7 +201,7 @@ local function ChallengeCard(
 
                     scope:New "ImageButton" {
                         Name = "ClaimButton",
-                        Size = UDim2.fromScale(0.5,0.5),
+                        Size = UDim2.fromScale(0.5,0.8),
                         AnchorPoint = Vector2.new(0.5, 0.5),
                         Position = UDim2.fromScale(0.5, 0.5),
                         BackgroundColor3 = Color3.fromRGB(255, 255, 255),

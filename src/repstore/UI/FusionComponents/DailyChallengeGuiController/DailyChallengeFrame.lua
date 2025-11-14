@@ -5,9 +5,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
+local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
+local ImageUris = require(DataTables:WaitForChild("ImageUris"))
+
 
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -48,7 +51,7 @@ local function DailyChallengeFrame(
 
             scope:New "TextLabel" {
                 Name = "ChallengesLabel",
-                Size = UDim2.fromScale(0.25, 0.1),
+                Size = UDim2.fromScale(0.3, 0.1),
                 AnchorPoint = Vector2.new(0.5,0.5),
                 Position = UDim2.fromScale(0.5, 0),
                 BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
@@ -85,47 +88,117 @@ local function DailyChallengeFrame(
 
             scope:New "Frame" {
                 Name = "ChallengesFrame",
-                Size = UDim2.fromScale(1, 1),
+                Size = UDim2.fromScale(1,1),
                 BackgroundTransparency = 1,
 
                 [Children] = {
-                    scope:New "UIListLayout" {
-                        FillDirection = Enum.FillDirection.Horizontal,
-                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                        VerticalAlignment = Enum.VerticalAlignment.Center,
-                        Padding = UDim.new(0.01, 0),
-                        SortOrder = Enum.SortOrder.LayoutOrder
-                    },
+                    scope:New "Frame" {
+                        Name = "TimerContainer",
+                        Size = UDim2.fromScale(1, 0.2),
+                        BackgroundTransparency = 1,
+              
+
+                        [Children] = {
+                            scope:New "UIListLayout" {
+                                FillDirection = Enum.FillDirection.Horizontal,
+                                SortOrder = Enum.SortOrder.LayoutOrder,
+                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                                VerticalAlignment = Enum.VerticalAlignment.Center,
+                            },
+
+                            scope:New "UIPadding" {
+                                PaddingTop = UDim.new(0.2,0),
+                                PaddingBottom = UDim.new(0.2,0),
+                                PaddingLeft = UDim.new(0.2,0),
+                                PaddingRight = UDim.new(0.2,0),
+                            },
+
+                            scope:New "Frame" {
+                                Name = "Buffer",
+                                Size = UDim2.fromScale(0.2,1),
+                                BackgroundTransparency = 1,
+                                LayoutOrder = 0,
+                            },
+
+                            scope:New "ImageLabel"{
+                                Image = ImageUris.StopwatchIcon,
+                                Size = UDim2.fromScale(0.5, 0.5),
+                                LayoutOrder = 1,
+                                BackgroundTransparency = 1,
+                                                    
+                                [Children] = {
+                                    scope:New "UIAspectRatioConstraint" {
+                                        AspectRatio = 1,
+                                        DominantAxis = Enum.DominantAxis.Width,
+                                    }
+                                }
+                            },
+
+                            scope:New "TextLabel" {
+                                Name = "Timer",
+                                Text = "HH:MM:SS",
+                                TextScaled = true,
+                                Size = UDim2.fromScale(0.3, 1),
+                                LayoutOrder = 2,
+                                BackgroundTransparency = 1,
+                                TextColor3 = Color3.fromRGB(92, 96, 214)
+                            },
+
+                            scope:New "Frame" {
+                                Name = "Buffer",
+                                Size = UDim2.fromScale(0.2,1),
+                                BackgroundTransparency = 1,
+                                LayoutOrder = 3,
+                            },
+                        }
+                    },            
                     
-                    ChallengeCard(scope, {
-                        layoutOrder = 1,
-                        description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-                        progress = "4/5",
-                        reward = "357",
-                        onClaim = function()
-                            print("Claimed challenge 1!")
-                        end
-                    }),
+                    scope:New "Frame" {
+                        Name = "ChallengeCardsFrame",
+                        Size = UDim2.fromScale(1, 0.9),
+                        BackgroundTransparency = 1,
+                        Position = UDim2.fromScale(0, 0.1),
 
-                    ChallengeCard(scope, {
-                        layoutOrder = 2,
-                        description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-                        progress = "4/5",
-                        reward = "357",
-                        onClaim = function()
-                            print("Claimed challenge 2!")
-                        end
-                    }),
+                        [Children] = {
+                            scope:New "UIListLayout" {
+                                FillDirection = Enum.FillDirection.Horizontal,
+                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                                VerticalAlignment = Enum.VerticalAlignment.Center,
+                                Padding = UDim.new(0.01, 0),
+                                SortOrder = Enum.SortOrder.LayoutOrder
+                            },
+                            
+                            ChallengeCard(scope, {
+                                layoutOrder = 1,
+                                description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
+                                progress = "4/5",
+                                reward = "357",
+                                onClaim = function()
+                                    print("Claimed challenge 1!")
+                                end
+                            }),
 
-                    ChallengeCard(scope, {
-                        layoutOrder = 3,
-                        description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-                        progress = "4/5",
-                        reward = "357",
-                        onClaim = function()
-                            print("Claimed challenge 3!")
-                        end
-                    }),
+                            ChallengeCard(scope, {
+                                layoutOrder = 2,
+                                description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
+                                progress = "4/5",
+                                reward = "357",
+                                onClaim = function()
+                                    print("Claimed challenge 2!")
+                                end
+                            }),
+
+                            ChallengeCard(scope, {
+                                layoutOrder = 3,
+                                description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
+                                progress = "4/5",
+                                reward = "357",
+                                onClaim = function()
+                                    print("Claimed challenge 3!")
+                                end
+                            }),
+                        }
+                    }
                 }
             }
         }
