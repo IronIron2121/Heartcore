@@ -122,35 +122,15 @@ ChallengeDefinitions.ALL_CHALLENGES = {
     },
 }
 
--- Difficulty tiers for daily rotation
-ChallengeDefinitions.EASY_CHALLENGES = {
-    "SUBMIT_OUTFIT_DAILY",
-    "VOTE_5_OUTFITS",
-    "VIEW_20_OUTFITS"
-}
-
-ChallengeDefinitions.MEDIUM_CHALLENGES = {
-    "VOTE_10_OUTFITS",
-    "GET_5_VOTES"
-}
-
-ChallengeDefinitions.HARD_CHALLENGES = {
-    "GET_20_VOTES"
-}
-
--- Get a random set of daily challenges (1 easy, 1 medium, 1 hard)
+-- Get all daily challenges
 function ChallengeDefinitions.GetDailyChallengeSet(seed: number?): {ChallengeDefinition}
-    local rng = Random.new(seed or os.time())
+    local allChallenges = {}
     
-    local easyChallenge = ChallengeDefinitions.EASY_CHALLENGES[rng:NextInteger(1, #ChallengeDefinitions.EASY_CHALLENGES)]
-    local mediumChallenge = ChallengeDefinitions.MEDIUM_CHALLENGES[rng:NextInteger(1, #ChallengeDefinitions.MEDIUM_CHALLENGES)]
-    local hardChallenge = ChallengeDefinitions.HARD_CHALLENGES[rng:NextInteger(1, #ChallengeDefinitions.HARD_CHALLENGES)]
+    for _, challenge in pairs(ChallengeDefinitions.ALL_CHALLENGES) do
+        table.insert(allChallenges, challenge)
+    end
     
-    return {
-        ChallengeDefinitions.ALL_CHALLENGES[easyChallenge],
-        ChallengeDefinitions.ALL_CHALLENGES[mediumChallenge],
-        ChallengeDefinitions.ALL_CHALLENGES[hardChallenge]
-    }
+    return allChallenges
 end
 
 -- Get challenge definition by ID

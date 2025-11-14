@@ -9,6 +9,7 @@ local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Data = ServerScriptService:WaitForChild("Data")
+local DailyChallenges = ServerScriptService:WaitForChild("DailyChallenges")
 
 -- Remotes / Bindables
 local GetContestSubmissionsCache = Remotes:WaitForChild("GetContestSubmissionsCache")
@@ -18,6 +19,7 @@ local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 
 -- Modules 
 local PlayerVotedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
+local ChallengeManager = require(DailyChallenges:WaitForChild("ChallengeManager"))
 local VotingStoreManager = require(Voting:WaitForChild("VotingStoreManager"))
 local DataManager = require(Data:WaitForChild("DataManager"))
 
@@ -41,6 +43,7 @@ end
 -- Each vote: player chooses one outfit to vote on out of three options (all three get a view)
 local function submitVote(player: Player, voteId: string, viewIds: {string})    
     VotingStoreManager.addVotes(tostring(voteId), 1)
+    ChallengeManager.OnOutfitVoted(player)
     PlayerVotedOutfitsTracker.AddOutfitToPlayerList(player, voteId)
 
     for _, id in ipairs(viewIds) do

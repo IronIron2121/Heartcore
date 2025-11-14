@@ -11,12 +11,6 @@ local ChallengeDefinitions = require(script.Parent:WaitForChild("ChallengeDefini
 
 local ChallengeManager = {}
 
--- Helper to get the current day seed (for consistent daily challenges)
-local function getDaySeed(): number
-    local currentTime = DateTime.now().UnixTimestamp
-    return math.floor(currentTime / 86400) -- Day number since epoch
-end
-
 -- Helper to check if it's a new day for the player
 local function isNewDay(lastResetTime: number): boolean
     local currentDayStart = math.floor(DateTime.now().UnixTimestamp / 86400) * 86400
@@ -38,8 +32,8 @@ function ChallengeManager.InitializeChallenges(player: Player)
     if isNewDay(lastResetTime) then
         print("Resetting challenges for", player.Name)
         
-        -- Get today's challenge set (using day seed for consistency)
-        local dailyChallenges = ChallengeDefinitions.GetDailyChallengeSet(getDaySeed())
+        -- Get all challenges
+        local dailyChallenges = ChallengeDefinitions.GetDailyChallengeSet()
         
         -- Reset challenge progress
         profile.Data.DailyChallenges = {}

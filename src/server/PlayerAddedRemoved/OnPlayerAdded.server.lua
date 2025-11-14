@@ -14,14 +14,13 @@ local Utility 		= ReplicatedStorage:WaitForChild("Utility")
 local Remotes 		= ReplicatedStorage:WaitForChild("Remotes") 
 local Voting 		= ServerScriptService:WaitForChild("Voting")
 
-
-
 -- Module Scripts
 local PlayerVotedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
 local Constants 				= require(ReplicatedStorage:WaitForChild("Constants")) 
 local BuyableShopItems			= require(DataTables:WaitForChild("BuyableShopItems"))
 local PlayerTracker 			= require(Trackers:WaitForChild("PlayerTracker"))
 local PlayerDetails 			= require(Classes:WaitForChild("PlayerDetails"))
+local ChallengeManager 			= require(DailyChallenges:WaitForChild("ChallengeManager"))
 
 -- Datastores
 local ownedItemsDataStore		= DataStoreService:GetDataStore(Constants.OWNEDITEMS_DATASTORE)
@@ -83,6 +82,7 @@ local function onPlayerAdded(player: Player)
 	initialiseOwnedItemsDatastore(player.UserId)
 
 	PlayerVotedOutfitsTracker.OnPlayerAdded(player)
+	ChallengeManager.InitializeChallenges(player)
 end
 
 
