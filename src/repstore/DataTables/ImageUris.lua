@@ -14,7 +14,7 @@ local assets = {
 	StopwatchIcon = "73600277679991",
 	RobuxIcon = "81055682730978",
 	ExpBar = "73207886316381",
-	--VoteButton = "137550678558366"
+	VoteButton = "137550678558366"
 }
 
 setmetatable(ImageUris, {

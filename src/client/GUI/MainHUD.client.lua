@@ -28,8 +28,8 @@ local MainHUD 				= playerGui:WaitForChild("MainHUD")
 local ShopButtons 			= MainHUD:WaitForChild("ShopButtons")
 local GoToShopButton 		= ShopButtons:WaitForChild("GoToShopButton")
 local EditShopButton 		= ShopButtons:WaitForChild("EditShopButton")
-local voteButtonContainer 	= MainHUD:WaitForChild("voteButtonContainer")
-local voteButton			= voteButtonContainer:WaitForChild("voteButton")
+-- local voteButtonContainer 	= MainHUD:WaitForChild("voteButtonContainer")
+-- local voteButton			= voteButtonContainer:WaitForChild("voteButton")
 
 
 -- Remotes | Bindables
@@ -98,10 +98,10 @@ GoToShopButton.Activated:Connect(onGoToShopButtonPressed)
 
 -- --- Vote button ---
 
- VotingClientManager.initialiseVotingGui()
+--  VotingClientManager.initialiseVotingGui()
 
--- -- When player clicks, trigger the same toggle function
- voteButton.MouseButton1Click:Connect(function()
- 	VotingClientManager.onVotePromptActivated()
- end) 
+-- -- -- When player clicks, trigger the same toggle function
+--  voteButton.MouseButton1Click:Connect(function()
+--  	VotingClientManager.onVotePromptActivated()
+--  end) 
 
