@@ -14,6 +14,7 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- UI Components
 local CloseButton = require(Widgets:WaitForChild("CloseButton"))
+local ChallengeCard = require(Widgets:WaitForChild("ChallengeCard"))
 
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -53,6 +54,7 @@ local function DailyChallengeFrame(
                 BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
                 BackgroundTransparency = 0,
                 Text = "DAILY CHALLENGES",
+                TextScaled = true,
                 TextSize = 20,
                 TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
                 FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
@@ -88,433 +90,35 @@ local function DailyChallengeFrame(
                         SortOrder = Enum.SortOrder.LayoutOrder
                     },
                     
-                    scope:New "Frame" {
-                        Name = "ChallengeFrame1",
-                        Size = UDim2.fromScale(0.3, 0.8),
-                        LayoutOrder = 1,
-                        [Children] = {
-                            scope:New "UICorner" {
-                                CornerRadius = UDim.new(0, 30)
-                            },
+                    ChallengeCard(scope, {
+                        layoutOrder = 1,
+                        description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
+                        progress = "4/5",
+                        reward = "357",
+                        onClaim = function()
+                            print("Claimed challenge 1!")
+                        end
+                    }),
 
-                            scope:New "UIListLayout" {
-                                FillDirection = Enum.FillDirection.Vertical,
-                                SortOrder = Enum.SortOrder.LayoutOrder,
-                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                VerticalAlignment = Enum.VerticalAlignment.Center,
-                                SortOrder = Enum.SortOrder.LayoutOrder
-                            },
+                    ChallengeCard(scope, {
+                        layoutOrder = 2,
+                        description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
+                        progress = "4/5",
+                        reward = "357",
+                        onClaim = function()
+                            print("Claimed challenge 2!")
+                        end
+                    }),
 
-                            scope:New "Frame" {
-                                Name = "DescriptionFrame",
-                                LayoutOrder = 1,
-                                Size = UDim2.fromScale(0.8, 0.65),
-                                BackgroundTransparency = 1,
-
-                                [Children] = {
-                                    scope:New "UIListLayout" {
-                                        FillDirection = Enum.FillDirection.Vertical,
-                                        SortOrder = Enum.SortOrder.LayoutOrder,
-                                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                        VerticalAlignment = Enum.VerticalAlignment.Center,
-                                        SortOrder = Enum.SortOrder.LayoutOrder
-
-                                    },
-
-                                    scope:New "TextLabel" {
-                                        Name = "ChallengeDescription",
-                                        BackgroundTransparency = 1,
-                                        Size = UDim2.fromScale(1, 0.6),
-                                        Text = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-                                        TextWrapped = true,
-                                        TextSize = 26,
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-                                    },
-
-                                    scope:New "TextLabel" {
-                                        Name = "ChallengeDescription",
-                                        BackgroundTransparency = 1,
-                                        Size = UDim2.fromScale(0.3, 0.2),
-                                        Text = "4/5",
-                                        TextWrapped = true,
-                                        TextSize = 26,
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
-                                        [Children] = {
-                                            scope:New "UIStroke" {
-                                                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                                                Thickness = 2,
-                                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE
-                                            },
-
-                                            scope:New "UICorner" {
-                                                CornerRadius = UDim.new(0, 30)
-                                            }
-                                        }
-                                    },
-
-
-                                }
-                            },
-
-                            scope:New "Frame" {
-                                Name = "Buffer",
-                                LayoutOrder = 2,
-                                Size = UDim2.fromScale(1, 0.05),
-                                BackgroundTransparency = 1,
-                                [Children] = {
-                                    scope:New "TextLabel" {
-                                        Size = UDim2.fromScale(1, 1),
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        Text = "____________________"
-                                    }
-                                }
-                            },
-
-                            scope:New "Frame" {
-                                Name = "RewardFrame",
-                                LayoutOrder = 3,
-                                Size = UDim2.fromScale(1, 0.30),
-                                BackgroundTransparency = 1,
-                                [Children] = {
-                                    scope:New "UIListLayout" {
-                                        FillDirection = Enum.FillDirection.Vertical,
-                                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                        VerticalAlignment = Enum.VerticalAlignment.Center,
-                                        Padding = UDim.new(0.01, 0),
-                                        SortOrder = Enum.SortOrder.LayoutOrder
-                                    },
-
-                                    scope:New "TextLabel" {
-                                        Text = "Rewards:",
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        Size = UDim2.fromScale(1, 0.5),
-                                        AnchorPoint = Vector2.new(0.5, 0.5),
-                                        Position = UDim2.fromScale(0.5, 0.5),
-                                        LayoutOrder = 1,
-                                        FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-                                    },
-
-                                    scope:New "Frame" {
-                                        BackgroundTransparency = 1,
-                                        Size = UDim2.fromScale(1, 0.5),
-                                        AnchorPoint = Vector2.new(0.5, 0.5),
-                                        Position = UDim2.fromScale(0.5, 0.5),
-                                        LayoutOrder = 2,
-
-                                        [Children] = {
-                                            scope:New "UIListLayout" {
-                                                FillDirection = Enum.FillDirection.Horizontal,
-                                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                                VerticalAlignment = Enum.VerticalAlignment.Center,
-                                                Padding = UDim.new(0.01, 0),
-                                                SortOrder = Enum.SortOrder.LayoutOrder
-                                            },
-                                            scope:New "TextLabel" {
-                                                Text = "357",
-                                                Size = UDim2.fromScale(0.3, 0.8),
-                                                BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                                BackgroundTransparency = 0,
-                                                TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
-                                                TextSize = 26,
-                                                FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-                                                [Children] = scope:New "UICorner" {
-                                                    CornerRadius = UDim.new(0, 30)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-
-                    scope:New "Frame" {
-                        Name = "ChallengeFrame2",
-                        Size = UDim2.fromScale(0.3, 0.8),
-                        LayoutOrder = 2,
-                        [Children] = {
-                            scope:New "UICorner" {
-                                CornerRadius = UDim.new(0, 30)
-                            },
-
-                            scope:New "UIListLayout" {
-                                FillDirection = Enum.FillDirection.Vertical,
-                                SortOrder = Enum.SortOrder.LayoutOrder,
-                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                VerticalAlignment = Enum.VerticalAlignment.Center,
-                                SortOrder = Enum.SortOrder.LayoutOrder
-                            },
-
-                            scope:New "Frame" {
-                                Name = "DescriptionFrame",
-                                LayoutOrder = 1,
-                                Size = UDim2.fromScale(0.8, 0.65),
-                                BackgroundTransparency = 1,
-
-                                [Children] = {
-                                    scope:New "UIListLayout" {
-                                        FillDirection = Enum.FillDirection.Vertical,
-                                        SortOrder = Enum.SortOrder.LayoutOrder,
-                                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                        VerticalAlignment = Enum.VerticalAlignment.Center,
-                                        SortOrder = Enum.SortOrder.LayoutOrder
-
-                                    },
-
-                                    scope:New "TextLabel" {
-                                        Name = "ChallengeDescription",
-                                        BackgroundTransparency = 1,
-                                        Size = UDim2.fromScale(1, 0.6),
-                                        Text = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-                                        TextWrapped = true,
-                                        TextSize = 26,
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-                                    },
-
-                                    scope:New "TextLabel" {
-                                        Name = "ChallengeDescription",
-                                        BackgroundTransparency = 1,
-                                        Size = UDim2.fromScale(0.3, 0.2),
-                                        Text = "4/5",
-                                        TextWrapped = true,
-                                        TextSize = 26,
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
-                                        [Children] = {
-                                            scope:New "UIStroke" {
-                                                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                                                Thickness = 2,
-                                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE
-                                            },
-
-                                            scope:New "UICorner" {
-                                                CornerRadius = UDim.new(0, 30)
-                                            }
-                                        }
-                                    },
-
-
-                                }
-                            },
-
-                            scope:New "Frame" {
-                                Name = "Buffer",
-                                LayoutOrder = 2,
-                                Size = UDim2.fromScale(1, 0.05),
-                                BackgroundTransparency = 1,
-                                [Children] = {
-                                    scope:New "TextLabel" {
-                                        Size = UDim2.fromScale(1, 1),
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        Text = "____________________"
-                                    }
-                                }
-                            },
-
-                            scope:New "Frame" {
-                                Name = "RewardFrame",
-                                LayoutOrder = 3,
-                                Size = UDim2.fromScale(1, 0.30),
-                                BackgroundTransparency = 1,
-                                [Children] = {
-                                    scope:New "UIListLayout" {
-                                        FillDirection = Enum.FillDirection.Vertical,
-                                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                        VerticalAlignment = Enum.VerticalAlignment.Center,
-                                        Padding = UDim.new(0.01, 0),
-                                        SortOrder = Enum.SortOrder.LayoutOrder
-                                    },
-
-                                    scope:New "TextLabel" {
-                                        Text = "Rewards:",
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        Size = UDim2.fromScale(1, 0.5),
-                                        AnchorPoint = Vector2.new(0.5, 0.5),
-                                        Position = UDim2.fromScale(0.5, 0.5),
-                                        LayoutOrder = 1,
-                                        FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-                                    },
-
-                                    scope:New "Frame" {
-                                        BackgroundTransparency = 1,
-                                        Size = UDim2.fromScale(1, 0.5),
-                                        AnchorPoint = Vector2.new(0.5, 0.5),
-                                        Position = UDim2.fromScale(0.5, 0.5),
-                                        LayoutOrder = 2,
-
-                                        [Children] = {
-                                            scope:New "UIListLayout" {
-                                                FillDirection = Enum.FillDirection.Horizontal,
-                                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                                VerticalAlignment = Enum.VerticalAlignment.Center,
-                                                Padding = UDim.new(0.01, 0),
-                                                SortOrder = Enum.SortOrder.LayoutOrder
-                                            },
-                                            scope:New "TextLabel" {
-                                                Text = "357",
-                                                Size = UDim2.fromScale(0.3, 0.8),
-                                                BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                                BackgroundTransparency = 0,
-                                                TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
-                                                TextSize = 26,
-                                                FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-                                                [Children] = scope:New "UICorner" {
-                                                    CornerRadius = UDim.new(0, 30)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    
-                    scope:New "Frame" {
-                        Name = "ChallengeFrame3",
-                        Size = UDim2.fromScale(0.3, 0.8),
-                        LayoutOrder = 3,
-                        [Children] = {
-                            scope:New "UICorner" {
-                                CornerRadius = UDim.new(0, 30)
-                            },
-
-                            scope:New "UIListLayout" {
-                                FillDirection = Enum.FillDirection.Vertical,
-                                SortOrder = Enum.SortOrder.LayoutOrder,
-                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                VerticalAlignment = Enum.VerticalAlignment.Center,
-                                SortOrder = Enum.SortOrder.LayoutOrder
-                            },
-
-                            scope:New "Frame" {
-                                Name = "DescriptionFrame",
-                                LayoutOrder = 1,
-                                Size = UDim2.fromScale(0.8, 0.65),
-                                BackgroundTransparency = 1,
-
-                                [Children] = {
-                                    scope:New "UIListLayout" {
-                                        FillDirection = Enum.FillDirection.Vertical,
-                                        SortOrder = Enum.SortOrder.LayoutOrder,
-                                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                        VerticalAlignment = Enum.VerticalAlignment.Center,
-                                        SortOrder = Enum.SortOrder.LayoutOrder
-
-                                    },
-
-                                    scope:New "TextLabel" {
-                                        Name = "ChallengeDescription",
-                                        BackgroundTransparency = 1,
-                                        Size = UDim2.fromScale(1, 0.6),
-                                        Text = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-                                        TextWrapped = true,
-                                        TextSize = 26,
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-                                    },
-
-                                    scope:New "TextLabel" {
-                                        Name = "ChallengeDescription",
-                                        BackgroundTransparency = 1,
-                                        Size = UDim2.fromScale(0.3, 0.2),
-                                        Text = "4/5",
-                                        TextWrapped = true,
-                                        TextSize = 26,
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
-                                        [Children] = {
-                                            scope:New "UIStroke" {
-                                                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                                                Thickness = 2,
-                                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE
-                                            },
-
-                                            scope:New "UICorner" {
-                                                CornerRadius = UDim.new(0, 30)
-                                            }
-                                        }
-                                    },
-
-
-                                }
-                            },
-
-                            scope:New "Frame" {
-                                Name = "Buffer",
-                                LayoutOrder = 2,
-                                Size = UDim2.fromScale(1, 0.05),
-                                BackgroundTransparency = 1,
-                                [Children] = {
-                                    scope:New "TextLabel" {
-                                        Size = UDim2.fromScale(1, 1),
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        Text = "____________________"
-                                    }
-                                }
-                            },
-
-                            scope:New "Frame" {
-                                Name = "RewardFrame",
-                                LayoutOrder = 3,
-                                Size = UDim2.fromScale(1, 0.30),
-                                BackgroundTransparency = 1,
-                                [Children] = {
-                                    scope:New "UIListLayout" {
-                                        FillDirection = Enum.FillDirection.Vertical,
-                                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                        VerticalAlignment = Enum.VerticalAlignment.Center,
-                                        Padding = UDim.new(0.01, 0),
-                                        SortOrder = Enum.SortOrder.LayoutOrder
-                                    },
-
-                                    scope:New "TextLabel" {
-                                        Text = "Rewards:",
-                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                        Size = UDim2.fromScale(1, 0.5),
-                                        AnchorPoint = Vector2.new(0.5, 0.5),
-                                        Position = UDim2.fromScale(0.5, 0.5),
-                                        LayoutOrder = 1,
-                                        FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-                                    },
-
-                                    scope:New "Frame" {
-                                        BackgroundTransparency = 1,
-                                        Size = UDim2.fromScale(1, 0.5),
-                                        AnchorPoint = Vector2.new(0.5, 0.5),
-                                        Position = UDim2.fromScale(0.5, 0.5),
-                                        LayoutOrder = 2,
-
-                                        [Children] = {
-                                            scope:New "UIListLayout" {
-                                                FillDirection = Enum.FillDirection.Horizontal,
-                                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                                VerticalAlignment = Enum.VerticalAlignment.Center,
-                                                Padding = UDim.new(0.01, 0),
-                                                SortOrder = Enum.SortOrder.LayoutOrder
-                                            },
-                                            scope:New "TextLabel" {
-                                                Text = "357",
-                                                Size = UDim2.fromScale(0.3, 0.8),
-                                                BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                                BackgroundTransparency = 0,
-                                                TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
-                                                TextSize = 26,
-                                                FontFace = Font.new(UI_CONSTANTS.ROBOTO, Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-                                                [Children] = scope:New "UICorner" {
-                                                    CornerRadius = UDim.new(0, 30)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },           
-                    
-
+                    ChallengeCard(scope, {
+                        layoutOrder = 3,
+                        description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
+                        progress = "4/5",
+                        reward = "357",
+                        onClaim = function()
+                            print("Claimed challenge 3!")
+                        end
+                    }),
                 }
             }
         }
