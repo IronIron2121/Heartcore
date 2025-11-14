@@ -24,8 +24,8 @@ screenGui.Parent = PlayerGui
 local button = Instance.new("ImageButton")
 button.Name = "VoteButton"
 button.AnchorPoint = Vector2.new(0.5, 0.5)
-button.Position = UDim2.fromScale(0.8, 0.9)
-button.Size = UDim2.new(0.1,0,0.1,0)
+button.Position = UDim2.fromScale(0.93, 0.9)
+button.Size = UDim2.fromScale(0.15, 0.15)
 button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 button.BackgroundTransparency = 1
 button.Parent = screenGui
@@ -45,7 +45,7 @@ local appearTweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDi
 -- Animations
 local function playClickAnimation()
 	local shrinkTween = TweenService:Create(button, clickTweenInfo, { Size = UDim2.new(0.08, 0, 0.08, 0) })
-	local growTween = TweenService:Create(button, clickTweenInfo, { Size = UDim2.new(0.1, 0, 0.1, 0) })
+	local growTween = TweenService:Create(button, clickTweenInfo, { Size = UDim2.fromScale(0.15, 0.15) })
 	shrinkTween:Play()
 	shrinkTween.Completed:Wait()
 	growTween:Play()
