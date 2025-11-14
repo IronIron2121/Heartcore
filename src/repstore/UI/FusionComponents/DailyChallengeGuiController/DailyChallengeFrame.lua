@@ -48,6 +48,31 @@ local function DailyChallengeFrame(
                 visibilityBoolean = props.visible
             }),
 
+            scope:New "TextLabel" {
+                Name = "ChallengesLabel",
+                Size = UDim2.fromScale(0.25, 0.1),
+                AnchorPoint = Vector2.new(0.5,0.5),
+                Position = UDim2.fromScale(0.5, 0),
+                BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                BackgroundTransparency = 0,
+                Text = "DAILY CHALLENGES",
+                TextSize = 20,
+                TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
+                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+
+                [Children] = {
+                    scope:New "UICorner" {
+                        CornerRadius = UDim.new(0, 10),
+                    },
+
+                    scope:New "UIStroke" {
+                        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                        Thickness = 3,
+                        Color = UI_CONSTANTS.COLOUR_WHITE
+                    },
+                }
+            },
+
             scope:New "UICorner" {
                 CornerRadius = UDim.new(0, 30)
             },
@@ -97,7 +122,9 @@ local function DailyChallengeFrame(
                                 CornerRadius = UDim.new(0, 30)
                             }
                         }
-                    },                    
+                    },           
+                    
+
                 }
             }
         }
