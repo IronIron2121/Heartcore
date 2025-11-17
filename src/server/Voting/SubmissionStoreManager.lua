@@ -45,7 +45,7 @@ local SubmissionStoreManager = {}
 
 local function updateSubmissionThemeBillboard()
     local themeName = ThemeManager.getCurrentThemeName()
-    SubmissionThemeTextLabel.Text = "THEME: " .. themeName
+    SubmissionThemeTextLabel.Text = themeName
     warn("Updating theme", SubmissionThemeTextLabel.Text)
     warn(themeName)
     if themeName == "Loading..." then
