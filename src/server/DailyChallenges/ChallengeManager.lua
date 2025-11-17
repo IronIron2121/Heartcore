@@ -4,10 +4,14 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+-- Folders
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+
 -- Modules
 local Data = ServerScriptService:WaitForChild("Data")
 local DataManager = require(Data:WaitForChild("DataManager"))
 local ChallengeDefinitions = require(script.Parent:WaitForChild("ChallengeDefinitions"))
+local UpdateChallengeProgress = Remotes:FindFirstChild("UpdateChallengeProgress")
 
 local ChallengeManager = {}
 
@@ -19,7 +23,8 @@ local function isNewDay(lastResetTime: number): boolean
 end
 
 -- Initialize challenges for a player (called on join or daily reset)
-function ChallengeManager.InitializeChallenges(player: Player)
+function ChallengeManager.InitialiseChallenges(player: Player)
+    warn("Initialising challenges!")
     local profile = DataManager.Profiles[player]
     if not profile then
         warn("No profile found for player:", player.Name)
@@ -160,7 +165,6 @@ end
 
 -- Send challenge update to client
 function ChallengeManager.SendChallengeUpdate(player: Player, challengeId: string, challengeProgress: any)
-    local UpdateChallengeProgress = ReplicatedStorage:FindFirstChild("UpdateChallengeProgress")
     if UpdateChallengeProgress then
         UpdateChallengeProgress:FireClient(player, {
             id = challengeId,

@@ -2,52 +2,44 @@
 
 -- Services
 local ServerScriptService 		= game:GetService("ServerScriptService")
-local ReplicatedStorage 		= game:GetService("ReplicatedStorage")
-local DataStoreService 			= game:GetService("DataStoreService")
+--local ReplicatedStorage 		= game:GetService("ReplicatedStorage")
+--local DataStoreService 			= game:GetService("DataStoreService")
 local Players 					= game:GetService("Players")
 
 -- Folders
-local DataTables	= ReplicatedStorage:WaitForChild("DataTables")
-local Trackers 		= ReplicatedStorage:WaitForChild("Trackers")
-local Classes 		= ReplicatedStorage:WaitForChild("Classes")
-local Utility 		= ReplicatedStorage:WaitForChild("Utility")
-local Remotes 		= ReplicatedStorage:WaitForChild("Remotes") 
-local Voting 		= ServerScriptService:WaitForChild("Voting")
+local DailyChallenges 	= ServerScriptService:WaitForChild("DailyChallenges")
+local Voting 			= ServerScriptService:WaitForChild("Voting")
+local Data 				= ServerScriptService:WaitForChild("Data")
+--[[
+local DataTables		= ReplicatedStorage:WaitForChild("DataTables")
+local Trackers 			= ReplicatedStorage:WaitForChild("Trackers")
+local Classes 			= ReplicatedStorage:WaitForChild("Classes")
+local Remotes 			= ReplicatedStorage:WaitForChild("Remotes") 
+]]
 
 -- Module Scripts
 local PlayerVotedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
+local ChallengeManager 			= require(DailyChallenges:WaitForChild("ChallengeManager"))
+--[[
 local Constants 				= require(ReplicatedStorage:WaitForChild("Constants")) 
 local BuyableShopItems			= require(DataTables:WaitForChild("BuyableShopItems"))
 local PlayerTracker 			= require(Trackers:WaitForChild("PlayerTracker"))
 local PlayerDetails 			= require(Classes:WaitForChild("PlayerDetails"))
-local ChallengeManager 			= require(DailyChallenges:WaitForChild("ChallengeManager"))
+]]
+local DataManager 				= require(Data:WaitForChild("DataManager"))
 
 -- Datastores
-local ownedItemsDataStore		= DataStoreService:GetDataStore(Constants.OWNEDITEMS_DATASTORE)
+--local ownedItemsDataStore		= DataStoreService:GetDataStore(Constants.OWNEDITEMS_DATASTORE)
 
 -- Remotes / Bindables
-local UpdateLocalPlayerDetailsAsync = Remotes:WaitForChild("UpdateLocalPlayerDetails")
-
-
--- Grabs all accessory IDs from player and adds them to a table
-local function getAccessoryAttributes(humanoid: Humanoid, attributesArray: {})
-	local clothingTable = {}
-	local humanoidDescription = humanoid:GetAppliedDescription() :: HumanoidDescription
-
-	for index, attribute in pairs(attributesArray) do
-		local accessoryId = tonumber((humanoidDescription :: any)[attribute])
-		if accessoryId ~= 0 and accessoryId ~= nil then
-			table.insert(clothingTable, accessoryId)
-		end
-	end
-	return clothingTable
-end
+--local UpdateLocalPlayerDetailsAsync = Remotes:WaitForChild("UpdateLocalPlayerDetails")
 
 local function onCharacterAdded(character: Model)
 	local humanoid 		= character:WaitForChild("Humanoid") :: Humanoid
 	humanoid.WalkSpeed 	= 32
 end
 
+--[[
 local function initialiseOwnedItemsDatastore(userId: number)
 	-- Make sure the data is there
 	local success, error = pcall(function()
@@ -69,9 +61,14 @@ local function initialiseOwnedItemsDatastore(userId: number)
 		return 
 	end
 end
+]]
 
 local function onPlayerAdded(player: Player)
+    repeat task.wait(0.1) until DataManager.Profiles[player]
+
 	player.CharacterAdded:Connect(onCharacterAdded)
+
+	--[[
 	local playerDetails = PlayerDetails.new(player)
 	if playerDetails then
 		PlayerTracker.startTrackingPlayer(playerDetails)
@@ -80,9 +77,10 @@ local function onPlayerAdded(player: Player)
 		assert(playerDetails, "Failed to create player details")
 	end
 	initialiseOwnedItemsDatastore(player.UserId)
+	]]
 
 	PlayerVotedOutfitsTracker.OnPlayerAdded(player)
-	ChallengeManager.InitializeChallenges(player)
+	ChallengeManager.InitialiseChallenges(player)
 end
 
 

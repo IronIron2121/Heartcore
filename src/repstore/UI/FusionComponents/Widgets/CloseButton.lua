@@ -9,7 +9,6 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
-local Value = require(ReplicatedStorage.Utility.Fusion.State.Value)
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
@@ -25,7 +24,7 @@ local function CloseButton(scope: Fusion.Scope, props: {
     zIndex: UsedAs<number>?,
     visibilityBoolean: Value<boolean>
 })
-    local closeButton = scope:New "ImageButton" {
+    local closeButton = scope:New "ImageButton" { 
         Name = "CloseButton",
         Image = ImageUris["CloseButton"],
         AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
