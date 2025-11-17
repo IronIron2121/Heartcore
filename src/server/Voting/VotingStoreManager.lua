@@ -19,9 +19,10 @@ local GameTimer = require(Voting:WaitForChild("GameTimer"))
 local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 
 -- Instances
-local themeDisplay = votingZone:WaitForChild("themeDisplay")
+local VotingHut = votingZone:WaitForChild("VotingHut")
+local themeDisplay = VotingHut:WaitForChild("themeDisplay")
 local ThemeNameGui = themeDisplay:WaitForChild("ThemeNameGui")
-local ThemeText = ThemeNameGui:WaitForChild("ThemeText")
+local VoteThemeText = ThemeNameGui:WaitForChild("ThemeText")
 
 local VotingStoreManager = {}
 
@@ -122,8 +123,8 @@ local function initialiseRotationTimer()
 end
 
 local function updateVotingThemeBillboard()
-	local themeName = currentTheme and currentTheme.theme or "Loading..."
-	ThemeText.Text = themeName
+	local themeNameText = currentTheme and currentTheme.theme or "Loading..."
+	VoteThemeText.Text = themeNameText
 end
 
 local function getCacheUpdateLockStore()

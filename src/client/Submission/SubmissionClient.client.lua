@@ -5,7 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local centralPond = workspace:WaitForChild("centralPond")
+local submissionZone = workspace:WaitForChild("submissionZone")
 
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
@@ -16,7 +16,7 @@ local SubmissionResultRF = Remotes:WaitForChild("SubmissionResultRF")
 local PhaseChangedRemote = Remotes:WaitForChild("PhaseChangedRemote")
 
 -- Instances
-local SubmissionPad = centralPond:WaitForChild("SubmissionPad")
+local SubmissionPad = submissionZone:WaitForChild("SubmissionPad")
 local PromptHolder = SubmissionPad:WaitForChild("PromptHolder")
 local prompt = PromptHolder:WaitForChild("SubmissionPrompt") :: ProximityPrompt
 
