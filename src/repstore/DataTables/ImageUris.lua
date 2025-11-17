@@ -14,7 +14,8 @@ local assets = {
 	StopwatchIcon = "73600277679991",
 	RobuxIcon = "81055682730978",
 	ExpBar = "73207886316381",
-	ClaimButton = "96236040552707"
+	ClaimButton = "96236040552707",
+	DailyChallengeButton = "129184509423001",
 }
 
 setmetatable(ImageUris, {
