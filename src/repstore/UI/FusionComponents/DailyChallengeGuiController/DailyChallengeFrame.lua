@@ -211,15 +211,15 @@ local function DailyChallengeFrame(
                                 end
                             }),
 
-                            ChallengeCard(scope, {
-                                layoutOrder = 3,
-                                description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-                                progress = "4/5",
-                                reward = "357",
-                                onClaim = function()
-                                    print("Claimed challenge 3!")
-                                end
-                            }),
+                            -- ChallengeCard(scope, {
+                            --     layoutOrder = 3,
+                            --     description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
+                            --     progress = "4/5",
+                            --     reward = "357",
+                            --     onClaim = function()
+                            --         print("Claimed challenge 3!")
+                            --     end
+                            -- }),
                         }
                     }
                 }
