@@ -10,6 +10,7 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local centralPond = workspace:WaitForChild("centralPond")
+local submissionZone = workspace:WaitForChild("submissionZone")
 
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
@@ -26,6 +27,10 @@ local SubmissionBillboardHolder = centralPondModel:WaitForChild("SubmissionBillb
 local SubmissionThemeBillboard = SubmissionBillboardHolder:WaitForChild("BillboardGui")
 local Frame = SubmissionThemeBillboard:WaitForChild("Frame")
 local SubmissionThemeTextLabel = Frame:WaitForChild("ThemeLabel")
+local submissionHut = submissionZone:WaitForChild("submissionHut")
+local submissionThemeHolder = submissionHut:WaitForChild("submissionThemeHolder")
+local submissionThemeGui = submissionThemeHolder:WaitForChild("submissionThemeGui")
+local submissionThemeText = submissionThemeGui:WaitForChild("submissionThemeText")
 
 -- Caching variables
 local pendingUpdates = {}
@@ -55,6 +60,20 @@ local function updateSubmissionThemeBillboard()
         end)
     end
 end
+
+local function updateSubmissionHutTheme()
+    local themeName = ThemeManager.getCurrentThemeName()
+    submissionThemeText.Text = themeName
+    warn("Updating theme", submissionThemeText.Text)
+    warn(themeName)
+    if themeName == "Loading..." then
+        task.wait(REUPDATE_THEME_WAIT_TIME)
+        task.spawn(function()
+            updateSubmissionHutTheme()
+        end)
+    end
+end
+
 
 local function getRolloverLockStore()
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
