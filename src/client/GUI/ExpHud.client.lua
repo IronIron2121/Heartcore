@@ -19,7 +19,6 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local localPlayer = Players.LocalPlayer
 local PlayerGui = localPlayer.PlayerGui
 
-
 -- Fusion Modules
 local scope = Fusion:scoped()
 local Children = Fusion.Children
@@ -27,7 +26,6 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI
 local ExpBar = require(FusionComponents:WaitForChild("ExpBar"))
-
 
 local leaderstats = localPlayer:WaitForChild("leaderstats")
 local level = leaderstats:WaitForChild("Level")
@@ -49,14 +47,11 @@ local function animateLevelName(label)
 		originalSize.X.Scale * popScale, originalSize.X.Offset,
 		originalSize.Y.Scale * popScale, originalSize.Y.Offset
 	)
-
 	
 	-- Instantly set the size
 	label.Size = popSize
 
-	
 	task.wait(0.3)
-	
 	
 	local FALL_DURATION = 0.5 
 	local fallInfo = TweenInfo.new(
@@ -65,13 +60,13 @@ local function animateLevelName(label)
 		Enum.EasingDirection.Out
 	)
 	
---tween
+	--tween
 	local tweenFall = TweenService:Create(label, fallInfo, {Size = originalSize})
 	
 	tweenFall:Play()
 	tweenFall.Completed:Wait()
 
--- shake anim	
+	-- shake anim	
 	local SHAKE_INTENSITY = 5 
 	local SHAKE_DURATION = 0.25
 	
