@@ -105,6 +105,13 @@ function AvatarViewport(
 				CornerRadius = UDim.new(0.05)
 			},
 
+			scope:New "UIPadding" {
+				PaddingTop = UDim.new(0.02,0),
+				PaddingBottom = UDim.new(0.02,0),
+				PaddingLeft = UDim.new(0.04,0),
+				PaddingRight = UDim.new(0.04,0),
+			},
+
 			Button(scope, {
 				name = "ResetButton",
 				text = "Reset Outfit",
@@ -133,7 +140,7 @@ function AvatarViewport(
 			}),
 			
 			Button(scope, {
-				text = "Save This Outfit",
+				text = "Save Outfit",
 				visible = true,
 				size = UDim2.fromScale(0.3, 0.1),
 				position = UDim2.fromScale(0,1),

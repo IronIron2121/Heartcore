@@ -75,6 +75,7 @@ function Button(
 		TextScaled = props.textScaled or true,
 		TextWrapped = true,
 		ZIndex = props.zIndex or 1,
+		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 
 		[OnEvent "Activated"] = function()
 			if props.onActivated then
@@ -104,7 +105,7 @@ function Button(
 
 		[Children] = {
 			scope:New "UICorner" {
-				CornerRadius = props.cornerRadius or UDim.new(0.4, 0)
+				CornerRadius = props.cornerRadius or UDim.new(0.5, 0)
 			},
 
 			scope:New "UIStroke" {
