@@ -2,14 +2,14 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local workspace = game:GetService("Workspace")
+
 
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local votingZone = workspace:WaitForChild("votingZone")
---local Bindables = ReplicatedStorage:WaitForChild("Bindables")
-
 local centralPond = workspace:WaitForChild("centralPond")
 
 -- Instances
@@ -23,10 +23,9 @@ local TimeLabel = Frame:WaitForChild("TimeLabel")
 
 -- Modules
 local VotingGuiController = require(FusionComponents:WaitForChild("VotingGuiController"))
+local VotingClientManager = require(Utility:WaitForChild("VotingClientManager"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
--- Remotes / Bindables
---local LocalTimerUpdated = Bindables:WaitForChild("LocalTimerUpdated")
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -60,20 +59,21 @@ local function initialiseVoteGui()
         ActionText = "Vote Here!",
 
         [OnEvent "Triggered"] = function()
-            onVotePromptActivated()
+			VotingClientManager.onVotePromptActivated()
         end
     }
 
     task.spawn(function()
         while true do
             task.wait(1)
-            updateTimeText(TimeLabel.Text)
+			VotingClientManager.updateTimeText(TimeLabel.Text)
         end
     end)
 
-    VotingGuiController.Initialise(VoteGuiVisible, TimeText)
+	VotingClientManager.initialiseVotingGui()
 end 
+
+
 
 initialiseVoteGui()
 
---LocalTimerUpdated.Event:Connect(updateTimeText)
