@@ -200,9 +200,9 @@ local function ChallengeCard(
                         CornerRadius = UDim.new(0, 30)
                     },
 
-                    scope:New "ImageButton" {
+                    scope:New "TextButton" {
                         Name = "ClaimButton",
-                        Size = UDim2.fromScale(0.5,0.8),
+                        Size = UDim2.fromScale(0.5,0.4),
                         AnchorPoint = Vector2.new(0.5, 0.5),
                         Position = UDim2.fromScale(0.5, 0.5),
                         BackgroundColor3 = props.isClaimed and Color3.fromRGB(50,255,50) or Color3.fromRGB(255, 153, 0),
