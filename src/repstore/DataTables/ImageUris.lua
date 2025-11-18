@@ -16,6 +16,7 @@ local assets = {
 	ExpBar = "73207886316381",
 	ClaimButton = "96236040552707",
 	DailyChallengeButton = "129184509423001",
+	VoteButton = "137550678558366"
 }
 
 setmetatable(ImageUris, {

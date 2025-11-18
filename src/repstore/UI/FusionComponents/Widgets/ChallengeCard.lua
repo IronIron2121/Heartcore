@@ -22,10 +22,11 @@ local function ChallengeCard(
         description: UsedAs<string>?,
         progress: UsedAs<string>?,
         reward: UsedAs<string>?,
+        isClaimed: UsedAs<boolean>?,
         onClaim: (() -> ())?
     }
 ): Frame
-    local isHovered = Fusion.Value(scope, false)
+    local isHovered = scope:Value(false)
     
     local challengeFrame = scope:New "Frame" {
         Name = "ChallengeCard",
@@ -190,7 +191,7 @@ local function ChallengeCard(
                 BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
                 BackgroundTransparency = 0.5,
                 Visible = scope:Computed(function(use)
-                    return use(isHovered)
+                    return props.isClaimed or use(isHovered) 
                 end),
                 ZIndex = 10,
 
@@ -204,9 +205,11 @@ local function ChallengeCard(
                         Size = UDim2.fromScale(0.5,0.8),
                         AnchorPoint = Vector2.new(0.5, 0.5),
                         Position = UDim2.fromScale(0.5, 0.5),
-                        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                        BackgroundTransparency = 1,
-                        Image = ImageUris.ClaimButton,
+                        BackgroundColor3 = props.isClaimed and Color3.fromRGB(50,255,50) or Color3.fromRGB(255, 153, 0),
+                        Text = props.isClaimed and "CLAIMED !" or "CLAIM !",
+                        TextSize = 28,
+                        TextColor3 = Color3.fromRGB(255, 255, 255),
+                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 
                         [Fusion.OnEvent "Activated"] = function()
                             if props.onClaim then
@@ -215,8 +218,14 @@ local function ChallengeCard(
                         end,
 
                         [Children] = {
-                            scope:New "UIAspectRatioConstraint" {
-                                AspectRatio = 1
+                            scope:New "UICorner" {
+                                CornerRadius = UDim.new(0.5, 0)
+                            },
+
+                            scope:New "UIStroke" {
+                                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                                Thickness = 3,
+                                Color = props.isClaimed and Color3.fromRGB(0,100,10) and  Color3.fromRGB(200, 120, 0)
                             }
                         }
                     }
@@ -226,7 +235,9 @@ local function ChallengeCard(
     } :: Frame
 
     challengeFrame.MouseEnter:Connect(function()
-        isHovered:set(true)
+        isHovered:set(true) 
+        warn(props)
+        warn(props.isClaimed)  
     end)
 
     challengeFrame.MouseLeave:Connect(function()
