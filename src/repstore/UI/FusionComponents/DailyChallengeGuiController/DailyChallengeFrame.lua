@@ -11,7 +11,7 @@ local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
-
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -30,13 +30,19 @@ local TimeLabel = Frame:WaitForChild("TimeLabel")
 
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local peek = Fusion.peek
 local scope = Fusion:scoped()
 
-type UsedAs<T> = Fusion.UsedAs<T>
+type UsedAs<T> = Fusion.UsedAs<T> 
 local Children = Fusion.Children
 type Value<T> = Fusion.Value<T>
 
 local TimeText = scope:Value("Loading...")
+
+-- RemoteEvents
+local UpdateChallengeProgress = Remotes:WaitForChild("UpdateChallengeProgress")
+local ClaimChallengeReward = Remotes:WaitForChild("ClaimChallengeReward")
+local GetActiveChallenges = Remotes:WaitForChild("GetActiveChallenges")
 
 
 local function updateTimeText(newText: string)

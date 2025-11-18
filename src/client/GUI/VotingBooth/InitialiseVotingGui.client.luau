@@ -23,7 +23,7 @@ local TimeLabel = Frame:WaitForChild("TimeLabel")
 
 -- Modules
 local VotingGuiController = require(FusionComponents:WaitForChild("VotingGuiController"))
-local VotingClientManager = require(Utility:WaitForChild("VotingClientManager"))
+--local VotingClientManager = require(Utility:WaitForChild("VotingClientManager"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
 
@@ -59,18 +59,18 @@ local function initialiseVoteGui()
         ActionText = "Vote Here!",
 
         [OnEvent "Triggered"] = function()
-			VotingClientManager.onVotePromptActivated()
+			--VotingClientManager.onVotePromptActivated()
         end
     }
 
     task.spawn(function()
         while true do
             task.wait(1)
-			VotingClientManager.updateTimeText(TimeLabel.Text)
+			--VotingClientManager.updateTimeText(TimeLabel.Text)
         end
     end)
 
-	VotingClientManager.initialiseVotingGui()
+	--VotingClientManager.initialiseVotingGui()
 end 
 
 initialiseVoteGui()
