@@ -49,7 +49,7 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
     Rank.Value = profile.Data.Rank or DataManager.GetRank(Level.Value)
 
     local Flair = Instance.new("NumberValue", leaderstats)
-    Flair.Name = "Flair" 
+    Flair.Name = "Flair"
     Flair.Value = profile.Data.Flair or 1
 
     -- Process login bonuses and streaks

@@ -21,10 +21,11 @@ local function ChallengeCard(
         description: UsedAs<string>?,
         progress: UsedAs<string>?,
         reward: UsedAs<string>?,
+        isClaimed: UsedAs<boolean>?,
         onClaim: (() -> ())?
     }
 ): Frame
-    local isHovered = Fusion.Value(scope, false)
+    local isHovered = scope:Value(false)
     
     local challengeFrame = scope:New "Frame" {
         Name = "ChallengeCard",
@@ -189,7 +190,7 @@ local function ChallengeCard(
                 BackgroundColor3 = Color3.fromRGB(0, 0, 0),
                 BackgroundTransparency = 0.5,
                 Visible = scope:Computed(function(use)
-                    return use(isHovered)
+                    return props.isClaimed or use(isHovered) 
                 end),
                 ZIndex = 10,
 
@@ -203,8 +204,8 @@ local function ChallengeCard(
                         Size = UDim2.fromScale(0.6, 0.2),
                         AnchorPoint = Vector2.new(0.5, 0.5),
                         Position = UDim2.fromScale(0.5, 0.5),
-                        BackgroundColor3 = Color3.fromRGB(255, 153, 0),
-                        Text = "CLAIM !",
+                        BackgroundColor3 = props.isClaimed and Color3.fromRGB(50,255,50) or Color3.fromRGB(255, 153, 0),
+                        Text = props.isClaimed and "CLAIMED !" or "CLAIM !",
                         TextSize = 28,
                         TextColor3 = Color3.fromRGB(255, 255, 255),
                         FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
@@ -233,7 +234,9 @@ local function ChallengeCard(
     } :: Frame
 
     challengeFrame.MouseEnter:Connect(function()
-        isHovered:set(true)
+        isHovered:set(true) 
+        warn(props)
+        warn(props.isClaimed)  
     end)
 
     challengeFrame.MouseLeave:Connect(function()
