@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService") 
 
 
+
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
@@ -20,7 +21,6 @@ local localPlayer = Players.LocalPlayer
 local PlayerGui = localPlayer.PlayerGui
 
 
--- Fusion Modules
 local scope = Fusion:scoped()
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
@@ -28,15 +28,14 @@ type UsedAs<T> = Fusion.UsedAs<T>
 -- GUI
 local ExpBar = require(FusionComponents:WaitForChild("ExpBar"))
 
-
 local leaderstats = localPlayer:WaitForChild("leaderstats")
 local level = leaderstats:WaitForChild("Level")
-local levelName = leaderstats:WaitForChild("LevelName")
+local Rank = leaderstats:WaitForChild("Rank")
 
-local rankText = Fusion.Value(scope, levelName.Value)
+local rankText = Fusion.Value(scope, Rank.Value)
 
 --Anim function
-local function animateLevelName(label)
+local function animateRank(label)
 	
 	-- Store original properties
 	local originalSize = label.Size
@@ -49,14 +48,11 @@ local function animateLevelName(label)
 		originalSize.X.Scale * popScale, originalSize.X.Offset,
 		originalSize.Y.Scale * popScale, originalSize.Y.Offset
 	)
-
 	
 	-- Instantly set the size
 	label.Size = popSize
 
-	
 	task.wait(0.3)
-	
 	
 	local FALL_DURATION = 0.5 
 	local fallInfo = TweenInfo.new(
@@ -65,13 +61,13 @@ local function animateLevelName(label)
 		Enum.EasingDirection.Out
 	)
 	
---tween
+	--tween
 	local tweenFall = TweenService:Create(label, fallInfo, {Size = originalSize})
 	
 	tweenFall:Play()
 	tweenFall.Completed:Wait()
 
--- shake anim	
+	-- shake anim	
 	local SHAKE_INTENSITY = 5 
 	local SHAKE_DURATION = 0.25
 	
@@ -122,6 +118,7 @@ local function initialiseGUI()
 	}
 	
 	
+	
 	local _hudTopBar = scope:New "Frame" {
 		Size = UDim2.fromScale(1,0.2),
 		Position = UDim2.fromScale(0,0.88),
@@ -160,10 +157,10 @@ local function initialiseGUI()
 		}
 	}
 	
-	levelName:GetPropertyChangedSignal("Value"):Connect(function()
-		rankText:set(levelName.Value .. " (Lv. " .. level.Value .. ")")
+	Rank:GetPropertyChangedSignal("Value"):Connect(function()
+		rankText:set(Rank.Value .. " (Lv. " .. level.Value .. ")")
 
-		task.spawn(animateLevelName, playerRankLabel)
+		task.spawn(animateRank, playerRankLabel)
 	end)
 	
 end

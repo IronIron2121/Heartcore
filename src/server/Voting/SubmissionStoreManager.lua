@@ -50,9 +50,8 @@ local SubmissionStoreManager = {}
 
 local function updateSubmissionThemeBillboard()
     local themeName = ThemeManager.getCurrentThemeName()
-    SubmissionThemeTextLabel.Text = themeName
-    warn("Updating theme", SubmissionThemeTextLabel.Text)
-    warn(themeName)
+    SubmissionThemeTextLabel.Text = "THEME: " .. themeName
+    print("Updating theme", SubmissionThemeTextLabel.Text, themeName)
     if themeName == "Loading..." then
         task.wait(REUPDATE_THEME_WAIT_TIME)
         task.spawn(function()
@@ -445,7 +444,6 @@ function SubmissionStoreManager.flushPendingUpdates(): ()
 end
 
 function SubmissionStoreManager.startPeriodicFlush(): ()
-    warn("starting flush for sub store!")
     task.spawn(function()
         while true do
             task.wait(FLUSH_INTERVAL)

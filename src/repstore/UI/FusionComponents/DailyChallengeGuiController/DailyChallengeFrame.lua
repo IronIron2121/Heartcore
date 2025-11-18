@@ -17,7 +17,7 @@ local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- UI Components
-local CloseButton = require(Widgets:WaitForChild("CloseButton"))
+local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
 local ChallengeCard = require(Widgets:WaitForChild("ChallengeCard"))
 
 --Instances
@@ -56,6 +56,32 @@ local function DailyChallengeFrame(
         visible: Value<boolean>
     }
 ): Frame
+    -- Fetch challenges from server
+    local challenges = Fusion.Value(scope, {})
+    
+    -- Load challenges on open
+    local function loadChallenges()
+        task.wait(5)
+        local activeChallenges = GetActiveChallenges:InvokeServer()
+        challenges:set(activeChallenges or {})
+    end
+
+    -- Listen for challenge updates
+    UpdateChallengeProgress.OnClientEvent:Connect(function(update)
+        local currentChallenges = peek(challenges)
+        for i, challenge in ipairs(currentChallenges) do
+            if challenge.id == update.id then
+                challenge.progress = update.progress
+                challenge.claimed = update.claimed
+                challenges:set(currentChallenges) -- Trigger update
+                break
+            end
+        end
+    end)
+
+    -- Load challenges initially
+    task.spawn(loadChallenges)
+    
     local DailyChallengeFrame = scope:New "Frame" {
         Name = "DailyChallengeFrame",
         BackgroundTransparency = UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
@@ -63,6 +89,7 @@ local function DailyChallengeFrame(
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.fromScale(0.5, 0.5),
         Visible = props.visible,
+
 
         [Children] = {
             CloseButton(scope, {
@@ -109,119 +136,48 @@ local function DailyChallengeFrame(
                 CornerRadius = UDim.new(0, 30)
             },
 
-            scope:New "Frame" {
+            scope:New "ScrollingFrame" {
                 Name = "ChallengesFrame",
                 Size = UDim2.fromScale(1,1),
                 BackgroundTransparency = 1,
-
+                ScrollingDirection = Enum.ScrollingDirection.X,
+                AutomaticCanvasSize = Enum.AutomaticSize.XY,
+                ScrollingEnabled = true,
+            
                 [Children] = {
-                    scope:New "Frame" {
-                        Name = "TimerContainer",
-                        Size = UDim2.fromScale(1, 0.2),
-                        BackgroundTransparency = 1,
-              
-
-                        [Children] = {
-                            scope:New "UIListLayout" {
-                                FillDirection = Enum.FillDirection.Horizontal,
-                                SortOrder = Enum.SortOrder.LayoutOrder,
-                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                VerticalAlignment = Enum.VerticalAlignment.Center,
-                            },
-
-                            scope:New "UIPadding" {
-                                PaddingTop = UDim.new(0.2,0),
-                                PaddingBottom = UDim.new(0.2,0),
-                                PaddingLeft = UDim.new(0.2,0),
-                                PaddingRight = UDim.new(0.2,0),
-                            },
-
-                            scope:New "Frame" {
-                                Name = "Buffer",
-                                Size = UDim2.fromScale(0.2,1),
-                                BackgroundTransparency = 1,
-                                LayoutOrder = 0,
-                            },
-
-                            scope:New "ImageLabel"{
-                                Image = ImageUris.StopwatchIcon,
-                                Size = UDim2.fromScale(0.6, 0.6),
-                                LayoutOrder = 1,
-                                BackgroundTransparency = 1,
-                                                    
-                                [Children] = {
-                                    scope:New "UIAspectRatioConstraint" {
-                                        AspectRatio = 1,
-                                        DominantAxis = Enum.DominantAxis.Width,
-                                    }
-                                }
-                            },
-
-                            scope:New "TextLabel" {
-                                Name = "Timer",
-                                Text = TimeText,
-                                TextScaled = true,
-                                Size = UDim2.fromScale(0.3, 0.7),
-                                LayoutOrder = 2,
-                                BackgroundTransparency = 1,
-                                TextColor3 = Color3.fromRGB(92, 96, 214)
-                            },
-
-                            scope:New "Frame" {
-                                Name = "Buffer",
-                                Size = UDim2.fromScale(0.2,1),
-                                BackgroundTransparency = 1,
-                                LayoutOrder = 3,
-                            },
-                        }
-                    },            
+                    scope:New "UIListLayout" {
+                        FillDirection = Enum.FillDirection.Horizontal,
+                        HorizontalAlignment = Enum.HorizontalAlignment.Left,
+                        VerticalAlignment = Enum.VerticalAlignment.Center,
+                        Padding = UDim.new(0, 10),
+                        SortOrder = Enum.SortOrder.LayoutOrder
+                    },
                     
-                    scope:New "Frame" {
-                        Name = "ChallengeCardsFrame",
-                        Size = UDim2.fromScale(1, 0.9),
-                        BackgroundTransparency = 1,
-                        Position = UDim2.fromScale(0, 0.1),
-
-                        [Children] = {
-                            scope:New "UIListLayout" {
-                                FillDirection = Enum.FillDirection.Horizontal,
-                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                VerticalAlignment = Enum.VerticalAlignment.Center,
-                                Padding = UDim.new(0.01, 0),
-                                SortOrder = Enum.SortOrder.LayoutOrder
-                            },
-                            
-                            ChallengeCard(scope, {
-                                layoutOrder = 1,
-                                description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-                                progress = "4/5",
-                                reward = "357",
-                                onClaim = function()
-                                    print("Claimed challenge 1!")
+                    -- Dynamically create cards based on challenges
+                    scope:ForValues(challenges, function(use, scope, challenge)
+                        local def = challenge.definition
+                        local isCompleted = challenge.progress >= challenge.target
+                        local canClaim = isCompleted and not challenge.claimed
+                        
+                        return ChallengeCard(scope, {
+                            layoutOrder = index,
+                            description = def.description,
+                            progress = string.format("%d/%d", challenge.progress, challenge.target),
+                            reward = tostring(def.reward.exp),
+                            canClaim = canClaim,
+                            onClaim = function()
+                                if canClaim then
+                                    local success = ClaimChallengeReward:InvokeServer(challenge.id)
+                                    if success then
+                                        print("Claimed reward for:", challenge.id)
+                                        loadChallenges() -- Refresh
+                                    else
+                                        warn("Failed to claim reward")
+                                    end
                                 end
-                            }),
-
-                            ChallengeCard(scope, {
-                                layoutOrder = 2,
-                                description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-                                progress = "4/5",
-                                reward = "357",
-                                onClaim = function()
-                                    print("Claimed challenge 2!")
-                                end
-                            }),
-
-                            -- ChallengeCard(scope, {
-                            --     layoutOrder = 3,
-                            --     description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
-                            --     progress = "4/5",
-                            --     reward = "357",
-                            --     onClaim = function()
-                            --         print("Claimed challenge 3!")
-                            --     end
-                            -- }),
-                        }
-                    }
+                            end
+                        })
+                    end)
                 }
             }
         }

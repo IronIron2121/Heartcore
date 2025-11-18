@@ -44,26 +44,16 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
     Level.Name = "Level"
     Level.Value = profile.Data.Level or 1
 
-    local LevelName = Instance.new("StringValue", leaderstats)
-    LevelName.Name = "LevelName"
-    LevelName.Value = DataManager.GetLevelName(profile.Data.Level or 1)
-
-    local LoginStreak = Instance.new("IntValue", leaderstats)
-    LoginStreak.Name = "LoginStreak"
-    LoginStreak.Value = profile.Data.LoginStreak or 0
+    local Rank = Instance.new("StringValue", leaderstats)
+    Rank.Name = "Rank"
+    Rank.Value = profile.Data.Rank or DataManager.GetRank(Level.Value)
 
     local Flair = Instance.new("NumberValue", leaderstats)
     Flair.Name = "Flair" 
     Flair.Value = profile.Data.Flair or 1
 
-    -- Process login bonuses and streaks (this might update the values)
+    -- Process login bonuses and streaks
     DataManager.ProcessLogin(player)
-    
-    -- Update leaderstats after processing login (in case values changed)
-    Exp.Value = profile.Data.Exp
-    Level.Value = profile.Data.Level or 1
-    LevelName.Value = DataManager.GetLevelName(profile.Data.Level or 1)
-    LoginStreak.Value = profile.Data.LoginStreak or 0
 end
 
 local function XpHack(player)
@@ -115,7 +105,6 @@ local function PlayerRemoved(player: Player)
 
     profile:EndSession()
     DataManager.Profiles[player] = nil
-
 end
 
 for _, player in Players:GetPlayers() do

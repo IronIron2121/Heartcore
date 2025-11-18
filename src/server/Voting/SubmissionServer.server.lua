@@ -6,6 +6,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
+local DailyChallenges = ServerScriptService:WaitForChild("DailyChallenges")
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -28,6 +29,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
+local ChallengeManager = require(DailyChallenges:WaitForChild("ChallengeManager"))
 
 -- Instances
 local SubmissionPad = submissionZone:WaitForChild("SubmissionPad")
@@ -111,6 +113,7 @@ local function onOutfitSubmitted(player: Player)
 	if not success then return end
 
 	DataManager.AddExp(player, 1)
+	ChallengeManager.OnOutfitSubmitted(player)
 	DataManager.onOutfitSubmitted(player)
 end
 
