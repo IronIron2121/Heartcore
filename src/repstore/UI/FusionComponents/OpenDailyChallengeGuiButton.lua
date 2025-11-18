@@ -6,7 +6,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Folders
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
@@ -16,11 +15,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local OnEvent = Fusion.OnEvent
 type UsedAs<T> = Fusion.UsedAs<T>
 
--- Remotes / Bindables
-local PlayerTriggeredCatalogConsole = Bindables:WaitForChild("PlayerTriggeredCatalogConsole")
-
 -- Constants
--- local DEFAULT_TEXT_COLOUR = Color3.new(0.360784, 0.376471, 0.839216)
 local COLOUR_BLACK = Color3.new(0, 0, 0)
 local COLOUR_PURPLE = Color3.new(0.360784, 0.376471, 0.839216)
 local COLOUR_GREY = Color3.new(1, 1, 1)
@@ -30,19 +25,14 @@ local BG_FADE_SPEED = 20 -- spring speed units
 
 --
 
-local function OpenWardrobeButton(
+local function OpenDailyChallengeGuiButton(
 	scope: Fusion.Scope
 )
-	
 	local Toggled = scope:Value(false) 
 
 	local OnClick = function()
 		Toggled:set(not Fusion.peek(Toggled))
 	end
-
-	PlayerTriggeredCatalogConsole.Event:Connect(function()
-		Toggled:set(not Fusion.peek(Toggled))
-	end)
 	
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
@@ -55,11 +45,11 @@ local function OpenWardrobeButton(
 	end)
 	
 	return scope:New "TextButton" {
-		Name = "DailyChallengeGuiButton",
+		Name = "OutfitCatalogButton",
 		
 		LayoutOrder = 0,
-		Position = UDim2.fromScale(0.5, 0.95),
-		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.fromScale(1, 0.5),
+		AnchorPoint = Vector2.new(1, 0.5),
 		ZIndex = 0, 
 		Size = UDim2.fromScale(0.1,0.1),
 		AutomaticSize = Enum.AutomaticSize.X,
@@ -122,4 +112,4 @@ local function OpenWardrobeButton(
 		Toggled
 end
 
-return OpenWardrobeButton
+return OpenDailyChallengeGuiButton
