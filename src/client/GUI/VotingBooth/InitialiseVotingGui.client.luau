@@ -39,7 +39,7 @@ local TimeText = scope:Value("Loading...")
 -- 
 
 local function onVotePromptActivated()
-    if peek(VoteGuiVisible) == true then
+    if peek(VoteGuiVisible) == true then 
         VoteGuiVisible:set(false)
     else
         VoteGuiVisible:set(true)
@@ -59,6 +59,8 @@ local function initialiseVoteGui()
         ActionText = "Vote Here!",
 
         [OnEvent "Triggered"] = function()
+            warn("triggering!")
+            VoteGuiVisible:set(not peek(VoteGuiVisible))
 			--VotingClientManager.onVotePromptActivated()
         end
     }
@@ -66,10 +68,12 @@ local function initialiseVoteGui()
     task.spawn(function()
         while true do
             task.wait(1)
+            updateTimeText(TimeLabel.Text)
 			--VotingClientManager.updateTimeText(TimeLabel.Text)
         end
     end)
 
+    VotingGuiController.Initialise(VoteGuiVisible, TimeText)
 	--VotingClientManager.initialiseVotingGui()
 end 
 
