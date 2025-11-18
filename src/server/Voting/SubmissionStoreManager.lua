@@ -50,7 +50,7 @@ local SubmissionStoreManager = {}
 
 local function updateSubmissionThemeBillboard()
     local themeName = ThemeManager.getCurrentThemeName()
-    SubmissionThemeTextLabel.Text = "THEME: " .. themeName
+    SubmissionThemeTextLabel.Text = themeName
     print("Updating theme", SubmissionThemeTextLabel.Text, themeName)
     if themeName == "Loading..." then
         task.wait(REUPDATE_THEME_WAIT_TIME)
