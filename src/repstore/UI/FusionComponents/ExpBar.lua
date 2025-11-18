@@ -2,6 +2,8 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -9,6 +11,7 @@ local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 
 
 -- Modules
+local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 
@@ -39,7 +42,37 @@ function ExpBar(
 	}
 ): Frame 
 
+    -- Tween settings
+    local tweenInfo = TweenInfo.new(
+        0.5,                          -- Duration (seconds)
+        Enum.EasingStyle.Quad,        -- Easing style
+        Enum.EasingDirection.Out      -- Easing direction
+    )
 
+    local function updateExpBar()
+        local newScale = (exp.Value % 10) * 0.075
+        
+        -- Create a temporary value to tween
+        local currentScale = peek(expBarSize).X.Scale
+        local tweenValue = Instance.new("NumberValue")
+        tweenValue.Value = currentScale
+        
+        local tween = TweenService:Create(tweenValue, tweenInfo, {
+            Value = newScale
+        })
+        
+        -- Update the Fusion value as the tween progresses
+        tweenValue:GetPropertyChangedSignal("Value"):Connect(function()
+            expBarSize:set(UDim2.fromScale(tweenValue.Value, 0.15))
+        end)
+        
+        -- Clean up when done
+        tween.Completed:Connect(function()
+            tweenValue:Destroy()
+        end)
+        
+        tween:Play()
+    end 
 
 
     local frame = scope:New "Frame" {
