@@ -225,7 +225,7 @@ local function ChallengeCard(
                             scope:New "UIStroke" {
                                 ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
                                 Thickness = 3,
-                                Color = props.isClaimed and Color3.fromRGB(0,100,10) and  Color3.fromRGB(200, 120, 0)
+                                Color = props.isClaimed and Color3.fromRGB(0,100,10) or Color3.fromRGB(200, 120, 0)
                             }
                         }
                     }
