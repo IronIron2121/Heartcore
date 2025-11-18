@@ -10,6 +10,7 @@ local UI = ReplicatedStorage:WaitForChild("UI")
 local Objects = UI:WaitForChild("Objects")
 
 -- Modules
+local UI_CONSTANTS = require(ReplicatedStorage.Utility.UI_CONSTANTS)
 local ShopItemStoreCategories 	= require(DataTablesFolder:WaitForChild("ShopItemStoreCategories"))
 
 -- GUI Elements
@@ -35,6 +36,7 @@ function CategoryButton(category : string)
 	CategoryButton.AutoButtonColor = false
 	CategoryButton.Name = category
 	CategoryButton.Text = category
+	CategoryButton.FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Regular)
 	CategoryButton.TextColor3 = Color3.new(1, 1, 1)
 	CategoryButton:SetAttribute(SELECTED_ATTRIBUTE, false)
 	

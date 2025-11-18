@@ -19,6 +19,8 @@ local OutfitClientService = require(Utility:WaitForChild("OutfitClientService"))
 -- Fusion
 local peek = Fusion.peek
 local Children = Fusion.Children
+type UsedAs<T> = Fusion.UsedAs<T>
+
 
 -- GUI Components
 local RotateButton = require(script:WaitForChild("RotateButton"))
@@ -35,7 +37,22 @@ local CONFIG = {
 
 function AvatarViewport(
 	scope: Fusion.Scope,
-	model: Fusion.UsedAs<Model> -- Changed from Value<Model> to UsedAs<Model>
+	model: Fusion.UsedAs<Model>, -- Changed from Value<Model> to UsedAs<Model>,
+	props: {
+		size: UsedAs<UDim2>?,
+		position: UsedAs<UDim2>?,
+		anchorPoint: UsedAs<Vector2>?,
+		layoutOrder: UsedAs<number>?,
+		backgroundColor3: UsedAs<Color3>?,
+		backgroundTransparency: UsedAs<number>?,
+		visible: UsedAs<boolean>?,
+		name: UsedAs<string>?,
+		isSelected: UsedAs<boolean>?,
+		currentView: Fusion.Value<string>,
+		searchAssetCategories: Fusion.Value<{Enum.AvatarAssetType}>,
+		searchBundleCategories: Fusion.Value<{Enum.BundleType}>,
+		searchCallback: () -> ()
+	}
 ): ViewportFrame
 	-- Avatar manipulation variables
 	local pitch = scope:Value(0)
@@ -105,6 +122,13 @@ function AvatarViewport(
 				CornerRadius = UDim.new(0.05)
 			},
 
+			scope:New "UIPadding" {
+				PaddingTop = UDim.new(0.02,0),
+				PaddingBottom = UDim.new(0.02,0),
+				PaddingLeft = UDim.new(0.04,0),
+				PaddingRight = UDim.new(0.04,0),
+			},
+
 			Button(scope, {
 				name = "ResetButton",
 				text = "Reset Outfit",
@@ -115,6 +139,19 @@ function AvatarViewport(
 				
 				onActivated = function()
 					OutfitClientService.ResetPlayerOutfit(localPlayer)
+				end,
+			}),
+
+			Button(scope, {
+				name = "OutfitsButtonFrame",
+				text = "My Outfits",
+				size = UDim2.fromScale(0.3, 0.1), 
+				position = UDim2.fromScale(0,0),
+				anchorPoint = Vector2.new(0,0),
+				zIndex = 2,
+
+				onActivated = function()
+					props.currentView:set("Outfits")
 				end,
 			}),
 
@@ -133,7 +170,7 @@ function AvatarViewport(
 			}),
 			
 			Button(scope, {
-				text = "Save This Outfit",
+				text = "Save Outfit",
 				visible = true,
 				size = UDim2.fromScale(0.3, 0.1),
 				position = UDim2.fromScale(0,1),

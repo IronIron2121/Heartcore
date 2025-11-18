@@ -75,6 +75,7 @@ function CategoryButton(
 		Text = props.text,
 		TextColor3 = textColorSpring,
 		TextScaled = true,
+		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 		BackgroundColor3 = backgroundColorSpring,
 		BackgroundTransparency = backgroundTransparencySpring,
 		BorderSizePixel = 0,

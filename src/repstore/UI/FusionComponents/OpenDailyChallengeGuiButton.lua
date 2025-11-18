@@ -45,7 +45,7 @@ local function OpenDailyChallengeGuiButton(
 	end)
 	
 	return scope:New "TextButton" {
-		Name = "OutfitCatalogButton",
+		Name = "DailyChallengeButton",
 		
 		LayoutOrder = 0,
 		Position = UDim2.fromScale(1, 0.5),
@@ -84,7 +84,7 @@ local function OpenDailyChallengeGuiButton(
 		
 		[Fusion.Children] = {
 			scope:New "ImageLabel" {
-				Image = ImageUris.OutfitCatalogButton,
+				Image = ImageUris.DailyChallengeButton,
 				Size = UDim2.fromScale(1,1),
 				BackgroundTransparency = 1,
 				ImageColor3 = scope:Spring(

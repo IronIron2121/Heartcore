@@ -3,12 +3,15 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+
 -- Folders
-local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
-local Utility           = ReplicatedStorage:WaitForChild("Utility")
-local UI                = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents  = UI:WaitForChild("FusionComponents")
-local Widgets           = FusionComponents:WaitForChild("Widgets")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
+local DataTables = ReplicatedStorage:WaitForChild("DataTables")
+local UI = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents = UI:WaitForChild("FusionComponents")
+local Widgets = FusionComponents:WaitForChild("Widgets")
+local ImageUris = require(DataTables:WaitForChild("ImageUris"))
+
 
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -17,17 +20,35 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
 local ChallengeCard = require(Widgets:WaitForChild("ChallengeCard"))
 
--- Fusion
-local Fusion    = require(Utility:WaitForChild("Fusion"))
-local Children  = Fusion.Children
-local peek      = Fusion.peek
-type UsedAs<T>  = Fusion.UsedAs<T>
-type Value<T>   = Fusion.Value<T>
+--Instances
+local centralPond = workspace:WaitForChild("centralPond")
+local pondModel = centralPond:WaitForChild("centralPond")
+local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
+local BillboardGui = SubmissionBillboardHolder:WaitForChild("BillboardGui")
+local Frame = BillboardGui:WaitForChild("Frame")
+local TimeLabel = Frame:WaitForChild("TimeLabel")
 
--- RemoteEvents
-local UpdateChallengeProgress = Remotes:WaitForChild("UpdateChallengeProgress")
-local ClaimChallengeReward = Remotes:WaitForChild("ClaimChallengeReward")
-local GetActiveChallenges = Remotes:WaitForChild("GetActiveChallenges")
+-- Fusion
+local Fusion = require(Utility:WaitForChild("Fusion"))
+local scope = Fusion:scoped()
+
+type UsedAs<T> = Fusion.UsedAs<T>
+local Children = Fusion.Children
+type Value<T> = Fusion.Value<T>
+
+local TimeText = scope:Value("Loading...")
+
+
+local function updateTimeText(newText: string)
+    TimeText:set(newText)
+end
+
+task.spawn(function()
+        while true do
+            task.wait(1)
+            updateTimeText(TimeLabel.Text)
+        end
+    end)
 
 local function DailyChallengeFrame(
     scope: Fusion.Scope,
@@ -80,12 +101,13 @@ local function DailyChallengeFrame(
 
             scope:New "TextLabel" {
                 Name = "ChallengesLabel",
-                Size = UDim2.fromScale(0.25, 0.1),
+                Size = UDim2.fromScale(0.3, 0.1),
                 AnchorPoint = Vector2.new(0.5,0.5),
                 Position = UDim2.fromScale(0.5, 0),
                 BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
                 BackgroundTransparency = 0,
-                Text = "DAILY CHALLENGES",
+                Text = "DAILY MISSIONS",
+                TextScaled = true,
                 TextSize = 20,
                 TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
                 FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
@@ -100,6 +122,13 @@ local function DailyChallengeFrame(
                         Thickness = 3,
                         Color = UI_CONSTANTS.COLOUR_WHITE
                     },
+
+                    scope:New "UIPadding" {
+                        PaddingTop = UDim.new(0.02,0),
+                        PaddingBottom = UDim.new(0.02,0),
+                        PaddingLeft = UDim.new(0.05,0),
+                        PaddingRight = UDim.new(0.05,0),
+                    }
                 }
             },
 
@@ -109,7 +138,7 @@ local function DailyChallengeFrame(
 
             scope:New "ScrollingFrame" {
                 Name = "ChallengesFrame",
-                Size = UDim2.fromScale(1, 1),
+                Size = UDim2.fromScale(1,1),
                 BackgroundTransparency = 1,
                 ScrollingDirection = Enum.ScrollingDirection.X,
                 AutomaticCanvasSize = Enum.AutomaticSize.XY,

@@ -12,7 +12,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
-local centralPond = workspace:WaitForChild("centralPond")
+local submissionZone = workspace:WaitForChild("submissionZone")
 local Data = ServerScriptService:WaitForChild("Data")
 
 -- Remotes
@@ -32,7 +32,7 @@ local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local ChallengeManager = require(DailyChallenges:WaitForChild("ChallengeManager"))
 
 -- Instances
-local SubmissionPad = centralPond:WaitForChild("SubmissionPad") 
+local SubmissionPad = submissionZone:WaitForChild("SubmissionPad")
 
 -- Fusion
 local scope = Fusion:scoped()
