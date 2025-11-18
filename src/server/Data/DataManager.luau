@@ -47,7 +47,7 @@ local function getExpRequiredForLevel(level: number): number
 end
 
 -- Get level name
-function DataManager.GetLevelName(level: number): string
+function DataManager.GetRank(level: number): string
     return LEVEL_NAMES[level] or "Unknown Level"
 end
 
@@ -63,31 +63,23 @@ function DataManager.AddExp(player: Player, amount: number)
     
     -- Check for level up
     local newLevel = calculateLevel(profile.Data.Exp)
+    local newRank = DataManager.GetRank(newLevel)
+
     if newLevel > oldLevel then
         profile.Data.Level = newLevel
+        profile.Data.Rank = newRank
         profile.Data.LevelUpTime = DateTime.now().UnixTimestamp
         
-        print(player.Name, "leveled up to level", newLevel, "(" .. DataManager.GetLevelName(newLevel) .. ")!")
+        print(player.Name, "leveled up to level", newLevel, "(" .. DataManager.GetRank(newLevel) .. ")!")
         
         -- Update leaderstats if they exist
         if player:FindFirstChild("leaderstats") then
             if player.leaderstats:FindFirstChild("Level") then
                 player.leaderstats.Level.Value = newLevel
             end
-        end
-    else
-        profile.Data.Level = newLevel
-        profile.Data.LevelUpTime = DateTime.now().UnixTimestamp
-        
-        print(player.Name, "down-levelled to", newLevel, "(" .. DataManager.GetLevelName(newLevel) .. ")!")
-        
-        -- Update leaderstats
-        if player:FindFirstChild("leaderstats") then
-            if player.leaderstats:FindFirstChild("Level") then
-                player.leaderstats.Level.Value = newLevel
-            end
-            if player.leaderstats:FindFirstChild("LevelName") then
-                player.leaderstats.LevelName.Value = DataManager.GetLevelName(newLevel)
+            if player.leaderstats:FindFirstChild("Rank") then
+                warn("Updating rank!")
+                player.leaderstats.Rank.Value = newRank
             end
         end
     end

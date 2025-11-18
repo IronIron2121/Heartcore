@@ -44,15 +44,16 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
     Level.Name = "Level"
     Level.Value = profile.Data.Level or 1
 
+    local Rank = Instance.new("StringValue", leaderstats)
+    Rank.Name = "Rank"
+    Rank.Value = profile.Data.Rank or "Fashion Newbie"
+
     local Flair = Instance.new("NumberValue", leaderstats)
     Flair.Name = "Flair" 
     Flair.Value = profile.Data.Flair or 1
 
     -- Process login bonuses and streaks
     DataManager.ProcessLogin(player)
-
-    -- Sync player data
-    --ReplicatedStorage
 end
 
 local function XpHack(player)
@@ -104,7 +105,6 @@ local function PlayerRemoved(player: Player)
 
     profile:EndSession()
     DataManager.Profiles[player] = nil
-
 end
 
 for _, player in Players:GetPlayers() do
