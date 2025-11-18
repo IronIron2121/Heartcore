@@ -60,8 +60,7 @@ local function initialiseVoteGui()
 
         [OnEvent "Triggered"] = function()
             warn("triggering!")
-            VoteGuiVisible:set(not peek(VoteGuiVisible))
-			--VotingClientManager.onVotePromptActivated()
+            onVotePromptActivated()
         end
     }
 
