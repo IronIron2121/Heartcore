@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService") 
 
 
+
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
@@ -19,7 +20,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local localPlayer = Players.LocalPlayer
 local PlayerGui = localPlayer.PlayerGui
 
--- Fusion Modules
+
 local scope = Fusion:scoped()
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
@@ -115,6 +116,7 @@ local function initialiseGUI()
 		TextYAlignment = "Top",
         ZIndex = 2
 	}
+	
 	
 	
 	local _hudTopBar = scope:New "Frame" {
