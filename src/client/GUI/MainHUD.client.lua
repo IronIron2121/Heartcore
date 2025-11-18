@@ -11,7 +11,7 @@ local Remotes 		= ReplicatedStorage:WaitForChild("Remotes")
 local Utility		= ReplicatedStorage:WaitForChild("Utility")
 local Trackers		= ReplicatedStorage:WaitForChild("Trackers")
 
-local VotingClientManager = require(Utility:WaitForChild("VotingClientManager"))
+--local VotingClientManager = require(Utility:WaitForChild("VotingClientManager"))
 
 
 -- Module Scripts
