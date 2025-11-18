@@ -1,5 +1,6 @@
 --!strict
 
+--[[
 -- Services
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -85,9 +86,9 @@ VotingClientManager.VoteGuiVisible:onChange(function(isVisible: boolean)
 	end
 end)
 
-
 -- Initialize Voting GUI controller
 VotingClientManager.initialiseVotingGui()
 
 -- Start visible
 showButton(true)
+]]

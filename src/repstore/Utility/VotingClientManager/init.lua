@@ -1,5 +1,5 @@
 --!strict
-
+--[[
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -41,7 +41,8 @@ end
 return {
 	onVotePromptActivated = onVotePromptActivated,
 	updateTimeText = updateTimeText,
-	initialiseVotingGui = initialiseVotingGui,
+	--initialiseVotingGui = initialiseVotingGui,
 	VoteGuiVisible = VoteGuiVisible,
 	TimeText = TimeText,
 }
+]]

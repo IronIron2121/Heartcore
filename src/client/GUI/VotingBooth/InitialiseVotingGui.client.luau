@@ -73,7 +73,4 @@ local function initialiseVoteGui()
 	VotingClientManager.initialiseVotingGui()
 end 
 
-
-
 initialiseVoteGui()
-
