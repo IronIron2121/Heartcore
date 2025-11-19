@@ -5,8 +5,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService") 
 
-
-
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
@@ -20,7 +18,6 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local localPlayer = Players.LocalPlayer
 local PlayerGui = localPlayer.PlayerGui
 
-
 local scope = Fusion:scoped()
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
@@ -29,20 +26,18 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local ExpBar = require(FusionComponents:WaitForChild("ExpBar"))
 
 local leaderstats = localPlayer:WaitForChild("leaderstats")
-local level = leaderstats:WaitForChild("Level")
+local Level = leaderstats:WaitForChild("Level")
 local Rank = leaderstats:WaitForChild("Rank")
 
-local rankText = Fusion.Value(scope, Rank.Value)
+local rankText = scope:Value("(Lv. " .. Level.Value .. ") " .. Rank.Value)
 
 --Anim function
 local function animateRank(label)
-	
 	-- Store original properties
 	local originalSize = label.Size
 	local originalPosition = label.Position
-
 	
--- Size anim
+	-- Size anim
 	local popScale = 3 
 	local popSize = UDim2.new(
 		originalSize.X.Scale * popScale, originalSize.X.Offset,
@@ -91,8 +86,6 @@ local function animateRank(label)
 	-- Always reset to the original position to stop the shake
 	label.Position = originalPosition
 end
-	
-
 
 local function initialiseGUI()
 	local screenGUI = scope:New "ScreenGui" {
@@ -116,8 +109,6 @@ local function initialiseGUI()
 		TextYAlignment = "Top",
         ZIndex = 2
 	}
-	
-	
 	
 	local _hudTopBar = scope:New "Frame" {
 		Size = UDim2.fromScale(1,0.2),
@@ -157,12 +148,15 @@ local function initialiseGUI()
 		}
 	}
 	
-	Rank:GetPropertyChangedSignal("Value"):Connect(function()
-		rankText:set(Rank.Value .. " (Lv. " .. level.Value .. ")")
+	Level:GetPropertyChangedSignal("Value"):Connect(function() 
+		if Level.Value % 10 == 0 then
+			rankText:set("(Lv. " .. Level.Value .. ") " .. Rank.Value)
+			task.spawn(animateRank, playerRankLabel)
+		else
+			rankText:set("(Lv. " .. Level.Value .. ") " .. Rank.Value)
+		end
 
-		task.spawn(animateRank, playerRankLabel)
 	end)
-	
 end
 
 initialiseGUI()
