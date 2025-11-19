@@ -125,18 +125,10 @@ function ChallengeManager.ClaimReward(player: Player, challengeId: string): bool
         DataManager.AddExp(player, definition.reward.exp)
     end
     
-    -- Award currency (if you have a currency system)
     if definition.reward.currency then
         -- DataManager.AddCurrency(player, definition.reward.currency)
         -- TODO: Implement currency system
     end
-    
-    print(string.format(
-        "%s claimed %s: +%d exp",
-        player.Name,
-        challengeId,
-        definition.reward.exp or 0
-    ))
     
     return true
 end
