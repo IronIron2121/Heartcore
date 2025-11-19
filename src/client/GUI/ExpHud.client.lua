@@ -29,7 +29,7 @@ local leaderstats = localPlayer:WaitForChild("leaderstats")
 local level = leaderstats:WaitForChild("Level")
 local Rank = leaderstats:WaitForChild("Rank")
 
-local rankText = scope:Value(Rank.Value .. " (Lv. " .. level.Value .. ")")
+local rankText = scope:Value("(Lv. " .. level.Value .. ") " .. Rank.Value)
 
 --Anim function
 local function animateRank(label)
@@ -150,7 +150,7 @@ local function initialiseGUI()
 	}
 	
 	Rank:GetPropertyChangedSignal("Value"):Connect(function()
-		rankText:set(Rank.Value .. " (Lv. " .. level.Value .. ")")
+		rankText:set("(Lv. " .. level.Value .. ") " .. Rank.Value)
 		task.spawn(animateRank, playerRankLabel)
 	end)
 	
