@@ -2,6 +2,7 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -22,17 +23,28 @@ local prompt = PromptHolder:WaitForChild("SubmissionPrompt") :: ProximityPrompt
 
 --
 
+local function enableSubmitButton()
+    prompt.Enabled = true
+    PromptHolder.Color = Color3.fromRGB(190, 190, 192)
+
+end
+
+local function disableSubmitButton()
+        prompt.Enabled = false
+        PromptHolder.Color = Color3.fromRGB(100,100,100)
+end
+
+
 local function updateSubmitButton()
     warn("Updating submit button...")
     local canPlayerSubmit = SubmissionResultRF:InvokeServer()
     if canPlayerSubmit then
         warn("Player can submit!", canPlayerSubmit)
-        prompt.Enabled = true
-        PromptHolder.Color = Color3.fromRGB(190, 190, 192)
+        enableSubmitButton()
     else 
         warn("Player cannot submit!", canPlayerSubmit)
-        prompt.Enabled = false
-        PromptHolder.Color = Color3.fromRGB(100,100,100)
+        disableSubmitButton()
+
     end 
 end
 
@@ -53,13 +65,22 @@ local function onSubmissionResult(
 
     if result.ok then
         warn("Player submitted successfully!")
-        prompt.Enabled = false
-        PromptHolder.Color = Color3.fromRGB(100,100,100)
+        disableSubmitButton()
+        StarterGui:SetCore("SendNotification",{
+            Title = "Outfit Submission Success!", -- Required
+            Text = "", -- Required
+            Icon = "rbxassetid://1234567890" -- Optional
+        })
     else 
-        warn("Player failed to submit!")
-        prompt.Enabled = true
-        PromptHolder.Color = Color3.fromRGB(190, 190, 192)
-    end 
+        enableSubmitButton()
+        StarterGui:SetCore("SendNotification",{
+            Title = "Outfit Submission Failed", -- Required
+            Text = result.msg, -- Required
+            Icon = "rbxassetid://1234567890" -- Optional
+        })
+    end
+
+
     --updateSubmitButton()
 end
 

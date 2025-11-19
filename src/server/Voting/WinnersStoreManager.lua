@@ -132,8 +132,7 @@ end
 function WinnersStoreManager.updateTopTwentyLeaderboard()
     local topTwenty = WinnersStoreManager.getCurrentTopTwenty()
     if not topTwenty then 
-        WinnersStoreManager.resetTopTwentyLeaderboard() 
-        return 
+        return false
     end
 
     local lengthOfList = #topTwenty
@@ -169,6 +168,8 @@ function WinnersStoreManager.updateTopTwentyLeaderboard()
         newLabel.TextSize = 75
         newLabel.Font = Enum.Font.GothamBold
     end
+
+    return true
 end
 
 function WinnersStoreManager.updateWinnersPodiums()
@@ -422,7 +423,6 @@ function WinnersStoreManager.setNewWinners()
     
     if not success or not twentySuccess then
         warn("Failed to set new winners or top twenty in MemoryStore")
-        WinnersStoreManager.resetWinners()
         return false
     end
     
@@ -450,7 +450,6 @@ function WinnersStoreManager.setNewWinners()
     -- If any display update failed, reset everything
     if not podiumSuccess or not leaderboardSuccess or not themeSuccess then
         warn("Critical failure updating winners displays - resetting")
-        WinnersStoreManager.resetWinners()
         return false
     end
     

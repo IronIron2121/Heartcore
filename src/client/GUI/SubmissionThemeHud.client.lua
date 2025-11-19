@@ -29,12 +29,6 @@ local Frame = BillboardGui:WaitForChild("Frame")
 local TimeLabel = Frame:WaitForChild("TimeLabel")
 local ThemeLabel = Frame:WaitForChild("ThemeLabel") 
 
-
---Remotes/Bindables
-local PlayerRequestedCurrentTheme = Remotes:WaitForChild("PlayerRequestedVotingTheme")
-
-
-
 -- Fusion Modules
 local scope = Fusion:scoped()
 local Children = Fusion.Children
@@ -55,11 +49,11 @@ local function updateTimeText(newText: string)
 end
 
 task.spawn(function()
-        while true do
-            task.wait(1)
-            updateTimeText(TimeLabel.Text)
-        end
-    end)
+    while true do
+        task.wait(1)
+        updateTimeText(TimeLabel.Text)
+    end
+end)
 
 local function initialiseGUI()
 	local screenGUI = scope:New "ScreenGui" {
@@ -82,6 +76,7 @@ local function initialiseGUI()
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
                 VerticalAlignment = Enum.VerticalAlignment.Center,
             },
+            
             scope:New "TextLabel" {
                 Name = "ThemeText",
                 FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
