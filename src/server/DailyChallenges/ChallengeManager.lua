@@ -175,14 +175,7 @@ function ChallengeManager.OnOutfitVoted(player: Player)
     ChallengeManager.UpdateProgress(player, "VOTE_OUTFIT", 1)
 end
 
-function ChallengeManager.OnOutfitViewed(player: Player, amount: number?)
-    ChallengeManager.UpdateProgress(player, "VIEW_OUTFITS", amount or 1)
-end
-
-function ChallengeManager.OnVotesReceived(player: Player, amount: number)
-    ChallengeManager.UpdateProgress(player, "WIN_VOTES", amount)
-end
-
+--[[
 function ChallengeManager.OnLoginStreakUpdated(player: Player, streakCount: number)
     -- Check if player reached any streak milestones
     local profile = DataManager.Profiles[player]
@@ -198,5 +191,6 @@ function ChallengeManager.OnLoginStreakUpdated(player: Player, streakCount: numb
         end
     end
 end
+]]
 
 return ChallengeManager
