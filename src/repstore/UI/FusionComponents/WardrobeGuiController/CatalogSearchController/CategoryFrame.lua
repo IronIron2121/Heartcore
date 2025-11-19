@@ -85,48 +85,10 @@ function CategoryFrame(
 				CornerRadius = UDim.new(0.05, 0)
 			},
 			
-			-- Button to open outfits view
-			scope:New "Frame" {
-				Name = "OutfitsButtonFrame",
-				LayoutOrder = 2,
-				BackgroundTransparency = 1,
-				Size = UDim2.fromScale(0.8, 0.1),
-				
-				[Children] = {
-					BaseButton(scope, {
-						name = "MyOutfits",
-						text = "My Outfits",
-						textScaled = true,
-						size = UDim2.fromScale(1, 1),
-						backgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-						strokeColor = Color3.new(1,1,1),
-						strokeThickness = 2,
-						textColor = Color3.new(1,1,1),
-
-						onActivated = function()
-							props.currentView:set("Outfits")
-						end,
-						
-						[Children] = {
-							scope:New "UICorner" {
-								CornerRadius = UDim.new(0.05, 0)
-							},
-							scope:New "UIStroke" {
-								ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-								Color = Color3.new(1, 1, 1),
-								Thickness = 1,
-							}
-						}
-					}
-				)
-					
-				}
-			},
-			
 			-- Inner scrolling frame
 			scope:New "ScrollingFrame" {
 				Name = "CategoryScrollFrame",
-				Size = UDim2.fromScale(0.9, 0.8),
+				Size = UDim2.fromScale(0.9, 0.95),
 				Position = UDim2.fromScale(0, 0),
 				BackgroundTransparency = 1,
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
