@@ -102,7 +102,10 @@ local function onOutfitSubmitted(player: Player)
 	local humanoidDescription = getHumanoidDescriptionFromPlayer(player)
 	if not humanoidDescription then
 		warn("No Humanoid Description when submitting for player", player.Name)
-		SubmissionResultRE:FireClient(player, {ok=false, msg = "humanoidDescription not loaded"})
+		SubmissionResultRE:FireClient(player, {
+			ok=false, 
+			msg = "humanoidDescription not loaded"}
+		)
 		return
 	end
 
@@ -126,14 +129,7 @@ local prompt = scope:New "ProximityPrompt" {
 	RequiresLineOfSight = false,
 	MaxActivationDistance = 16,
 	[OnEvent "Triggered"] = function(player)
-		if peek(isSubmitting) then
-			warn("Submitting now!")
-			return
-		end
-		warn("submitting on prompt hit!!")
-		isSubmitting:set(true)
 		onOutfitSubmitted(player)
-		isSubmitting:set(false)
 	end
 }
 

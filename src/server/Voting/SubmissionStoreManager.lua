@@ -490,7 +490,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         SubmissionStoreManager:AddEntryToCache(player, serialisedHumanoidDescription)
         SubmissionResultRE:FireClient(player, {
             ok = false,
-            msg = "Outfit failed to submit! 2"
+            msg = "Outfit failed to submit! Roll-over in progress"
         })
         return false
     end
@@ -500,7 +500,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         warn("Failed to get submissions memory store") 
         SubmissionResultRE:FireClient(player, {
             ok = false,
-            msg = "Server error. Please try again."
+            msg = "Failed to submit outfit due to server error. Please try again later."
         })
         return false
     end
@@ -523,7 +523,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         print("Successfully submitted outfit for player:", player.Name)
         SubmissionResultRE:FireClient(player, {
             ok = true,
-            msg = "Outfit submitted successfully! 2"
+            msg = "Outfit submitted successfully!"
         })
         
         -- Check if we need to rollover to a new store
@@ -537,7 +537,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         warn("Failed to submit outfit for player:", player.Name)
         SubmissionResultRE:FireClient(player, {
             ok = false,
-            msg = "Failed to submit outfit. Please try again."
+            msg = "Failed to submit outfit due to server error. Please try again later."
         })
         return false
     end

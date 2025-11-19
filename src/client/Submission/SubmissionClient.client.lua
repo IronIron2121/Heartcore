@@ -2,6 +2,7 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -65,10 +66,21 @@ local function onSubmissionResult(
     if result.ok then
         warn("Player submitted successfully!")
         disableSubmitButton()
+        StarterGui:SetCore("SendNotification",{
+            Title = "Outfit Submission Success!", -- Required
+            Text = "", -- Required
+            Icon = "rbxassetid://1234567890" -- Optional
+        })
     else 
-        warn("Player failed to submit!")
         enableSubmitButton()
+        StarterGui:SetCore("SendNotification",{
+            Title = "Outfit Submission Failed", -- Required
+            Text = result.msg, -- Required
+            Icon = "rbxassetid://1234567890" -- Optional
+        })
     end
+
+
     --updateSubmitButton()
 end
 
