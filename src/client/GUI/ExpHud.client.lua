@@ -26,17 +26,16 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local ExpBar = require(FusionComponents:WaitForChild("ExpBar"))
 
 local leaderstats = localPlayer:WaitForChild("leaderstats")
-local level = leaderstats:WaitForChild("Level")
+local Level = leaderstats:WaitForChild("Level")
 local Rank = leaderstats:WaitForChild("Rank")
 
-local rankText = scope:Value("(Lv. " .. level.Value .. ") " .. Rank.Value)
+local rankText = scope:Value("(Lv. " .. Level.Value .. ") " .. Rank.Value)
 
 --Anim function
 local function animateRank(label)
 	-- Store original properties
 	local originalSize = label.Size
 	local originalPosition = label.Position
-
 	
 	-- Size anim
 	local popScale = 3 
@@ -149,11 +148,15 @@ local function initialiseGUI()
 		}
 	}
 	
-	Rank:GetPropertyChangedSignal("Value"):Connect(function()
-		rankText:set("(Lv. " .. level.Value .. ") " .. Rank.Value)
-		task.spawn(animateRank, playerRankLabel)
+	Level:GetPropertyChangedSignal("Value"):Connect(function() 
+		if Level.Value % 10 == 0 then
+			rankText:set("(Lv. " .. Level.Value .. ") " .. Rank.Value)
+			task.spawn(animateRank, playerRankLabel)
+		else
+			rankText:set("(Lv. " .. Level.Value .. ") " .. Rank.Value)
+		end
+
 	end)
-	
 end
 
 initialiseGUI()

@@ -45,6 +45,7 @@ local function calculateRank(level: number): number
     return math.max(1, math.min(rank, 10)) -- Clamp between 1-10
 end
 
+
 -- Get the XP required for a specific level
 local function getExpRequiredForLevel(level: number): number
     return level * 10
