@@ -7,8 +7,8 @@ local Players = game:GetService("Players")
 
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
@@ -20,7 +20,6 @@ local OutfitClientService = require(Utility:WaitForChild("OutfitClientService"))
 local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
-
 
 -- GUI Components
 local RotateButton = require(script:WaitForChild("RotateButton"))
@@ -37,21 +36,9 @@ local CONFIG = {
 
 function AvatarViewport(
 	scope: Fusion.Scope,
-	model: Fusion.UsedAs<Model>, -- Changed from Value<Model> to UsedAs<Model>,
 	props: {
-		size: UsedAs<UDim2>?,
-		position: UsedAs<UDim2>?,
-		anchorPoint: UsedAs<Vector2>?,
-		layoutOrder: UsedAs<number>?,
-		backgroundColor3: UsedAs<Color3>?,
-		backgroundTransparency: UsedAs<number>?,
-		visible: UsedAs<boolean>?,
-		name: UsedAs<string>?,
-		isSelected: UsedAs<boolean>?,
+		model: Fusion.UsedAs<Model>,
 		currentView: Fusion.Value<string>,
-		searchAssetCategories: Fusion.Value<{Enum.AvatarAssetType}>,
-		searchBundleCategories: Fusion.Value<{Enum.BundleType}>,
-		searchCallback: () -> ()
 	}
 ): ViewportFrame
 	-- Avatar manipulation variables
@@ -66,12 +53,12 @@ function AvatarViewport(
 	end)
 
 	local baseCFrame = scope:Computed(function(use)
-		local currentModel = use(model)
+		local currentModel = use(props.model)
 		return currentModel and currentModel:GetPivot() or CFrame.new()
 	end)
 
 	scope:Observer(pitchAndYaw):onChange(function()
-		local currentModel = peek(model)
+		local currentModel = peek(props.model)
 		local basePos = peek(baseCFrame)
 		if not currentModel or not basePos then return end
 
@@ -111,12 +98,10 @@ function AvatarViewport(
 				Name = "WorldModel",
 
 				[Children] = scope:Computed(function(use)
-					local currentModel = use(model) -- Use 'use' instead of peek to make it reactive
+					local currentModel = use(props.model) -- Use 'use' instead of peek to make it reactive
 					return currentModel and {currentModel} or {}
 				end)	
 			},
-
-	
 
 			scope:New "UICorner" {
 				CornerRadius = UDim.new(0.05)
@@ -199,7 +184,7 @@ function AvatarViewport(
 
 	-- Camera update function
 	local function updateCameraPosition()
-		local currentModel = peek(model)
+		local currentModel = peek(props.model)
 		local camera = peek(viewportCamera)
 		if not currentModel or not camera then return end
 
@@ -216,7 +201,7 @@ function AvatarViewport(
 	end
 
 	-- Update camera when model changes
-	scope:Observer(model):onChange(updateCameraPosition)
+	scope:Observer(props.model):onChange(updateCameraPosition)
 	-- Update camera when zoom changes
 	scope:Observer(zoomSpring):onChange(updateCameraPosition)
 	-- Set up initial camera position

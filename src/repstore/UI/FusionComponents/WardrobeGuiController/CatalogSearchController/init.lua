@@ -11,13 +11,14 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
+local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiController")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
-local WardrobeGuiState = require(script.Parent:WaitForChild("WardrobeGuiState"))
+local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGuiState"))
 local FusionItemTile = require(Widgets:WaitForChild("FusionItemTile"))
 
 -- Fusion Components
