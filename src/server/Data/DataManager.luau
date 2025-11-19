@@ -1,18 +1,18 @@
 local DataManager = {}
 DataManager.Profiles = {}
 
--- Level system configuration (levels 1-10, requiring 10, 20, 30... 100 XP)
-local LEVEL_NAMES = {
-    [1] = "Fashion Newbie",
-    [2] = "Style Seeker", 
-    [3] = "Trend Spotter",
-    [4] = "Wardrobe Walker",
-    [5] = "Outfit Observer",
-    [6] = "Pattern Player",
-    [7] = "Color Coordinator",
-    [8] = "Fabric Finder",
-    [9] = "Design Dabbler",
-    [10] = "Style Master",
+-- Rank system configuration (ranks change every 10 levels)
+local RANK_NAMES = {
+    [1] = "Fashion Newbie",    -- Levels 1-10
+    [2] = "Style Apprentice",  -- Levels 11-20
+    [3] = "Trend Setter",      -- Levels 21-30
+    [4] = "Fashion Expert",    -- Levels 31-40
+    [5] = "Style Icon",        -- Levels 41-50
+    [6] = "Fashion Legend",    -- Levels 51-60
+    [7] = "Couture Master",    -- Levels 61-70
+    [8] = "Runway Elite",      -- Levels 71-80
+    [9] = "Fashion Virtuoso",  -- Levels 81-90
+    [10] = "Style God",        -- Levels 91-100
 }
 
 -- Helper function to get the start of a day (midnight UTC) for a given timestamp
@@ -32,13 +32,17 @@ end
 
 -- Calculate what level a player should be based on their XP
 local function calculateLevel(exp: number): number
-    for level = 10, 1, -1 do -- Check from level 10 down to 1
-        local requiredExp = level * 10
-        if exp >= requiredExp then
-            return level
-        end
-    end
-    return 1 -- Default to level 1
+    -- Each level requires 10 XP (level 1 = 10 XP, level 2 = 20 XP, etc.)
+    local level = math.floor(exp / 10)
+    return math.max(1, level) -- Minimum level 1
+end
+
+-- Calculate what rank tier a player is in based on their level (1-10)
+local function calculateRank(level: number): number
+    -- Rank changes every 10 levels
+    -- Level 1-9 = Rank 1, Level 10-19 = Rank 2, Level 20-29 = Rank 3, etc.
+    local rank = math.floor(level / 10) + 1
+    return math.max(1, math.min(rank, 10)) -- Clamp between 1-10
 end
 
 -- Get the XP required for a specific level
@@ -46,9 +50,9 @@ local function getExpRequiredForLevel(level: number): number
     return level * 10
 end
 
--- Get level name
-function DataManager.GetRank(level: number): string
-    return LEVEL_NAMES[level] or "Unknown Level"
+-- Get rank name
+function DataManager.GetRank(rank: number): string
+    return RANK_NAMES[rank] or "Unknown Rank"
 end
 
 function DataManager.AddExp(player: Player, amount: number)
@@ -59,28 +63,37 @@ function DataManager.AddExp(player: Player, amount: number)
     end
 
     local oldLevel = profile.Data.Level
+    local oldRankName = profile.Data.Rank or RANK_NAMES[1] -- Rank is stored as string
+    
     profile.Data.Exp += amount
     
     -- Check for level up
     local newLevel = calculateLevel(profile.Data.Exp)
-    local newRank = DataManager.GetRank(newLevel)
+    local newRankTier = calculateRank(newLevel)
+    local newRankName = DataManager.GetRank(newRankTier)
 
+    -- Handle level up
     if newLevel > oldLevel then
         profile.Data.Level = newLevel
-        profile.Data.Rank = newRank
         profile.Data.LevelUpTime = DateTime.now().UnixTimestamp
         
-        print(player.Name, "leveled up to level", newLevel, "(" .. DataManager.GetRank(newLevel) .. ")!")
+        print(player.Name, "leveled up to level", newLevel)
         
-        -- Update leaderstats if they exist
-        if player:FindFirstChild("leaderstats") then
-            if player.leaderstats:FindFirstChild("Level") then
-                player.leaderstats.Level.Value = newLevel
-            end
-            if player.leaderstats:FindFirstChild("Rank") then
-                warn("Updating rank!")
-                player.leaderstats.Rank.Value = newRank
-            end
+        -- Update level leaderstat
+        if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level") then
+            player.leaderstats.Level.Value = newLevel
+        end
+    end
+    
+    -- Handle rank up (separate from level up)
+    if newRankName ~= oldRankName then
+        profile.Data.Rank = newRankName -- Store as string
+        
+        print(player.Name, "ranked up to", newRankName, "(Rank", newRankTier .. ")!")
+        
+        -- Update rank leaderstat
+        if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Rank") then
+            player.leaderstats.Rank.Value = newRankName
         end
     end
     
@@ -98,10 +111,22 @@ function DataManager.ResetPlayerLevel(player: Player)
     end
 
     profile.Data.Exp = 0
+    profile.Data.Level = 1
+    profile.Data.Rank = RANK_NAMES[1] -- Store as string
     
-    DataManager.AddExp(player, 1)
+    -- Update leaderstats
+    if player:FindFirstChild("leaderstats") then
+        if player.leaderstats:FindFirstChild("Level") then
+            player.leaderstats.Level.Value = 1
+        end
+        if player.leaderstats:FindFirstChild("Rank") then
+            player.leaderstats.Rank.Value = RANK_NAMES[1]
+        end
+        if player.leaderstats:FindFirstChild("Exp") then
+            player.leaderstats.Exp.Value = 0
+        end
+    end
 end
-
 
 function DataManager.ProcessLogin(player: Player)
     local profile = DataManager.Profiles[player]
@@ -226,6 +251,19 @@ function DataManager.GetLevel(player: Player): number
     return profile.Data.Level or 1
 end
 
+function DataManager.GetRankTier(player: Player): number
+    local level = DataManager.GetLevel(player)
+    return calculateRank(level)
+end
+
+function DataManager.GetRankName(player: Player): string
+    local profile = DataManager.Profiles[player]
+    if not profile then
+        return RANK_NAMES[1] -- Default to first rank
+    end
+    return profile.Data.Rank or RANK_NAMES[1]
+end
+
 function DataManager.GetLevelUpTime(player: Player): number
     local profile = DataManager.Profiles[player]
     if not profile then
@@ -236,9 +274,6 @@ end
 
 function DataManager.GetExpForNextLevel(player: Player): number
     local currentLevel = DataManager.GetLevel(player)
-    if currentLevel >= 10 then
-        return 0 -- Max level reached
-    end
     return getExpRequiredForLevel(currentLevel + 1)
 end
 
@@ -250,11 +285,7 @@ function DataManager.GetExpProgress(player: Player): {current: number, required:
     
     local currentExp = profile.Data.Exp
     local currentLevel = profile.Data.Level
-    local nextLevel = math.min(currentLevel + 1, 10)
-    
-    if currentLevel >= 10 then
-        return {current = currentExp, required = 100, percentage = 100}
-    end
+    local nextLevel = currentLevel + 1
     
     local requiredForNext = getExpRequiredForLevel(nextLevel)
     local requiredForCurrent = getExpRequiredForLevel(currentLevel)
