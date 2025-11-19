@@ -199,8 +199,8 @@ function OutfitsFrame(
 						Font = Enum.Font.Gotham,
 						LayoutOrder = 2,
 						Visible = scope:Computed(function(use)
-							return not use(isLoading) and #use(robloxOutfits) == 0
-						end)
+							return not use(isLoading) and #use(robloxOutfits) == 0 and #use(tastemakerOutfits) == 0
+						end) 
 					},
 					
 					scope:ForValues(robloxOutfits, function(use, innerScope, outfit)
