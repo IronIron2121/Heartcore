@@ -31,6 +31,9 @@ local WinnersThemeGui = leaderboardScreen:WaitForChild("WinnersThemeGui")
 local WinnersThemeFrame = WinnersThemeGui:WaitForChild("WinnersThemeFrame")
 local ThemeLabel = WinnersThemeFrame:WaitForChild("ThemeLabel")
 
+-- Constants
+local winnersRigScale = 3.547
+
 -- Types
 type RigModel = Model & {
     Humanoid : Humanoid
@@ -176,15 +179,16 @@ function WinnersStoreManager.updateWinnersPodiums()
         end
 
         local success = pcall(function()
+            podiumRigs[index]:ScaleTo(1)
             podiumRigs[index].Humanoid:ApplyDescription(description)
+            rig:ScaleTo(winnersRigScale) 
+
         end)
         
         if not success then
             warn("Failed to apply description to rig at index:", index)
         end
     end
-
-    
 end
 
 -- Get all submission store names for a given phase

@@ -74,6 +74,7 @@ local function DailyChallengeFrame(
 
     -- Listen for challenge updates
     UpdateChallengeProgress.OnClientEvent:Connect(function(update)
+        warn("updating challenges locally")
         local currentChallenges = peek(challenges)
         for i, challenge in ipairs(currentChallenges) do
             if challenge.id == update.id then
