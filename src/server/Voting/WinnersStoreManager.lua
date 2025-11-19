@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local dailyWinners = workspace:WaitForChild("dailyWinners")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
+local descriptions = ReplicatedStorage:WaitForChild("Descriptions")
 
 -- Modules
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
@@ -21,7 +22,7 @@ local ThemeManager = require(Voting:WaitForChild("ThemeManager"))
 -- Instances
 local leaderboard = dailyWinners:WaitForChild("leaderboard")
 local leaderboardScreen = leaderboard:WaitForChild("leaderboardScreen")
-
+local defaultWinnerDescription = descriptions:WaitForChild("DefaultWinner")
 
 -- GUI Instances
 local leaderboardGui = leaderboardScreen:WaitForChild("LeaderboardGui")
@@ -110,15 +111,31 @@ function WinnersStoreManager.getCurrentTopTwenty(): {}?
     end
 end
 
+function WinnersStoreManager.resetWinnersThemeDisplay()
+    ThemeLabel.Text = "N/A"
+end
+
 function WinnersStoreManager.updateWinnersThemeDisplay()
-    warn("UPDATING WINNERS THEME DISPLAY")
     local erePreviousTheme = ThemeManager.getErePreviousThemeName()
     ThemeLabel.Text = tostring(erePreviousTheme) 
 end
 
+function WinnersStoreManager.resetTopTwentyLeaderboard()
+    -- Clear existing labels
+    for _, child in ipairs(leaderboardFrame:GetChildren()) do
+        if child:IsA("TextLabel") then
+            child:Destroy()
+        end
+    end
+end
+
 function WinnersStoreManager.updateTopTwentyLeaderboard()
     local topTwenty = WinnersStoreManager.getCurrentTopTwenty()
-    if not topTwenty then return end
+    if not topTwenty then 
+        WinnersStoreManager.resetTopTwentyLeaderboard() 
+        return 
+    end
+
     local lengthOfList = #topTwenty
 
     -- Clear existing labels
@@ -158,7 +175,7 @@ function WinnersStoreManager.updateWinnersPodiums()
     local currentWinners = WinnersStoreManager.getCurrentWinners()
     if not currentWinners then 
         warn("Error when loading current winners!")
-        return
+        return false
     end
 
     for index, entry in ipairs(currentWinners) do
@@ -166,7 +183,7 @@ function WinnersStoreManager.updateWinnersPodiums()
         
         if not description then 
             warn("No humanoid description for winner at index:", index)
-            description = Instance.new("HumanoidDescription")
+            description = defaultWinnerDescription
         else
             description = SerialisationService.UnserialiseHumanoidDescription(description)
         end
@@ -179,16 +196,17 @@ function WinnersStoreManager.updateWinnersPodiums()
         end
 
         local success = pcall(function()
-            podiumRigs[index]:ScaleTo(1)
-            podiumRigs[index].Humanoid:ApplyDescription(description)
+            rig:ScaleTo(1)
+            rig.Humanoid:ApplyDescription(description)
             rig:ScaleTo(winnersRigScale) 
-
         end)
         
         if not success then
             warn("Failed to apply description to rig at index:", index)
+            WinnersStoreManager.resetRig(rig)
         end
     end
+    return true 
 end
 
 -- Get all submission store names for a given phase
@@ -275,12 +293,51 @@ end
 function WinnersStoreManager.initialise()
     print("Initializing WinnersStoreManager...")
     
-    -- Update podiums and leaderboard with current winners on server start
-    WinnersStoreManager.updateWinnersPodiums()
-    WinnersStoreManager.updateTopTwentyLeaderboard()
-    WinnersStoreManager.updateWinnersThemeDisplay()
+    -- Update displays with error handling using pcall
+    local podiumSuccess, podiumError = pcall(function()
+        WinnersStoreManager.updateWinnersPodiums()
+    end)
+    
+    local leaderboardSuccess, leaderboardError = pcall(function()
+        WinnersStoreManager.updateTopTwentyLeaderboard()
+    end)
+    
+    local themeSuccess, themeError = pcall(function()
+        WinnersStoreManager.updateWinnersThemeDisplay()
+    end)
+    
+    -- If any display update failed, reset everything
+    if not podiumSuccess or not leaderboardSuccess or not themeSuccess then
+        warn("Critical failure during WinnersStoreManager initialization:")
+        if not podiumSuccess then warn("  - Podium update failed:", podiumError) end
+        if not leaderboardSuccess then warn("  - Leaderboard update failed:", leaderboardError) end
+        if not themeSuccess then warn("  - Theme update failed:", themeError) end
+        
+        warn("Resetting winners displays to defaults")
+        WinnersStoreManager.resetWinners()
+        return false
+    end
     
     print("WinnersStoreManager initialized successfully")
+    return true
+end
+
+function WinnersStoreManager.resetRig(rig: Model & {Humanoid: Humanoid})
+    rig:ScaleTo(1)
+    rig.Humanoid:ApplyDescription(defaultWinnerDescription)
+    rig:ScaleTo(winnersRigScale) 
+end
+
+function WinnersStoreManager.resetWinnersPodiums()
+    for _, rig in pairs(podiumRigs) do
+        WinnersStoreManager.resetRig(rig)
+    end
+end
+
+function WinnersStoreManager.resetWinners()
+    WinnersStoreManager.resetWinnersPodiums()
+    WinnersStoreManager.resetWinnersThemeDisplay()
+    WinnersStoreManager.resetTopTwentyLeaderboard()
 end
 
 function WinnersStoreManager.setNewWinners()
@@ -362,23 +419,43 @@ function WinnersStoreManager.setNewWinners()
         end,
         3
     )
-
     
-    if success and twentySuccess then
-        print("Winners updated successfully for phase:", GameTimer.getCurrentPhasePrefix())
-        print("Winners from phase:", erePreviousPrefix)
-        print("1st Place:", first_place.userId, "with", first_place.votes, "votes")
-        print("2nd Place:", second_place.userId, "with", second_place.votes, "votes") 
-        print("3rd Place:", third_place.userId, "with", third_place.votes, "votes")
-        print("Top 20 saved successfully")
-        WinnersStoreManager.updateWinnersPodiums()
-        WinnersStoreManager.updateTopTwentyLeaderboard()
-        WinnersStoreManager.updateWinnersThemeDisplay()
-        return true
-    else
-        warn("Failed to set new winners or top twenty")
+    if not success or not twentySuccess then
+        warn("Failed to set new winners or top twenty in MemoryStore")
+        WinnersStoreManager.resetWinners()
         return false
     end
+    
+    -- Data saved successfully, now update displays
+    print("Winners updated successfully for phase:", GameTimer.getCurrentPhasePrefix())
+    print("Winners from phase:", erePreviousPrefix)
+    print("1st Place:", first_place.userId, "with", first_place.votes, "votes")
+    print("2nd Place:", second_place.userId, "with", second_place.votes, "votes") 
+    print("3rd Place:", third_place.userId, "with", third_place.votes, "votes")
+    print("Top 20 saved successfully")
+    
+    -- Update displays with error handling using pcall
+    local podiumSuccess = pcall(function()
+        WinnersStoreManager.updateWinnersPodiums()
+    end)
+    
+    local leaderboardSuccess = pcall(function()
+        WinnersStoreManager.updateTopTwentyLeaderboard()
+    end)
+    
+    local themeSuccess = pcall(function()
+        WinnersStoreManager.updateWinnersThemeDisplay()
+    end)
+    
+    -- If any display update failed, reset everything
+    if not podiumSuccess or not leaderboardSuccess or not themeSuccess then
+        warn("Critical failure updating winners displays - resetting")
+        WinnersStoreManager.resetWinners()
+        return false
+    end
+    
+    print("All winners displays updated successfully!")
+    return true
 end
 
 return WinnersStoreManager
