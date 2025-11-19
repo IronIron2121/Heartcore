@@ -183,7 +183,7 @@ function WinnersStoreManager.updateWinnersPodiums()
         
         if not description then 
             warn("No humanoid description for winner at index:", index)
-            description = Instance.new("HumanoidDescription")
+            description = defaultWinnerDescription
         else
             description = SerialisationService.UnserialiseHumanoidDescription(description)
         end
