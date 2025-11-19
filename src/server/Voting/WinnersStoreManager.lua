@@ -161,7 +161,8 @@ function WinnersStoreManager.updateTopTwentyLeaderboard()
         local newLabel = Instance.new("TextLabel")
         newLabel.Parent = leaderboardFrame
         newLabel.LayoutOrder = i
-        newLabel.Text = i .. ". " .. playerName .. " - " .. currentEntry.votes .. " votes"
+        newLabel.Text = i .. ". " .. playerName
+        -- newLabel.Text = i .. ". " .. playerName .. " - " .. currentEntry.votes .. " votes"
         newLabel.Size = UDim2.new(1, 0, 0, 30)
         newLabel.BackgroundTransparency = 1
         newLabel.TextColor3 = Color3.fromRGB(92, 96, 214)
