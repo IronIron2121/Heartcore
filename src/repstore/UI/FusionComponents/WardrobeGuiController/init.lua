@@ -1,5 +1,11 @@
 --!strict
 
+-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Folders
+local Utility = ReplicatedStorage:WaitForChild("Utility")
+
 -- FusionComponents
 local WardrobeGui = require(script:WaitForChild("WardrobeGui"))
 local MainHudGui = require(script:WaitForChild("MainHudGui"))
@@ -8,6 +14,10 @@ local MainHudGui = require(script:WaitForChild("MainHudGui"))
 local AvatarEditorController = require(script:WaitForChild("AvatarEditorController")) 
 local CatalogSearchController = require(script:WaitForChild("CatalogSearchController")) 
 local OutfitViewController = require(script:WaitForChild("OutfitViewController"))
+
+-- Modules
+local Fusion = require(Utility:WaitForChild("Fusion"))
+type UsedAs<T> = Fusion.UsedAs<T>
 
 --
 

@@ -152,9 +152,9 @@ function FusionDropdown<T>(
 	local backgroundColorSpring = scope:Spring(
 		scope:Computed(function(use)
 			if use(isHovering) then
-				return UI_CONSTANTS.COLOUR_WHITE:Lerp(UI_CONSTANTS.COLOUR_BLACK, 0.20)
+				return UI_CONSTANTS.TASTEMAKER_PURPLE:Lerp(UI_CONSTANTS.COLOUR_BLACK, 0.20)
 			else
-				return UI_CONSTANTS.COLOUR_WHITE
+				return UI_CONSTANTS.TASTEMAKER_PURPLE
 			end
 		end),
 		20,
@@ -258,6 +258,7 @@ function FusionDropdown<T>(
 				TextScaled = true,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				LayoutOrder = 1,
+				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Medium, Enum.FontStyle.Normal),
 
 				[OnEvent "Activated"] = toggleDropdown,
 			},
