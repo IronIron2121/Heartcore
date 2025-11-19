@@ -26,7 +26,6 @@ local prompt = PromptHolder:WaitForChild("SubmissionPrompt") :: ProximityPrompt
 local function enableSubmitButton()
     prompt.Enabled = true
     PromptHolder.Color = Color3.fromRGB(190, 190, 192)
-
 end
 
 local function disableSubmitButton()
@@ -34,17 +33,12 @@ local function disableSubmitButton()
         PromptHolder.Color = Color3.fromRGB(100,100,100)
 end
 
-
 local function updateSubmitButton()
-    warn("Updating submit button...")
     local canPlayerSubmit = SubmissionResultRF:InvokeServer()
     if canPlayerSubmit then
-        warn("Player can submit!", canPlayerSubmit)
         enableSubmitButton()
     else 
-        warn("Player cannot submit!", canPlayerSubmit)
         disableSubmitButton()
-
     end 
 end
 
