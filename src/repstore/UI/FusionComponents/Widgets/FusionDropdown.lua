@@ -258,6 +258,7 @@ function FusionDropdown<T>(
 				TextScaled = true,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				LayoutOrder = 1,
+				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Medium, Enum.FontStyle.Normal),
 
 				[OnEvent "Activated"] = toggleDropdown,
 			},
