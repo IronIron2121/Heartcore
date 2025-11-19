@@ -20,7 +20,6 @@ local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCate
 local WardrobeGuiState = require(script.Parent:WaitForChild("WardrobeGuiState"))
 local FusionItemTile = require(Widgets:WaitForChild("FusionItemTile"))
 
-
 -- Fusion Components
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local peek = Fusion.peek
@@ -29,6 +28,17 @@ local peek = Fusion.peek
 local CategoryFrame = require(script:WaitForChild("CategoryFrame"))
 local OutfitsFrame = require(script:WaitForChild("OutfitsFrame"))
 local SearchFrame = require(script:WaitForChild("SearchFrame"))
+
+-- Constants
+
+local sortTextToSortType = {
+	["Relevance"] = Enum.CatalogSortType.Relevance,
+	["Bestselling"] = Enum.CatalogSortType.Bestselling,
+	["Most Favorited"] = Enum.CatalogSortType.MostFavorited,
+	["Price High To Low"] = Enum.CatalogSortType.PriceHighToLow,
+	["Price Low To High"] = Enum.CatalogSortType.PriceLowToHigh,
+	["Recently Created"] = Enum.CatalogSortType.RecentlyCreated,
+}
 
 --
 
@@ -41,7 +51,7 @@ function CatalogSearchController.new(parentFrame: Frame)
 	self.scope = Fusion:scoped()
 	self.searchAssetCategories = self.scope:Value(AssetFilterCategories.getAllAssetTypes())
 	self.searchBundleCategories = self.scope:Value(BundleFilterCategories.getAllRobloxBundleTypes())
-	self.searchSort = self.scope:Value(Enum.CatalogSortType.Relevance)
+	self.searchSort = self.scope:Value(Enum.CatalogSortType.Relevance.Name)
 	self.searchResults = self.scope:Value("")
 	self.searchText = self.scope:Value("")
 	self.currentView = WardrobeGuiState.currentView
@@ -118,7 +128,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 
 		local catalogParams = CatalogSearchParams.new()
 		catalogParams.SearchKeyword = keyword or peek(self.searchText)
-		catalogParams.SortType = peek(self.searchSort)
+		catalogParams.SortType = sortTextToSortType[peek(self.searchSort)]
 		catalogParams.Limit = 28
 		catalogParams.AssetTypes = peek(self.searchAssetCategories)
 		catalogParams.BundleTypes = peek(self.searchBundleCategories)
