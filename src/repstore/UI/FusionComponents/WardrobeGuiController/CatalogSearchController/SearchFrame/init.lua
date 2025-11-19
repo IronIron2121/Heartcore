@@ -11,6 +11,7 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
+local ForValues = require(ReplicatedStorage.Utility.Fusion.State.ForValues)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
@@ -116,7 +117,7 @@ function SearchFrame(
 					-- Sort dropdown
 					FusionDropdown(scope, {
 						name = "SortDropdown",
-						options = Enum.CatalogSortType:GetEnumItems(),
+						options = ForValues,
 						selectedValue = props.searchSort,
 						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
 						layoutOrder = 3,
