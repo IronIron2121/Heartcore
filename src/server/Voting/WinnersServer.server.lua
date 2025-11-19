@@ -23,6 +23,7 @@ local function onPhaseChanged()
         print("Winners set successfully")
     else
         warn("Failed to set winners")
+        WinnersStoreManager.resetWinners()
     end
 end
 
