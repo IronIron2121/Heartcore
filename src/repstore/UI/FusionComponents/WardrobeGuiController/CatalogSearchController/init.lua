@@ -130,7 +130,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 		local catalogParams = CatalogSearchParams.new()
 		catalogParams.SearchKeyword = keyword or peek(self.searchText)
 		catalogParams.SortType = sortTextToSortType[peek(self.searchSort)]
-		catalogParams.Limit = 28
+		catalogParams.Limit = 60
 		catalogParams.AssetTypes = peek(self.searchAssetCategories)
 		catalogParams.BundleTypes = peek(self.searchBundleCategories)
 
