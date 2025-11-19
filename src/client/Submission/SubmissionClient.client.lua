@@ -61,16 +61,16 @@ local function onSubmissionResult(
         warn("Player submitted successfully!")
         disableSubmitButton()
         StarterGui:SetCore("SendNotification",{
-            Title = "Outfit Submission Success!", -- Required
+            Title = "Outfit Submitted Successfully!", -- Required
             Text = "", -- Required
             Icon = "rbxassetid://1234567890" -- Optional
         })
     else 
         enableSubmitButton()
         StarterGui:SetCore("SendNotification",{
-            Title = "Outfit Submission Failed", -- Required
-            Text = result.msg, -- Required
-            Icon = "rbxassetid://1234567890" -- Optional
+            Title = "Outfit Submission Failed!", 
+            Text = result.msg, 
+            Icon = "rbxassetid://1234567890" 
         })
     end
 
