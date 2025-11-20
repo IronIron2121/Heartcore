@@ -153,7 +153,7 @@ function OutfitsFrame(
 			},
 
 			scope:New "ScrollingFrame" {
-				Name = "CategoryScrollFrame",
+				Name = "OutfitScrollFrame",
 				Size = UDim2.fromScale(1, 0.9),
 				Position = UDim2.fromScale(0, 0),
 				BackgroundTransparency = 1,
@@ -179,9 +179,9 @@ function OutfitsFrame(
 						Size = UDim2.fromScale(1, 0.1),
 						BackgroundTransparency = 1,
 						Text = "Loading outfits...",
-						TextColor3 = UI_CONSTANTS.COLOUR_BLACK,
+						TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 						TextScaled = true,
-						Font = Enum.Font.Gotham,
+						FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
 						LayoutOrder = 1,
 						Visible = scope:Computed(function(use)
 							return use(isLoading)
@@ -194,9 +194,9 @@ function OutfitsFrame(
 						Size = UDim2.fromScale(1, 0.2),
 						BackgroundTransparency = 1,
 						Text = "No outfits found. Create some outfits to see them here!",
-						TextColor3 = UI_CONSTANTS.COLOUR_BLACK,
+						TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 						TextScaled = true,
-						Font = Enum.Font.Gotham,
+						FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
 						LayoutOrder = 2,
 						Visible = scope:Computed(function(use)
 							return not use(isLoading) and #use(robloxOutfits) == 0 and #use(tastemakerOutfits) == 0

@@ -101,9 +101,9 @@ function OutfitTile(
 			-- Outfit thumbnail viewport
 			scope:New "ViewportFrame" {
 				Name = "OutfitViewport",
-				Size = UDim2.fromScale(1, 0.8),
+				Size = UDim2.fromScale(0.8, 0.8),
 				LayoutOrder = 1,
-				BackgroundColor3 = Color3.fromRGB(240, 240, 240),
+				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 				BackgroundTransparency = 0,
 				BorderSizePixel = 0,
 				Ambient = Color3.new(1,1,1),
@@ -186,7 +186,7 @@ function OutfitTile(
 						Text = "Wear Outfit",
 						TextColor3 = Color3.new(1, 1, 1),
 						TextScaled = true,
-						Font = Enum.Font.Gotham,
+						FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
 
 						[OnEvent "Activated"] = function()
 							if peek(isCurrentlyEquipping) then return end
@@ -202,9 +202,16 @@ function OutfitTile(
 
 						[Children] = {
 							scope:New "UICorner" {
-								CornerRadius = UDim.new(0.1, 0)
-							}
-						}
+								CornerRadius = UDim.new(0.5, 0)
+							},
+						
+							scope:New "UIPadding" {
+								PaddingTop = UDim.new(0.05,0),
+								PaddingBottom = UDim.new(0.05,0),
+								PaddingLeft = UDim.new(0.05,0),
+								PaddingRight = UDim.new(0.05,0),
+							},
+						},	
 					},
 					--[[
 					-- Wear/Select Button
