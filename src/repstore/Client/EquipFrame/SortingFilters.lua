@@ -7,21 +7,22 @@
 
 local SortingFilters = {
 	list = {
-		"Bestselling",
-		"Most favorited",
-		"Recently created",
-		"Relevance",
-		"Price ascending",
-		"Price descending",
+		"Sort by: Bestselling",
+		"Sort by: Most favorited",
+		"Sort by: Recently created",
+		"Sort by: Relevance",
+		"Sort by: Price ascending",
+		"Sort by: Price descending",
 	},
 	filters = {
-		["Bestselling"] = Enum.CatalogSortType.Bestselling,
-		["Most favorited"] = Enum.CatalogSortType.MostFavorited,
-		["Recently created"] = Enum.CatalogSortType.RecentlyCreated,
-		["Relevance"] = Enum.CatalogSortType.Relevance,
-		["Price ascending"] = Enum.CatalogSortType.PriceLowToHigh,
-		["Price descending"] = Enum.CatalogSortType.PriceHighToLow,
+		["Sort by: Bestselling"] = Enum.CatalogSortType.Bestselling,
+		["Sort by: Most favorited"] = Enum.CatalogSortType.MostFavorited,
+		["Sort by: Recently created"] = Enum.CatalogSortType.RecentlyCreated,
+		["Sort by: Relevance"] = Enum.CatalogSortType.Relevance,
+		["Sort by: Price ascending"] = Enum.CatalogSortType.PriceLowToHigh,
+		["Sort by: Price descending"] = Enum.CatalogSortType.PriceHighToLow,
 	},
 }
 
 return SortingFilters
+ 
