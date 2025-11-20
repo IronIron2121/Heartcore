@@ -35,7 +35,7 @@ return function(scope: Fusion.Scope, wardrobeContainerVisible: UsedAs<boolean>)
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 		BorderSizePixel = 0,
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromScale(0.8, 0.8),
+		Size = UDim2.fromScale(0.9, 0.9),
 		
 		[Fusion.Children] = {
             scope:New "ImageButton" {
