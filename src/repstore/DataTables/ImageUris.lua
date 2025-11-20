@@ -15,7 +15,7 @@ local assets = {
 	RobuxIcon = "81055682730978",
 	ExpBar = "73207886316381",
 	ClaimButton = "96236040552707",
-	DailyChallengeButton = "129184509423001",
+	DailyChallengeButton = "93273619202001",
 	VoteButton = "137550678558366"
 }
 
