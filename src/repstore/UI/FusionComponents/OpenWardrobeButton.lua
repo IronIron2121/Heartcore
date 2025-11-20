@@ -58,7 +58,7 @@ local function OpenWardrobeButton(
 		Name = "DailyChallengeGuiButton",
 		
 		LayoutOrder = 0,
-		Position = UDim2.fromScale(0.5, 0.95),
+		Position = UDim2.fromScale(0.45, 0.95),
 		AnchorPoint = Vector2.new(0.5, 1),
 		ZIndex = 0, 
 		Size = UDim2.fromScale(0.1,0.1),

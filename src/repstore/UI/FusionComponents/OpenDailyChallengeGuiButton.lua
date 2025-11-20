@@ -48,8 +48,8 @@ local function OpenDailyChallengeGuiButton(
 		Name = "DailyChallengeButton",
 		
 		LayoutOrder = 0,
-		Position = UDim2.fromScale(1, 0.5),
-		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.fromScale(0.55, 0.95),
+		AnchorPoint = Vector2.new(0.5, 1),
 		ZIndex = 0, 
 		Size = UDim2.fromScale(0.1,0.1),
 		AutomaticSize = Enum.AutomaticSize.X,
