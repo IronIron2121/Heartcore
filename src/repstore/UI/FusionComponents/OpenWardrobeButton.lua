@@ -16,8 +16,13 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local OnEvent = Fusion.OnEvent
 type UsedAs<T> = Fusion.UsedAs<T>
 
+
 -- Remotes / Bindables
 local PlayerTriggeredCatalogConsole = Bindables:WaitForChild("PlayerTriggeredCatalogConsole")
+
+
+
+
 
 -- Constants
 -- local DEFAULT_TEXT_COLOUR = Color3.new(0.360784, 0.376471, 0.839216)
@@ -55,7 +60,7 @@ local function OpenWardrobeButton(
 	end)
 	
 	return scope:New "TextButton" {
-		Name = "DailyChallengeGuiButton",
+		Name = "CatalogButton",
 		
 		LayoutOrder = 0,
 		Position = UDim2.fromScale(0.45, 0.95),
