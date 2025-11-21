@@ -41,7 +41,9 @@ return function(Toggled: Fusion.Value<boolean>)
 		IgnoreGuiInset = true,
 		ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		Enabled = isToggled,
+		Enabled = scope:Computed(function(use)
+			return use(Toggled) and use(wardrobeContainerVisible)
+		end)
 
 		[Children] = { 
 			WardrobeContainer

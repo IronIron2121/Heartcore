@@ -134,9 +134,9 @@ local function CloseButton(
 						local baseColor = use(isToggled) and COLOUR_BG_TOGGLED or COLOUR_BG_NOT_TOGGLED
 						
 						if use(isHeldDown) then
-							return baseColor:Lerp(COLOUR_BLACK, 0.8)
+							return baseColor:Lerp(COLOUR_PURPLE, 0.8)
 						elseif use(isHovering) then
-							return baseColor:Lerp(COLOUR_BLACK, 0.25)
+							return baseColor:Lerp(COLOUR_PURPLE, 0.25)
 						else 
 							return baseColor
 						end
