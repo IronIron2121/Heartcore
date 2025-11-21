@@ -9,6 +9,9 @@ local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Values = ReplicatedStorage:WaitForChild("Values")
+local UI = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents = UI:WaitForChild("FusionComponents")
+local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -17,6 +20,8 @@ local localPlayer = Players.LocalPlayer
 local PlayerGui = localPlayer.PlayerGui
 local OutfitVoteTile = require(script:WaitForChild("OutfitVoteTile"))
 local EmptyVoteTile = require(script:WaitForChild("EmptyVoteTile"))
+local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
+
 
 -- Modules
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
@@ -30,6 +35,8 @@ local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
+type Value<T> = Fusion.Value<T>
+
 
 -- Constants
 local maxDisplayedOutfits = 3
@@ -133,7 +140,10 @@ local votingTheme = scope:Value("")
 
 function VotingGuiController.Initialise(
     VoteGuiVisible: UsedAs<boolean>,
-    TimeText: UsedAs<string>
+    TimeText: UsedAs<string>,
+    props: {
+        visible: Value<boolean>
+    }
 )
     local visibilityObserver = scope:Observer(VoteGuiVisible)
 
@@ -161,28 +171,15 @@ function VotingGuiController.Initialise(
                 Position = UDim2.fromScale(0.5, 0.48),
                 BackgroundColor3 = Color3.new(1,1,1),
                 BackgroundTransparency = 1,
-                Visible = VoteGuiVisible,
+                Visible = props.visible,
 
                 [Children] = {
-                    scope:New "ImageButton" {
-						Name = "CloseButton",
-						Image = ImageUris["CloseButton"],
-						AnchorPoint = Vector2.new(0.5, 0),
-						Size = UDim2.fromScale(0.05, 0.05),
-						BackgroundTransparency = 1,
-						Position = UDim2.fromScale(1,0),
-                        ZIndex = 3,
-						
-						[Children] = {
-							scope:New "UIAspectRatioConstraint" {
-								AspectRatio = 1
-							}
-						},
-						
-						[OnEvent "Activated"] = function()
-							VoteGuiVisible:set(not peek(VoteGuiVisible))
-						end,
-					},
+                    CloseButton(scope, {
+                        size = UDim2.fromScale(0.1, 0.1),
+                        anchorPoint = Vector2.new(0.5, 0.5),
+                        position = UDim2.fromScale(1, 0),
+                        visibilityBoolean = props.visible
+                    }),
 
                     scope:New "Frame" {
                         Name = "Background",
