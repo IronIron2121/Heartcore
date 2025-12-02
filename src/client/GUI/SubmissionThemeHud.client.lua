@@ -2,38 +2,32 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService") 
-
+local Players           = game:GetService("Players")
 
 -- Folders
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
-local ImageUris = require(DataTables:WaitForChild("ImageUris"))
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
+local Utility       = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
-local Fusion = require(Utility:WaitForChild("Fusion"))
+local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
+local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
 
 -- Instances
-local localPlayer = Players.LocalPlayer
-local PlayerGui = localPlayer.PlayerGui
-local centralPond = workspace:WaitForChild("centralPond")
-local pondModel = centralPond:WaitForChild("centralPond")
+local localPlayer               = Players.LocalPlayer
+local PlayerGui                 = localPlayer.PlayerGui
+local centralPond               = workspace:WaitForChild("centralPond")
+local pondModel                 = centralPond:WaitForChild("centralPond")
 local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
-local BillboardGui = SubmissionBillboardHolder:WaitForChild("BillboardGui")
-local Frame = BillboardGui:WaitForChild("Frame")
-local TimeLabel = Frame:WaitForChild("TimeLabel")
-local ThemeLabel = Frame:WaitForChild("ThemeLabel") 
+local BillboardGui              = SubmissionBillboardHolder:WaitForChild("BillboardGui")
+local Frame                     = BillboardGui:WaitForChild("Frame")
+local TimeLabel                 = Frame:WaitForChild("TimeLabel")
+local ThemeLabel                = Frame:WaitForChild("ThemeLabel") 
 
--- Fusion Modules
-local scope = Fusion:scoped()
+-- Fusion 
+local Fusion   = require(Utility:WaitForChild("Fusion"))
+local scope    = Fusion:scoped()
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
-
 
 local ThemeText = scope:Value("Loading...")
 
