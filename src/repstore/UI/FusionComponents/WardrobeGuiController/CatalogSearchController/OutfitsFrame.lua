@@ -267,7 +267,7 @@ function OutfitsFrame(
 						size = UDim2.fromScale(0.2, 0.5),
 						backgroundColor = UI_CONSTANTS.TASTEMAKER_PURPLE,
 						strokeColor = Color3.new(1,1,1),
-						strokeThickness = 2,
+						strokeThickness = 3,
 						textColor = Color3.new(1,1,1),
 
 						onActivated = function()
