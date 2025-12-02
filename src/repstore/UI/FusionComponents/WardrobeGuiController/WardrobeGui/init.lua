@@ -43,7 +43,7 @@ return function(Toggled: Fusion.Value<boolean>)
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		Enabled = scope:Computed(function(use)
 			return use(Toggled) and use(wardrobeContainerVisible)
-		end)
+		end),
 
 		[Children] = { 
 			WardrobeContainer
@@ -51,4 +51,4 @@ return function(Toggled: Fusion.Value<boolean>)
 	}),
 		AvatarContainer,
 		CatalogContainer
-end
+end 
