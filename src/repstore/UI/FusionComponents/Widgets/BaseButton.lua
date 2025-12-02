@@ -37,7 +37,6 @@ function Button(
 		onActivated: (() -> ())?,
 	}
 ): TextButton
-
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
 
