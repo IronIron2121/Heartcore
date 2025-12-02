@@ -2,13 +2,13 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
+local Players           = game:GetService("Players")
 
 -- Folders
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local Values = ReplicatedStorage:WaitForChild("Values")
+local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
+local Utility           = ReplicatedStorage:WaitForChild("Utility")
+local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
+local Values            = ReplicatedStorage:WaitForChild("Values")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
@@ -388,20 +388,6 @@ function VotingGuiController.Initialise(
                                     end)
                                 } 
                             },
-
-                            -- scope:New "Frame" {
-                            --     Name = "Buffer",
-                            --     Size = UDim2.fromScale(1, 0.05),
-                            --     LayoutOrder = 3,
-                            --     BackgroundTransparency = 1
-                            -- },
-
-                            -- scope:New "Frame" {
-                            --     Name = "SubmitFrame",
-                            --     Size = UDim2.fromScale(0.5, 0.2),
-                            --     LayoutOrder = 4,
-                            --     BackgroundTransparency = 1,
-                            -- }
                         }
                     },
                 }
