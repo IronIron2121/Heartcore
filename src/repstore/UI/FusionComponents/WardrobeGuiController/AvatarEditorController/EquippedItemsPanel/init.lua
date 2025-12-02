@@ -27,7 +27,10 @@ local EquippedItemButtons = require(script:WaitForChild("EquippedItemButtons"))
 
 -- TODO -- Auto-scaling-canvas size and whatnot
 function EquippedItemsPanel(
-	scope: Fusion.Scope
+	scope: Fusion.Scope,
+	props: {
+		layoutOrder: number
+	}
 )
 	local equipItemButtonsVisible = scope:Value(true)
 
@@ -57,13 +60,15 @@ function EquippedItemsPanel(
 
 
 	local equippedItemButtons = EquippedItemButtons(scope, {
-		buttonSize = scope:Value(UDim2.fromScale(0.8, 0.8)),
+		buttonSize = scope:Value(UDim2.fromScale(0.7, 0.7)),
 		equipItemButtonsVisible = equipItemButtonsVisible
 	})
 
 	local scrollFrame = scope:New "ScrollingFrame" {
+		Name = "EquippedItemsScrollingFrame",
 		Size = UDim2.fromScale(1, 1),
 		Position = UDim2.fromScale(0, 0),
+		LayoutOrder = props.layoutOrder or 1,
 
 		BackgroundTransparency = 1,
 		BackgroundColor3 = backgroundColourSpring,
@@ -71,34 +76,37 @@ function EquippedItemsPanel(
 		-- Canvas
 		CanvasSize = UDim2.fromScale(0,0),
 		AutomaticCanvasSize = Enum.AutomaticSize.XY,
-		ScrollingDirection = Enum.ScrollingDirection.X,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
 		ScrollBarThickness = 4,
 
 		[Children] = {
 			scope:New "UIListLayout" {
-				FillDirection = Enum.FillDirection.Horizontal,
+				FillDirection = Enum.FillDirection.Vertical,
 				HorizontalAlignment = Enum.HorizontalAlignment.Left,
-				VerticalAlignment = Enum.VerticalAlignment.Center,
+				VerticalAlignment = Enum.VerticalAlignment.Top,
 				ItemLineAlignment = Enum.ItemLineAlignment.Center,
 				Padding = UDim.new(0, 10),
-				SortOrder = Enum.SortOrder.Name
+				SortOrder = Enum.SortOrder.LayoutOrder
 			},			
+
 			equippedItemButtons,
+
 			scope:New "Frame" {
 				Name = "rightBuffer",
 				Size = UDim2.fromScale(0.03, 1),
 				BackgroundTransparency = 1,
+				LayoutOrder = 999999
 			}
 		}
 	} :: ScrollingFrame
 
-	
-	local EquippedItemsPanel = scope:New "Frame" {
-			Size = UDim2.fromScale(1, 0.1),
-			LayoutOrder = 2,
-			BackgroundTransparency = backgroundTransparencySpring,
-			BackgroundColor3 = backgroundColourSpring,
-			AnchorPoint = Vector2.new(0, 0),
+	local equippedItemsPanel = scope:New "Frame" {
+		Name = "EquippedItemsPanel",
+		Size = UDim2.fromScale(0.3, 1),
+		LayoutOrder = props.layoutOrder or 1,
+		BackgroundTransparency = backgroundTransparencySpring,
+		BackgroundColor3 = backgroundColourSpring,
+		AnchorPoint = Vector2.new(0, 0),
 
 		[Children] = {
 			scope:New "UICorner" {
@@ -111,11 +119,12 @@ function EquippedItemsPanel(
 				PaddingLeft = UDim.new(0.01,0),
 				PaddingRight = UDim.new(0,10),
 			},
+
 			scrollFrame,
 		}
 	}
 	
-	return EquippedItemsPanel
+	return equippedItemsPanel
 end
 
 return EquippedItemsPanel
