@@ -220,6 +220,13 @@ function VotingGuiController.Initialise(
                             },
 
                             scope:New "Frame" {
+                                Name = "Buffer",
+                                Size = UDim2.fromScale(1, 0.03),
+                                LayoutOrder = 0,
+                                BackgroundTransparency = 1
+                            },
+
+                            scope:New "Frame" {
                                 Name = "TopBar",
                                 Size = UDim2.fromScale(1, 0.1),
                                 LayoutOrder = 1,
