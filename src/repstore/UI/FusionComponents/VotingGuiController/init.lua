@@ -31,7 +31,6 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion Modules
 local scope = Fusion:scoped()
-local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
@@ -142,7 +141,6 @@ function VotingGuiController.Initialise(
     props: {
         VoteGuiVisible: UsedAs<boolean>,
         TimeText: UsedAs<string>,
-        visible: Value<boolean>
     }
 )
     local visibilityObserver = scope:Observer(props.VoteGuiVisible)
@@ -171,7 +169,7 @@ function VotingGuiController.Initialise(
                 Position = UDim2.fromScale(0.5, 0.48),
                 BackgroundColor3 = Color3.new(1,1,1),
                 BackgroundTransparency = 1,
-                Visible = props.visible,
+                Visible = props.VoteGuiVisible,
 
                 [Children] = {
                     CloseButton(scope, {
@@ -180,7 +178,7 @@ function VotingGuiController.Initialise(
                         position = UDim2.fromScale(1, 0),
 
                         onClick = function()
-                            props.visible:set(not peek(props.visible))
+                            props.VoteGuiVisible:set(not peek(props.VoteGuiVisible))
                         end
                     }),
 
