@@ -6,6 +6,7 @@ local UI_CONSTANTS = {
 	COLOUR_WHITE = Color3.new(1, 1, 1),
 	COLOUR_BLACK = Color3.new(0, 0, 0),
 	COLOUR_GREY = Color3.new(0.5, 0.5, 0.5),
+	COLOUR_TEAL = Color3.fromRGB(3, 143, 131),
 	DEFAULT_FONT = "rbxasset://fonts/families/FredokaOne.json",
 	SEARCH_SORT_BOX_SIZE = UDim2.fromScale(.4, .5),
 	ROBOTO = "rbxasset://fonts/families/Roboto.json"

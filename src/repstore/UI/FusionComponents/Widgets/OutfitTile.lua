@@ -8,12 +8,18 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
+local UI = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents = UI:WaitForChild("FusionComponents")
+local Widgets = FusionComponents:WaitForChild("Widgets")
+
 
 
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
+local BaseButton = require(Widgets:WaitForChild("BaseButton"))
+
 
 
 -- Fusion
@@ -70,172 +76,158 @@ function OutfitTile(
 	local isCurrentlyEquipping = scope:Value(false)
 	
 	local outfitTile = scope:New "Frame" {
-		Name = "OutfitTile",
+		Name = "Container",
 		Visible = props.visible or true,
-		Size = props.size or UDim2.fromScale(0.25, 0.3),
+		Size = props.size or UDim2.fromScale(0.3, 0.3),
 		Position = props.position,
 		AnchorPoint = props.anchorPoint,
 		LayoutOrder = props.layoutOrder,
 		BackgroundColor3 = Color3.new(1, 1, 1),
-		BackgroundTransparency = 0.1,
+		BackgroundTransparency = 1,
 
 		[Children] = {
-			scope:New "UIListLayout" {
-				FillDirection = Enum.FillDirection.Vertical,
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				HorizontalAlignment = Enum.HorizontalAlignment.Center,
-				VerticalAlignment = Enum.VerticalAlignment.Top,
-				Padding = UDim.new(0, 5)
+			scope:New "UIAspectRatioConstraint" {
+				AspectRatio = 1
 			},
 
-			scope:New "UICorner" {
-				CornerRadius = UDim.new(0.05, 0)
-			},
-
-			scope:New "UIStroke" {
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Color = Color3.fromRGB(200, 200, 200),
-				Thickness = 1,
-			},
-
-			-- Outfit thumbnail viewport
-			scope:New "ViewportFrame" {
-				Name = "OutfitViewport",
-				Size = UDim2.fromScale(1, 0.8),
-				LayoutOrder = 1,
-				BackgroundColor3 = Color3.fromRGB(240, 240, 240),
-				BackgroundTransparency = 0,
-				BorderSizePixel = 0,
-				Ambient = Color3.new(1,1,1),
-				LightColor = Color3.fromRGB(255, 249, 228),
-				LightDirection = Vector3.new(1,1,1),
-
+			scope:New "ImageButton" {
+				Name = "CloseButton",
+				Image = ImageUris["CloseButton"],
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Size = UDim2.fromScale(0.2, 0.2),
+				BackgroundTransparency = 1,
+				Position = UDim2.fromScale(0.9,0),
+				ZIndex = 2,
+				
 				[Children] = {
-					scope:New "UICorner" {
-						CornerRadius = UDim.new(0.05, 0)
-					},
-
-					scope:New "ImageButton" {
-						Name = "CloseButton",
-						Image = ImageUris["CloseButton"],
-						AnchorPoint = Vector2.new(1, 0),
-						Size = UDim2.fromScale(0.25, 0.25),
-						BackgroundTransparency = 1,
-						Position = UDim2.fromScale(1,0),
-						
-						[Children] = {
-							scope:New "UIAspectRatioConstraint" {
-								AspectRatio = 1
-							}
-						},
-						
-						[OnEvent "Activated"] = function()
-							if props.onDelete then
-								props.onDelete()
-							end
-							-- TODO: Refresh the GUI from here
-						end,
-					},
-
-					scope:New "WorldModel" {
-						Name = "WorldModel",
-
-						[Children] = scope:Computed(function(use)
-							local model = use(avatarModel)
-							return model and {model} or {}
-						end)
-					},
-
-					-- Set up viewport camera
-					viewportCamera:set(
-						scope:New "Camera" {
-							Name = "ViewportCamera",
-							CFrame = CFrame.new(Vector3.new(0, 0, 5), Vector3.new(0, 0, 0))
-						}
-					)
+					scope:New "UIAspectRatioConstraint" {
+						AspectRatio = 1
+					}
 				},
-
-				-- Set camera when viewport is created
-				CurrentCamera = scope:Computed(function(use)
-					return use(viewportCamera)
-				end)
+				
+				[OnEvent "Activated"] = function()
+					if props.onDelete then
+						props.onDelete()
+					end
+					-- TODO: Refresh the GUI from here
+				end,
 			},
 
-			-- Button frame
 			scope:New "Frame" {
-				Name = "ButtonsFrame",
-				Size = UDim2.fromScale(1, 0.2),
-				LayoutOrder = 2,
+				Name = "OutfitTile",
+				Visible = props.visible or true,
+				Size = props.size or UDim2.fromScale(1,1),
+				Position = props.position,
+				AnchorPoint = props.anchorPoint,
+				LayoutOrder = props.layoutOrder,
+				BackgroundColor3 = Color3.new(1, 1, 1),
 				BackgroundTransparency = 1,
 
 				[Children] = {
 					scope:New "UIListLayout" {
-						FillDirection = Enum.FillDirection.Horizontal,
+						FillDirection = Enum.FillDirection.Vertical,
 						SortOrder = Enum.SortOrder.LayoutOrder,
 						HorizontalAlignment = Enum.HorizontalAlignment.Center,
-						VerticalAlignment = Enum.VerticalAlignment.Center,
+						VerticalAlignment = Enum.VerticalAlignment.Top,
 						Padding = UDim.new(0, 5)
 					},
 
-					-- Wear/Select Button
-					scope:New "TextButton" {
-						Name = "WearButton",
-						Size = UDim2.fromScale(0.4, 0.8),
-						LayoutOrder = 1,
-						BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-						Text = "Wear Outfit",
-						TextColor3 = Color3.new(1, 1, 1),
-						TextScaled = true,
-						Font = Enum.Font.Gotham,
-
-						[OnEvent "Activated"] = function()
-							if peek(isCurrentlyEquipping) then return end
-							
-							isCurrentlyEquipping:set(true)
-
-							if props.onSelect then
-								props.onSelect()
-							end
-							
-							isCurrentlyEquipping:set(false)
-						end,
-
-						[Children] = {
-							scope:New "UICorner" {
-								CornerRadius = UDim.new(0.1, 0)
-							}
-						}
+					scope:New "UICorner" {
+						CornerRadius = UDim.new(0.05, 0)
 					},
-					--[[
-					-- Wear/Select Button
-					scope:New "TextButton" {
-						Name = "BuyButton",
-						Size = UDim2.fromScale(0.4, 0.8),
-						LayoutOrder = 2,
-						BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-						Text = "Buy Outfit",
-						TextColor3 = Color3.new(1, 1, 1),
-						TextScaled = true,
-						Font = Enum.Font.Gotham,
-						-- This functionality is not yet ready
-						Visible = false,
 
-
-						[OnEvent "Activated"] = function()
-							PlayerPurchasedOutfit:FireServer(props.outfit.Id)
-						end,
+					-- Outfit thumbnail viewport
+					scope:New "ViewportFrame" {
+						Name = "OutfitViewport",
+						Size = UDim2.fromScale(0.8, 0.8),
+						LayoutOrder = 1,
+						BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+						BackgroundTransparency = 0.4,
+						BorderSizePixel = 0,
+						Ambient = Color3.new(1,1,1),
+						LightColor = Color3.fromRGB(255, 249, 228),
+						LightDirection = Vector3.new(1,1,1),
 
 						[Children] = {
 							scope:New "UICorner" {
-								CornerRadius = UDim.new(0.1, 0)
+								CornerRadius = UDim.new(0.05, 0)
+							},
+
+							scope:New "UIStroke" {
+								ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+								Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
+								Thickness = 3,
+							},
+
+							
+
+							scope:New "WorldModel" {
+								Name = "WorldModel",
+
+								[Children] = scope:Computed(function(use)
+									local model = use(avatarModel)
+									return model and {model} or {}
+								end)
+							},
+
+							-- Set up viewport camera
+							viewportCamera:set(
+								scope:New "Camera" {
+									Name = "ViewportCamera",
+									CFrame = CFrame.new(Vector3.new(0, 0, 5), Vector3.new(0, 0, 0))
+								}
+							)
+						},
+
+						-- Set camera when viewport is created
+						CurrentCamera = scope:Computed(function(use)
+							return use(viewportCamera)
+						end)
+					},
+
+					-- Button frame
+					scope:New "Frame" {
+						Name = "ButtonsFrame",
+						Size = UDim2.fromScale(1, 0.2),
+						LayoutOrder = 2,
+						BackgroundTransparency = 1,
+
+						[Children] = {
+							scope:New "UIListLayout" {
+								FillDirection = Enum.FillDirection.Horizontal,
+								SortOrder = Enum.SortOrder.LayoutOrder,
+								HorizontalAlignment = Enum.HorizontalAlignment.Center,
+								VerticalAlignment = Enum.VerticalAlignment.Center,
+								Padding = UDim.new(0, 5)
+							},
+
+							-- Wear/Select Button
+							BaseButton(scope, {
+								name = "WearButton",
+								size = UDim2.fromScale(0.4, 0.8),
+								LayoutOrder = 1,
+								text = "Wear Outfit",
+								textScaled = true,
+
+								onActivated = function()
+									if peek(isCurrentlyEquipping) then return end
+									
+									isCurrentlyEquipping:set(true)
+
+									if props.onSelect then
+										props.onSelect()
+									end
+									
+									isCurrentlyEquipping:set(false)
+								end,
 							}
+							),
+							},
 						}
 					}
-					]]
 				}
 			}
-		}
-	} :: Frame
+		} :: Frame
 
 	-- Camera update function (copied from AvatarViewport)
 	local function updateCameraPosition()

@@ -231,7 +231,7 @@ function FusionDropdown<T>(
 
 		[Children] = {
 			scope:New "UICorner" {
-				CornerRadius = UDim.new(0.1, 0)
+				CornerRadius = UDim.new(0.5, 0)
 			},
 
 			scope:New "UIStroke" {
@@ -248,6 +248,26 @@ function FusionDropdown<T>(
 				Padding = UDim.new(0, 5),
 			},
 
+			scope:New "UIPadding" {
+				PaddingTop = UDim.new(0.05,0),
+				PaddingBottom = UDim.new(0.05,0),
+				PaddingLeft = UDim.new(0.05,0),
+				PaddingRight = UDim.new(0.05,0),
+			},
+
+			scope:New "TextLabel" {
+				Name = "SortBy",
+				Size = UDim2.fromScale(0.2,1),
+				Text = "Sort by: ",
+				BackgroundTransparency = 1,
+				TextColor3 = Color3.new(1, 1, 1),
+				TextScaled = true,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				LayoutOrder = 0,
+				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Medium, Enum.FontStyle.Normal),
+
+			},
+
 			-- Main selection button
 			scope:New "TextButton" {
 				Name = "SelectionButton",
@@ -261,20 +281,21 @@ function FusionDropdown<T>(
 				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Medium, Enum.FontStyle.Normal),
 
 				[OnEvent "Activated"] = toggleDropdown,
+
 			},
 
 			-- Arrow button
-			scope:New "TextButton" {
-				Name = "ArrowButton",
-				Size = UDim2.fromScale(0.15, 1),
-				Text = arrowText,
-				BackgroundTransparency = 1,
-				TextColor3 = Color3.new(1, 1, 1),
-				TextScaled = true,
-				LayoutOrder = 2,
+			-- scope:New "TextButton" {
+			-- 	Name = "ArrowButton",
+			-- 	Size = UDim2.fromScale(0.15, 1),
+			-- 	Text = arrowText,
+			-- 	BackgroundTransparency = 1,
+			-- 	TextColor3 = Color3.new(1, 1, 1),
+			-- 	TextScaled = true,
+			-- 	LayoutOrder = 2,
 
-				[OnEvent "Activated"] = toggleDropdown,
-			}
+			-- 	[OnEvent "Activated"] = toggleDropdown,
+			-- }
 		}
 	} :: Frame
 

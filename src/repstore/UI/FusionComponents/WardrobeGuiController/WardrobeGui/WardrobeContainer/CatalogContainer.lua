@@ -22,7 +22,7 @@ return function(scope: Fusion.Scope)
 		BackgroundColor3 = Color3.fromRGB(188, 188, 188),
 		BorderSizePixel = 0,
 		Position = UDim2.new(0,0,0,0), -- this will be over-ridden by UIListLayout
-		Size = UDim2.fromScale(0.7, 1),
+		Size = UDim2.fromScale(0.69, 1),
 
 		[Fusion.Children] = {
 			scope:New "UIListLayout" {
