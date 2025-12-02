@@ -206,32 +206,6 @@ function OutfitTile(
 							}
 						}
 					},
-					--[[
-					-- Wear/Select Button
-					scope:New "TextButton" {
-						Name = "BuyButton",
-						Size = UDim2.fromScale(0.4, 0.8),
-						LayoutOrder = 2,
-						BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-						Text = "Buy Outfit",
-						TextColor3 = Color3.new(1, 1, 1),
-						TextScaled = true,
-						Font = Enum.Font.Gotham,
-						-- This functionality is not yet ready
-						Visible = false,
-
-
-						[OnEvent "Activated"] = function()
-							PlayerPurchasedOutfit:FireServer(props.outfit.Id)
-						end,
-
-						[Children] = {
-							scope:New "UICorner" {
-								CornerRadius = UDim.new(0.1, 0)
-							}
-						}
-					}
-					]]
 				}
 			}
 		}
@@ -245,11 +219,16 @@ function OutfitTile(
 
 		local size = currentModel:GetExtentsSize()
 		local biggestSize = math.max(size.X, size.Y)
+		
 		local FovInRadians = math.rad(camera.FieldOfView)
 		local cameraDistance = (biggestSize / 2) / math.tan(FovInRadians / 2) * 1.05
-		-- For outfit tiles, use a fixed zoom value instead of spring
-		local zoomValue = 0.8 -- Fixed zoom for consistent tile appearance
-		cameraDistance = math.clamp(cameraDistance, 7, 11) / zoomValue -- Using same min/max as CONFIG
+		
+		-- Apply zoom factor
+		local zoomValue = 0.8 
+		cameraDistance = cameraDistance / zoomValue
+		
+		-- Clamp AFTER applying zoom
+		cameraDistance = math.clamp(cameraDistance, 3, 7)
 
 		local modelCFrame = currentModel:GetPivot()
 		local targetCFrame = (modelCFrame + (modelCFrame.LookVector * cameraDistance)) * CFrame.Angles(0, math.pi, 0)
@@ -259,7 +238,7 @@ function OutfitTile(
 	-- Update camera when model changes
 	scope:Observer(avatarModel):onChange(updateCameraPosition)
 	-- Set up initial camera position
-	task.defer(updateCameraPosition)
+	updateCameraPosition()
 
 	return outfitTile
 end
