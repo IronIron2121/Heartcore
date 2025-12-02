@@ -38,7 +38,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local ThemeText = scope:Value("Loading...")
 
 ThemeLabel:GetPropertyChangedSignal("Text"):Connect(function()
-    ThemeText:set("Totday's Fit Check theme: " .. ThemeLabel.Text)
+    ThemeText:set("Today's Fit Check theme: " .. ThemeLabel.Text)
 end)
 	
 local TimeText = scope:Value("Loading...")
