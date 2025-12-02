@@ -52,7 +52,7 @@ local function createDropdownDisplay(
 			-- Dropdown options frame
 			scope:New "Frame" {
 				Name = "OptionsFrame",
-				AnchorPoint = Vector2.new(0.5, 0),
+				AnchorPoint = Vector2.new(0, 0),
 				Position = position,
 				Size = scope:Computed(function()
 					local optionHeight = 30
@@ -60,7 +60,7 @@ local function createDropdownDisplay(
 					return UDim2.fromOffset(200, totalHeight)
 				end),
 				BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-				BackgroundTransparency = 0.1,
+				BackgroundTransparency = 0,
 				ZIndex = 2,
 
 				[Children] = {
@@ -89,9 +89,10 @@ local function createDropdownDisplay(
 									Size = UDim2.new(1, 0, 0, 30),
 									Text = tostring(option),
 									BackgroundColor3 = Color3.new(0.2, 0.2, 0.2),
-									BackgroundTransparency = 0.3,
+									BackgroundTransparency = 1,
 									TextColor3 = Color3.new(1, 1, 1),
 									TextScaled = true,
+									FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 									LayoutOrder = i,
 
 									[OnEvent "Activated"] = function()
