@@ -14,18 +14,13 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion Components
 local OnEvent = Fusion.OnEvent
+local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
-
 
 -- Remotes / Bindables
 local PlayerTriggeredCatalogConsole = Bindables:WaitForChild("PlayerTriggeredCatalogConsole")
 
-
-
-
-
 -- Constants
--- local DEFAULT_TEXT_COLOUR = Color3.new(0.360784, 0.376471, 0.839216)
 local COLOUR_BLACK = Color3.new(0, 0, 0)
 local COLOUR_ORANGE = Color3.new(0.901961, 0.380392, 0.078431)
 local COLOUR_GREY = Color3.new(1, 1, 1)
@@ -97,7 +92,7 @@ local function OpenWardrobeButton(
 			isHovering:set(false)
 		end,
 		
-		[Fusion.Children] = {
+		[Children] = {
 			scope:New "ImageLabel" {
 				Image = ImageUris.OutfitCatalogButton,
 				Size = UDim2.fromScale(1,1),

@@ -9,26 +9,24 @@ local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
 local Utility           = ReplicatedStorage:WaitForChild("Utility")
 local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
 local Values            = ReplicatedStorage:WaitForChild("Values")
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
-local Widgets = FusionComponents:WaitForChild("Widgets")
+local UI                = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents  = UI:WaitForChild("FusionComponents")
+local Widgets           = FusionComponents:WaitForChild("Widgets")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
 
 -- GUI
-local PlayerGui = localPlayer.PlayerGui
-local OutfitVoteTile = require(script:WaitForChild("OutfitVoteTile"))
-local EmptyVoteTile = require(script:WaitForChild("EmptyVoteTile"))
-local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
-
+local PlayerGui         = localPlayer.PlayerGui
+local OutfitVoteTile    = require(script:WaitForChild("OutfitVoteTile"))
+local EmptyVoteTile     = require(script:WaitForChild("EmptyVoteTile"))
+local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 
 -- Modules
-local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
-local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
-local ImageUris = require(DataTables:WaitForChild("ImageUris"))
-local Fusion = require(Utility:WaitForChild("Fusion"))
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local SerialisationService  = require(Utility:WaitForChild("SerialisationService"))
+local callWithRetry         = require(Utility:WaitForChild("callWithRetry"))
+local ImageUris             = require(DataTables:WaitForChild("ImageUris"))
+local Fusion                = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -46,17 +44,6 @@ local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTh
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 
--- Variables
--- TODO - or get next round if that's closer
-local timeToNextRotation = scope:Value("LOADING...")
-
---
-
-local VotingGuiController = {}
-
-local outfitVoteTiles = scope:Value({})
-local isRefreshing = false
-
 -- Types
 type TileData = {
     userId: number,
@@ -66,7 +53,15 @@ type TileData = {
     views: number
 }
 
+-- Variables
+-- TODO - or get next round if that's closer
+local timeToNextRotation = scope:Value("LOADING...")
+local outfitVoteTiles = scope:Value({})
+local isRefreshing = false
+
 --
+
+local VotingGuiController = {}
  
 local function refreshOutfitVoteTiles()
     if isRefreshing then
@@ -127,10 +122,9 @@ end
 
 local function initialiseRotationTimer()
     task.spawn(function()
-        local NextRotationText = Values:WaitForChild("NextRotationText", 10) :: StringValue
         while true do
             task.wait(1) 
-            timeToNextRotation:set("Out of outfits to load! Please wait for next voting phase!") --.. NextRotationText.Value)        
+            timeToNextRotation:set("Out of outfits to load! Please wait for next voting phase!")   
         end
     end)
 end
@@ -138,21 +132,20 @@ end
 local votingTheme = scope:Value("")
 
 function VotingGuiController.Initialise(
-    VoteGuiVisible: UsedAs<boolean>,
-    TimeText: UsedAs<string>,
     props: {
-        visible: Value<boolean>
+        VoteGuiVisible: UsedAs<boolean>,
+        TimeText: UsedAs<string>,
     }
 )
-    local visibilityObserver = scope:Observer(VoteGuiVisible)
+    local visibilityObserver = scope:Observer(props.VoteGuiVisible)
 
     initialiseRotationTimer()
 
     -- TODO: Make this more efficient with caching or something such...
     visibilityObserver:onChange(function()
-        if peek(VoteGuiVisible) == true then
+        if peek(props.VoteGuiVisible) == true then
             votingTheme:set(PlayerRequestedVotingTheme:InvokeServer())
-        elseif peek(VoteGuiVisible) == false then
+        elseif peek(props.VoteGuiVisible) == false then
             -- delete / reset the mannequins? ...
         end
     end)
@@ -170,7 +163,7 @@ function VotingGuiController.Initialise(
                 Position = UDim2.fromScale(0.5, 0.48),
                 BackgroundColor3 = Color3.new(1,1,1),
                 BackgroundTransparency = 1,
-                Visible = props.visible,
+                Visible = props.VoteGuiVisible,
 
                 [Children] = {
                     CloseButton(scope, {
@@ -179,7 +172,7 @@ function VotingGuiController.Initialise(
                         position = UDim2.fromScale(1, 0),
 
                         onClick = function()
-                            props.visible:set(not peek(props.visible))
+                            props.VoteGuiVisible:set(not peek(props.VoteGuiVisible))
                         end
                     }),
 
@@ -298,7 +291,7 @@ function VotingGuiController.Initialise(
                                             scope:New "TextLabel" {
                                                 Name = "Timer",
                                                 -- Text = "HH:MM:SS",
-                                                Text = TimeText,
+                                                Text = props.TimeText,
                                                 TextScaled = true,
                                                 Size = UDim2.fromScale(1, 1),
                                                 LayoutOrder = 2,
