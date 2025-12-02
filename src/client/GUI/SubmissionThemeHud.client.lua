@@ -89,6 +89,7 @@ local function initialiseGUI()
                     }
                 }
             },
+
             scope:New "Frame" {
                 Name = "TimerContainer",
                 Size = UDim2.fromScale(0.5,0.5),
@@ -114,9 +115,9 @@ local function initialiseGUI()
                         TextColor3 = Color3.fromRGB(255, 255, 255),
 
                         [Children] = {
-                            scope:New "UIStroke"{
-                            Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                            Thickness = 2,
+                            scope:New "UIStroke" {
+                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                                Thickness = 2,
                             }
                         }
                     },
@@ -147,8 +148,8 @@ local function initialiseGUI()
 
                         [Children] = {
                             scope:New "UIStroke"{
-                            Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                            Thickness = 2,
+                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                                Thickness = 2,
                             }
                         }
                     }
