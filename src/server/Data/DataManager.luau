@@ -3,16 +3,16 @@ DataManager.Profiles = {}
 
 -- Rank system configuration (ranks change every 10 levels)
 local RANK_NAMES = {
-    [1] = "Fashion Newbie",    -- Levels 1-10
-    [2] = "Style Apprentice",  -- Levels 11-20
-    [3] = "Trend Setter",      -- Levels 21-30
-    [4] = "Fashion Expert",    -- Levels 31-40
+    [1] = "Aura Farmer",    -- Levels 1-10
+    [2] = "Wardobe Walker",  -- Levels 11-20
+    [3] = "Style Apprentice",      -- Levels 21-30
+    [4] = "Trend Thrifter",    -- Levels 31-40
     [5] = "Style Icon",        -- Levels 41-50
-    [6] = "Fashion Legend",    -- Levels 51-60
-    [7] = "Couture Master",    -- Levels 61-70
-    [8] = "Runway Elite",      -- Levels 71-80
-    [9] = "Fashion Virtuoso",  -- Levels 81-90
-    [10] = "Style God",        -- Levels 91-100
+    [6] = "Looksmaxxer",    -- Levels 51-60
+    [7] = "Drip Master",    -- Levels 61-70
+    [8] = "Runway Rizzer",      -- Levels 71-80
+    [9] = "Fashion Goat",  -- Levels 81-90
+    [10] = "Taste Maker",        -- Levels 91-100
 }
 
 -- Helper function to get the start of a day (midnight UTC) for a given timestamp
