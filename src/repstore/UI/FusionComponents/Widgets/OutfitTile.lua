@@ -2,25 +2,21 @@
 -- OutfitTile.lua
 
 -- Services
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players 			= game:GetService("Players")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
-local Widgets = FusionComponents:WaitForChild("Widgets")
-
-
+local DataTables 		= ReplicatedStorage:WaitForChild("DataTables")
+local Utility 			= ReplicatedStorage:WaitForChild("Utility")
+local UI 				= ReplicatedStorage:WaitForChild("UI")
+local FusionComponents 	= UI:WaitForChild("FusionComponents")
+local Widgets 			= FusionComponents:WaitForChild("Widgets")
 
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
-local Fusion = require(Utility:WaitForChild("Fusion"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 local BaseButton = require(Widgets:WaitForChild("BaseButton"))
-
-
+local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion
 local OnEvent = Fusion.OnEvent
@@ -28,6 +24,7 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 local peek = Fusion.peek
 
+--
 
 function OutfitTile(
 	scope: Fusion.Scope,
@@ -220,14 +217,13 @@ function OutfitTile(
 									
 									isCurrentlyEquipping:set(false)
 								end,
-							}
-							),
-							},
-						}
+							}),
+						},
 					}
 				}
 			}
-		} :: Frame
+		}
+	} :: Frame
 
 	-- Camera update function (copied from AvatarViewport)
 	local function updateCameraPosition()
