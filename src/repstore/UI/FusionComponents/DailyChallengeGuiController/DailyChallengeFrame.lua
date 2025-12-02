@@ -43,17 +43,20 @@ local UpdateChallengeProgress   = Remotes:WaitForChild("UpdateChallengeProgress"
 local ClaimChallengeReward      = Remotes:WaitForChild("ClaimChallengeReward")
 local GetActiveChallenges       = Remotes:WaitForChild("GetActiveChallenges")
 
+--
 
 local function updateTimeText(newText: string)
     TimeText:set(newText)
 end
 
-task.spawn(function()
+task.spawn(
+    function()
         while true do
             task.wait(1)
             updateTimeText(TimeLabel.Text)
         end
-    end)
+    end
+)
 
 local function DailyChallengeFrame(
     scope: Fusion.Scope,
@@ -95,7 +98,6 @@ local function DailyChallengeFrame(
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.fromScale(0.5, 0.5),
         Visible = props.visible,
-
 
         [Children] = {
             CloseButton(scope, {
