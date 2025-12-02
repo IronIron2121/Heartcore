@@ -14,7 +14,8 @@ local assets = {
 	StopwatchIcon = "73600277679991",
 	RobuxIcon = "81055682730978",
 	ExpBar = "73207886316381",
-	ClaimButton = "96236040552707",
+	ClaimButton = "140623730526268",
+	ClaimedButton = "71218500167955",
 	DailyChallengeButton = "93273619202001",
 	VoteButton = "137550678558366"
 }

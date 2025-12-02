@@ -14,6 +14,12 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 type UsedAs<T> = Fusion.UsedAs<T>
 local Children = Fusion.Children
+local OnEvent = Fusion.OnEvent
+
+-- Constants
+local COLOUR_ORANGE = Color3.new(0.901961, 0.380392, 0.078431)
+local COLOUR_GREY = Color3.new(1, 1, 1)
+local BG_FADE_SPEED = 20
 
 local function ChallengeCard(
     scope: Fusion.Scope,
@@ -27,6 +33,16 @@ local function ChallengeCard(
     }
 ): Frame
     local isHovered = scope:Value(false)
+    local Toggled = scope:Value(false)
+    local isHovering = scope:Value(false)
+	local isHeldDown = scope:Value(false)
+	
+	local COLOUR_BG_TOGGLED = COLOUR_ORANGE
+	local COLOUR_BG_NOT_TOGGLED = COLOUR_GREY
+
+    local isToggled = scope:Computed(function(use, _)
+		return use(Toggled) == true
+	end)
     
     local challengeFrame = scope:New "Frame" {
         Name = "ChallengeCard",
@@ -202,14 +218,15 @@ local function ChallengeCard(
 
                     scope:New "TextButton" {
                         Name = "ClaimButton",
-                        Size = UDim2.fromScale(0.8,0.3),
+                        Size = UDim2.fromScale(0.9,0.9),
                         AnchorPoint = Vector2.new(0.5, 0.5),
                         Position = UDim2.fromScale(0.5, 0.5),
-                        BackgroundColor3 = props.isClaimed and Color3.fromRGB(50,255,50) or Color3.fromRGB(255, 153, 0),
-                        Text = props.isClaimed and "CLAIMED !" or "CLAIM !",
-                        TextSize = 28,
-                        TextColor3 = Color3.fromRGB(255, 255, 255),
-                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+                        BackgroundTransparency = 1,
+                        --BackgroundColor3 = props.isClaimed and Color3.fromRGB(50,255,50) or Color3.fromRGB(255, 153, 0),
+                        --Text = props.isClaimed and "CLAIMED !" or "CLAIM !",
+                        --TextSize = 28,
+                        --TextColor3 = Color3.fromRGB(255, 255, 255),
+                        --FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 
                         [Fusion.OnEvent "Activated"] = function()
                             if props.onClaim then
@@ -217,16 +234,51 @@ local function ChallengeCard(
                             end
                         end,
 
-                        [Children] = {
-                            scope:New "UICorner" {
-                                CornerRadius = UDim.new(0.5, 0)
+                        [OnEvent "MouseButton1Down"] = function()
+                            isHeldDown:set(true)
+                        end,
+                        
+                        [OnEvent "MouseButton1Up"] = function()
+                            isHeldDown:set(false)
+                        end,
+                        
+                        [OnEvent "MouseEnter"] = function()
+                            isHovering:set(true)
+                        end,
+                        
+                        [OnEvent "MouseLeave"] = function()
+                            isHovering:set(false)
+                        end,
+
+
+
+                        [Fusion.Children] = {
+                            scope:New "ImageLabel" {
+                                Image = props.isClaimed and ImageUris.ClaimedButton or ImageUris.ClaimButton,
+                                Size = UDim2.fromScale(1,1),
+                                BackgroundTransparency = 1,
+                                ImageColor3 = scope:Spring(
+                                    scope:Computed(function(use)
+                                        local baseColor = use(isToggled) and COLOUR_BG_TOGGLED or COLOUR_BG_NOT_TOGGLED
+                                        
+                                        if use(isHeldDown) then
+                                            return baseColor:Lerp(COLOUR_ORANGE, 0.8)
+                                        elseif use(isHovering) then
+                                            return baseColor:Lerp(COLOUR_ORANGE, 0.25)
+                                        else 
+                                            return baseColor
+                                        end
+                                    end),
+                                    BG_FADE_SPEED
+                                ), 
+                                
+                            },
+                            
+                            scope:New "UIAspectRatioConstraint" {
+                                AspectRatio = 1
                             },
 
-                            scope:New "UIStroke" {
-                                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                                Thickness = 3,
-                                Color = props.isClaimed and Color3.fromRGB(0,100,10) or Color3.fromRGB(200, 120, 0)
-                            }
+                            
                         }
                     }
                 }

@@ -210,6 +210,13 @@ function VotingGuiController.Initialise(
                             },
 
                             scope:New "Frame" {
+                                Name = "Buffer",
+                                Size = UDim2.fromScale(1, 0.03),
+                                LayoutOrder = 0,
+                                BackgroundTransparency = 1
+                            },
+
+                            scope:New "Frame" {
                                 Name = "TopBar",
                                 Size = UDim2.fromScale(1, 0.1),
                                 LayoutOrder = 1,
@@ -218,7 +225,9 @@ function VotingGuiController.Initialise(
                                 [Children] = {
                                     scope:New "UIListLayout" {
                                         FillDirection = Enum.FillDirection.Horizontal,
-                                        SortOrder = Enum.SortOrder.LayoutOrder
+                                        SortOrder = Enum.SortOrder.LayoutOrder,
+                                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                                        Padding = UDim.new(0.02,0),
                                     },
 
                                     scope:New "TextLabel" {
@@ -228,7 +237,9 @@ function VotingGuiController.Initialise(
                                         Size = UDim2.fromScale(0.3, 1),
                                         LayoutOrder = 0,
                                         BackgroundTransparency = 1,
-                                        TextColor3 = Color3.fromRGB(92, 96, 214)
+                                        TextColor3 = Color3.fromRGB(92, 96, 214),
+                                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
+
                                     },
 
                                     scope:New "TextLabel" {
@@ -238,12 +249,13 @@ function VotingGuiController.Initialise(
                                         Size = UDim2.fromScale(0.3, 1),
                                         LayoutOrder = 1,
                                         BackgroundTransparency = 1,
-                                        TextColor3 = Color3.fromRGB(92, 96, 214)
+                                        TextColor3 = Color3.fromRGB(92, 96, 214),
+                                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
                                     },
 
                                     scope:New "Frame"{
                                         Name = "Buffer",
-                                        Size = UDim2.fromScale(0.1, 1),
+                                        Size = UDim2.fromScale(0.03, 1),
                                         LayoutOrder = 2,
                                         BackgroundTransparency = 1,
                                     },
@@ -258,7 +270,8 @@ function VotingGuiController.Initialise(
 
                                             scope:New "UIListLayout" {
                                                 FillDirection = Enum.FillDirection.Horizontal,
-                                                SortOrder = Enum.SortOrder.LayoutOrder
+                                                SortOrder = Enum.SortOrder.LayoutOrder,
+                                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
                                             },
 
                                             scope:New "ImageLabel"{
@@ -283,7 +296,8 @@ function VotingGuiController.Initialise(
                                                 Size = UDim2.fromScale(1, 1),
                                                 LayoutOrder = 2,
                                                 BackgroundTransparency = 1,
-                                                TextColor3 = Color3.fromRGB(92, 96, 214)
+                                                TextColor3 = Color3.fromRGB(92, 96, 214),
+                                                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
                                             }
                                         }
                                     }
