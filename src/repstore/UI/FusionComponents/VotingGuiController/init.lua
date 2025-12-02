@@ -2,32 +2,31 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
+local Players           = game:GetService("Players")
 
 -- Folders
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local Values = ReplicatedStorage:WaitForChild("Values")
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
-local Widgets = FusionComponents:WaitForChild("Widgets")
+local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
+local Utility           = ReplicatedStorage:WaitForChild("Utility")
+local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
+local Values            = ReplicatedStorage:WaitForChild("Values")
+local UI                = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents  = UI:WaitForChild("FusionComponents")
+local Widgets           = FusionComponents:WaitForChild("Widgets")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
 
 -- GUI
-local PlayerGui = localPlayer.PlayerGui
-local OutfitVoteTile = require(script:WaitForChild("OutfitVoteTile"))
-local EmptyVoteTile = require(script:WaitForChild("EmptyVoteTile"))
-local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
-
+local PlayerGui         = localPlayer.PlayerGui
+local OutfitVoteTile    = require(script:WaitForChild("OutfitVoteTile"))
+local EmptyVoteTile     = require(script:WaitForChild("EmptyVoteTile"))
+local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 
 -- Modules
-local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
-local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
-local ImageUris = require(DataTables:WaitForChild("ImageUris"))
-local Fusion = require(Utility:WaitForChild("Fusion"))
+local SerialisationService  = require(Utility:WaitForChild("SerialisationService"))
+local callWithRetry         = require(Utility:WaitForChild("callWithRetry"))
+local ImageUris             = require(DataTables:WaitForChild("ImageUris"))
+local Fusion                = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -35,7 +34,6 @@ local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
-
 
 -- Constants
 local maxDisplayedOutfits = 3
@@ -46,17 +44,6 @@ local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTh
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 
--- Variables
--- TODO - or get next round if that's closer
-local timeToNextRotation = scope:Value("LOADING...")
-
---
-
-local VotingGuiController = {}
-
-local outfitVoteTiles = scope:Value({})
-local isRefreshing = false
-
 -- Types
 type TileData = {
     userId: number,
@@ -66,7 +53,15 @@ type TileData = {
     views: number
 }
 
+-- Variables
+-- TODO - or get next round if that's closer
+local timeToNextRotation = scope:Value("LOADING...")
+local outfitVoteTiles = scope:Value({})
+local isRefreshing = false
+
 --
+
+local VotingGuiController = {}
  
 local function refreshOutfitVoteTiles()
     if isRefreshing then
@@ -127,10 +122,9 @@ end
 
 local function initialiseRotationTimer()
     task.spawn(function()
-        local NextRotationText = Values:WaitForChild("NextRotationText", 10) :: StringValue
         while true do
             task.wait(1) 
-            timeToNextRotation:set("Out of outfits to load! Please wait for next voting phase!") --.. NextRotationText.Value)        
+            timeToNextRotation:set("Out of outfits to load! Please wait for next voting phase!")   
         end
     end)
 end
@@ -370,20 +364,6 @@ function VotingGuiController.Initialise(
                                     end)
                                 } 
                             },
-
-                            -- scope:New "Frame" {
-                            --     Name = "Buffer",
-                            --     Size = UDim2.fromScale(1, 0.05),
-                            --     LayoutOrder = 3,
-                            --     BackgroundTransparency = 1
-                            -- },
-
-                            -- scope:New "Frame" {
-                            --     Name = "SubmitFrame",
-                            --     Size = UDim2.fromScale(0.5, 0.2),
-                            --     LayoutOrder = 4,
-                            --     BackgroundTransparency = 1,
-                            -- }
                         }
                     },
                 }
