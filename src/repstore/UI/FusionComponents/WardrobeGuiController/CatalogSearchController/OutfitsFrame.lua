@@ -173,6 +173,13 @@ function OutfitsFrame(
 						Padding = UDim.new(0, 10)
 					},
 
+					scope:New "UIPadding" {
+						PaddingTop = UDim.new(0.02,0),
+						PaddingBottom = UDim.new(0.02,0),
+						PaddingLeft = UDim.new(0.02,0),
+						PaddingRight = UDim.new(0.02,0),			
+					},
+
 					-- Loading indicator
 					scope:New "TextLabel" {
 						Name = "LoadingLabel",
@@ -258,7 +265,7 @@ function OutfitsFrame(
 						text = "Back to shopping",
 						textScaled = true,
 						size = UDim2.fromScale(0.2, 0.5),
-						backgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+						backgroundColor = UI_CONSTANTS.TASTEMAKER_PURPLE,
 						strokeColor = Color3.new(1,1,1),
 						strokeThickness = 2,
 						textColor = Color3.new(1,1,1),

@@ -67,14 +67,12 @@ local BG_FADE_SPEED = 20
 
 local function CloseButton(
     scope: Fusion.Scope,
-    props
+    props: {
+		position: UsedAs<UDim2>,
+		onClick: () -> ()
+	}
 )
     local Toggled = scope:Value(false)
-
-    local OnClick = function()
-        Toggled:set(not Fusion.peek(Toggled))
-    end
-
     local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
 	
@@ -99,8 +97,8 @@ local function CloseButton(
 		
 		
 		[OnEvent "Activated"] = function()
-			if OnClick ~= nil then
-				OnClick()
+			if props.onClick ~= nil then
+				props.onClick()
 			end
 		end,
 		
@@ -120,9 +118,7 @@ local function CloseButton(
 			isHovering:set(false)
 		end,
 
-        [Fusion.OnEvent "Activated"] = function()
-            props.visibilityBoolean:set(not props.visibilityBoolean)
-        end,
+
 
         [Fusion.Children] = {
 			scope:New "ImageLabel" {
