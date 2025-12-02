@@ -30,15 +30,12 @@ local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
-
 -- Fusion Modules
 local scope = Fusion:scoped()
-local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
-
 
 -- Constants
 local maxDisplayedOutfits = 3

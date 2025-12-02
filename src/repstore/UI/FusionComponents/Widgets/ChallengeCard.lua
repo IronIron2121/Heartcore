@@ -17,7 +17,6 @@ local Children = Fusion.Children
 local OnEvent = Fusion.OnEvent
 
 -- Constants
-local COLOUR_BLACK = Color3.new(0, 0, 0)
 local COLOUR_ORANGE = Color3.new(0.901961, 0.380392, 0.078431)
 local COLOUR_GREY = Color3.new(1, 1, 1)
 local BG_FADE_SPEED = 20
