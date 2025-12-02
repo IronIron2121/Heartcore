@@ -37,8 +37,9 @@ local CONFIG = {
 function AvatarViewport(
 	scope: Fusion.Scope,
 	props: {
-		model: Fusion.UsedAs<Model>,
+		model: UsedAs<Model>,
 		currentView: Fusion.Value<string>,
+		layoutOrder: UsedAs<number>
 	}
 ): ViewportFrame
 	-- Avatar manipulation variables
@@ -77,12 +78,12 @@ function AvatarViewport(
 	local viewport = scope:New "ViewportFrame" {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Name = "AvatarViewport",
-		Size = UDim2.fromScale(1, 0.85),  
+		Size = UDim2.fromScale(0.80, 1),  
+		LayoutOrder = props.layoutOrder or 2,
 		Position = UDim2.fromScale(0.5, 0.5),
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		BorderSizePixel = 2,
 		BorderColor3 = Color3.new(0.360784, 0.376471, 0.839216),
-		LayoutOrder = 1,
 		Ambient = Color3.new(1,1,1),
 		LightColor = Color3.fromRGB(255, 249, 228),
 		LightDirection = Vector3.new(1,1,1),

@@ -27,7 +27,7 @@ return function(scope: Fusion.Scope)
 		[Fusion.Children] = {
 			scope:New "UIListLayout" {
 				Padding = UDim.new(0, 10),
-				FillDirection = Enum.FillDirection.Vertical,
+				FillDirection = Enum.FillDirection.Horizontal,
 				SortOrder = Enum.SortOrder.LayoutOrder,
 				HorizontalAlignment = Enum.HorizontalAlignment.Left,
 				VerticalAlignment = Enum.VerticalAlignment.Top,
