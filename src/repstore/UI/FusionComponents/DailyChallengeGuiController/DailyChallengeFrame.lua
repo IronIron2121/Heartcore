@@ -3,46 +3,45 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
-local Widgets = FusionComponents:WaitForChild("Widgets")
-local ImageUris = require(DataTables:WaitForChild("ImageUris"))
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local Utility           = ReplicatedStorage:WaitForChild("Utility")
+local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
+local UI                = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents  = UI:WaitForChild("FusionComponents")
+local Widgets           = FusionComponents:WaitForChild("Widgets")
+local ImageUris         = require(DataTables:WaitForChild("ImageUris"))
+local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local UI_CONSTANTS      = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- UI Components
-local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
-local ChallengeCard = require(Widgets:WaitForChild("ChallengeCard"))
+local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
+local ChallengeCard     = require(Widgets:WaitForChild("ChallengeCard"))
 
 --Instances
-local centralPond = workspace:WaitForChild("centralPond")
-local pondModel = centralPond:WaitForChild("centralPond")
+local centralPond               = workspace:WaitForChild("centralPond")
+local pondModel                 = centralPond:WaitForChild("centralPond")
 local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
-local BillboardGui = SubmissionBillboardHolder:WaitForChild("BillboardGui")
-local Frame = BillboardGui:WaitForChild("Frame")
-local TimeLabel = Frame:WaitForChild("TimeLabel")
+local BillboardGui              = SubmissionBillboardHolder:WaitForChild("BillboardGui")
+local Frame                     = BillboardGui:WaitForChild("Frame")
+local TimeLabel                 = Frame:WaitForChild("TimeLabel")
 
 -- Fusion
-local Fusion = require(Utility:WaitForChild("Fusion"))
-local peek = Fusion.peek
-local scope = Fusion:scoped()
+local Fusion    = require(Utility:WaitForChild("Fusion"))
+local peek      = Fusion.peek
+local scope     = Fusion:scoped()
 
-type UsedAs<T> = Fusion.UsedAs<T> 
-local Children = Fusion.Children
-type Value<T> = Fusion.Value<T>
+type UsedAs<T>  = Fusion.UsedAs<T> 
+local Children  = Fusion.Children
+type Value<T>   = Fusion.Value<T>
 
 local TimeText = scope:Value("Loading...")
 
 -- RemoteEvents
-local UpdateChallengeProgress = Remotes:WaitForChild("UpdateChallengeProgress")
-local ClaimChallengeReward = Remotes:WaitForChild("ClaimChallengeReward")
-local GetActiveChallenges = Remotes:WaitForChild("GetActiveChallenges")
+local UpdateChallengeProgress   = Remotes:WaitForChild("UpdateChallengeProgress")
+local ClaimChallengeReward      = Remotes:WaitForChild("ClaimChallengeReward")
+local GetActiveChallenges       = Remotes:WaitForChild("GetActiveChallenges")
 
 
 local function updateTimeText(newText: string)
