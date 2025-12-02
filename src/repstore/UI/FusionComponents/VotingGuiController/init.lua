@@ -139,21 +139,21 @@ end
 local votingTheme = scope:Value("")
 
 function VotingGuiController.Initialise(
-    VoteGuiVisible: UsedAs<boolean>,
-    TimeText: UsedAs<string>,
     props: {
+        VoteGuiVisible: UsedAs<boolean>,
+        TimeText: UsedAs<string>,
         visible: Value<boolean>
     }
 )
-    local visibilityObserver = scope:Observer(VoteGuiVisible)
+    local visibilityObserver = scope:Observer(props.VoteGuiVisible)
 
     initialiseRotationTimer()
 
     -- TODO: Make this more efficient with caching or something such...
     visibilityObserver:onChange(function()
-        if peek(VoteGuiVisible) == true then
+        if peek(props.VoteGuiVisible) == true then
             votingTheme:set(PlayerRequestedVotingTheme:InvokeServer())
-        elseif peek(VoteGuiVisible) == false then
+        elseif peek(props.VoteGuiVisible) == false then
             -- delete / reset the mannequins? ...
         end
     end)
@@ -286,7 +286,7 @@ function VotingGuiController.Initialise(
                                             scope:New "TextLabel" {
                                                 Name = "Timer",
                                                 -- Text = "HH:MM:SS",
-                                                Text = TimeText,
+                                                Text = props.TimeText,
                                                 TextScaled = true,
                                                 Size = UDim2.fromScale(1, 1),
                                                 LayoutOrder = 2,
