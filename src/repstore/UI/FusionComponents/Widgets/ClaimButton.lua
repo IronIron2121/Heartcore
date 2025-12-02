@@ -21,7 +21,7 @@ local COLOUR_GREY = Color3.new(1, 1, 1)
 
 local BG_FADE_SPEED = 20
 
-local function CloseButton(
+local function ClaimButton(
     scope: Fusion.Scope,
     props: {
 		position: UsedAs<UDim2>,
@@ -55,7 +55,7 @@ local function CloseButton(
 	end)
 	
 	return scope:New "TextButton" {
-		Name = "CloseButton",
+		Name = "ClaimButton",
 		Position = props.position or UDim2.fromScale(1, 1),
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		ZIndex = props.zIndex or 3, 
@@ -114,8 +114,7 @@ local function CloseButton(
             
 		}
     },
-
         Toggled
 end
 
-return CloseButton
+return ClaimButton
