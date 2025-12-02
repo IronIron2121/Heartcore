@@ -17,8 +17,11 @@ local WardrobeContainer = require(script:WaitForChild("WardrobeContainer"))
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
+local New = Fusion.New
 local Children = Fusion.Children
 local Value = Fusion.Value
+local Out = Fusion.Out
+local peek = Fusion.peek
 local scope = Fusion:scoped()
 
 type UsedAs<T> = Fusion.UsedAs<T>
@@ -43,4 +46,4 @@ return function(Toggled: Fusion.Value<boolean>)
 	}),
 		AvatarContainer,
 		CatalogContainer
-end
+end 
