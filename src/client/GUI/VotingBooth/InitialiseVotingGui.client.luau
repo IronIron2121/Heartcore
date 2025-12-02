@@ -72,7 +72,10 @@ local function initialiseVoteGui()
         end
     end)
 
-    VotingGuiController.Initialise(VoteGuiVisible, TimeText)
+    VotingGuiController.Initialise({
+        VoteGuiVisible = VoteGuiVisible, 
+        TimeText = TimeText
+    })
 	--VotingClientManager.initialiseVotingGui()
 end 
 
