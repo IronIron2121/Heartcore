@@ -6,7 +6,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Folders
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
@@ -14,18 +13,13 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion
 type UsedAs<T> = Fusion.UsedAs<T>
---type Value<T> = Fusion.Value<T>
 local OnEvent = Fusion.OnEvent
 
 -- Constants
-local COLOUR_BLACK = Color3.new(0, 0, 0)
 local COLOUR_ORANGE = Color3.new(0.901961, 0.380392, 0.078431)
 local COLOUR_GREY = Color3.new(1, 1, 1)
 
-
 local BG_FADE_SPEED = 20
-
-
 
 local function CloseButton(
     scope: Fusion.Scope,
@@ -62,16 +56,12 @@ local function CloseButton(
 	
 	return scope:New "TextButton" {
 		Name = "CloseButton",
-		
 		Position = props.position or UDim2.fromScale(1, 1),
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		ZIndex = props.zIndex or 3, 
 		Size = props.size or UDim2.fromScale(0.1,0.1),
 		BackgroundTransparency = 1,
-		
 		Transparency = 1,
-
-		
 		
 		[OnEvent "Activated"] = function()
 			if props.onClick ~= nil then
@@ -94,8 +84,6 @@ local function CloseButton(
 		[OnEvent "MouseLeave"] = function()
 			isHovering:set(false)
 		end,
-
-
 
         [Fusion.Children] = {
 			scope:New "ImageLabel" {
