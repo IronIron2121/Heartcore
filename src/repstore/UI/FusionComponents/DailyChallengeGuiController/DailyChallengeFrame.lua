@@ -100,7 +100,7 @@ local function DailyChallengeFrame(
 
         [Children] = {
             CloseButton(scope, {
-                size = UDim2.fromScale(0.1, 0.1),
+                size = UDim2.fromScale(0.13, 0.13),
                 anchorPoint = Vector2.new(0.5, 0.5),
                 position = UDim2.fromScale(1, 0),
 
