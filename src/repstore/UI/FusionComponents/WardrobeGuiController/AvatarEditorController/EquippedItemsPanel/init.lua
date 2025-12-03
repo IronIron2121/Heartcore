@@ -3,29 +3,23 @@
 -- EquippedItemsPanel.lua
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-
--- Remotes
-local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
 
 -- Modules
-local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion
-local peek = Fusion.peek
 local Children = Fusion.Children
 
 -- GUI Components
 local EquippedItemButtons = require(script:WaitForChild("EquippedItemButtons"))
 
--- TODO -- Auto-scaling-canvas size and whatnot
+--
+
 function EquippedItemsPanel(
 	scope: Fusion.Scope
 )
@@ -55,7 +49,6 @@ function EquippedItemsPanel(
 		1
 	)	
 
-
 	local equippedItemButtons = EquippedItemButtons(scope, {
 		buttonSize = scope:Value(UDim2.fromScale(0.8, 0.8)),
 		equipItemButtonsVisible = equipItemButtonsVisible
@@ -82,8 +75,10 @@ function EquippedItemsPanel(
 				ItemLineAlignment = Enum.ItemLineAlignment.Center,
 				Padding = UDim.new(0, 10),
 				SortOrder = Enum.SortOrder.LayoutOrder
-			},			
+			},		
+
 			equippedItemButtons,
+
 			scope:New "Frame" {
 				Name = "rightBuffer",
 				Size = UDim2.fromScale(0.03, 1),
@@ -92,7 +87,6 @@ function EquippedItemsPanel(
 			}
 		}
 	} :: ScrollingFrame
-
 	
 	local equippedItemsPanel = scope:New "Frame" {
 			Size = UDim2.fromScale(1, 0.1),
