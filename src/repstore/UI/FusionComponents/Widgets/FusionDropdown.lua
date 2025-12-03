@@ -53,46 +53,75 @@ local function createDropdownDisplay(
 			scope:New "Frame" {
 				Name = "OptionsFrame",
 				AnchorPoint = Vector2.new(0, 0),
-				Position = position,
+				Position = UDim2.fromScale(0.77, 0.074),
 				Size = scope:Computed(function()
-					local optionHeight = 30
+					local optionHeight = 35
 					local totalHeight = #options * optionHeight
-					return UDim2.fromOffset(200, totalHeight)
+					return UDim2.fromOffset(250, totalHeight)
 				end),
-				BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+				BackgroundColor3 = UI_CONSTANTS.COLOUR_WHITE,
 				BackgroundTransparency = 0,
 				ZIndex = 2,
 
 				[Children] = {
-					scope:New "UICorner" {
-						CornerRadius = UDim.new(0.1, 0)
-					},
+					-- scope:New "UICorner" {
+					-- 	CornerRadius = UDim.new(0.1, 0)
+					-- },
 
 					scope:New "UIStroke" {
 						ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-						Color = Color3.new(1, 1, 1),
+						Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
 						Thickness = 1,
+					},
+
+					scope:New "UICorner" {
+						CornerRadius = UDim.new(0.05,0),
+					},
+
+					scope:New "UIPadding" {
+						PaddingTop = UDim.new(0.02,0),
+						PaddingBottom = UDim.new(0.02,0),
+						PaddingLeft = UDim.new(0.02,0),
+						PaddingRight = UDim.new(0.02,0),			
 					},
 
 					scope:New "UIListLayout" {
 						FillDirection = Enum.FillDirection.Vertical,
 						SortOrder = Enum.SortOrder.LayoutOrder,
+						Padding = UDim.new(0.02,0),
 					},
 
 					-- Create option buttons
 					table.unpack(
 						(function()
 							local optionButtons = {}
+							
 							for i, option in ipairs(options) do
+
+								local isHovering = scope:Value(false)
+
+								local textSizeSpring = scope:Spring(
+									scope:Computed(function(use)
+										if use(isHovering) then
+											return 1.2 -- 20% larger when hovering
+										else
+											return 1 -- normal size
+										end
+									end),
+									20,
+									1
+								)
+
 								table.insert(optionButtons, scope:New "TextButton" {
 									Name = "Option" .. i,
 									Size = UDim2.new(1, 0, 0, 30),
 									Text = tostring(option),
-									BackgroundColor3 = Color3.new(0.2, 0.2, 0.2),
+									BackgroundColor3 = Color3.new(1, 1, 1),
 									BackgroundTransparency = 1,
-									TextColor3 = Color3.new(1, 1, 1),
+									TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 									TextScaled = true,
 									FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
+									TextXAlignment = Enum.TextXAlignment.Left,
 									LayoutOrder = i,
 
 									[OnEvent "Activated"] = function()
@@ -100,9 +129,17 @@ local function createDropdownDisplay(
 										onOptionSelected(option)
 									end,
 
+									[OnEvent "MouseEnter"] = function()
+										isHovering:set(true)
+									end,
+									
+									[OnEvent "MouseLeave"] = function()
+										isHovering:set(false)
+									end,
+
 									[Children] = {
-										scope:New "UICorner" {
-											CornerRadius = UDim.new(0.05, 0)
+										scope:New "UIScale" {
+											Scale = textSizeSpring -- this will still scale the whole label
 										}
 									}
 								})
@@ -153,7 +190,7 @@ function FusionDropdown<T>(
 	local backgroundColorSpring = scope:Spring(
 		scope:Computed(function(use)
 			if use(isHovering) then
-				return UI_CONSTANTS.TASTEMAKER_PURPLE:Lerp(UI_CONSTANTS.COLOUR_BLACK, 0.20)
+				return UI_CONSTANTS.TASTEMAKER_PURPLE:Lerp(UI_CONSTANTS.COLOUR_WHITE, 0.20)
 			else
 				return UI_CONSTANTS.TASTEMAKER_PURPLE
 			end
@@ -258,7 +295,7 @@ function FusionDropdown<T>(
 
 			scope:New "TextLabel" {
 				Name = "SortBy",
-				Size = UDim2.fromScale(0.2,1),
+				Size = UDim2.fromScale(0.25,1),
 				Text = "Sort by: ",
 				BackgroundTransparency = 1,
 				TextColor3 = Color3.new(1, 1, 1),
