@@ -8,10 +8,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
-local Data = ServerScriptService:WaitForChild("Data")
-local DataManager = require(Data:WaitForChild("DataManager"))
 local ChallengeDefinitions = require(script.Parent:WaitForChild("ChallengeDefinitions"))
 local UpdateChallengeProgress = Remotes:FindFirstChild("UpdateChallengeProgress")
+local Data = ServerScriptService:WaitForChild("Data")
+local DataManager = require(Data:WaitForChild("DataManager"))
+
+--
 
 local ChallengeManager = {}
 
@@ -35,23 +37,28 @@ function ChallengeManager.InitialiseChallenges(player: Player)
     local lastResetTime = profile.Data.LastChallengeResetTime or 0
     
     if isNewDay(lastResetTime) then
-        print("Resetting challenges for", player.Name)
-        
-        -- Get all challenges
-        local dailyChallenges = ChallengeDefinitions.GetDailyChallengeSet()
-        
-        -- Reset challenge progress
-        profile.Data.DailyChallenges = {}
-        for _, challenge in ipairs(dailyChallenges) do
-            profile.Data.DailyChallenges[challenge.id] = {
-                id = challenge.id,
-                progress = 0,
-                claimed = false
-            }
-        end
-        
-        profile.Data.LastChallengeResetTime = DateTime.now().UnixTimestamp
+        ChallengeManager.ResetPlayerChallenges(player)
     end
+end
+
+function ChallengeManager.ResetPlayerChallenges(player: Player)
+    print("Resetting challenges for", player.Name)
+    local profile = DataManager.Profiles[player]
+    
+    -- Get all challenges
+    local dailyChallenges = ChallengeDefinitions.GetDailyChallengeSet()
+    
+    -- Reset challenge progress
+    profile.Data.DailyChallenges = {}
+    for _, challenge in ipairs(dailyChallenges) do
+        profile.Data.DailyChallenges[challenge.id] = {
+            id = challenge.id,
+            progress = 0,
+            claimed = false
+        }
+    end
+    
+    profile.Data.LastChallengeResetTime = DateTime.now().UnixTimestamp
 end
 
 -- Update challenge progress
@@ -157,13 +164,12 @@ end
 
 -- Send challenge update to client
 function ChallengeManager.SendChallengeUpdate(player: Player, challengeId: string, challengeProgress: any)
-    if UpdateChallengeProgress then
-        UpdateChallengeProgress:FireClient(player, {
-            id = challengeId,
-            progress = challengeProgress.progress,
-            claimed = challengeProgress.claimed
-        })
-    end
+    warn("Sending update to client", player, "for challenge ID", challengeId)
+    UpdateChallengeProgress:FireClient(player, {
+        id = challengeId,
+        progress = challengeProgress.progress,
+        claimed = challengeProgress.claimed
+    })
 end
 
 -- Convenience functions for common challenge types
