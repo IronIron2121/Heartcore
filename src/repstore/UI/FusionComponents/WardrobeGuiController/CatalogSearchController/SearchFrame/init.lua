@@ -129,7 +129,8 @@ function SearchFrame(
 						layoutOrder = 2,
 						placeholder = "Search for items...",
 						searchText = props.searchText,
-						searchCallback = props.searchCallback
+						searchCallback = props.searchCallback,
+
 					}),
 
 					-- Sort dropdown
