@@ -8,7 +8,6 @@ local Players           = game:GetService("Players")
 local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
 local Utility           = ReplicatedStorage:WaitForChild("Utility")
 local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
-local Values            = ReplicatedStorage:WaitForChild("Values")
 local UI                = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents  = UI:WaitForChild("FusionComponents")
 local Widgets           = FusionComponents:WaitForChild("Widgets")
@@ -26,7 +25,9 @@ local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 local SerialisationService  = require(Utility:WaitForChild("SerialisationService"))
 local callWithRetry         = require(Utility:WaitForChild("callWithRetry"))
 local ImageUris             = require(DataTables:WaitForChild("ImageUris"))
+local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion                = require(Utility:WaitForChild("Fusion"))
+
 
 -- Fusion Modules
 local scope = Fusion:scoped()
