@@ -25,15 +25,6 @@ local SearchResultsFrame = require(script:WaitForChild("SearchResultsFrame"))
 local FusionDropdown = require(Widgets:WaitForChild("FusionDropdown"))
 
 local options = {
-	Enum.CatalogSortType.Bestselling,
-	Enum.CatalogSortType.MostFavorited,
-	Enum.CatalogSortType.PriceHighToLow,
-	Enum.CatalogSortType.PriceLowToHigh,
-	Enum.CatalogSortType.RecentlyCreated,
-	Enum.CatalogSortType.Relevance,
-}
-
-local options = {
 	"Relevance",
 	"Bestselling",
 	"Most Favorited",
@@ -131,22 +122,12 @@ function SearchFrame(
 						searchText = props.searchText,
 						searchCallback = props.searchCallback,
 						TextXAlignment = Enum.TextXAlignment.Left,
-
 					}),
 
 					-- Sort dropdown
 					FusionDropdown(scope, {
 						name = "SortDropdown",
 						options = options,
-						--[[
-						options = (function()
-							local sortOptions = {}
-							for _, catalogSortType in ipairs(Enum.CatalogSortType:GetEnumItems()) do
-								table.insert(sortOptions, catalogSortType.Name)
-							end
-							return sortOptions
-						end)(),
-						]]
 						selectedValue = props.searchSort,
 						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
 						layoutOrder = 3,
