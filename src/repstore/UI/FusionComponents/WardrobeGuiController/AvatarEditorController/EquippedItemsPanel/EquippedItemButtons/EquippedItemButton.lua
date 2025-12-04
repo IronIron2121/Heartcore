@@ -173,12 +173,12 @@ function EquippedItemButton(
 			scope:New "ImageButton" {
 				Name = "RemoveButton",
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.fromScale(1, 0),
+				Position = UDim2.fromScale(0, 0.5),
 				Size = UDim2.fromScale(0.5, 0.5),
 				ZIndex = 3,
 				BackgroundTransparency = 1,
 				ImageTransparency = backgroundTransparencySpring,
-				Image = ImageUris.CloseButton,
+				Image = ImageUris.TrashButton,
 				Active = true,
 
 				[OnEvent "Activated"] = function()

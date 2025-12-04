@@ -78,6 +78,7 @@ function EquippedItemsPanel(
 		AutomaticCanvasSize = Enum.AutomaticSize.XY,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		ScrollBarThickness = 4,
+		ScrollBarImageTransparency = 1,
 
 		[Children] = {
 			scope:New "UIListLayout" {
@@ -116,8 +117,8 @@ function EquippedItemsPanel(
 			scope:New "UIPadding" {
 				PaddingTop = UDim.new(0.02,0),
 				PaddingBottom = UDim.new(0.02,0),
-				PaddingLeft = UDim.new(0.05,0),
-				PaddingRight = UDim.new(0.05,0),
+				PaddingLeft = UDim.new(0.03,0),
+				PaddingRight = UDim.new(0.03,0), 
 			},
 
 			scrollFrame,
