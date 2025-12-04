@@ -95,7 +95,7 @@ function EquippedItemButton(
 			scope:New "UIAspectRatioConstraint" {
 				AspectRatio = 1,
 				AspectType = Enum.AspectType.ScaleWithParentSize,
-				DominantAxis = Enum.DominantAxis.Height
+				DominantAxis = Enum.DominantAxis.Width
 			},
 
 			-- Main interaction button
@@ -128,7 +128,13 @@ function EquippedItemButton(
 				ImageTransparency = backgroundTransparencySpring,
 				ImageColor3 = imageColor,
 				Image = "rbxthumb://type=Asset&id=" .. props.itemDescription.AssetId .. "&w=420&h=420",
-				Active = false
+				Active = false,
+
+				[Children] = {
+					scope:New "UICorner" {
+						CornerRadius = UDim.new(0.2, 0),
+					},
+				},
 			},
 
 			-- Buy button overlay

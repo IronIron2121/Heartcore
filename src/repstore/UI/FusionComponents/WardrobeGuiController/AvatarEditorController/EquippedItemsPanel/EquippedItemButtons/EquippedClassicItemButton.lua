@@ -97,7 +97,7 @@ function EquippedClassicItemButton(
 			scope:New "UIAspectRatioConstraint" {
 				AspectRatio = 1,
 				AspectType = Enum.AspectType.ScaleWithParentSize,
-				DominantAxis = Enum.DominantAxis.Height
+				DominantAxis = Enum.DominantAxis.Width
 			},
 
 			-- Main interaction button
