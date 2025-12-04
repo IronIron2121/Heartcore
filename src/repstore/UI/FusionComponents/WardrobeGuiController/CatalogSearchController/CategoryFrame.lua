@@ -82,13 +82,13 @@ function CategoryFrame(
 			},
 			
 			scope:New "UICorner" {
-				CornerRadius = UDim.new(0.05, 0)
+				CornerRadius = UDim.new(0.1, 0)
 			},
 			
 			-- Inner scrolling frame
 			scope:New "ScrollingFrame" {
 				Name = "CategoryScrollFrame",
-				Size = UDim2.fromScale(0.9, 0.95),
+				Size = UDim2.fromScale(0.9, 1),
 				Position = UDim2.fromScale(0, 0),
 				BackgroundTransparency = 1,
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -107,7 +107,7 @@ function CategoryFrame(
 					
 					CategoryButton(scope, {
 						text = "All",
-						size = UDim2.fromScale(0.8, 0.1),
+						size = UDim2.fromScale(0.8, 0.07),
 						layoutOrder = 0,
 						isSelected = allSelected,
 						onActivated = function()
@@ -126,7 +126,7 @@ function CategoryFrame(
 					scope:ForPairs(scope:Value(AssetFilterCategories.getAllAssetTypes()), function(use, scope, index, assetType)
 						return index, CategoryButton(scope, {
 							text = assetType.Name,
-							size = UDim2.fromScale(0.8, 0.1),
+							size = UDim2.fromScale(0.8, 0.07),
 							layoutOrder = index,
 							isSelected = scope:Computed(function(use)
 								if use(allSelected) then

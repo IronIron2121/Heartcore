@@ -70,7 +70,7 @@ function CategoryButton(
 
 	local categoryButton = scope:New "TextButton" {
 		Name = "CategoryButton",
-		Size = props.size or UDim2.fromScale(0.15, 1),
+		Size = props.size or UDim2.fromScale(0.15, 0.07),
 		LayoutOrder = props.layoutOrder or 1,
 		Text = props.text,
 		TextColor3 = textColorSpring,
