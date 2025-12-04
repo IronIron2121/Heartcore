@@ -1,31 +1,32 @@
---!strict
+    --!strict
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local DataTables 	= ReplicatedStorage:WaitForChild("DataTables")
-local Utility 		= ReplicatedStorage:WaitForChild("Utility")
+local DataTables = ReplicatedStorage:WaitForChild("DataTables")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local ImageUris 	= require(DataTables:WaitForChild("ImageUris"))
-local Fusion 		= require(Utility:WaitForChild("Fusion"))
+local ImageUris = require(DataTables:WaitForChild("ImageUris"))
+local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion
-type UsedAs<T> 		= Fusion.UsedAs<T>
-local OnEvent 		= Fusion.OnEvent
-local Children 		= Fusion.Children
+type UsedAs<T> = Fusion.UsedAs<T>
+local OnEvent = Fusion.OnEvent
 
 -- Constants
 local COLOUR_ORANGE = Color3.new(0.901961, 0.380392, 0.078431)
-local COLOUR_GREY 	= Color3.new(1, 1, 1)
+local COLOUR_GREY = Color3.new(1, 1, 1)
+
 local BG_FADE_SPEED = 20
 
-local function CloseButton(
+local function ClaimButton(
     scope: Fusion.Scope,
     props: {
 		position: UsedAs<UDim2>,
 		onClick: () -> (),
+        onClaim: (() -> ())?,
 		name: UsedAs<string>?,
 		active: UsedAs<boolean>?,
 		visible: UsedAs<boolean>?,
@@ -54,7 +55,7 @@ local function CloseButton(
 	end)
 	
 	return scope:New "TextButton" {
-		Name = "CloseButton",
+		Name = "ClaimButton",
 		Position = props.position or UDim2.fromScale(1, 1),
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		ZIndex = props.zIndex or 3, 
@@ -84,9 +85,9 @@ local function CloseButton(
 			isHovering:set(false)
 		end,
 
-        [Children] = {
+        [Fusion.Children] = {
 			scope:New "ImageLabel" {
-				Image = ImageUris.CloseButton,
+				Image = ImageUris.ClaimButton,
 				Size = UDim2.fromScale(1,1),
 				BackgroundTransparency = 1,
 				ImageColor3 = scope:Spring(
@@ -103,14 +104,17 @@ local function CloseButton(
 					end),
 					BG_FADE_SPEED
 				), 
+				
 			},
 			
 			scope:New "UIAspectRatioConstraint" {
 				AspectRatio = 1
 			},
+
+            
 		}
     },
         Toggled
 end
 
-return CloseButton
+return ClaimButton

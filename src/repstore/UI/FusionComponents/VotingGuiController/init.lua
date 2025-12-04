@@ -2,41 +2,39 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
+local Players           = game:GetService("Players")
 
 -- Folders
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local Values = ReplicatedStorage:WaitForChild("Values")
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
-local Widgets = FusionComponents:WaitForChild("Widgets")
+local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
+local Utility           = ReplicatedStorage:WaitForChild("Utility")
+local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
+local UI                = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents  = UI:WaitForChild("FusionComponents")
+local Widgets           = FusionComponents:WaitForChild("Widgets")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
 
 -- GUI
-local PlayerGui = localPlayer.PlayerGui
-local OutfitVoteTile = require(script:WaitForChild("OutfitVoteTile"))
-local EmptyVoteTile = require(script:WaitForChild("EmptyVoteTile"))
-local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
-
+local PlayerGui         = localPlayer.PlayerGui
+local OutfitVoteTile    = require(script:WaitForChild("OutfitVoteTile"))
+local EmptyVoteTile     = require(script:WaitForChild("EmptyVoteTile"))
+local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 
 -- Modules
-local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
-local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
-local ImageUris = require(DataTables:WaitForChild("ImageUris"))
-local Fusion = require(Utility:WaitForChild("Fusion"))
+local SerialisationService  = require(Utility:WaitForChild("SerialisationService"))
+local callWithRetry         = require(Utility:WaitForChild("callWithRetry"))
+local ImageUris             = require(DataTables:WaitForChild("ImageUris"))
+local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
+local Fusion                = require(Utility:WaitForChild("Fusion"))
+
 
 -- Fusion Modules
 local scope = Fusion:scoped()
-local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
-
 
 -- Constants
 local maxDisplayedOutfits = 3
@@ -47,17 +45,6 @@ local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTh
 local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
 local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
 
--- Variables
--- TODO - or get next round if that's closer
-local timeToNextRotation = scope:Value("LOADING...")
-
---
-
-local VotingGuiController = {}
-
-local outfitVoteTiles = scope:Value({})
-local isRefreshing = false
-
 -- Types
 type TileData = {
     userId: number,
@@ -67,7 +54,15 @@ type TileData = {
     views: number
 }
 
+-- Variables
+-- TODO - or get next round if that's closer
+local timeToNextRotation = scope:Value("LOADING...")
+local outfitVoteTiles = scope:Value({})
+local isRefreshing = false
+
 --
+
+local VotingGuiController = {}
  
 local function refreshOutfitVoteTiles()
     if isRefreshing then
@@ -128,10 +123,9 @@ end
 
 local function initialiseRotationTimer()
     task.spawn(function()
-        local NextRotationText = Values:WaitForChild("NextRotationText", 10) :: StringValue
         while true do
             task.wait(1) 
-            timeToNextRotation:set("Out of outfits to load! Please wait for next voting phase!") --.. NextRotationText.Value)        
+            timeToNextRotation:set("Out of outfits to load! Please wait for next voting phase!")   
         end
     end)
 end
@@ -139,21 +133,20 @@ end
 local votingTheme = scope:Value("")
 
 function VotingGuiController.Initialise(
-    VoteGuiVisible: UsedAs<boolean>,
-    TimeText: UsedAs<string>,
     props: {
-        visible: Value<boolean>
+        VoteGuiVisible: UsedAs<boolean>,
+        TimeText: UsedAs<string>,
     }
 )
-    local visibilityObserver = scope:Observer(VoteGuiVisible)
+    local visibilityObserver = scope:Observer(props.VoteGuiVisible)
 
     initialiseRotationTimer()
 
     -- TODO: Make this more efficient with caching or something such...
     visibilityObserver:onChange(function()
-        if peek(VoteGuiVisible) == true then
+        if peek(props.VoteGuiVisible) == true then
             votingTheme:set(PlayerRequestedVotingTheme:InvokeServer())
-        elseif peek(VoteGuiVisible) == false then
+        elseif peek(props.VoteGuiVisible) == false then
             -- delete / reset the mannequins? ...
         end
     end)
@@ -171,7 +164,7 @@ function VotingGuiController.Initialise(
                 Position = UDim2.fromScale(0.5, 0.48),
                 BackgroundColor3 = Color3.new(1,1,1),
                 BackgroundTransparency = 1,
-                Visible = props.visible,
+                Visible = props.VoteGuiVisible,
 
                 [Children] = {
                     CloseButton(scope, {
@@ -180,7 +173,7 @@ function VotingGuiController.Initialise(
                         position = UDim2.fromScale(1, 0),
 
                         onClick = function()
-                            props.visible:set(not peek(props.visible))
+                            props.VoteGuiVisible:set(not peek(props.VoteGuiVisible))
                         end
                     }),
 
@@ -218,6 +211,13 @@ function VotingGuiController.Initialise(
                             },
 
                             scope:New "Frame" {
+                                Name = "Buffer",
+                                Size = UDim2.fromScale(1, 0.03),
+                                LayoutOrder = 0,
+                                BackgroundTransparency = 1
+                            },
+
+                            scope:New "Frame" {
                                 Name = "TopBar",
                                 Size = UDim2.fromScale(1, 0.1),
                                 LayoutOrder = 1,
@@ -226,7 +226,9 @@ function VotingGuiController.Initialise(
                                 [Children] = {
                                     scope:New "UIListLayout" {
                                         FillDirection = Enum.FillDirection.Horizontal,
-                                        SortOrder = Enum.SortOrder.LayoutOrder
+                                        SortOrder = Enum.SortOrder.LayoutOrder,
+                                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                                        Padding = UDim.new(0.02,0),
                                     },
 
                                     scope:New "TextLabel" {
@@ -236,7 +238,9 @@ function VotingGuiController.Initialise(
                                         Size = UDim2.fromScale(0.3, 1),
                                         LayoutOrder = 0,
                                         BackgroundTransparency = 1,
-                                        TextColor3 = Color3.fromRGB(92, 96, 214)
+                                        TextColor3 = Color3.fromRGB(92, 96, 214),
+                                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
+
                                     },
 
                                     scope:New "TextLabel" {
@@ -246,12 +250,13 @@ function VotingGuiController.Initialise(
                                         Size = UDim2.fromScale(0.3, 1),
                                         LayoutOrder = 1,
                                         BackgroundTransparency = 1,
-                                        TextColor3 = Color3.fromRGB(92, 96, 214)
+                                        TextColor3 = Color3.fromRGB(92, 96, 214),
+                                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
                                     },
 
                                     scope:New "Frame"{
                                         Name = "Buffer",
-                                        Size = UDim2.fromScale(0.1, 1),
+                                        Size = UDim2.fromScale(0.03, 1),
                                         LayoutOrder = 2,
                                         BackgroundTransparency = 1,
                                     },
@@ -266,7 +271,8 @@ function VotingGuiController.Initialise(
 
                                             scope:New "UIListLayout" {
                                                 FillDirection = Enum.FillDirection.Horizontal,
-                                                SortOrder = Enum.SortOrder.LayoutOrder
+                                                SortOrder = Enum.SortOrder.LayoutOrder,
+                                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
                                             },
 
                                             scope:New "ImageLabel"{
@@ -286,12 +292,13 @@ function VotingGuiController.Initialise(
                                             scope:New "TextLabel" {
                                                 Name = "Timer",
                                                 -- Text = "HH:MM:SS",
-                                                Text = TimeText,
+                                                Text = props.TimeText,
                                                 TextScaled = true,
                                                 Size = UDim2.fromScale(1, 1),
                                                 LayoutOrder = 2,
                                                 BackgroundTransparency = 1,
-                                                TextColor3 = Color3.fromRGB(92, 96, 214)
+                                                TextColor3 = Color3.fromRGB(92, 96, 214),
+                                                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
                                             }
                                         }
                                     }
@@ -372,20 +379,6 @@ function VotingGuiController.Initialise(
                                     end)
                                 } 
                             },
-
-                            -- scope:New "Frame" {
-                            --     Name = "Buffer",
-                            --     Size = UDim2.fromScale(1, 0.05),
-                            --     LayoutOrder = 3,
-                            --     BackgroundTransparency = 1
-                            -- },
-
-                            -- scope:New "Frame" {
-                            --     Name = "SubmitFrame",
-                            --     Size = UDim2.fromScale(0.5, 0.2),
-                            --     LayoutOrder = 4,
-                            --     BackgroundTransparency = 1,
-                            -- }
                         }
                     },
                 }

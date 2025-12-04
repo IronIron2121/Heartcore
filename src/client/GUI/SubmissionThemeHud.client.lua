@@ -2,43 +2,37 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService") 
-
+local Players           = game:GetService("Players")
 
 -- Folders
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
-local ImageUris = require(DataTables:WaitForChild("ImageUris"))
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
+local Utility       = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
-local Fusion = require(Utility:WaitForChild("Fusion"))
+local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
+local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
 
 -- Instances
-local localPlayer = Players.LocalPlayer
-local PlayerGui = localPlayer.PlayerGui
-local centralPond = workspace:WaitForChild("centralPond")
-local pondModel = centralPond:WaitForChild("centralPond")
+local localPlayer               = Players.LocalPlayer
+local PlayerGui                 = localPlayer.PlayerGui
+local centralPond               = workspace:WaitForChild("centralPond")
+local pondModel                 = centralPond:WaitForChild("centralPond")
 local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
-local BillboardGui = SubmissionBillboardHolder:WaitForChild("BillboardGui")
-local Frame = BillboardGui:WaitForChild("Frame")
-local TimeLabel = Frame:WaitForChild("TimeLabel")
-local ThemeLabel = Frame:WaitForChild("ThemeLabel") 
+local BillboardGui              = SubmissionBillboardHolder:WaitForChild("BillboardGui")
+local Frame                     = BillboardGui:WaitForChild("Frame")
+local TimeLabel                 = Frame:WaitForChild("TimeLabel")
+local ThemeLabel                = Frame:WaitForChild("ThemeLabel") 
 
--- Fusion Modules
-local scope = Fusion:scoped()
+-- Fusion 
+local Fusion   = require(Utility:WaitForChild("Fusion"))
+local scope    = Fusion:scoped()
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
-
 
 local ThemeText = scope:Value("Loading...")
 
 ThemeLabel:GetPropertyChangedSignal("Text"):Connect(function()
-    ThemeText:set("Current Fit Check theme: " .. ThemeLabel.Text)
+    ThemeText:set("Today's Fit Check theme: <font color=\"rgb(89, 247, 128)\">" .. ThemeLabel.Text .. "</font>")
 end)
 	
 local TimeText = scope:Value("Loading...")
@@ -57,8 +51,10 @@ end)
 
 local function initialiseGUI()
 	local screenGUI = scope:New "ScreenGui" {
+        Name = "SubmissionThemeGUI",
 		Parent = PlayerGui,
-		ZIndexBehavior = Enum.ZIndexBehavior.Global
+		ZIndexBehavior = Enum.ZIndexBehavior.Global,
+        IgnoreGuiInset = true,
 	}
     
 	local frame = scope:New "Frame" {
@@ -80,6 +76,7 @@ local function initialiseGUI()
             scope:New "TextLabel" {
                 Name = "ThemeText",
                 FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
+                RichText = true,
                 Text = ThemeText,
                 Size = UDim2.fromScale(0.5,0.5),
                 TextScaled = true,
@@ -94,6 +91,7 @@ local function initialiseGUI()
                     }
                 }
             },
+
             scope:New "Frame" {
                 Name = "TimerContainer",
                 Size = UDim2.fromScale(0.5,0.5),
@@ -119,9 +117,9 @@ local function initialiseGUI()
                         TextColor3 = Color3.fromRGB(255, 255, 255),
 
                         [Children] = {
-                            scope:New "UIStroke"{
-                            Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                            Thickness = 2,
+                            scope:New "UIStroke" {
+                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                                Thickness = 2,
                             }
                         }
                     },
@@ -152,8 +150,8 @@ local function initialiseGUI()
 
                         [Children] = {
                             scope:New "UIStroke"{
-                            Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                            Thickness = 2,
+                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                                Thickness = 2,
                             }
                         }
                     }

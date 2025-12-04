@@ -2,25 +2,21 @@
 -- OutfitTile.lua
 
 -- Services
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players 			= game:GetService("Players")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
-local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
-local Widgets = FusionComponents:WaitForChild("Widgets")
-
-
+local DataTables 		= ReplicatedStorage:WaitForChild("DataTables")
+local Utility 			= ReplicatedStorage:WaitForChild("Utility")
+local UI 				= ReplicatedStorage:WaitForChild("UI")
+local FusionComponents 	= UI:WaitForChild("FusionComponents")
+local Widgets 			= FusionComponents:WaitForChild("Widgets")
 
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
-local Fusion = require(Utility:WaitForChild("Fusion"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 local BaseButton = require(Widgets:WaitForChild("BaseButton"))
-
-
+local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion
 local OnEvent = Fusion.OnEvent
@@ -28,6 +24,7 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 local peek = Fusion.peek
 
+--
 
 function OutfitTile(
 	scope: Fusion.Scope,
@@ -220,14 +217,13 @@ function OutfitTile(
 									
 									isCurrentlyEquipping:set(false)
 								end,
-							}
-							),
-							},
-						}
+							}),
+						},
 					}
 				}
 			}
-		} :: Frame
+		}
+	} :: Frame
 
 	-- Camera update function (copied from AvatarViewport)
 	local function updateCameraPosition()
@@ -239,9 +235,13 @@ function OutfitTile(
 		local biggestSize = math.max(size.X, size.Y)
 		local FovInRadians = math.rad(camera.FieldOfView)
 		local cameraDistance = (biggestSize / 2) / math.tan(FovInRadians / 2) * 1.05
-		-- For outfit tiles, use a fixed zoom value instead of spring
-		local zoomValue = 0.8 -- Fixed zoom for consistent tile appearance
-		cameraDistance = math.clamp(cameraDistance, 7, 11) / zoomValue -- Using same min/max as CONFIG
+		
+		-- Apply zoom factor
+		local zoomValue = 0.8 
+		cameraDistance = cameraDistance / zoomValue
+		
+		-- Clamp AFTER applying zoom
+		cameraDistance = math.clamp(cameraDistance, 3, 7)
 
 		local modelCFrame = currentModel:GetPivot()
 		local targetCFrame = (modelCFrame + (modelCFrame.LookVector * cameraDistance)) * CFrame.Angles(0, math.pi, 0)

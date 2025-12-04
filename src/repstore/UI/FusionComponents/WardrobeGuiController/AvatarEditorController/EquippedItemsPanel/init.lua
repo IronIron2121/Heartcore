@@ -81,19 +81,20 @@ function EquippedItemsPanel(
 				VerticalAlignment = Enum.VerticalAlignment.Center,
 				ItemLineAlignment = Enum.ItemLineAlignment.Center,
 				Padding = UDim.new(0, 10),
-				SortOrder = Enum.SortOrder.Name
+				SortOrder = Enum.SortOrder.LayoutOrder
 			},			
 			equippedItemButtons,
 			scope:New "Frame" {
 				Name = "rightBuffer",
 				Size = UDim2.fromScale(0.03, 1),
 				BackgroundTransparency = 1,
+				LayoutOrder = 999999
 			}
 		}
 	} :: ScrollingFrame
 
 	
-	local EquippedItemsPanel = scope:New "Frame" {
+	local equippedItemsPanel = scope:New "Frame" {
 			Size = UDim2.fromScale(1, 0.1),
 			LayoutOrder = 2,
 			BackgroundTransparency = backgroundTransparencySpring,
@@ -106,16 +107,16 @@ function EquippedItemsPanel(
 			},
 
 			scope:New "UIPadding" {
-				PaddingTop = UDim.new(0.01,0),
-				PaddingBottom = UDim.new(0.01,0),
-				PaddingLeft = UDim.new(0.01,0),
-				PaddingRight = UDim.new(0,10),
+				PaddingTop = UDim.new(0.02,0),
+				PaddingBottom = UDim.new(0.02,0),
+				PaddingLeft = UDim.new(0.03,0),
+				PaddingRight = UDim.new(0.03,0),
 			},
 			scrollFrame,
 		}
 	}
 	
-	return EquippedItemsPanel
+	return equippedItemsPanel
 end
 
 return EquippedItemsPanel

@@ -39,7 +39,7 @@ function EquippedItemButton(
 	if not props.itemDescription then
 		return scope:New "Frame"{
 			Name = "DummyFrame",
-			Visible = props.visible
+			Visible = false
 		} :: Frame
 	end
 	-- Get product info

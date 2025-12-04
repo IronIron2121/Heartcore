@@ -29,19 +29,16 @@ type UsedAs<T> = Fusion.UsedAs<T>
 return function(Toggled: Fusion.Value<boolean>)
 	local wardrobeContainerVisible = Value(scope, true)
 	local WardrobeContainer, AvatarContainer, CatalogContainer = WardrobeContainer(scope, Toggled) 
-
-	local isToggled = scope:Computed(function(use, _) 
-		return use(Toggled) == true
-	end)
 	
-
 	return scope:New("ScreenGui")({
 		Name = "WardrobeGui",
 		Parent = localPlayerGui,
 		IgnoreGuiInset = true,
 		ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		Enabled = isToggled,
+		Enabled = scope:Computed(function(use)
+			return use(Toggled) and use(wardrobeContainerVisible)
+		end),
 
 		[Children] = { 
 			WardrobeContainer
@@ -49,4 +46,4 @@ return function(Toggled: Fusion.Value<boolean>)
 	}),
 		AvatarContainer,
 		CatalogContainer
-end
+end 

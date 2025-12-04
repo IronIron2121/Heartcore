@@ -2,26 +2,26 @@
 -- FusionDropdown.lua
 
 -- Services
-local Players = game:GetService("Players")
+local Players 			= game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
+local Utility 			= ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local Fusion = require(Utility:WaitForChild("Fusion"))
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local Fusion 			= require(Utility:WaitForChild("Fusion"))
+local UI_CONSTANTS 		= require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion
-local OnEvent = Fusion.OnEvent
-local Children = Fusion.Children
-local peek = Fusion.peek
-local Out = Fusion.Out
-type UsedAs<T> = Fusion.UsedAs<T>
+local OnEvent 			= Fusion.OnEvent
+local Children 			= Fusion.Children
+local peek 				= Fusion.peek
+local Out 				= Fusion.Out
+type UsedAs<T> 			= Fusion.UsedAs<T>
 
 -- Player reference
-local player = Players.LocalPlayer :: Player
-local playerGui = player.PlayerGui
+local player 			= Players.LocalPlayer :: Player
+local playerGui 		= player.PlayerGui
 
 -- Helper function to create dropdown display
 local function createDropdownDisplay(
@@ -30,7 +30,6 @@ local function createDropdownDisplay(
 	position: UsedAs<UDim2>,
 	onOptionSelected: (any) -> ()
 ): ScreenGui
-
 	local screenGui = scope:New "ScreenGui" {
 		Name = "DropdownDisplay",
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
@@ -209,11 +208,6 @@ function FusionDropdown<T>(
 		end
 	end)
 
-	-- Arrow direction
-	local arrowText = scope:Computed(function(use)
-		return use(isOpen) and "?" or "?"
-	end)
-
 	-- Watch for isOpen changes and manage display
 	scope:Observer(isOpen):onChange(function()
 		local display = peek(currentDisplay)
@@ -321,19 +315,6 @@ function FusionDropdown<T>(
 				[OnEvent "Activated"] = toggleDropdown,
 
 			},
-
-			-- Arrow button
-			-- scope:New "TextButton" {
-			-- 	Name = "ArrowButton",
-			-- 	Size = UDim2.fromScale(0.15, 1),
-			-- 	Text = arrowText,
-			-- 	BackgroundTransparency = 1,
-			-- 	TextColor3 = Color3.new(1, 1, 1),
-			-- 	TextScaled = true,
-			-- 	LayoutOrder = 2,
-
-			-- 	[OnEvent "Activated"] = toggleDropdown,
-			-- }
 		}
 	} :: Frame
 

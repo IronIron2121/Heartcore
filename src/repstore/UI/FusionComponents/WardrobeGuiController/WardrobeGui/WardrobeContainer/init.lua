@@ -1,20 +1,13 @@
 --!strict
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
-
--- Instances
-local localPlayer = Players.LocalPlayer
-local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 
 -- Gui Components
 local AvatarContainer = require(script:WaitForChild("AvatarContainer"))
@@ -27,7 +20,6 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
 return function(scope: Fusion.Scope, wardrobeContainerVisible: UsedAs<boolean>)
-	local isNewTopBar = GuiService.TopbarInset.Max.Y > 36
 	local avatarContainer = AvatarContainer(scope)
 	local catalogContainer = CatalogContainer(scope)
 
@@ -54,7 +46,7 @@ return function(scope: Fusion.Scope, wardrobeContainerVisible: UsedAs<boolean>)
 			scope:New "Folder" {
 				Name = "ContainerFolder",
 
-				[Fusion.Children] = {
+				[Children] = {
 					scope:New "UIListLayout" {
 						Padding = UDim.new(0.01, 0),
 						FillDirection = Enum.FillDirection.Horizontal,

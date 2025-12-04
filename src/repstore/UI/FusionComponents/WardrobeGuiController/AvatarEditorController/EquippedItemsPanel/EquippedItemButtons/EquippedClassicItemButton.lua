@@ -40,7 +40,7 @@ function EquippedClassicItemButton(
 	if not props.itemId or props.itemId == 0 then
 		return scope:New "Frame"{
 			Name = "DummyFrame",
-			Visible = props.visible
+			Visible = false
 		} :: Frame
 	end
 
