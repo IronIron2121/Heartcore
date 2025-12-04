@@ -51,7 +51,7 @@ function EquippedItemsPanel(
 			if use(equipItemButtonsVisible) then
 				return UI_CONSTANTS.TASTEMAKER_PURPLE
 			else
-				return UI_CONSTANTS.COLOUR_BLACK
+				return UI_CONSTANTS.COLOUR_WHITE
 			end
 		end),
 		20,
