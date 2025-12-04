@@ -78,7 +78,7 @@ function AvatarViewport(
 	local viewport = scope:New "ViewportFrame" {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Name = "AvatarViewport",
-		Size = UDim2.fromScale(0.80, 1),  
+		Size = UDim2.fromScale(0.7, 1),  
 		LayoutOrder = props.layoutOrder or 2,
 		Position = UDim2.fromScale(0.5, 0.5),
 		BackgroundColor3 = Color3.new(1, 1, 1),
