@@ -39,6 +39,7 @@ function AvatarViewport(
 	props: {
 		model: Fusion.UsedAs<Model>,
 		currentView: Fusion.Value<string>,
+		layoutOrder: number
 	}
 ): ViewportFrame
 	-- Avatar manipulation variables
@@ -82,7 +83,7 @@ function AvatarViewport(
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		BorderSizePixel = 2,
 		BorderColor3 = Color3.new(0.360784, 0.376471, 0.839216),
-		LayoutOrder = 1,
+		LayoutOrder = props.layoutOrder or 2,
 		Ambient = Color3.new(1,1,1),
 		LightColor = Color3.fromRGB(255, 249, 228),
 		LightDirection = Vector3.new(1,1,1),
