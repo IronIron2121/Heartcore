@@ -107,10 +107,10 @@ function EquippedItemsPanel(
 			},
 
 			scope:New "UIPadding" {
-				PaddingTop = UDim.new(0.01,0),
-				PaddingBottom = UDim.new(0.01,0),
-				PaddingLeft = UDim.new(0.01,0),
-				PaddingRight = UDim.new(0,10),
+				PaddingTop = UDim.new(0.02,0),
+				PaddingBottom = UDim.new(0.02,0),
+				PaddingLeft = UDim.new(0.03,0),
+				PaddingRight = UDim.new(0.03,0),
 			},
 			scrollFrame,
 		}

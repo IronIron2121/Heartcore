@@ -13,4 +13,4 @@ function DailyChallengeGuiController.Initialise()
 	local DailyChallengeGui = DailyChallengeGui()
 end 
 
-return DailyChallengeGuiController
+return DailyChallengeGuiController 
