@@ -9,7 +9,9 @@ local UI_CONSTANTS = {
 	COLOUR_GREY = Color3.new(0.5, 0.5, 0.5),
 	COLOUR_TEAL = Color3.fromRGB(3, 143, 131),
 	DEFAULT_FONT = "rbxasset://fonts/families/FredokaOne.json",
-	ROBOTO = "rbxasset://fonts/families/Roboto.json"
+	SEARCH_SORT_BOX_SIZE = UDim2.fromScale(.4, .5),
+	ROBOTO = "rbxasset://fonts/families/Roboto.json",
+	SECONDARY_FONT = "rbxasset://fonts/families/SonoMonospace.json"
 }
 
 return UI_CONSTANTS
