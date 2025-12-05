@@ -43,7 +43,7 @@ function AvatarViewport(
 		currentView: Fusion.Value<string>,
 		layoutOrder: UsedAs<number>
 	}
-): ViewportFrame
+): Frame
 	-- Avatar manipulation variables
 	local pitch = scope:Value(0)
 	local yaw = scope:Value(0)
@@ -183,10 +183,9 @@ function AvatarViewport(
 				RotateButton(scope, pitch, yaw, zoom) 
 			),
 		}
-	} 
+	} :: ViewportFrame
 	
 	--local typedViewport = viewport :: ViewportFrame
-	viewportOut:set(viewport)
 
 	local viewportBackground = scope:New "Frame" {
 		Name = "ViewportContainer",
@@ -213,11 +212,11 @@ function AvatarViewport(
 
 			viewport
 		}
-	}
+	} :: Frame
 	
-	
+	viewportOut:set(viewport)
 
-	;(viewport :: ViewportFrame).CurrentCamera = peek(viewportCamera)
+	viewport.CurrentCamera = peek(viewportCamera)
 
 	-- Camera update function
 	local function updateCameraPosition()
