@@ -15,6 +15,7 @@ lighting.ClockTime = 6 -- Start at 6:00 AM
 lighting.GeographicLatitude = 45
 lighting.Brightness = 1
 lighting.GlobalShadows = true
+lighting.ShadowSoftness = 0.3
 
 -- Cycle speed calculation
 local hoursPerSecond = 24 / fullDayLength
@@ -32,7 +33,7 @@ local function updateLightingColors(time)
 	elseif time >= 8 and time < 17 then
 		lighting.Ambient = Color3.fromRGB(98, 92, 148)
 		lighting.OutdoorAmbient = Color3.fromRGB(222, 185, 154)
-		lighting.Brightness = 0.7
+		lighting.Brightness = 0.9
 		lighting.ColorShift_Top = Color3.fromRGB(131, 130, 222)
 
 
