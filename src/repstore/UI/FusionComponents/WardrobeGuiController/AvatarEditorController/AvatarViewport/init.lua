@@ -185,7 +185,8 @@ function AvatarViewport(
 		}
 	} 
 	
-	local typedViewport = viewport :: ViewportFrame
+	--local typedViewport = viewport :: ViewportFrame
+	viewportOut:set(viewport)
 
 	local viewportBackground = scope:New "Frame" {
 		Name = "ViewportContainer",
@@ -210,13 +211,13 @@ function AvatarViewport(
 				},
 			},
 
-			typedViewport
+			viewport
 		}
 	}
 	
-	viewportOut:set(typedViewport)
+	
 
-	typedViewport.CurrentCamera = peek(viewportCamera)
+	;(viewport :: ViewportFrame).CurrentCamera = peek(viewportCamera)
 
 	-- Camera update function
 	local function updateCameraPosition()
