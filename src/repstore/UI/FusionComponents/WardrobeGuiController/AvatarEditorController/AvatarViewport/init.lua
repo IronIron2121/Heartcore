@@ -43,7 +43,7 @@ function AvatarViewport(
 		currentView: Fusion.Value<string>,
 		layoutOrder: UsedAs<number>
 	}
-): Frame
+): ViewportFrame
 	-- Avatar manipulation variables
 	local pitch = scope:Value(0)
 	local yaw = scope:Value(0)
