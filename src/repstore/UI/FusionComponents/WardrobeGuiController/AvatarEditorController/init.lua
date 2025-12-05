@@ -45,7 +45,8 @@ function AvatarEditorController:_initialiseAvatarViewport()
 	-- Pass the reactive instance directly (it's already a Computed)
 	self.avatarViewport = AvatarViewport(self.scope, {
 		model = avatarPreviewModel:getInstance(),
-		currentView = WardrobeGuiState.currentView
+		currentView = WardrobeGuiState.currentView,
+		layoutOrder = 2
 	}) 
 	
 	self.avatarViewport.Parent = self.parentFrame  
@@ -56,7 +57,9 @@ end
 
 function AvatarEditorController:_initialiseEquippedItemsPanel()
 	-- Pass the avatar preview model instead of trying to use self.model
-	local EquippedItemsPanel = EquippedItemsPanel(self.scope)
+	local EquippedItemsPanel = EquippedItemsPanel(self.scope, {
+		layoutOrder = 1
+	})
 	EquippedItemsPanel.Parent = self.parentFrame
 end
 
