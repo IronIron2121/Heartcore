@@ -3,23 +3,16 @@
 -- EquippedItemsPanel.lua
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-
--- Remotes
-local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion
-local peek = Fusion.peek
 local Children = Fusion.Children
 
 -- GUI Components

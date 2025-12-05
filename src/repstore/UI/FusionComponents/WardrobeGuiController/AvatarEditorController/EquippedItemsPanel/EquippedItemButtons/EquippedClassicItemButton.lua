@@ -1,35 +1,37 @@
 --!strict
--- EquippedItemButton.lua
+-- EquippedClassicItemButton.lua
 
 -- Services
-local Players 				= game:GetService("Players")
 local MarketplaceService 	= game:GetService("MarketplaceService")
 local ReplicatedStorage 	= game:GetService("ReplicatedStorage")
+local Players 				= game:GetService("Players")
 
 -- Folders
+local DataTables 	= ReplicatedStorage:WaitForChild("DataTables")
 local Utility 		= ReplicatedStorage:WaitForChild("Utility")
 local Remotes 		= ReplicatedStorage:WaitForChild("Remotes")
-local DataTables 	= ReplicatedStorage:WaitForChild("DataTables")
 
 -- Remotes
 local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
  
 -- Modules
-local Fusion 		= require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS 	= require(Utility:WaitForChild("UI_CONSTANTS"))
 local ImageUris 	= require(DataTables:WaitForChild("ImageUris"))
+local Fusion 		= require(Utility:WaitForChild("Fusion"))
 
 -- Fusion
 type UsedAs<T>	= Fusion.UsedAs<T>
-local peek 		= Fusion.peek
-local OnEvent 	= Fusion.OnEvent
 local Children 	= Fusion.Children
+local OnEvent 	= Fusion.OnEvent
+local peek 		= Fusion.peek
 
 -- Constants
 local BUY_BUTTON_DISPLAY_TIME 	= 5
+local BG_FADE_SPEED 			= 20
 local COLOUR_ORANGE 			= Color3.new(0.901961, 0.380392, 0.078431)
 local COLOUR_GREY 				= Color3.new(1, 1, 1)
-local BG_FADE_SPEED 			= 20
+
+--
 
 function EquippedClassicItemButton(
 	scope: Fusion.Scope,
