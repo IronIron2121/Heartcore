@@ -11,12 +11,10 @@ local UI = ReplicatedStorage:WaitForChild("UI")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local OutfitClientService = require(Utility:WaitForChild("OutfitClientService"))
-local ImageUris 	= require(DataTables:WaitForChild("ImageUris"))
 
 -- Fusion
 local peek = Fusion.peek
@@ -185,8 +183,6 @@ function AvatarViewport(
 		}
 	} :: ViewportFrame
 	
-	--local typedViewport = viewport :: ViewportFrame
-
 	local viewportBackground = scope:New "Frame" {
 		Name = "ViewportContainer",
 		AnchorPoint = Vector2.new(0.5, 0.5),
