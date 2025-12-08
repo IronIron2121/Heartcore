@@ -106,6 +106,7 @@ function EquippedItemsPanel(
 				PaddingLeft = UDim.new(0.01,0),
 				PaddingRight = UDim.new(0,10),
 			},
+			
 			scrollFrame,
 		}
 	}
