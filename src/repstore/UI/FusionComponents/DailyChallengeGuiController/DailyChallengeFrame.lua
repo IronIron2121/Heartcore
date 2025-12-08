@@ -77,16 +77,25 @@ local function DailyChallengeFrame(
 
     -- Listen for challenge updates
     UpdateChallengeProgress.OnClientEvent:Connect(function(update)
-        warn("updating challenges locally")
         local currentChallenges = peek(challenges)
+        local newChallenges = {}
+        
         for i, challenge in ipairs(currentChallenges) do
             if challenge.id == update.id then
-                challenge.progress = update.progress
-                challenge.claimed = update.claimed
-                challenges:set(currentChallenges) -- Trigger update
-                break
+                -- Create new challenge object with updated values
+                table.insert(newChallenges, {
+                    id = challenge.id,
+                    progress = update.progress,
+                    target = challenge.target,
+                    claimed = update.claimed,
+                    definition = challenge.definition
+                })
+            else
+                table.insert(newChallenges, challenge)
             end
         end
+        
+        challenges:set(newChallenges) -- Set NEW table
     end)
 
     -- Load challenges initially
@@ -162,7 +171,7 @@ local function DailyChallengeFrame(
                         HorizontalAlignment = Enum.HorizontalAlignment.Left,
                         VerticalAlignment = Enum.VerticalAlignment.Center,
                         Padding = UDim.new(0, 10),
-                        SortOrder = Enum.SortOrder.LayoutOrder
+                        SortOrder = Enum.SortOrder.Name
                     },
                     
                     -- Dynamically create cards based on challenges
@@ -172,7 +181,7 @@ local function DailyChallengeFrame(
                         local canClaim = isCompleted and not challenge.claimed
                         
                         return ChallengeCard(scope, {
-                            layoutOrder = index,
+                            name = challenge.id
                             description = def.description,
                             progress = string.format("%d/%d", challenge.progress, challenge.target),
                             reward = tostring(def.reward.exp),

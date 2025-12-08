@@ -24,6 +24,7 @@ local BG_FADE_SPEED = 20
 local function ChallengeCard(
     scope: Fusion.Scope,
     props: {
+        name: UsedAs<string>,
         layoutOrder: UsedAs<number>,
         description: UsedAs<string>?,
         progress: UsedAs<string>?,
@@ -45,7 +46,7 @@ local function ChallengeCard(
 	end)
     
     local challengeFrame = scope:New "Frame" {
-        Name = "ChallengeCard",
+        Name = props.name or "ChallengeCard",
         Size = UDim2.fromScale(0.3, 0.8),
         LayoutOrder = props.layoutOrder,
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
