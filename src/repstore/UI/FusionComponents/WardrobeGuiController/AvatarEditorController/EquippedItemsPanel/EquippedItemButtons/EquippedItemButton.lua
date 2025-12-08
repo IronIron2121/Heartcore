@@ -2,38 +2,42 @@
 -- EquippedItemButton.lua
 
 -- Services
-local Players = game:GetService("Players")
-local MarketplaceService = game:GetService("MarketplaceService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MarketplaceService 	= game:GetService("MarketplaceService")
+local ReplicatedStorage 	= game:GetService("ReplicatedStorage")
+local Players 				= game:GetService("Players")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local DataTables = ReplicatedStorage:WaitForChild("DataTables")
+local DataTables 	= ReplicatedStorage:WaitForChild("DataTables")
+local Utility 		= ReplicatedStorage:WaitForChild("Utility")
+local Remotes 		= ReplicatedStorage:WaitForChild("Remotes")
 
 -- Remotes
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
-
+ 
 -- Modules
-local Fusion = require(Utility:WaitForChild("Fusion"))
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
-local ImageUris = require(DataTables:WaitForChild("ImageUris"))
+local UI_CONSTANTS 	= require(Utility:WaitForChild("UI_CONSTANTS"))
+local ImageUris 	= require(DataTables:WaitForChild("ImageUris"))
+local Fusion 		= require(Utility:WaitForChild("Fusion"))
 
 -- Fusion
-type UsedAs<T> = Fusion.UsedAs<T>
-local peek = Fusion.peek
-local OnEvent = Fusion.OnEvent
-local Children = Fusion.Children
+type UsedAs<T>	= Fusion.UsedAs<T>
+local Children 	= Fusion.Children
+local OnEvent 	= Fusion.OnEvent
+local peek 		= Fusion.peek
 
 -- Constants
-local BUY_BUTTON_DISPLAY_TIME = 5
+local BUY_BUTTON_DISPLAY_TIME 	= 5
+local BG_FADE_SPEED 			= 20
+local COLOUR_ORANGE 			= Color3.new(0.901961, 0.380392, 0.078431)
+local COLOUR_GREY 				= Color3.new(1, 1, 1)
 
 function EquippedItemButton(
 	scope: Fusion.Scope,
 	props: {
 		buttonSize: UsedAs<UDim2>,
 		itemDescription: AccessoryDescription | BodyPartDescription?,
-		visible: boolean
+		visible: boolean,
+		onClick: () -> (),
 	}
 ): Frame
 	if not props.itemDescription then
@@ -42,18 +46,28 @@ function EquippedItemButton(
 			Visible = false
 		} :: Frame
 	end
+
 	-- Get product info
 	local productInfo = MarketplaceService:GetProductInfo(props.itemDescription.AssetId, Enum.InfoType.Asset)
 
 	-- State management
+	local Toggled = scope:Value(false)
 	local isHovering = scope:Value(false)
+	local isHeldDown = scope:Value(false)
 	local isToggled = scope:Value(false)
+
+	local COLOUR_BG_TOGGLED = COLOUR_ORANGE
+	local COLOUR_BG_NOT_TOGGLED = COLOUR_GREY
+
+	local isClicked = scope:Computed(function(use, _)
+		return use(Toggled) == true
+	end)
 
 	-- Visual feedback
 	local imageColor = scope:Spring(
 		scope:Computed(function(use)
 			return use(isHovering) 
-				and UI_CONSTANTS.COLOUR_WHITE:Lerp(UI_CONSTANTS.COLOUR_BLACK, 0.5)
+				and UI_CONSTANTS.COLOUR_WHITE:Lerp(UI_CONSTANTS.TASTEMAKER_PURPLE, 0.5)
 				or UI_CONSTANTS.COLOUR_WHITE
 		end),
 		20,
@@ -86,6 +100,7 @@ function EquippedItemButton(
 		Size = props.buttonSize,
 		Visible = props.visible,
 		BackgroundTransparency = backgroundTransparencySpring,
+		BackgroundColor3 = imageColor,
 
 		[Children] = {
 			scope:New "UICorner" {
@@ -95,7 +110,7 @@ function EquippedItemButton(
 			scope:New "UIAspectRatioConstraint" {
 				AspectRatio = 1,
 				AspectType = Enum.AspectType.ScaleWithParentSize,
-				DominantAxis = Enum.DominantAxis.Height
+				DominantAxis = Enum.DominantAxis.Width
 			},
 
 			-- Main interaction button
@@ -128,7 +143,13 @@ function EquippedItemButton(
 				ImageTransparency = backgroundTransparencySpring,
 				ImageColor3 = imageColor,
 				Image = "rbxthumb://type=Asset&id=" .. props.itemDescription.AssetId .. "&w=420&h=420",
-				Active = false
+				Active = false,
+
+				[Children] = {
+					scope:New "UICorner" {
+						CornerRadius = UDim.new(0.2, 0),
+					},
+				},
 			},
 
 			-- Buy button overlay
@@ -140,8 +161,8 @@ function EquippedItemButton(
 				Size = UDim2.fromScale(0.8, 0.5),
 				Text = "BUY",
 				TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
-				TextStrokeTransparency = 0,
+				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+				TextStrokeTransparency = 1,
 				BackgroundColor3 = Color3.new(1, 1, 1),
 				BackgroundTransparency = backgroundTransparencySpring,
 				BorderSizePixel = 0,
@@ -152,7 +173,7 @@ function EquippedItemButton(
 
 				[Children] = {
 					scope:New "UICorner" {
-						CornerRadius = UDim.new(0.2, 0)
+						CornerRadius = UDim.new(0.5, 0)
 					},
 
 					scope:New "UIStroke" {
@@ -167,13 +188,49 @@ function EquippedItemButton(
 			scope:New "ImageButton" {
 				Name = "RemoveButton",
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.fromScale(1, 0),
-				Size = UDim2.fromScale(0.5, 0.5),
+				Position = UDim2.fromScale(0, 0.5),
+				Size = UDim2.fromScale(0.4, 0.4),
 				ZIndex = 3,
 				BackgroundTransparency = 1,
-				ImageTransparency = backgroundTransparencySpring,
-				Image = ImageUris.CloseButton,
+				Image = ImageUris.TrashButton,
 				Active = true,
+
+				[OnEvent "Activated"] = function()
+					if props.onClick ~= nil then
+						props.onClick()
+					end
+				end,
+				
+				[OnEvent "MouseButton1Down"] = function()
+					isHeldDown:set(true)
+				end,
+				
+				[OnEvent "MouseButton1Up"] = function()
+					isHeldDown:set(false)
+				end,
+				
+				[OnEvent "MouseEnter"] = function()
+					isHovering:set(true)
+				end,
+				
+				[OnEvent "MouseLeave"] = function()
+					isHovering:set(false)
+				end,
+
+				ImageColor3 = scope:Spring(
+					scope:Computed(function(use)
+						local baseColor = use(isClicked) and COLOUR_BG_TOGGLED or COLOUR_BG_NOT_TOGGLED
+						
+						if use(isHeldDown) then
+							return baseColor:Lerp(COLOUR_ORANGE, 0.8)
+						elseif use(isHovering) then
+							return baseColor:Lerp(COLOUR_ORANGE, 0.25)
+						else 
+							return baseColor
+						end
+					end),
+				BG_FADE_SPEED
+				), 
 
 				[OnEvent "Activated"] = function()
 					PlayerRemovedItem:FireServer(props.itemDescription.AssetId)

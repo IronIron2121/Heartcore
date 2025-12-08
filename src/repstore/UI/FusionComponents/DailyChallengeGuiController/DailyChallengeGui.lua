@@ -40,4 +40,4 @@ return function()
 	}
 
 	return DailyChallengeGui, Toggled
-end
+end 

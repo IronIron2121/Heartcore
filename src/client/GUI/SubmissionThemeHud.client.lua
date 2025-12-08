@@ -32,7 +32,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local ThemeText = scope:Value("Loading...")
 
 ThemeLabel:GetPropertyChangedSignal("Text"):Connect(function()
-    ThemeText:set("Today's Fit Check theme: " .. ThemeLabel.Text)
+    ThemeText:set("Today's Fit Check theme: <font color=\"rgb(89, 247, 128)\">" .. ThemeLabel.Text .. "</font>")
 end)
 	
 local TimeText = scope:Value("Loading...")
@@ -53,7 +53,8 @@ local function initialiseGUI()
 	local screenGUI = scope:New "ScreenGui" {
         Name = "SubmissionThemeGUI",
 		Parent = PlayerGui,
-		ZIndexBehavior = Enum.ZIndexBehavior.Global
+		ZIndexBehavior = Enum.ZIndexBehavior.Global,
+        IgnoreGuiInset = true,
 	}
     
 	local frame = scope:New "Frame" {
@@ -75,6 +76,7 @@ local function initialiseGUI()
             scope:New "TextLabel" {
                 Name = "ThemeText",
                 FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
+                RichText = true,
                 Text = ThemeText,
                 Size = UDim2.fromScale(0.5,0.5),
                 TextScaled = true,

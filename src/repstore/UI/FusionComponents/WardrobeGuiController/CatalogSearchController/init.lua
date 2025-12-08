@@ -71,7 +71,7 @@ end
 function CatalogSearchController:_initialiseCategoryFrame()
 	-- Category frame doesn't need positioning props typically
 	local categoryFrame = CategoryFrame(self.scope, {
-		size = UDim2.fromScale(0.2, 1),
+		size = UDim2.fromScale(0.12, 1),
 		position = UDim2.fromScale(0.5, 0.5),
 		backgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 		anchorPoint = Vector2.new(0.5, 0.5),
@@ -164,7 +164,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 
 	-- NOW create SearchFrame with the callbacks defined
 	local searchFrame, searchResultsFrame = SearchFrame(self.scope, {
-		size = UDim2.fromScale(0.8, 1),
+		size = UDim2.fromScale(0.87, 1),
 		position = UDim2.fromScale(0.5, 0.5),
 		anchorPoint = Vector2.new(0.5, 0.5),
 		layoutOrder = 2,

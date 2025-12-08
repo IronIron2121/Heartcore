@@ -81,6 +81,8 @@ function SearchBox(
 		TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
 		TextScaled = props.textScaled or true,
 		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+		TextXAlignment = Enum.TextXAlignment.Left,
+
 
 		[Out "Text"] = props.searchText,
 
@@ -123,7 +125,7 @@ function SearchBox(
 				PaddingTop = UDim.new(0.1,0),
 				PaddingBottom = UDim.new(0.1,0),
 				PaddingRight = UDim.new(0.1,0),
-				PaddingLeft = UDim.new(0.1,0),
+				PaddingLeft = UDim.new(0.02,0),
 			}
 		}
 	} :: TextBox
