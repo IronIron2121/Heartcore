@@ -145,7 +145,7 @@ end
 local function acquireCacheUpdateLock(): boolean?
 	local lockStore = getCacheUpdateLockStore()
 	if not lockStore then
-		warn("Failed to get cache update lock store")
+		--warn("Failed to get cache update lock store")
 		return false
 	end
 	
@@ -191,10 +191,10 @@ local function acquireCacheUpdateLock(): boolean?
 	end, 3)
 	
 	if success and result and result.serverId == game.JobId then
-		print("Successfully acquired cache update lock")
+		--print("Successfully acquired cache update lock")
 		return true
 	else
-		print("Failed to acquire cache update lock - another server recently updated or is updating")
+		--print("Failed to acquire cache update lock - another server recently updated or is updating")
 		return false
 	end
 end
@@ -207,12 +207,12 @@ local function releaseCacheUpdateLock(): ()
 	
 	-- We don't actually remove the lock - we keep the timestamp
 	-- so other servers know when the last update was
-	print("Cache update completed, lock retained with timestamp")
+	--print("Cache update completed, lock retained with timestamp")
 end
 
 -- Voting Phase Management
 function VotingStoreManager.setActiveVotingPhase(phasePrefix: string)
-	print("Setting active voting phase to:", phasePrefix)
+	--print("Setting active voting phase to:", phasePrefix)
 	activeVotingPhasePrefix = phasePrefix
 	
 	-- Load the theme for this phase (yesterday's theme)
@@ -220,7 +220,7 @@ function VotingStoreManager.setActiveVotingPhase(phasePrefix: string)
 	if currentTheme then
 		updateVotingThemeBillboard()
 	else
-		warn("Could not load theme for voting phase:", phasePrefix)
+		--warn("Could not load theme for voting phase:", phasePrefix)
 	end
 	
 	-- Pick a random store and load it
@@ -250,7 +250,7 @@ local function getSubmissionStoreNames(phasePrefix: string): {string}
 	end, 3)
 	
 	if not success or not infoStore then
-		warn("Could not get submission info store for phase:", phasePrefix)
+		--warn("Could not get submission info store for phase:", phasePrefix)
 		return storeNames
 	end
 	
@@ -259,7 +259,7 @@ local function getSubmissionStoreNames(phasePrefix: string): {string}
 	end, 3)
 	
 	if not infoSuccess or not info then
-		warn("Could not get submission info for phase:", phasePrefix)
+		--warn("Could not get submission info for phase:", phasePrefix)
 		return storeNames
 	end
 	
@@ -270,7 +270,7 @@ local function getSubmissionStoreNames(phasePrefix: string): {string}
 		table.insert(storeNames, storeName)
 	end
 	
-	print("Found", #storeNames, "submission stores for phase:", phasePrefix)
+	--print("Found", #storeNames, "submission stores for phase:", phasePrefix)
 	return storeNames
 end
 
@@ -283,7 +283,7 @@ local function getAllEntriesFromSubmissionStore(storeName: string): {[string]: a
 	end, 3)
 	
 	if not success or not store then
-		warn("Failed to get submission store:", storeName)
+		--warn("Failed to get submission store:", storeName)
 		return entries
 	end
 	
@@ -292,7 +292,7 @@ local function getAllEntriesFromSubmissionStore(storeName: string): {[string]: a
 	end, 3)
 	
 	if not rangeSuccess or not items then
-		warn("Failed to get range from store:", storeName)
+		--warn("Failed to get range from store:", storeName)
 		return entries
 	end
 	
@@ -306,7 +306,7 @@ end
 -- Pick a random store and load it into cache
 function VotingStoreManager.rotateStore()
 	if not activeVotingPhasePrefix then
-		warn("No active voting phase set, cannot rotate store")
+		--warn("No active voting phase set, cannot rotate store")
 		return
 	end
 	
@@ -319,7 +319,7 @@ function VotingStoreManager.rotateStore()
 	local storeNames = getSubmissionStoreNames(activeVotingPhasePrefix)
 	
 	if #storeNames == 0 then
-		warn("No submission stores available for phase:", activeVotingPhasePrefix)
+		--warn("No submission stores available for phase:", activeVotingPhasePrefix)
 		return
 	end
 	
@@ -333,7 +333,7 @@ function VotingStoreManager.rotateStore()
 	end, 3)
 	
 	if not success or not store then
-		warn("Failed to get selected store:", selectedStoreName)
+		--warn("Failed to get selected store:", selectedStoreName)
 		return
 	end
 	
@@ -351,24 +351,24 @@ end
 -- Load cache from the current active store
 function VotingStoreManager.loadCacheFromCurrentStore()
 	if not currentActiveStore or not currentActiveStoreName then
-		warn("No active store set")
+		--warn("No active store set")
 		return
 	end
 	
 	if isCacheUpdating then
-		warn("Cache update already in progress")
+		--warn("Cache update already in progress")
 		return
 	end
 	
 	-- Try to acquire the cache update lock
 	local gotLock = acquireCacheUpdateLock()
 	if not gotLock then
-		print("Skipping cache update - another server recently updated or is currently updating")
+		--print("Skipping cache update - another server recently updated or is currently updating")
 		return
 	end
 	
 	isCacheUpdating = true
-	print("Loading cache from store:", currentActiveStoreName)
+	--print("Loading cache from store:", currentActiveStoreName)
 	
 	local entries = getAllEntriesFromSubmissionStore(currentActiveStoreName)
 	
@@ -390,7 +390,7 @@ function VotingStoreManager.loadCacheFromCurrentStore()
 	-- Update the public cache
 	publicCache = newCache
 	
-	print("Loaded", totalEntries, "entries from", currentActiveStoreName)
+	--print("Loaded", totalEntries, "entries from", currentActiveStoreName)
 	
 	-- Rebuild selection buckets
 	local rebuildSuccess = balancedSelector:onCacheUpdated(publicCache)
@@ -407,7 +407,7 @@ function VotingStoreManager.initialise(): ()
 	if previousPrefix then
 		VotingStoreManager.setActiveVotingPhase(previousPrefix)
 	else
-		warn("No previous phase available for voting yet")
+		--warn("No previous phase available for voting yet")
 	end
 	
 	-- Start periodic systems
@@ -514,14 +514,14 @@ function VotingStoreManager.flushPendingUpdates(): ()
 						oldValue.views = (oldValue.views or 0) + updates.views
 						return oldValue
 					else
-						warn("Entry not found during flush:", entryKey)
+						--warn("Entry not found during flush:", entryKey)
 						return nil
 					end
 				end, Constants.MEMORYSTORE_STORE_DURATION)
 			end, 3)
 			
 			if not success then
-				warn("Failed to flush updates for entry:", entryKey)
+				--warn("Failed to flush updates for entry:", entryKey)
 			end
 		end
 	end
@@ -608,7 +608,7 @@ function VotingStoreManager.onPhaseTransition()
 	if previousPrefix then
 		VotingStoreManager.setActiveVotingPhase(previousPrefix)
 	else
-		warn("No previous phase available for voting")
+		--warn("No previous phase available for voting")
 	end
 
 end

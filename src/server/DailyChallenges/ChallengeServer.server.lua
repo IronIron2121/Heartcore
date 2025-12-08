@@ -15,11 +15,13 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 -- Modules
 local ChallengeManager = require(DailyChallenges:WaitForChild("ChallengeManager"))
 
--- Get existing RemoteEvents and RemoteFunctions
+-- Remotes
+local ResetPlayerChallenges = Remotes:WaitForChild("ResetPlayerChallenges")
 local ClaimChallengeReward = Remotes:WaitForChild("ClaimChallengeReward")
 local GetActiveChallenges = Remotes:WaitForChild("GetActiveChallenges")
 
--- Local function to handle claim requests from client
+--
+
 local function onClaimChallengeReward(player: Player, challengeId: string): boolean
     if typeof(challengeId) ~= "string" then
         warn("Invalid challengeId type from", player.Name)
@@ -38,7 +40,6 @@ local function onClaimChallengeReward(player: Player, challengeId: string): bool
     return success
 end
 
--- Local function to handle challenge list requests from client
 local function onGetActiveChallenges(player: Player)
     local challenges = ChallengeManager.GetActiveChallenges(player)
     warn("Returning", #challenges, "challenges to", player.Name)
@@ -46,6 +47,10 @@ local function onGetActiveChallenges(player: Player)
     return challenges
 end
 
--- Connect to events
+local function onResetPlayerChallenges(player: Player)
+    ChallengeManager.ResetPlayerChallenges(player)
+end
+
 ClaimChallengeReward.OnServerInvoke = onClaimChallengeReward
 GetActiveChallenges.OnServerInvoke = onGetActiveChallenges
+ResetPlayerChallenges.OnServerEvent:Connect(onResetPlayerChallenges)

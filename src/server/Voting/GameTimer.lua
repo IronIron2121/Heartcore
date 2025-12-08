@@ -88,7 +88,7 @@ function GameTimer.getCurrentPhasePrefix(): string?
             return dayPrefix
         end
     else
-        warn("No current phase transition!")
+        --warn("No current phase transition!")
         return nil
     end
 end
@@ -107,7 +107,7 @@ function GameTimer.getPreviousPhasePrefix(): string?
             return debug_dayPrefix
         end
     else
-        warn("No previous phase transition!")
+        --warn("No previous phase transition!")
         return nil
     end
 end
@@ -126,7 +126,7 @@ function GameTimer.getErePreviousPhasePrefix(): string?
             return dayPrefix
         end
     else
-        warn("No ere-previous phase transition!")
+        --warn("No ere-previous phase transition!")
         return nil
     end
 end
@@ -239,10 +239,10 @@ local function updatePhase()
         
         print("Phase transition completed at:", currentDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
         if tomorrowDateTime then
-            print("Next transition at:", tomorrowDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
+            --print("Next transition at:", tomorrowDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
         end
     else
-        warn("Failed to update phase transition times in GameTimerMemoryStore")
+        --warn("Failed to update phase transition times in GameTimerMemoryStore")
         return false
     end
     
@@ -331,7 +331,7 @@ function GameTimer.initialiseTimer(): ()
         while true do
             task.wait(CHECK_TIME_LAPSE_INTERVAL)
             
-            warn("Checking phase expiry...")
+            --warn("Checking phase expiry...")
             
             if currentPhaseHasExpired() then
                 print("Phase has expired, attempting transition...")
@@ -341,12 +341,12 @@ function GameTimer.initialiseTimer(): ()
                 if nextPhaseTime then
                     local timeUntilNext = nextPhaseTime - DateTime.now().UnixTimestamp
                     if DEBUG_MODE then
-                        print("DEBUG: Phase valid -", math.floor(timeUntilNext), "seconds until next")
+                        --print("DEBUG: Phase valid -", math.floor(timeUntilNext), "seconds until next")
                     else
-                        print("Phase is still valid! Time until next:", math.floor(timeUntilNext), "seconds")
+                        --print("Phase is still valid! Time until next:", math.floor(timeUntilNext), "seconds")
                     end
                 else
-                    print("No phase transition recorded yet")
+                    --print("No phase transition recorded yet")
                 end
             end
         end
@@ -372,7 +372,7 @@ function GameTimer.initialiseTimer(): ()
         end
     end)
  
-    print("GameTimer system started successfully!")
+    --print("GameTimer system started successfully!")
 end
 
 return GameTimer

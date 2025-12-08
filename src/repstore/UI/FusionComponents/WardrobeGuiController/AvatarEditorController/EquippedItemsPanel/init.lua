@@ -9,8 +9,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion
 local Children = Fusion.Children
@@ -18,7 +18,8 @@ local Children = Fusion.Children
 -- GUI Components
 local EquippedItemButtons = require(script:WaitForChild("EquippedItemButtons"))
 
--- TODO -- Auto-scaling-canvas size and whatnot
+--
+
 function EquippedItemsPanel(
 	scope: Fusion.Scope,
 	props: {
@@ -50,7 +51,6 @@ function EquippedItemsPanel(
 		20,
 		1
 	)	
-
 
 	local equippedItemButtons = EquippedItemButtons(scope, {
 		buttonSize = scope:Value(UDim2.fromScale(0.7, 0.7)),
