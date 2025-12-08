@@ -14,6 +14,13 @@ local ProfileTemplate = {
         --     claimed = false
         -- }
     } :: {[string]: {id: string, progress: number, claimed: boolean}},
+
+    ChallengeProgressTracker = {
+        OutfitsSubmitted = 0,
+        OutfitsVoted = 0,
+        OutfitsViewed = 0,
+        VotesReceived = 0
+    },
     
     LastChallengeResetTime = 0,
 

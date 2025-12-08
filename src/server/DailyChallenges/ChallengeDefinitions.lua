@@ -11,6 +11,7 @@ export type ChallengeDefinition = {
     type: ChallengeType,
     name: string,
     description: string,
+    trackerKey: string,  -- Links to ChallengeProgressTracker field
     targetAmount: number,
     reward: {
         exp: number,
@@ -26,6 +27,7 @@ ChallengeDefinitions.ALL_CHALLENGES = {
         type = "SUBMIT_OUTFIT",
         name = "Daily Fashionista",
         description = "Submit 1 outfit for today's theme",
+        trackerKey = "OutfitsSubmitted",
         targetAmount = 1,
         reward = {
             exp = 10,
@@ -39,6 +41,7 @@ ChallengeDefinitions.ALL_CHALLENGES = {
         type = "VOTE_OUTFIT",
         name = "Tastemaker",
         description = "Vote on 5 different outfits",
+        trackerKey = "OutfitsVoted",
         targetAmount = 5,
         reward = {
             exp = 15,
@@ -46,22 +49,18 @@ ChallengeDefinitions.ALL_CHALLENGES = {
         }
     },
 
-    --[[
-    -- Login streak (auto-awarded)
-    LOGIN_STREAK_3 = {
-        id = "LOGIN_STREAK_3",
-        type = "LOGIN_STREAK",
-        name = "Dedicated",
-        description = "Log in for 3 days in a row",
-        targetAmount = 3,
+    VOTE_10_OUTFITS = {
+        id = "VOTE_10_OUTFITS",
+        type = "VOTE_OUTFIT",
+        name = "Style Critic",
+        description = "Vote on 10 different outfits",
+        trackerKey = "OutfitsVoted",
+        targetAmount = 10,
         reward = {
-            exp = 30,
+            exp = 25,
             currency = 150
         }
     },
-    ]]
-
-
 }
 
 -- Get all daily challenges
