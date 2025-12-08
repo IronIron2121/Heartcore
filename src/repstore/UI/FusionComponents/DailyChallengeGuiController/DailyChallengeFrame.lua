@@ -70,7 +70,6 @@ local function DailyChallengeFrame(
     -- Load challenges on open
     local function loadChallenges()
         warn("Loading challenges")
-        task.wait(5)
         local activeChallenges = GetActiveChallenges:InvokeServer()
         challenges:set(activeChallenges or {})
     end
@@ -99,7 +98,12 @@ local function DailyChallengeFrame(
     end)
 
     -- Load challenges initially
-    task.spawn(loadChallenges)
+    task.spawn(
+        function()
+            task.wait(5)
+            loadChallenges()
+        end
+    )
     
     local DailyChallengeFrame = scope:New "Frame" {
         Name = "DailyChallengeFrame",
@@ -181,7 +185,7 @@ local function DailyChallengeFrame(
                         local canClaim = isCompleted and not challenge.claimed
                         
                         return ChallengeCard(scope, {
-                            name = challenge.id
+                            name = challenge.id,
                             description = def.description,
                             progress = string.format("%d/%d", challenge.progress, challenge.target),
                             reward = tostring(def.reward.exp),
