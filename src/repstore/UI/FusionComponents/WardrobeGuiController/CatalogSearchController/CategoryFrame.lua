@@ -23,8 +23,6 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI Components
 local CategoryButton = require(Widgets:WaitForChild("CategoryButton"))
-local BaseButton = require(Widgets:WaitForChild("BaseButton"))
-
 
 function CategoryFrame(
 	scope: Fusion.Scope,
