@@ -379,6 +379,43 @@ function CategoryFrame(
 						}
 					}),
 
+					CategoryButton(scope, {
+						text = "Emotes",
+						layoutOrder = 7,
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						isSelected = scope:Computed(function(use) 
+							if use(allSelected) then
+								return false
+							else
+								local currentAssets = use(props.searchAssetCategories)  
+								if table.find(currentAssets, Enum.AvatarAssetType.EmoteAnimation) then
+									return true
+								end
+								return false
+							end
+						end),
+						onActivated = function()
+							if peek(allSelected) then
+								props.searchBundleCategories:set({})
+								props.searchAssetCategories:set({Enum.AvatarAssetType.EmoteAnimation})
+								props.searchCallback()
+								return
+							end 
+
+							local currentAssets = peek(props.searchAssetCategories)
+							local assetIndex = table.find(currentAssets, Enum.AvatarAssetType.EmoteAnimation)
+
+							if assetIndex then
+								SelectAll()
+								props.searchCallback()
+							else
+								props.searchBundleCategories:set({})
+								props.searchAssetCategories:set({Enum.AvatarAssetType.EmoteAnimation})
+								props.searchCallback()
+							end
+						end
+					}),
+
 					ExpandingOptionsButton(scope, {
 						text = "Animations",
 						layoutOrder = 7,
