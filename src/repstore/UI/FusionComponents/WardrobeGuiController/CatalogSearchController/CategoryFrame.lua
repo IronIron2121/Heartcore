@@ -37,7 +37,8 @@ local ACCESSORIES = {
 	Enum.AvatarAssetType.BackAccessory,
 	Enum.AvatarAssetType.WaistAccessory
 }
-local ANIMATIONS = {Enum.AvatarAssetType.EmoteAnimation}
+
+local ANIMATIONS = {Enum.AvatarAssetType.EmoteAnimation, Enum.BundleType.Animations}
 
 --
 
@@ -143,7 +144,7 @@ function CategoryFrame(
 								return false
 							else
 								local currentAssets = use(props.searchAssetCategories)  
-								for _, assetType in ACCESSORIES do
+								for _, assetType in AssetFilterCategories.getAllAssetSearchTypes() do
 									if table.find(currentAssets, assetType) then
 										return true
 									end
@@ -331,7 +332,7 @@ function CategoryFrame(
 								return false
 							else
 								local currentBundles = use(props.searchBundleCategories)  
-								for _, bundleType in BundleFilterCategories.getAllRobloxBundleTypes() do
+								for _, bundleType in BundleFilterCategories.getAllRobloxBundleSearchTypes() do
 									if table.find(currentBundles, bundleType) then
 										return true
 									end
@@ -341,7 +342,7 @@ function CategoryFrame(
 						end),
 
 						children = {
-							scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, index, bundleType)
+							scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleSearchTypes()), function(use, scope, index, bundleType)
 								return index, CategoryButton(scope, {
 									text = bundleType.Name,
 									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
@@ -377,43 +378,6 @@ function CategoryFrame(
 								})
 							end)
 						}
-					}),
-
-					CategoryButton(scope, {
-						text = "Emotes",
-						layoutOrder = 7,
-						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
-						isSelected = scope:Computed(function(use) 
-							if use(allSelected) then
-								return false
-							else
-								local currentAssets = use(props.searchAssetCategories)  
-								if table.find(currentAssets, Enum.AvatarAssetType.EmoteAnimation) then
-									return true
-								end
-								return false
-							end
-						end),
-						onActivated = function()
-							if peek(allSelected) then
-								props.searchBundleCategories:set({})
-								props.searchAssetCategories:set({Enum.AvatarAssetType.EmoteAnimation})
-								props.searchCallback()
-								return
-							end 
-
-							local currentAssets = peek(props.searchAssetCategories)
-							local assetIndex = table.find(currentAssets, Enum.AvatarAssetType.EmoteAnimation)
-
-							if assetIndex then
-								SelectAll()
-								props.searchCallback()
-							else
-								props.searchBundleCategories:set({})
-								props.searchAssetCategories:set({Enum.AvatarAssetType.EmoteAnimation})
-								props.searchCallback()
-							end
-						end
 					}),
 
 					ExpandingOptionsButton(scope, {

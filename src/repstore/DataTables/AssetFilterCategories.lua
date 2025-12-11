@@ -11,6 +11,8 @@ type CategoryInfo = {
 	description: string
 }
 
+local NON_SEARCH_ASSETS = {Enum.AvatarAssetType.HairAccessory, Enum.AvatarAssetType.Hat}
+
 local AssetFilterCategories = {
 	-- Classic Clothing
 	{
@@ -170,6 +172,18 @@ function AssetFilterCategories.getAllAssetTypes(): {Enum.AvatarAssetType}
 	local assetTypes = {}
 	for _, category in ipairs(AssetFilterCategories) do
 		table.insert(assetTypes, category.assetType)
+	end
+	return assetTypes
+end
+
+
+-- Helper function to get all asset type enums
+function AssetFilterCategories.getAllAssetSearchTypes(): {Enum.AvatarAssetType}
+	local assetTypes = {}
+	for _, category in ipairs(AssetFilterCategories) do
+		if not table.find(NON_SEARCH_ASSETS, category.assetType)  then
+			table.insert(assetTypes, category.assetType)
+		end
 	end
 	return assetTypes
 end
