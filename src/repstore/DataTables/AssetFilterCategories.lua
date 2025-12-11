@@ -11,22 +11,33 @@ type CategoryInfo = {
 	description: string
 }
 
-local NON_SEARCH_ASSETS = {Enum.AvatarAssetType.HairAccessory, Enum.AvatarAssetType.Hat}
+local CLASSIC_CLOTHING = {Enum.AvatarAssetType.TShirt, Enum.AvatarAssetType.Shirt, Enum.AvatarAssetType.Pants}
+
+local SEARCH_ACCESSORIES = {
+	Enum.AvatarAssetType.Hat,
+	Enum.AvatarAssetType.HairAccessory,
+	Enum.AvatarAssetType.FaceAccessory,
+	Enum.AvatarAssetType.NeckAccessory,
+	Enum.AvatarAssetType.ShoulderAccessory,
+	Enum.AvatarAssetType.FrontAccessory,
+	Enum.AvatarAssetType.BackAccessory,
+	Enum.AvatarAssetType.WaistAccessory
+}
 
 local AssetFilterCategories = {
 	-- Classic Clothing
 	{
-		name = "T-Shirts",
+		name = "2D T-Shirts",
 		assetType = Enum.AvatarAssetType.TShirt,
 		description = "Classic 2D T-Shirts"
 	},
 	{
-		name = "Shirts",
+		name = "2D Shirts",
 		assetType = Enum.AvatarAssetType.Shirt,
 		description = "Classic 2D shirts"
 	},
 	{
-		name = "Pants",
+		name = "2D Pants",
 		assetType = Enum.AvatarAssetType.Pants,
 		description = "Classic 2D pants"
 	},
@@ -178,11 +189,22 @@ end
 
 
 -- Helper function to get all asset type enums
-function AssetFilterCategories.getAllAssetSearchTypes(): {Enum.AvatarAssetType}
+function AssetFilterCategories.getAllAssetSearchTypes(): {CategoryInfo}
 	local assetTypes = {}
 	for _, category in ipairs(AssetFilterCategories) do
-		if not table.find(NON_SEARCH_ASSETS, category.assetType)  then
-			table.insert(assetTypes, category.assetType)
+		if table.find(SEARCH_ACCESSORIES, category.assetType)  then
+			table.insert(assetTypes, category)
+		end
+	end
+	return assetTypes
+end
+
+-- Helper function to get all asset type enums
+function AssetFilterCategories.getAllClassicAssetSearchTypes(): {CategoryInfo}
+	local assetTypes = {}
+	for _, category in ipairs(AssetFilterCategories) do
+		if table.find(CLASSIC_CLOTHING, category.assetType)  then
+			table.insert(assetTypes, category)
 		end
 	end
 	return assetTypes

@@ -11,6 +11,8 @@ type BundleTypeInfo = {
 	description: string
 }
 
+local NON_SEARCH_BUNDLES = {Enum.BundleType.Animations, Enum.BundleType.DynamicHeadAvatar}
+
 local BundleFilterCategories = {
 	{
 		name = "Body Parts",
@@ -88,7 +90,7 @@ function BundleFilterCategories.getAllRobloxBundleSearchTypes(): {Enum.BundleTyp
 	local bundleTypes = {}
 	
 	for _, bundleType in ipairs(BundleFilterCategories) do
-		if bundleType.name ~= "Animations" then
+		if not table.find(NON_SEARCH_BUNDLES, bundleType.bundleType) then
 			table.insert(bundleTypes, bundleType.bundleType)
 		end
 	end
