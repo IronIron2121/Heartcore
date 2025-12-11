@@ -28,7 +28,6 @@ function CategoryButton(
 ): TextButton
 
 	local isHovering = scope:Value(false)
-	local isToggled = scope:Value(false)
 
 	-- Visual feedback based on selection and hover state
 	local backgroundColorSpring = scope:Spring(scope:Computed(function(use)

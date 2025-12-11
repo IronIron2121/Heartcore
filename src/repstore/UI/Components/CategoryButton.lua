@@ -4,14 +4,12 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local DataTablesFolder = ReplicatedStorage:WaitForChild("DataTables")
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
-local UI = ReplicatedStorage:WaitForChild("UI")
-local Objects = UI:WaitForChild("Objects")
+local UI 		= ReplicatedStorage:WaitForChild("UI")
+local Objects 	= UI:WaitForChild("Objects")
 
 -- Modules
 local UI_CONSTANTS = require(ReplicatedStorage.Utility.UI_CONSTANTS)
-local ShopItemStoreCategories 	= require(DataTablesFolder:WaitForChild("ShopItemStoreCategories"))
 
 -- GUI Elements
 local CategoryButtonTemplate = Objects:WaitForChild("CategoryButton")
@@ -20,7 +18,6 @@ local CategoryButtonTemplate = Objects:WaitForChild("CategoryButton")
 local CategoryButtonClickedEvent = Bindables:WaitForChild("CategoryButtonClicked")
 
 -- Constants
-local DEFAULT_SELECT 			= ShopItemStoreCategories[1]
 local UNSELECTED_BUTTON_COLOUR 	= Color3.new(0.360784, 0.376471, 0.839216)
 local UNSELECTED_TEXT_COLOUR 	= Color3.new(1, 1, 1)
 local SELECTED_BUTTON_COLOUR 	= Color3.new(1, 1, 1)
@@ -30,85 +27,81 @@ local UNSELECTED_BACKGROUND_TRANSPARENCY 	= 1
 local SELECTED_BACKGROUND_TRANSPARENCY 		= 0
 local SELECTED_ATTRIBUTE = "Selected"
 
+--
 
 function CategoryButton(category : string)
-	local CategoryButton : TextButton = CategoryButtonTemplate:Clone()
-	CategoryButton.AutoButtonColor = false
-	CategoryButton.Name = category
-	CategoryButton.Text = category
-	CategoryButton.FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Regular)
-	CategoryButton.TextColor3 = Color3.new(1, 1, 1)
-	CategoryButton:SetAttribute(SELECTED_ATTRIBUTE, false)
+	local categoryButton : TextButton = CategoryButtonTemplate:Clone()
+	categoryButton.AutoButtonColor = false
+	categoryButton.Name = category
+	categoryButton.Text = category
+	categoryButton.FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Regular)
+	categoryButton.TextColor3 = Color3.new(1, 1, 1)
+	categoryButton:SetAttribute(SELECTED_ATTRIBUTE, false)
 	
 	local function update()
-		if CategoryButton:GetAttribute("Selected") == true then
-			CategoryButton.TextColor3 = SELECTED_TEXT_COLOUR
-			CategoryButton.BackgroundColor3 = SELECTED_BUTTON_COLOUR
-			CategoryButton.BackgroundTransparency = SELECTED_BACKGROUND_TRANSPARENCY
-						
+		if categoryButton:GetAttribute("Selected") == true then
+			categoryButton.TextColor3 = SELECTED_TEXT_COLOUR
+			categoryButton.BackgroundColor3 = SELECTED_BUTTON_COLOUR
+			categoryButton.BackgroundTransparency = SELECTED_BACKGROUND_TRANSPARENCY
 		else
-			CategoryButton.TextColor3 = UNSELECTED_TEXT_COLOUR
-			CategoryButton.BackgroundColor3 = UNSELECTED_BUTTON_COLOUR
-			CategoryButton.BackgroundTransparency = UNSELECTED_BACKGROUND_TRANSPARENCY
+			categoryButton.TextColor3 = UNSELECTED_TEXT_COLOUR
+			categoryButton.BackgroundColor3 = UNSELECTED_BUTTON_COLOUR
+			categoryButton.BackgroundTransparency = UNSELECTED_BACKGROUND_TRANSPARENCY
 		end
 	end
 	
 	local function onActivated()
-		if not CategoryButton:GetAttribute(SELECTED_ATTRIBUTE) then
-			CategoryButton:SetAttribute(SELECTED_ATTRIBUTE, true)
-			CategoryButtonClickedEvent:Fire(CategoryButton)
+		if not categoryButton:GetAttribute(SELECTED_ATTRIBUTE) then
+			categoryButton:SetAttribute(SELECTED_ATTRIBUTE, true)
+			CategoryButtonClickedEvent:Fire(categoryButton)
 			update()
 		end
 	end
 	
-	local function getHoverColour()
-		return CategoryButton.BackgroundColor3:Lerp(Color3.new(1, 1, 1), 0.2)
-	end
-	
 	local function onHover()
 		print("hover enter")
-		CategoryButton.BackgroundTransparency = 0
-		CategoryButton.BackgroundColor3 = HOVER_COLOUR
+		categoryButton.BackgroundTransparency = 0
+		categoryButton.BackgroundColor3 = HOVER_COLOUR
 	end
 	
 	local function onLeave()
 		update()
 	end
 	
-	CategoryButton.Activated:Connect(onActivated)
-	CategoryButton.MouseEnter:Connect(onHover)
-	CategoryButton.MouseLeave:Connect(onLeave)
+	categoryButton.Activated:Connect(onActivated)
+	categoryButton.MouseEnter:Connect(onHover)
+	categoryButton.MouseLeave:Connect(onLeave)
 	update()
 
 	return {
 		Button = CategoryButton,
 		
 		Select = function()
-			CategoryButton:SetAttribute(SELECTED_ATTRIBUTE, true)
+			categoryButton:SetAttribute(SELECTED_ATTRIBUTE, true)
 			CategoryButtonClickedEvent:Fire(CategoryButton)
 			update()
 		end,
 
 		Unselect = function()
-			CategoryButton:SetAttribute(SELECTED_ATTRIBUTE, false)
+			categoryButton:SetAttribute(SELECTED_ATTRIBUTE, false)
 			update()
 		end,
 
 		IsSelected = function()
-			return CategoryButton:GetAttribute(SELECTED_ATTRIBUTE)
+			return categoryButton:GetAttribute(SELECTED_ATTRIBUTE)
 		end,
 
 		GetText = function()
-			return CategoryButton.Text
+			return categoryButton.Text
 		end,
 
 		SetEnabled = function(enabled: boolean)
-			CategoryButton.Active = enabled
-			CategoryButton.Visible = enabled
+			categoryButton.Active = enabled
+			categoryButton.Visible = enabled
 		end,
 
 		Destroy = function()
-			CategoryButton:Destroy()
+			categoryButton:Destroy()
 		end
 	}
 end

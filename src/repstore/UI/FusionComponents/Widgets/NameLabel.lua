@@ -47,7 +47,7 @@ function NameLabel(
 		TextStrokeTransparency = 1,
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		BackgroundTransparency = 1,
-		TextScaled = false,
+		TextScaled = true,
 		TextWrapped = true,
 		TextSize = props.textSize,
 		

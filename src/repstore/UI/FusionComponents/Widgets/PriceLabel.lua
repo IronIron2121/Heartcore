@@ -38,8 +38,6 @@ function PriceLabel(
 	}
 )
 
-
-
 local priceLabel = scope:New "Frame" {
 	Name = "Container",
 	LayoutOrder = props.layoutOrder or 1,
@@ -57,6 +55,7 @@ local priceLabel = scope:New "Frame" {
 
 		scope:New "TextLabel" {
 			Name = "priceText",
+			AutomaticSize = Enum.AutomaticSize.X,
 			Visible = props.visible or true,
 			AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 			Position = props.position or UDim2.fromScale(0.5, 0.5),
@@ -71,7 +70,7 @@ local priceLabel = scope:New "Frame" {
 			BackgroundTransparency = 1,
 			TextScaled = false,
 			TextSize = 20,
-			TextWrapped = true,
+			TextWrapped = false,
 			LayoutOrder = 2,
 		},
 

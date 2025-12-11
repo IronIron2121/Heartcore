@@ -1,17 +1,17 @@
 --!strict
 --[[
-AssetFilterCategories
-These are the main categories that can be sorted by in catalog searches.
-Each category has a display name, asset type enum, and description.
+	AssetFilterCategories
+	These are the main categories that can be sorted by in catalog searches.
+	Each category has a display name, asset type enum, and description.
 ]]
-
--- I'm adding this line to test how pushing a new branch works
 
 type CategoryInfo = {
 	name: string,
 	assetType: Enum.AvatarAssetType,
 	description: string
 }
+
+local NON_SEARCH_ASSETS = {Enum.AvatarAssetType.HairAccessory, Enum.AvatarAssetType.Hat}
 
 local AssetFilterCategories = {
 	-- Classic Clothing
@@ -149,6 +149,18 @@ function AssetFilterCategories.getCategoryByName(name: string): CategoryInfo?
 	return nil
 end
 
+function AssetFilterCategories.getCategoriesByName(names: {string}): {CategoryInfo}
+	local categories = {}
+
+	for _, category in ipairs(AssetFilterCategories) do
+		if table.find(names, category.name) then
+			table.insert(categories, category)
+		end
+	end
+
+	return categories
+end
+
 -- Helper function to get asset type enum by category name
 function AssetFilterCategories.getAssetType(categoryName: string): Enum.AvatarAssetType?
 	local category = AssetFilterCategories.getCategoryByName(categoryName)
@@ -160,6 +172,18 @@ function AssetFilterCategories.getAllAssetTypes(): {Enum.AvatarAssetType}
 	local assetTypes = {}
 	for _, category in ipairs(AssetFilterCategories) do
 		table.insert(assetTypes, category.assetType)
+	end
+	return assetTypes
+end
+
+
+-- Helper function to get all asset type enums
+function AssetFilterCategories.getAllAssetSearchTypes(): {Enum.AvatarAssetType}
+	local assetTypes = {}
+	for _, category in ipairs(AssetFilterCategories) do
+		if not table.find(NON_SEARCH_ASSETS, category.assetType)  then
+			table.insert(assetTypes, category.assetType)
+		end
 	end
 	return assetTypes
 end

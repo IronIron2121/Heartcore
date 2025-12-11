@@ -76,9 +76,23 @@ end
 -- Helper function to get all Roblox bundle type enums
 function BundleFilterCategories.getAllRobloxBundleTypes(): {Enum.BundleType}
 	local bundleTypes = {}
+	
 	for _, bundleType in ipairs(BundleFilterCategories) do
 		table.insert(bundleTypes, bundleType.bundleType)
 	end
+	return bundleTypes
+end
+
+-- Helper function to get all Roblox bundle type enums
+function BundleFilterCategories.getAllRobloxBundleSearchTypes(): {Enum.BundleType}
+	local bundleTypes = {}
+	
+	for _, bundleType in ipairs(BundleFilterCategories) do
+		if bundleType.name ~= "Animations" then
+			table.insert(bundleTypes, bundleType.bundleType)
+		end
+	end
+
 	return bundleTypes
 end
 
