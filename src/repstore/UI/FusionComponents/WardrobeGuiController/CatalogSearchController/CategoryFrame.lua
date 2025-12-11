@@ -22,7 +22,10 @@ local peek = Fusion.peek
 type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI Components
+local ExpandingOptionsButton = require(Widgets:WaitForChild("ExpandingOptionsButton"))
 local CategoryButton = require(Widgets:WaitForChild("CategoryButton"))
+
+--
 
 function CategoryFrame(
 	scope: Fusion.Scope,
@@ -42,8 +45,6 @@ function CategoryFrame(
 		searchCallback: () -> ()
 	}
 ): Frame
-
-	
 	local allSelected = scope:Computed(function(use)
 		if #use(props.searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes() and #use(props.searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes() then
 			return true
@@ -120,6 +121,63 @@ function CategoryFrame(
 						end
 					}),
 
+					ExpandingOptionsButton(scope, {
+						text = "Bundles",
+						layoutOrder = 6,
+						isSelected = scope:Computed(function(use) 
+							if use(allSelected) then
+								return false
+							else
+								local currentBundles = use(props.searchBundleCategories)  
+								for _, bundleType in BundleFilterCategories.getAllRobloxBundleTypes() do
+									if table.find(currentBundles, bundleType) then
+										return true
+									end
+								end
+								return false
+ 							end
+						end),
+
+						children = {
+							scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, index, bundleType)
+								return index, CategoryButton(scope, {
+									text = bundleType.Name,
+									size = UDim2.fromScale(0.8, 0.1),
+									layoutOrder = index + #AssetFilterCategories.getAllAssetTypes(),
+									isSelected = scope:Computed(function(use)
+										if use(allSelected) then
+											return false
+										else
+											return table.find(use(props.searchBundleCategories), bundleType) ~= nil
+										end
+									end),
+
+									onActivated = function()
+										if use(allSelected) then
+											props.searchBundleCategories:set({bundleType})
+											props.searchAssetCategories:set({})
+											props.searchCallback()
+											return
+										end 
+
+										local currentBundles = peek(props.searchBundleCategories) -- Use peek instead of use
+										local assetIndex = table.find(currentBundles, bundleType)
+
+										if assetIndex then
+											SelectAll()
+											props.searchCallback()
+										else
+											props.searchBundleCategories:set({bundleType})
+											props.searchAssetCategories:set({})
+											props.searchCallback()
+										end
+									end
+								})
+							end)
+						}
+					})
+					--[[
+
 					-- Create category buttons for assets
 					scope:ForPairs(scope:Value(AssetFilterCategories.getAllAssetTypes()), function(use, scope, index, assetType)
 						return index, CategoryButton(scope, {
@@ -157,8 +215,7 @@ function CategoryFrame(
 							end
 
 						})
-					end),
-					
+					end)
 					-- Create category buttons for bundles
 					scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, index, bundleType)
 						return index, CategoryButton(scope, {
@@ -195,6 +252,7 @@ function CategoryFrame(
 							end
 						})
 					end)
+					]]
 				}
 			}
 		}
