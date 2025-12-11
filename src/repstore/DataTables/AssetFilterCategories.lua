@@ -14,7 +14,6 @@ type CategoryInfo = {
 local CLASSIC_CLOTHING = {Enum.AvatarAssetType.TShirt, Enum.AvatarAssetType.Shirt, Enum.AvatarAssetType.Pants}
 
 local SEARCH_ACCESSORIES = {
-	Enum.AvatarAssetType.Hat,
 	Enum.AvatarAssetType.HairAccessory,
 	Enum.AvatarAssetType.FaceAccessory,
 	Enum.AvatarAssetType.NeckAccessory,
