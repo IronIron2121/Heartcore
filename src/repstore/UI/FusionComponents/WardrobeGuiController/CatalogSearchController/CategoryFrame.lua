@@ -25,6 +25,20 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local ExpandingOptionsButton = require(Widgets:WaitForChild("ExpandingOptionsButton"))
 local CategoryButton = require(Widgets:WaitForChild("CategoryButton"))
 
+-- Button Categories
+local CLASSIC_CLOTHING = {Enum.AvatarAssetType.TShirt, Enum.AvatarAssetType.Shirt, Enum.AvatarAssetType.Pants}
+local ACCESSORIES = {
+	Enum.AvatarAssetType.Hat,
+	Enum.AvatarAssetType.HairAccessory,
+	Enum.AvatarAssetType.FaceAccessory,
+	Enum.AvatarAssetType.NeckAccessory,
+	Enum.AvatarAssetType.ShoulderAccessory,
+	Enum.AvatarAssetType.FrontAccessory,
+	Enum.AvatarAssetType.BackAccessory,
+	Enum.AvatarAssetType.WaistAccessory
+}
+local ANIMATIONS = {Enum.AvatarAssetType.EmoteAnimation}
+
 --
 
 function CategoryFrame(
@@ -106,8 +120,8 @@ function CategoryFrame(
 					
 					CategoryButton(scope, {
 						text = "All",
-						size = UDim2.fromScale(0.8, 0.07),
-						layoutOrder = 0,
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 1,
 						isSelected = allSelected,
 						onActivated = function()
 							if not peek(allSelected) then
@@ -116,6 +130,194 @@ function CategoryFrame(
 							else
 								props.searchAssetCategories:set({})
 								props.searchBundleCategories:set({})
+								props.searchCallback()
+							end
+						end
+					}),
+
+					ExpandingOptionsButton(scope, {
+						text = "Accessories",
+						layoutOrder = 2,
+						isSelected = scope:Computed(function(use) 
+							if use(allSelected) then
+								return false
+							else
+								local currentAssets = use(props.searchAssetCategories)  
+								for _, assetType in ACCESSORIES do
+									if table.find(currentAssets, assetType) then
+										return true
+									end
+								end
+								return false
+							end
+						end),
+
+						children = {
+							scope:ForPairs(scope:Value(ACCESSORIES), function(use, scope, index, assetType)
+								return index, CategoryButton(scope, {
+									text = assetType.Name,
+									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+									layoutOrder = index,
+									isSelected = scope:Computed(function(use)
+										if use(allSelected) then
+											return false
+										else
+											return table.find(use(props.searchAssetCategories), assetType) ~= nil
+										end
+									end),
+
+									onActivated = function()
+										if use(allSelected) then
+											props.searchAssetCategories:set({assetType})
+											props.searchBundleCategories:set({})
+											props.searchCallback()
+											return
+										end 
+
+										local currentAssets = peek(props.searchAssetCategories)
+										local assetIndex = table.find(currentAssets, assetType)
+
+										if assetIndex then
+											SelectAll()
+											props.searchCallback()
+										else
+											props.searchAssetCategories:set({assetType})
+											props.searchBundleCategories:set({})
+											props.searchCallback()
+										end
+									end
+								})
+							end)
+						}
+					}),
+
+					ExpandingOptionsButton(scope, {
+						text = "Classic Clothing",
+						layoutOrder = 3,
+						isSelected = scope:Computed(function(use) 
+							if use(allSelected) then
+								return false
+							else
+								local currentAssets = use(props.searchAssetCategories)  
+								for _, assetType in CLASSIC_CLOTHING do
+									if table.find(currentAssets, assetType) then
+										return true
+									end
+								end
+								return false
+							end
+						end),
+
+						children = {
+							scope:ForPairs(scope:Value(CLASSIC_CLOTHING), function(use, scope, index, assetType)
+								return index, CategoryButton(scope, {
+									text = assetType.Name,
+									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+									layoutOrder = index,
+									isSelected = scope:Computed(function(use)
+										if use(allSelected) then
+											return false
+										else
+											return table.find(use(props.searchAssetCategories), assetType) ~= nil
+										end
+									end),
+
+									onActivated = function()
+										if use(allSelected) then
+											props.searchAssetCategories:set({assetType})
+											props.searchBundleCategories:set({})
+											props.searchCallback()
+											return
+										end 
+
+										local currentAssets = peek(props.searchAssetCategories)
+										local assetIndex = table.find(currentAssets, assetType)
+
+										if assetIndex then
+											SelectAll()
+											props.searchCallback()
+										else
+											props.searchAssetCategories:set({assetType})
+											props.searchBundleCategories:set({})
+											props.searchCallback()
+										end
+									end
+								})
+							end)
+						}
+					}),
+
+					CategoryButton(scope, {
+						text = "Hair",
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 4,
+						isSelected = scope:Computed(function(use)
+							if use(allSelected) then
+								return false
+							else
+								local currentAssets = use(props.searchAssetCategories)
+								if table.find(currentAssets, Enum.AvatarAssetType.HairAccessory) then
+									return true
+								end
+								return false
+							end
+						end),
+
+						onActivated = function()
+							if peek(allSelected) then
+								props.searchBundleCategories:set({})
+								props.searchAssetCategories:set({Enum.AvatarAssetType.HairAccessory})
+								props.searchCallback()
+								return
+							end 
+
+							local currentAssets = peek(props.searchAssetCategories)
+							local assetIndex = table.find(currentAssets, Enum.AvatarAssetType.HairAccessory)
+
+							if assetIndex then
+								SelectAll()
+								props.searchCallback()
+							else
+								props.searchBundleCategories:set({})
+								props.searchAssetCategories:set({Enum.AvatarAssetType.HairAccessory})
+								props.searchCallback()
+							end
+						end
+					}),
+
+					CategoryButton(scope, {
+						text = "Hats",
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 5,
+						isSelected = scope:Computed(function(use)
+							if use(allSelected) then
+								return false
+							else
+								local currentAssets = use(props.searchAssetCategories)
+								if table.find(currentAssets, Enum.AvatarAssetType.Hat) then
+									return true
+								end
+								return false
+							end
+						end),
+
+						onActivated = function()
+							if peek(allSelected) then
+								props.searchBundleCategories:set({})
+								props.searchAssetCategories:set({Enum.AvatarAssetType.Hat})
+								props.searchCallback()
+								return
+							end 
+
+							local currentAssets = peek(props.searchAssetCategories)
+							local assetIndex = table.find(currentAssets, Enum.AvatarAssetType.Hat)
+
+							if assetIndex then
+								SelectAll()
+								props.searchCallback()
+							else
+								props.searchBundleCategories:set({})
+								props.searchAssetCategories:set({Enum.AvatarAssetType.Hat})
 								props.searchCallback()
 							end
 						end
@@ -135,15 +337,15 @@ function CategoryFrame(
 									end
 								end
 								return false
- 							end
+							end
 						end),
 
 						children = {
 							scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, index, bundleType)
 								return index, CategoryButton(scope, {
 									text = bundleType.Name,
-									size = UDim2.fromScale(0.8, 0.1),
-									layoutOrder = index + #AssetFilterCategories.getAllAssetTypes(),
+									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+									layoutOrder = index,
 									isSelected = scope:Computed(function(use)
 										if use(allSelected) then
 											return false
@@ -160,7 +362,7 @@ function CategoryFrame(
 											return
 										end 
 
-										local currentBundles = peek(props.searchBundleCategories) -- Use peek instead of use
+										local currentBundles = peek(props.searchBundleCategories)
 										local assetIndex = table.find(currentBundles, bundleType)
 
 										if assetIndex then
@@ -175,84 +377,63 @@ function CategoryFrame(
 								})
 							end)
 						}
+					}),
+
+					ExpandingOptionsButton(scope, {
+						text = "Animations",
+						layoutOrder = 7,
+						isSelected = scope:Computed(function(use) 
+							if use(allSelected) then
+								return false
+							else
+								local currentAssets = use(props.searchAssetCategories)  
+								for _, assetType in ANIMATIONS do
+									if table.find(currentAssets, assetType) then
+										return true
+									end
+								end
+								return false
+							end
+						end),
+
+						children = {
+							scope:ForPairs(scope:Value(ANIMATIONS), function(use, scope, index, assetType)
+								return index, CategoryButton(scope, {
+									text = assetType.Name,
+									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+									layoutOrder = index,
+									isSelected = scope:Computed(function(use)
+										if use(allSelected) then
+											return false
+										else
+											return table.find(use(props.searchAssetCategories), assetType) ~= nil
+										end
+									end),
+
+									onActivated = function()
+										if use(allSelected) then
+											props.searchAssetCategories:set({assetType})
+											props.searchBundleCategories:set({})
+											props.searchCallback()
+											return
+										end 
+
+										local currentAssets = peek(props.searchAssetCategories)
+										local assetIndex = table.find(currentAssets, assetType)
+
+										if assetIndex then
+											SelectAll()
+											props.searchCallback()
+										else
+											props.searchAssetCategories:set({assetType})
+											props.searchBundleCategories:set({})
+											props.searchCallback()
+										end
+									end
+								})
+							end)
+						}
 					})
-					--[[
-
-					-- Create category buttons for assets
-					scope:ForPairs(scope:Value(AssetFilterCategories.getAllAssetTypes()), function(use, scope, index, assetType)
-						return index, CategoryButton(scope, {
-							text = assetType.Name,
-							size = UDim2.fromScale(0.8, 0.07),
-							layoutOrder = index,
-							isSelected = scope:Computed(function(use)
-								if use(allSelected) then
-									return false
-								else
-									return table.find(use(props.searchAssetCategories), assetType) ~= nil
-								end
-							end),
-							 
-							onActivated = function()
-								if use(allSelected) then
-									props.searchBundleCategories:set({})
-									props.searchAssetCategories:set({assetType})
-									props.searchCallback()
-									return
-								end
-
-								local currentAssets = peek(props.searchAssetCategories) -- Use peek instead of use
-								local assetIndex = table.find(currentAssets, assetType)
-
-								if assetIndex then
-									SelectAll()
-									props.searchCallback()
-								else
-									-- Create new array with the asset added
-									props.searchAssetCategories:set({assetType}) -- Set the new array
-									props.searchBundleCategories:set({})
-									props.searchCallback()
-								end
-							end
-
-						})
-					end)
-					-- Create category buttons for bundles
-					scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleTypes()), function(use, scope, index, bundleType)
-						return index, CategoryButton(scope, {
-							text = bundleType.Name,
-							size = UDim2.fromScale(0.8, 0.1),
-							layoutOrder = index + #AssetFilterCategories.getAllAssetTypes(),
-							isSelected = scope:Computed(function(use)
-								if use(allSelected) then
-									return false
-								else
-									return table.find(use(props.searchBundleCategories), bundleType) ~= nil
-								end
-							end),
-
-							onActivated = function()
-								if use(allSelected) then
-									props.searchBundleCategories:set({bundleType})
-									props.searchAssetCategories:set({})
-									props.searchCallback()
-									return
-								end 
-
-								local currentBundles = peek(props.searchBundleCategories) -- Use peek instead of use
-								local assetIndex = table.find(currentBundles, bundleType)
-
-								if assetIndex then
-									SelectAll()
-									props.searchCallback()
-								else
-									props.searchBundleCategories:set({bundleType})
-									props.searchAssetCategories:set({})
-									props.searchCallback()
-								end
-							end
-						})
-					end)
-					]]
 				}
 			}
 		}

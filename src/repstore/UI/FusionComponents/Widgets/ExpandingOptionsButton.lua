@@ -68,17 +68,9 @@ function ExpandingOptionsButton(
 		end)
 	)
 
-	local arrowRotation = scope:Spring(
-		scope:Computed(function(use)
-			return use(isExpanded) and 90 or 0 
-		end),
-		20,
-		1
-	)
-
 	local expandingOptionsButton = scope:New "Frame" {
 		Name = "ExpandingOptionsButton",
-		Size = UDim2.fromScale(0.9, 0),  -- Width in scale, height auto
+		Size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,  -- Width in scale, height auto
 		AutomaticSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1,
 		LayoutOrder = props.layoutOrder or 1,
@@ -156,12 +148,13 @@ function ExpandingOptionsButton(
 								Name = "Arrow",
 								Size = UDim2.new(0, 16, 0, 16),
 								BackgroundTransparency = 1,
-								Text = "▶",
+								Text = scope:Computed(function(use)  
+									return use(isExpanded) and "▼" or "▸"								
+								end),
 								TextSize = 14,
 								TextColor3 = textColorSpring,
 								Font = Enum.Font.GothamBold,
 								LayoutOrder = 1,
-								Rotation = arrowRotation  -- Animated rotation
 							},
 
 							-- Category text

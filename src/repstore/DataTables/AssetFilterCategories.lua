@@ -149,6 +149,18 @@ function AssetFilterCategories.getCategoryByName(name: string): CategoryInfo?
 	return nil
 end
 
+function AssetFilterCategories.getCategoriesByName(names: {string}): {CategoryInfo}
+	local categories = {}
+
+	for _, category in ipairs(AssetFilterCategories) do
+		if table.find(names, category.name) then
+			table.insert(categories, category)
+		end
+	end
+
+	return categories
+end
+
 -- Helper function to get asset type enum by category name
 function AssetFilterCategories.getAssetType(categoryName: string): Enum.AvatarAssetType?
 	local category = AssetFilterCategories.getCategoryByName(categoryName)

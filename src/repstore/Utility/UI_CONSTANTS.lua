@@ -1,6 +1,5 @@
 local UI_CONSTANTS = {
 	TRANSPARENCY_TRANSLUCENT = 0.3,
-	SEARCH_SORT_BOX_SIZE = UDim2.fromScale(.4, .5),
 	TASTEMAKER_PURPLE = Color3.new(0.360784, 0.376471, 0.839216),
 	TASTEMAKER_GREEN = Color3.fromRGB(89, 247, 128),
 	LOADING_GREY = Color3.new(0.5, 0.5, 0.5),
@@ -12,7 +11,7 @@ local UI_CONSTANTS = {
 	SEARCH_SORT_BOX_SIZE = UDim2.fromScale(.4, .5),
 	ROBOTO = "rbxasset://fonts/families/Roboto.json",
 	SECONDARY_FONT = "rbxasset://fonts/families/SonoMonospace.json",
-	CATEGORY_BUTTON_SIZE = UDim2.fromScale(0.8, 0.07),
+	CATEGORY_BUTTON_SIZE = UDim2.new(0.8, 0, 0, 45),
 }
 
 return UI_CONSTANTS
