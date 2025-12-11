@@ -30,7 +30,7 @@ local BundleFilterCategories = {
 		description = "A bundle of left shoe and right shoe"
 	},
 	{
-		name = "Dynamic Head",
+		name = "Dynamic Heads",
 		bundleType = Enum.BundleType.DynamicHead,
 		description = "A bundle consisting of dynamicHead and moodAnimation assets, optionally with eyebrowAccessory and eyelashAccessory"
 	},
@@ -86,12 +86,12 @@ function BundleFilterCategories.getAllRobloxBundleTypes(): {Enum.BundleType}
 end
 
 -- Helper function to get all Roblox bundle type enums
-function BundleFilterCategories.getAllRobloxBundleSearchTypes(): {Enum.BundleType}
+function BundleFilterCategories.getAllRobloxBundleSearchTypes(): {BundleTypeInfo}
 	local bundleTypes = {}
 	
 	for _, bundleType in ipairs(BundleFilterCategories) do
 		if not table.find(NON_SEARCH_BUNDLES, bundleType.bundleType) then
-			table.insert(bundleTypes, bundleType.bundleType)
+			table.insert(bundleTypes, bundleType)
 		end
 	end
 

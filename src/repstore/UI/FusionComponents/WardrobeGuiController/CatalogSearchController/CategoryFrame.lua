@@ -332,35 +332,35 @@ function CategoryFrame(
 						end),
 
 						children = {
-							scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleSearchTypes()), function(use, scope, index, bundleType)
+							scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleSearchTypes()), function(use, scope, index, bundleTypeInfo)
 								return index, CategoryButton(scope, {
-									text = bundleType.Name,
+									text = bundleTypeInfo.name,
 									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 									layoutOrder = index,
 									isSelected = scope:Computed(function(use)
 										if use(allSelected) then
 											return false
 										else
-											return table.find(use(props.searchBundleCategories), bundleType) ~= nil
+											return table.find(use(props.searchBundleCategories), bundleTypeInfo.bundleType) ~= nil
 										end
 									end),
 
 									onActivated = function()
 										if use(allSelected) then
-											props.searchBundleCategories:set({bundleType})
+											props.searchBundleCategories:set({bundleTypeInfo.bundleType})
 											props.searchAssetCategories:set({})
 											props.searchCallback()
 											return
 										end 
 
 										local currentBundles = peek(props.searchBundleCategories)
-										local assetIndex = table.find(currentBundles, bundleType)
+										local assetIndex = table.find(currentBundles, bundleTypeInfo.bundleType)
 
 										if assetIndex then
 											SelectAll()
 											props.searchCallback()
 										else
-											props.searchBundleCategories:set({bundleType})
+											props.searchBundleCategories:set({bundleTypeInfo.bundleType})
 											props.searchAssetCategories:set({})
 											props.searchCallback()
 										end
