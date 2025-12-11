@@ -19,7 +19,15 @@ local SEARCH_ACCESSORIES = {
 	Enum.AvatarAssetType.ShoulderAccessory,
 	Enum.AvatarAssetType.FrontAccessory,
 	Enum.AvatarAssetType.BackAccessory,
-	Enum.AvatarAssetType.WaistAccessory
+	Enum.AvatarAssetType.WaistAccessory,
+	Enum.AvatarAssetType.TShirtAccessory,
+	Enum.AvatarAssetType.ShirtAccessory,
+	Enum.AvatarAssetType.PantsAccessory,
+	Enum.AvatarAssetType.JacketAccessory,
+	Enum.AvatarAssetType.SweaterAccessory,
+	Enum.AvatarAssetType.ShortsAccessory,
+	Enum.AvatarAssetType.DressSkirtAccessory,
+
 }
 
 local AssetFilterCategories = {
@@ -64,32 +72,32 @@ local AssetFilterCategories = {
 		description = "Hair accessories"
 	},
 	{
-		name = "Face Accessories",
+		name = "Face",
 		assetType = Enum.AvatarAssetType.FaceAccessory,
 		description = "Face accessories"
 	},
 	{
-		name = "Neck Accessories",
+		name = "Neck",
 		assetType = Enum.AvatarAssetType.NeckAccessory,
 		description = "Neck accessories"
 	},
 	{
-		name = "Shoulder Accessories",
+		name = "Shoulder",
 		assetType = Enum.AvatarAssetType.ShoulderAccessory,
 		description = "Shoulder accessories"
 	},
 	{
-		name = "Front Accessories",
+		name = "Front",
 		assetType = Enum.AvatarAssetType.FrontAccessory,
 		description = "Front accessories"
 	},
 	{
-		name = "Back Accessories",
+		name = "Back",
 		assetType = Enum.AvatarAssetType.BackAccessory,
 		description = "Back accessories"
 	},
 	{
-		name = "Waist Accessories",
+		name = "Waist",
 		assetType = Enum.AvatarAssetType.WaistAccessory,
 		description = "Waist accessories"
 	},
