@@ -26,8 +26,6 @@ local ExpandingOptionsButton = require(Widgets:WaitForChild("ExpandingOptionsBut
 local CategoryButton = require(Widgets:WaitForChild("CategoryButton"))
 
 -- Button Categories
-
-
 local ANIMATIONS = {Enum.AvatarAssetType.EmoteAnimation, Enum.BundleType.Animations}
 
 --
@@ -47,7 +45,9 @@ function CategoryFrame(
 		currentView: Fusion.Value<string>,
 		searchAssetCategories: Fusion.Value<{Enum.AvatarAssetType}>,
 		searchBundleCategories: Fusion.Value<{Enum.BundleType}>,
-		searchCallback: () -> ()
+		searchCallback: () -> (),
+		editorsPickCallback: () -> (),
+		editorsPickSelected: UsedAs<boolean>
 	}
 ): Frame
 	local allSelected = scope:Computed(function(use)
@@ -121,6 +121,21 @@ function CategoryFrame(
 							else
 								props.searchAssetCategories:set({})
 								props.searchBundleCategories:set({})
+								props.searchCallback()
+							end
+						end
+					}),
+					
+					CategoryButton(scope, {
+						text = "Editor's Pick",
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 2,
+						isSelected = props.editorsPickSelected,
+						onActivated = function()
+							if not peek(props.editorsPickSelected) then
+								props.editorsPickCallback()
+							else
+								SelectAll()
 								props.searchCallback()
 							end
 						end
