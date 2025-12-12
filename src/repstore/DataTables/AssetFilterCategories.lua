@@ -166,6 +166,16 @@ function AssetFilterCategories.getCategoryByName(name: string): CategoryInfo?
 	return nil
 end
 
+function AssetFilterCategories.getCategoryInfoFromAssetType(assetType: Enum.AvatarAssetType): CategoryInfo?
+	for _, categoryInfo in ipairs(AssetFilterCategories) do
+		if categoryInfo.assetType == assetType then
+			return categoryInfo
+		end
+	end
+	warn("Could not find category corresponding to assetType", assetType, "!")
+	return nil
+end
+
 function AssetFilterCategories.getCategoriesByName(names: {string}): {CategoryInfo}
 	local categories = {}
 
