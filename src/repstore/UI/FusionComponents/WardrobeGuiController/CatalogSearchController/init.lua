@@ -81,7 +81,9 @@ function CatalogSearchController:_initialiseCategoryFrame()
 		currentView = self.currentView,
 		searchAssetCategories = self.searchAssetCategories, 
 		searchBundleCategories = self.searchBundleCategories, 
-		searchCallback = self.searchCallback
+		searchCallback = self.searchCallback,
+		editorsPickCallback = self.editorsPickCallback,
+		editorsPickSelected = self.editorsPickSelected
 	})
 	 
 	categoryFrame.Parent = self.parentFrame
@@ -118,15 +120,19 @@ function CatalogSearchController:_initialiseSearchFrame()
         self.isLoadingMore = false
     end
 
+	self.editorsPickSelected = self.scope:Value(false)
+
 	-- Define callbacks FIRST
 	self.searchCallback = function(keyword: string?)
 		if not self.SearchResultsFrame then
 			warn("SearchResultsFrame not ready yet")
 			return
 		end
+
+		self.editorsPickSelected:set(false)
 		
 		self.clearCatalogCallback()
-		warn("Searching!")
+		warn("Searching!", peek(self.editorsPickSelected))
 
 		local catalogParams = CatalogSearchParams.new()
 		catalogParams.SearchKeyword = keyword or peek(self.searchText)
@@ -160,9 +166,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 		end
 
 		self.clearCatalogCallback()
-		warn("loading editors pick")
-		warn(EditorsPick)
-		warn(EditorsPick.itemDetails)
+
 		for index, itemDetails in ipairs(EditorsPick.itemDetails) do
 			local newTile = FusionItemTile(self.scope, {
 				itemDetails = itemDetails,
@@ -170,6 +174,11 @@ function CatalogSearchController:_initialiseSearchFrame()
 			})
 			newTile.Parent = self.SearchResultsFrame
 		end
+
+		self.searchBundleCategories:set({})
+		self.searchAssetCategories:set({})
+
+		self.editorsPickSelected:set(true)
 	end
 
 	self.clearCatalogCallback = function()
@@ -196,7 +205,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 		searchResults = self.searchResults,
 		searchText = self.searchText, 
 		loadMoreCallback = self.loadMoreCallback,
-		searchCallback = self.searchCallback 
+		searchCallback = self.searchCallback,
 	})    
 	
 	searchFrame.Parent = self.parentFrame

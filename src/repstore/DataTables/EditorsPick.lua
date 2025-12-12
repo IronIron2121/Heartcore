@@ -26,12 +26,17 @@ EditorsPick.ids = {
 
     {
         id = 299, -- Superhero
-        itemType = Enum.AvatarItemType.Bundle
+        itemType = Enum.AvatarItemType.Bundle 
     },
 
     {
         id = 306, -- pirate swashbuckler
         itemType = Enum.AvatarItemType.Bundle 
+    },
+
+    {
+        id = 191101707, -- flaming mohawk
+        itemType = Enum.AvatarItemType.Asset
     }
 }
 
