@@ -35,7 +35,7 @@ local CONFIG = {
 }
 
 -- BIG NOTE / TODO: This should really be what we use for all item tiles, i.e. also the ones when we equip
-function FusionItemTile(
+function FusionItemTile( 
 	scope: Fusion.Scope,
 	props: {
 		itemDetails: {
@@ -43,6 +43,7 @@ function FusionItemTile(
 			Name: string,
 			ItemType: string,
 			AssetType: string?,
+			AssetTypeId: number?,
 			BundleType: string?,
 			Price: number,
 		},
@@ -50,6 +51,8 @@ function FusionItemTile(
 		layoutOrder: number
 	}
 )
+	warn("Making...")
+	print(props.itemDetails)
 	-- Get info type for product info query
 	local infoType
 	

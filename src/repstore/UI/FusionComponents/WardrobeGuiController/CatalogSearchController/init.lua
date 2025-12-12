@@ -20,6 +20,7 @@ local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCatego
 local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
 local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGuiState"))
 local FusionItemTile = require(Widgets:WaitForChild("FusionItemTile"))
+local EditorsPick = require(DataTables:WaitForChild("EditorsPick"))
 
 -- Fusion Components
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -64,8 +65,8 @@ function CatalogSearchController:Initialise()
 	self:_intialiseOutfitFrame()
 	self:_initialiseSearchFrame()
 	self:_initialiseCategoryFrame()
-
-	self.searchCallback("swag")
+	EditorsPick.initialiseItemDetails()
+ 	self.editorsPickCallback()
 end
 
 function CatalogSearchController:_initialiseCategoryFrame()
@@ -149,6 +150,25 @@ function CatalogSearchController:_initialiseSearchFrame()
 			end
 		else
 			warn("Failed to search catalog for keyword:", peek(self.searchText))
+		end
+	end
+
+	self.editorsPickCallback = function()
+		if not self.SearchResultsFrame then
+			warn("SearchResultsFrame not ready yet")
+			return
+		end
+
+		self.clearCatalogCallback()
+		warn("loading editors pick")
+		warn(EditorsPick)
+		warn(EditorsPick.itemDetails)
+		for index, itemDetails in ipairs(EditorsPick.itemDetails) do
+			local newTile = FusionItemTile(self.scope, {
+				itemDetails = itemDetails,
+				layoutOrder = index 
+			})
+			newTile.Parent = self.SearchResultsFrame
 		end
 	end
 
