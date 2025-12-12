@@ -18,7 +18,7 @@ local assets = {
 	ClaimedButton = "71218500167955",
 	DailyChallengeButton = "93273619202001",
 	VoteButton = "137550678558366",
-	TrashButton = "116335245986665",
+	TrashButton = "72654613290117",
 	ViewportBackground = "75117962948738",
 	ViewportBG = "118393578077171"
 }
