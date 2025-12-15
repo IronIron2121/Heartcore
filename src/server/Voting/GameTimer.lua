@@ -295,28 +295,21 @@ local function initialiseGameTimerCache()
         local nextPhaseTimestamp = getNextPhaseStartTime()
         if nextPhaseTimestamp then
             local timeUntilNext = nextPhaseTimestamp - DateTime.now().UnixTimestamp
-            print("Loaded recent phase transition time:", recentUnixTime)
-            print("Time until next phase:", math.max(0, timeUntilNext), "seconds")
         end
     else
         GameTimerCache.currentPhaseUnixTime = nil
-        print("No recent phase transition found - will start first phase on next check")
     end
     
     if previousSuccess and previousUnixTime then
         GameTimerCache.previousPhaseUnixTime = previousUnixTime
-        print("Loaded previous phase transition time:", previousUnixTime)
     else
         GameTimerCache.previousPhaseUnixTime = nil
-        print("No previous phase transition found") 
     end
     
     if erePreviousSuccess and erePreviousUnixTime then
         GameTimerCache.erePreviousPhaseUnixTime = erePreviousUnixTime
-        print("Loaded ere-previous phase transition time:", erePreviousUnixTime)
     else
         GameTimerCache.erePreviousPhaseUnixTime = nil
-        print("No ere-previous phase transition found")
     end
 end
 
@@ -331,23 +324,9 @@ function GameTimer.initialiseTimer(): ()
         while true do
             task.wait(CHECK_TIME_LAPSE_INTERVAL)
             
-            --warn("Checking phase expiry...")
-            
             if currentPhaseHasExpired() then
                 print("Phase has expired, attempting transition...")
                 attemptPhaseTransition()
-            else
-                local nextPhaseTime = getNextPhaseStartTime()
-                if nextPhaseTime then
-                    local timeUntilNext = nextPhaseTime - DateTime.now().UnixTimestamp
-                    if DEBUG_MODE then
-                        --print("DEBUG: Phase valid -", math.floor(timeUntilNext), "seconds until next")
-                    else
-                        --print("Phase is still valid! Time until next:", math.floor(timeUntilNext), "seconds")
-                    end
-                else
-                    --print("No phase transition recorded yet")
-                end
             end
         end
     end)
