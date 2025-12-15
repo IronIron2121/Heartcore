@@ -4,6 +4,7 @@
 -- Services
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local InsertService = game:GetService("InsertService")
 local AssetService = game:GetService("AssetService")
 local Players = game:GetService("Players")
 
@@ -11,6 +12,8 @@ local Players = game:GetService("Players")
 local Checkers = ReplicatedStorage:WaitForChild("Checkers")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
+local Emotes = Instance.new("Folder", ReplicatedStorage)
+Emotes.Name = "Emotes"
 
 -- Modules
 local PlayerHasMaxOfAccessoryTypeEquipped = require(Checkers:WaitForChild("PlayerHasMaxOfAccessoryTypeEquipped"))
@@ -21,6 +24,8 @@ local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
 -- Constants
 local DEFAULT_BODY_COLOR = Color3.fromRGB(200, 200, 200)
+
+--
 
 local AvatarCustomisationService = {}
 
@@ -374,10 +379,42 @@ function AvatarCustomisationService.AddClassicClothingToAvatar(player: Player, i
 	AvatarCustomisationService.applyDescription(player, clonedDescription)
 end
 
+function AvatarCustomisationService.TryEmote(player: Player, itemId: number)
+	local humanoid = GetHumanoidFromPlayer(player)
+
+	local asset = InsertService:LoadAsset(itemId)
+	local emote = Emotes:FindFirstChild(tostring(itemId)) :: Animation
+
+	if not emote then
+		emote = asset:FindFirstChildWhichIsA("Animation", true)
+		if emote then
+			emote:ClearAllChildren()
+			emote.Name = tostring(itemId)
+			emote.Parent = Emotes
+		end
+	end
+
+	asset:Destroy()
+
+	local animator = humanoid:FindFirstChild("Animator") :: Animator?
+
+	local track : AnimationTrack
+	if animator then 
+		track = animator:LoadAnimation(emote)
+	end
+
+	if track then
+		track.Looped = false
+		track:Play()
+	end
+end
+
 -- Public API
 function AvatarCustomisationService.AddItemToAvatar(player: Player, itemId: number, assetOrBundleType: string, itemType: string)
 	if itemType == "Asset" and table.find(Constants.CLASSIC_CLOTHING_ASSET_TYPES, assetOrBundleType) then
 		AvatarCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
+	elseif itemType == "Asset" and assetOrBundleType == Constants.EMOTE_ASSET_TYPE then
+		AvatarCustomisationService.TryEmote(player, itemId)
 	elseif itemType == "Asset" then
 		AvatarCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Bundle" then

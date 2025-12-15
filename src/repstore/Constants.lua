@@ -146,6 +146,8 @@ local Constants = {
 		Enum.AssetType.Shirt.Name,
 		Enum.AssetType.Pants.Name
 	},
+
+	EMOTE_ASSET_TYPE = Enum.AssetType.EmoteAnimation.Name,
 	
 	DEFAULT_CLASSIC_CLOTHING_IDS = {
 		["GraphicTShirt"] = 0,
