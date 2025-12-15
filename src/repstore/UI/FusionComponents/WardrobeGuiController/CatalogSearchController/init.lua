@@ -11,15 +11,16 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
+local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiController")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
-local WardrobeGuiState = require(script.Parent:WaitForChild("WardrobeGuiState"))
+local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGuiState"))
 local FusionItemTile = require(Widgets:WaitForChild("FusionItemTile"))
-
+local EditorsPick = require(DataTables:WaitForChild("EditorsPick"))
 
 -- Fusion Components
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -29,6 +30,17 @@ local peek = Fusion.peek
 local CategoryFrame = require(script:WaitForChild("CategoryFrame"))
 local OutfitsFrame = require(script:WaitForChild("OutfitsFrame"))
 local SearchFrame = require(script:WaitForChild("SearchFrame"))
+
+-- Constants
+
+local sortTextToSortType = {
+	["Relevance"] = Enum.CatalogSortType.Relevance,
+	["Bestselling"] = Enum.CatalogSortType.Bestselling,
+	["Most Favorited"] = Enum.CatalogSortType.MostFavorited,
+	["Price High To Low"] = Enum.CatalogSortType.PriceHighToLow,
+	["Price Low To High"] = Enum.CatalogSortType.PriceLowToHigh,
+	["Recently Created"] = Enum.CatalogSortType.RecentlyCreated,
+}
 
 --
 
@@ -41,7 +53,7 @@ function CatalogSearchController.new(parentFrame: Frame)
 	self.scope = Fusion:scoped()
 	self.searchAssetCategories = self.scope:Value(AssetFilterCategories.getAllAssetTypes())
 	self.searchBundleCategories = self.scope:Value(BundleFilterCategories.getAllRobloxBundleTypes())
-	self.searchSort = self.scope:Value(Enum.CatalogSortType.Relevance)
+	self.searchSort = self.scope:Value(Enum.CatalogSortType.Relevance.Name)
 	self.searchResults = self.scope:Value("")
 	self.searchText = self.scope:Value("")
 	self.currentView = WardrobeGuiState.currentView
@@ -53,14 +65,14 @@ function CatalogSearchController:Initialise()
 	self:_intialiseOutfitFrame()
 	self:_initialiseSearchFrame()
 	self:_initialiseCategoryFrame()
-
-	self.searchCallback("swag")
+	EditorsPick.initialiseItemDetails()
+ 	self.editorsPickCallback()
 end
 
 function CatalogSearchController:_initialiseCategoryFrame()
 	-- Category frame doesn't need positioning props typically
 	local categoryFrame = CategoryFrame(self.scope, {
-		size = UDim2.fromScale(0.2, 1),
+		size = UDim2.fromScale(0.12, 1),
 		position = UDim2.fromScale(0.5, 0.5),
 		backgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 		anchorPoint = Vector2.new(0.5, 0.5),
@@ -69,7 +81,9 @@ function CatalogSearchController:_initialiseCategoryFrame()
 		currentView = self.currentView,
 		searchAssetCategories = self.searchAssetCategories, 
 		searchBundleCategories = self.searchBundleCategories, 
-		searchCallback = self.searchCallback
+		searchCallback = self.searchCallback,
+		editorsPickCallback = self.editorsPickCallback,
+		editorsPickSelected = self.editorsPickSelected
 	})
 	 
 	categoryFrame.Parent = self.parentFrame
@@ -106,20 +120,24 @@ function CatalogSearchController:_initialiseSearchFrame()
         self.isLoadingMore = false
     end
 
+	self.editorsPickSelected = self.scope:Value(false)
+
 	-- Define callbacks FIRST
 	self.searchCallback = function(keyword: string?)
 		if not self.SearchResultsFrame then
 			warn("SearchResultsFrame not ready yet")
 			return
 		end
+
+		self.editorsPickSelected:set(false)
 		
 		self.clearCatalogCallback()
-		warn("Searching!")
+		warn("Searching!", peek(self.editorsPickSelected))
 
 		local catalogParams = CatalogSearchParams.new()
 		catalogParams.SearchKeyword = keyword or peek(self.searchText)
-		catalogParams.SortType = peek(self.searchSort)
-		catalogParams.Limit = 28
+		catalogParams.SortType = sortTextToSortType[peek(self.searchSort)]
+		catalogParams.Limit = 60
 		catalogParams.AssetTypes = peek(self.searchAssetCategories)
 		catalogParams.BundleTypes = peek(self.searchBundleCategories)
 
@@ -141,6 +159,28 @@ function CatalogSearchController:_initialiseSearchFrame()
 		end
 	end
 
+	self.editorsPickCallback = function()
+		if not self.SearchResultsFrame then
+			warn("SearchResultsFrame not ready yet")
+			return
+		end
+
+		self.clearCatalogCallback()
+
+		for index, itemDetails in ipairs(EditorsPick.itemDetails) do
+			local newTile = FusionItemTile(self.scope, {
+				itemDetails = itemDetails,
+				layoutOrder = index 
+			})
+			newTile.Parent = self.SearchResultsFrame
+		end
+
+		self.searchBundleCategories:set({})
+		self.searchAssetCategories:set({})
+
+		self.editorsPickSelected:set(true)
+	end
+
 	self.clearCatalogCallback = function()
 		if not self.SearchResultsFrame then return end
 		-- clear all children of the searchresults frame
@@ -153,7 +193,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 
 	-- NOW create SearchFrame with the callbacks defined
 	local searchFrame, searchResultsFrame = SearchFrame(self.scope, {
-		size = UDim2.fromScale(0.8, 1),
+		size = UDim2.fromScale(0.87, 1),
 		position = UDim2.fromScale(0.5, 0.5),
 		anchorPoint = Vector2.new(0.5, 0.5),
 		layoutOrder = 2,
@@ -165,7 +205,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 		searchResults = self.searchResults,
 		searchText = self.searchText, 
 		loadMoreCallback = self.loadMoreCallback,
-		searchCallback = self.searchCallback 
+		searchCallback = self.searchCallback,
 	})    
 	
 	searchFrame.Parent = self.parentFrame

@@ -2,24 +2,30 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local workspace = game:GetService("Workspace")
+
 
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local votingZone = workspace:WaitForChild("votingZone")
-local Bindables = ReplicatedStorage:WaitForChild("Bindables")
+local centralPond = workspace:WaitForChild("centralPond")
 
 -- Instances
 local VotingPad = votingZone:WaitForChild("VotingPad")
 local promptHolder = VotingPad:WaitForChild("PromptHolder")
+local pondModel = centralPond:WaitForChild("centralPond")
+local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
+local BillboardGui = SubmissionBillboardHolder:WaitForChild("BillboardGui")
+local Frame = BillboardGui:WaitForChild("Frame")
+local TimeLabel = Frame:WaitForChild("TimeLabel")
 
 -- Modules
 local VotingGuiController = require(FusionComponents:WaitForChild("VotingGuiController"))
+--local VotingClientManager = require(Utility:WaitForChild("VotingClientManager"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
--- Remotes / Bindables
-local LocalTimerUpdated = Bindables:WaitForChild("LocalTimerUpdated")
 
 -- Fusion Modules
 local scope = Fusion:scoped()
@@ -33,7 +39,7 @@ local TimeText = scope:Value("Loading...")
 -- 
 
 local function onVotePromptActivated()
-    if peek(VoteGuiVisible) == true then
+    if peek(VoteGuiVisible) == true then 
         VoteGuiVisible:set(false)
     else
         VoteGuiVisible:set(true)
@@ -53,15 +59,24 @@ local function initialiseVoteGui()
         ActionText = "Vote Here!",
 
         [OnEvent "Triggered"] = function()
+            warn("triggering!")
             onVotePromptActivated()
         end
     }
 
-    VotingGuiController.Initialise(VoteGuiVisible, TimeText)
+    task.spawn(function()
+        while true do
+            task.wait(1)
+            updateTimeText(TimeLabel.Text)
+			--VotingClientManager.updateTimeText(TimeLabel.Text)
+        end
+    end)
+
+    VotingGuiController.Initialise({
+        VoteGuiVisible = VoteGuiVisible, 
+        TimeText = TimeText
+    })
+	--VotingClientManager.initialiseVotingGui()
 end 
 
-
-
 initialiseVoteGui()
-
-LocalTimerUpdated.Event:Connect(updateTimeText)

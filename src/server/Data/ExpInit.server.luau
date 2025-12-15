@@ -11,11 +11,16 @@ local Players = game:GetService("Players")
 -- Folders
 local Libraries = ServerScriptService:WaitForChild("Libraries")
 local Data = ServerScriptService:WaitForChild("Data")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local ProfileStore = require(Libraries:WaitForChild("ProfileStore"))
 local ProfileTemplate = require(Data:WaitForChild("ProfileTemplate"))
 local DataManager = require(Data:WaitForChild("DataManager"))
+
+-- Remotes
+local XPHack = Remotes:WaitForChild("XPHack")
+local ResetLevel = Remotes:WaitForChild("ResetLevel")
 
 local function GetStoreName()
     return RunService:IsStudio() and "Test" or "Live"
@@ -39,17 +44,25 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
     Level.Name = "Level"
     Level.Value = profile.Data.Level or 1
 
+    local Rank = Instance.new("StringValue", leaderstats)
+    Rank.Name = "Rank"
+    Rank.Value = profile.Data.Rank or DataManager.GetRank(Level.Value)
+
     local Flair = Instance.new("NumberValue", leaderstats)
-    Flair.Name = "Flair" 
+    Flair.Name = "Flair"
     Flair.Value = profile.Data.Flair or 1
 
     -- Process login bonuses and streaks
     DataManager.ProcessLogin(player)
-
-    -- Sync player data
-    --ReplicatedStorage
 end
 
+local function XpHack(player)
+    DataManager.AddExp(player, 1)
+end
+
+local function ResetPlayerLevel(player: Player)
+    DataManager.ResetPlayerLevel(player)
+end
 
 -- Creates and stores a profile
 local function PlayerAdded(player: Player)
@@ -92,7 +105,6 @@ local function PlayerRemoved(player: Player)
 
     profile:EndSession()
     DataManager.Profiles[player] = nil
-
 end
 
 for _, player in Players:GetPlayers() do
@@ -101,3 +113,5 @@ end
 
 Players.PlayerAdded:Connect(PlayerAdded)
 Players.PlayerRemoving:Connect(PlayerRemoved)
+XPHack.OnServerEvent:Connect(XpHack)
+ResetLevel.OnServerEvent:Connect(ResetPlayerLevel)

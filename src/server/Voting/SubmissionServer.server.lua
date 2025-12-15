@@ -6,12 +6,13 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
+local DailyChallenges = ServerScriptService:WaitForChild("DailyChallenges")
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
-local centralPond = workspace:WaitForChild("centralPond")
+local submissionZone = workspace:WaitForChild("submissionZone")
 local Data = ServerScriptService:WaitForChild("Data")
 
 -- Remotes
@@ -28,9 +29,10 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local GameTimer = require(Voting:WaitForChild("GameTimer"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
+local ChallengeManager = require(DailyChallenges:WaitForChild("ChallengeManager"))
 
 -- Instances
-local SubmissionPad = centralPond:WaitForChild("SubmissionPad") 
+local SubmissionPad = submissionZone:WaitForChild("SubmissionPad")
 
 -- Fusion
 local scope = Fusion:scoped()
@@ -100,7 +102,10 @@ local function onOutfitSubmitted(player: Player)
 	local humanoidDescription = getHumanoidDescriptionFromPlayer(player)
 	if not humanoidDescription then
 		warn("No Humanoid Description when submitting for player", player.Name)
-		SubmissionResultRE:FireClient(player, {ok=false, msg = "humanoidDescription not loaded"})
+		SubmissionResultRE:FireClient(player, {
+			ok=false, 
+			msg = "humanoidDescription not loaded"}
+		)
 		return
 	end
 
@@ -111,6 +116,7 @@ local function onOutfitSubmitted(player: Player)
 	if not success then return end
 
 	DataManager.AddExp(player, 1)
+	ChallengeManager.OnOutfitSubmitted(player)
 	DataManager.onOutfitSubmitted(player)
 end
 
@@ -123,14 +129,7 @@ local prompt = scope:New "ProximityPrompt" {
 	RequiresLineOfSight = false,
 	MaxActivationDistance = 16,
 	[OnEvent "Triggered"] = function(player)
-		if peek(isSubmitting) then
-			warn("Submitting now!")
-			return
-		end
-		warn("submitting on prompt hit!!")
-		isSubmitting:set(true)
 		onOutfitSubmitted(player)
-		isSubmitting:set(false)
 	end
 }
 

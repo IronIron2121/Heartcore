@@ -10,6 +10,7 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local centralPond = workspace:WaitForChild("centralPond")
+local submissionZone = workspace:WaitForChild("submissionZone")
 
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
@@ -26,6 +27,7 @@ local SubmissionBillboardHolder = centralPondModel:WaitForChild("SubmissionBillb
 local SubmissionThemeBillboard = SubmissionBillboardHolder:WaitForChild("BillboardGui")
 local Frame = SubmissionThemeBillboard:WaitForChild("Frame")
 local SubmissionThemeTextLabel = Frame:WaitForChild("ThemeLabel")
+
 
 -- Caching variables
 local pendingUpdates = {}
@@ -45,9 +47,8 @@ local SubmissionStoreManager = {}
 
 local function updateSubmissionThemeBillboard()
     local themeName = ThemeManager.getCurrentThemeName()
-    SubmissionThemeTextLabel.Text = "THEME: " .. themeName
-    warn("Updating theme", SubmissionThemeTextLabel.Text)
-    warn(themeName)
+    SubmissionThemeTextLabel.Text = themeName
+    print("Updating theme", SubmissionThemeTextLabel.Text, themeName)
     if themeName == "Loading..." then
         task.wait(REUPDATE_THEME_WAIT_TIME)
         task.spawn(function()
@@ -55,6 +56,9 @@ local function updateSubmissionThemeBillboard()
         end)
     end
 end
+
+
+
 
 local function getRolloverLockStore()
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
@@ -426,7 +430,6 @@ function SubmissionStoreManager.flushPendingUpdates(): ()
 end
 
 function SubmissionStoreManager.startPeriodicFlush(): ()
-    warn("starting flush for sub store!")
     task.spawn(function()
         while true do
             task.wait(FLUSH_INTERVAL)
@@ -473,7 +476,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         SubmissionStoreManager:AddEntryToCache(player, serialisedHumanoidDescription)
         SubmissionResultRE:FireClient(player, {
             ok = false,
-            msg = "Outfit failed to submit! 2"
+            msg = "Outfit failed to submit! Roll-over in progress"
         })
         return false
     end
@@ -483,7 +486,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         warn("Failed to get submissions memory store") 
         SubmissionResultRE:FireClient(player, {
             ok = false,
-            msg = "Server error. Please try again."
+            msg = "Failed to submit outfit due to server error. Please try again later."
         })
         return false
     end
@@ -506,7 +509,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         print("Successfully submitted outfit for player:", player.Name)
         SubmissionResultRE:FireClient(player, {
             ok = true,
-            msg = "Outfit submitted successfully! 2"
+            msg = "Outfit submitted successfully!"
         })
         
         -- Check if we need to rollover to a new store
@@ -520,7 +523,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         warn("Failed to submit outfit for player:", player.Name)
         SubmissionResultRE:FireClient(player, {
             ok = false,
-            msg = "Failed to submit outfit. Please try again."
+            msg = "Failed to submit outfit due to server error. Please try again later."
         })
         return false
     end

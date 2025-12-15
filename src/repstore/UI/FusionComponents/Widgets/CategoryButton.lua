@@ -28,7 +28,6 @@ function CategoryButton(
 ): TextButton
 
 	local isHovering = scope:Value(false)
-	local isToggled = scope:Value(false)
 
 	-- Visual feedback based on selection and hover state
 	local backgroundColorSpring = scope:Spring(scope:Computed(function(use)
@@ -70,11 +69,12 @@ function CategoryButton(
 
 	local categoryButton = scope:New "TextButton" {
 		Name = "CategoryButton",
-		Size = props.size or UDim2.fromScale(0.15, 1),
+		Size = props.size or UDim2.fromScale(0.15, 0.07),
 		LayoutOrder = props.layoutOrder or 1,
 		Text = props.text,
 		TextColor3 = textColorSpring,
 		TextScaled = true,
+		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 		BackgroundColor3 = backgroundColorSpring,
 		BackgroundTransparency = backgroundTransparencySpring,
 		BorderSizePixel = 0,

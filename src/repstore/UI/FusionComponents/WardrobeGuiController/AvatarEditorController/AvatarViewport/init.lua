@@ -7,8 +7,8 @@ local Players = game:GetService("Players")
 
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
@@ -19,6 +19,7 @@ local OutfitClientService = require(Utility:WaitForChild("OutfitClientService"))
 -- Fusion
 local peek = Fusion.peek
 local Children = Fusion.Children
+type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI Components
 local RotateButton = require(script:WaitForChild("RotateButton"))
@@ -35,8 +36,12 @@ local CONFIG = {
 
 function AvatarViewport(
 	scope: Fusion.Scope,
-	model: Fusion.UsedAs<Model> -- Changed from Value<Model> to UsedAs<Model>
-): ViewportFrame
+	props: {
+		model: UsedAs<Model>,
+		currentView: Fusion.Value<string>,
+		layoutOrder: UsedAs<number>
+	}
+): Frame
 	-- Avatar manipulation variables
 	local pitch = scope:Value(0)
 	local yaw = scope:Value(0)
@@ -49,12 +54,12 @@ function AvatarViewport(
 	end)
 
 	local baseCFrame = scope:Computed(function(use)
-		local currentModel = use(model)
+		local currentModel = use(props.model)
 		return currentModel and currentModel:GetPivot() or CFrame.new()
 	end)
 
 	scope:Observer(pitchAndYaw):onChange(function()
-		local currentModel = peek(model)
+		local currentModel = peek(props.model)
 		local basePos = peek(baseCFrame)
 		if not currentModel or not basePos then return end
 
@@ -70,19 +75,22 @@ function AvatarViewport(
 	
 	local viewportOut = scope:Value(nil)
 
+
+
 	local viewport = scope:New "ViewportFrame" {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Name = "AvatarViewport",
-		Size = UDim2.fromScale(1, 0.85),  
+		Size = UDim2.fromScale(1, 1),  
+		LayoutOrder = props.layoutOrder or 2,
 		Position = UDim2.fromScale(0.5, 0.5),
 		BackgroundColor3 = Color3.new(1, 1, 1),
+		BackgroundTransparency = 1,
 		BorderSizePixel = 2,
 		BorderColor3 = Color3.new(0.360784, 0.376471, 0.839216),
-		LayoutOrder = 1,
 		Ambient = Color3.new(1,1,1),
 		LightColor = Color3.fromRGB(255, 249, 228),
 		LightDirection = Vector3.new(1,1,1),
-
+		ZIndex = 2,
 		
 		[Children] = {
 			scope:New "UIStroke" {
@@ -90,19 +98,25 @@ function AvatarViewport(
 				Color = Color3.new(0.360784, 0.376471, 0.839216),
 				Thickness = 2,
 			},
+
 			scope:New "WorldModel" {
 				Name = "WorldModel",
 
 				[Children] = scope:Computed(function(use)
-					local currentModel = use(model) -- Use 'use' instead of peek to make it reactive
+					local currentModel = use(props.model) -- Use 'use' instead of peek to make it reactive
 					return currentModel and {currentModel} or {}
 				end)	
 			},
 
-	
-
 			scope:New "UICorner" {
 				CornerRadius = UDim.new(0.05)
+			},
+
+			scope:New "UIPadding" {
+				PaddingTop = UDim.new(0.02,0),
+				PaddingBottom = UDim.new(0.02,0),
+				PaddingLeft = UDim.new(0.04,0),
+				PaddingRight = UDim.new(0.04,0),
 			},
 
 			Button(scope, {
@@ -111,10 +125,23 @@ function AvatarViewport(
 				size = UDim2.fromScale(0.3, 0.1),
 				position = UDim2.fromScale(1,0),
 				anchorPoint = Vector2.new(1,0),
-				zIndex = 2,
+				zIndex = 3,
 				
 				onActivated = function()
 					OutfitClientService.ResetPlayerOutfit(localPlayer)
+				end,
+			}),
+
+			Button(scope, {
+				name = "OutfitsButtonFrame",
+				text = "My Outfits",
+				size = UDim2.fromScale(0.3, 0.1), 
+				position = UDim2.fromScale(0,0),
+				anchorPoint = Vector2.new(0,0),
+				zIndex = 3,
+
+				onActivated = function()
+					props.currentView:set("Outfits")
 				end,
 			}),
 
@@ -124,7 +151,7 @@ function AvatarViewport(
 				size = UDim2.fromScale(0.3, 0.1),
 				position = UDim2.fromScale(1,1),
 				anchorPoint = Vector2.new(1,1),
-				zIndex = 2,
+				zIndex = 3,
 				visible = true,
 				
 				onActivated = function()
@@ -133,12 +160,12 @@ function AvatarViewport(
 			}),
 			
 			Button(scope, {
-				text = "Save This Outfit",
+				text = "Save Outfit",
 				visible = true,
 				size = UDim2.fromScale(0.3, 0.1),
 				position = UDim2.fromScale(0,1),
 				anchorPoint = Vector2.new(0,1),
-				zIndex = 2,
+				zIndex = 3,
 				onActivated = function()
 					OutfitClientService.SaveCurrentPlayerOutfit(localPlayer)
 				end
@@ -152,9 +179,36 @@ function AvatarViewport(
 
 			rotateButton:set(
 				RotateButton(scope, pitch, yaw, zoom) 
-			)
+			),
 		}
 	} :: ViewportFrame
+	
+	local viewportBackground = scope:New "Frame" {
+		Name = "ViewportContainer",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Size = UDim2.fromScale(0.7, 1),
+		LayoutOrder = props.layoutOrder or 2,
+		Position = UDim2.fromScale(0.5, 0.5),
+		BackgroundTransparency = 1,
+
+		[Children] = {
+			scope:New "ImageLabel" {
+				Name = "viewportBackground",
+				Size = UDim2.fromScale(1,1),
+				Position = UDim2.fromScale(0, 0),
+				AnchorPoint = Vector2.new(0, 0),
+				Image = "rbxassetid://118393578077171",
+
+				[Children] = {
+					scope:New "UICorner" {
+						CornerRadius = UDim.new(0.05)
+					},
+				},
+			},
+
+			viewport
+		}
+	} :: Frame
 	
 	viewportOut:set(viewport)
 
@@ -162,7 +216,7 @@ function AvatarViewport(
 
 	-- Camera update function
 	local function updateCameraPosition()
-		local currentModel = peek(model)
+		local currentModel = peek(props.model)
 		local camera = peek(viewportCamera)
 		if not currentModel or not camera then return end
 
@@ -179,13 +233,13 @@ function AvatarViewport(
 	end
 
 	-- Update camera when model changes
-	scope:Observer(model):onChange(updateCameraPosition)
+	scope:Observer(props.model):onChange(updateCameraPosition)
 	-- Update camera when zoom changes
 	scope:Observer(zoomSpring):onChange(updateCameraPosition)
 	-- Set up initial camera position
 	task.defer(updateCameraPosition)
 
-	return viewport
+	return viewportBackground
 end
 
 return AvatarViewport

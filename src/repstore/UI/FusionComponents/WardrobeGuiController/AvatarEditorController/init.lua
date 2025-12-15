@@ -1,20 +1,20 @@
 --!strict
 -- AvatarEditorController.lua
--- GOAL: Just show a 3D avatar. That's it. Nothing else.
 
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
+local UI = ReplicatedStorage:WaitForChild("UI")
+local FusionComponents = UI:WaitForChild("FusionComponents")
+local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiController")
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local AvatarModelFactory = require(Utility:WaitForChild("AvatarModelFactory"))
 local AvatarPreviewModel = require(script:WaitForChild("AvatarPreviewModel"))
+local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGuiState"))
 
 -- Gui Components
 local AvatarViewport = require(script:WaitForChild("AvatarViewport"))
@@ -43,7 +43,12 @@ function AvatarEditorController:_initialiseAvatarViewport()
 	local avatarPreviewModel = AvatarPreviewModel.new(self.scope)
 
 	-- Pass the reactive instance directly (it's already a Computed)
-	self.avatarViewport = AvatarViewport(self.scope, avatarPreviewModel:getInstance()) 
+	self.avatarViewport = AvatarViewport(self.scope, {
+		model = avatarPreviewModel:getInstance(),
+		currentView = WardrobeGuiState.currentView,
+		layoutOrder = 2
+	}) 
+	
 	self.avatarViewport.Parent = self.parentFrame  
 
 	-- Store reference to the avatar preview model
@@ -52,7 +57,9 @@ end
 
 function AvatarEditorController:_initialiseEquippedItemsPanel()
 	-- Pass the avatar preview model instead of trying to use self.model
-	local EquippedItemsPanel = EquippedItemsPanel(self.scope)
+	local EquippedItemsPanel = EquippedItemsPanel(self.scope, {
+		layoutOrder = 1
+	})
 	EquippedItemsPanel.Parent = self.parentFrame
 end
 

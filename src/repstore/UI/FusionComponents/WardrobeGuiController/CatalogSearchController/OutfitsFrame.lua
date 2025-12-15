@@ -153,7 +153,7 @@ function OutfitsFrame(
 			},
 
 			scope:New "ScrollingFrame" {
-				Name = "CategoryScrollFrame",
+				Name = "OutfitScrollFrame",
 				Size = UDim2.fromScale(1, 0.9),
 				Position = UDim2.fromScale(0, 0),
 				BackgroundTransparency = 1,
@@ -173,15 +173,22 @@ function OutfitsFrame(
 						Padding = UDim.new(0, 10)
 					},
 
+					scope:New "UIPadding" {
+						PaddingTop = UDim.new(0.02,0),
+						PaddingBottom = UDim.new(0.02,0),
+						PaddingLeft = UDim.new(0.02,0),
+						PaddingRight = UDim.new(0.02,0),			
+					},
+
 					-- Loading indicator
 					scope:New "TextLabel" {
 						Name = "LoadingLabel",
 						Size = UDim2.fromScale(1, 0.1),
 						BackgroundTransparency = 1,
 						Text = "Loading outfits...",
-						TextColor3 = UI_CONSTANTS.COLOUR_BLACK,
+						TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 						TextScaled = true,
-						Font = Enum.Font.Gotham,
+						FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
 						LayoutOrder = 1,
 						Visible = scope:Computed(function(use)
 							return use(isLoading)
@@ -194,13 +201,13 @@ function OutfitsFrame(
 						Size = UDim2.fromScale(1, 0.2),
 						BackgroundTransparency = 1,
 						Text = "No outfits found. Create some outfits to see them here!",
-						TextColor3 = UI_CONSTANTS.COLOUR_BLACK,
+						TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 						TextScaled = true,
-						Font = Enum.Font.Gotham,
+						FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
 						LayoutOrder = 2,
 						Visible = scope:Computed(function(use)
-							return not use(isLoading) and #use(robloxOutfits) == 0
-						end)
+							return not use(isLoading) and #use(robloxOutfits) == 0 and #use(tastemakerOutfits) == 0
+						end) 
 					},
 					
 					scope:ForValues(robloxOutfits, function(use, innerScope, outfit)
@@ -258,9 +265,9 @@ function OutfitsFrame(
 						text = "Back to shopping",
 						textScaled = true,
 						size = UDim2.fromScale(0.2, 0.5),
-						backgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+						backgroundColor = UI_CONSTANTS.TASTEMAKER_PURPLE,
 						strokeColor = Color3.new(1,1,1),
-						strokeThickness = 2,
+						strokeThickness = 3,
 						textColor = Color3.new(1,1,1),
 
 						onActivated = function()

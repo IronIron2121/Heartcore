@@ -13,8 +13,9 @@ local lighting = game:GetService("Lighting")
 -- Initial settings
 lighting.ClockTime = 6 -- Start at 6:00 AM
 lighting.GeographicLatitude = 45
-lighting.Brightness = 2
+lighting.Brightness = 1
 lighting.GlobalShadows = true
+lighting.ShadowSoftness = 0.3
 
 -- Cycle speed calculation
 local hoursPerSecond = 24 / fullDayLength
@@ -25,22 +26,22 @@ local function updateLightingColors(time)
 	if time >= 6 and time < 8 then
 		lighting.Ambient = Color3.fromRGB(111, 133, 206) -- Warm sunrise
 		lighting.OutdoorAmbient = Color3.fromRGB(192, 152, 113)
-		lighting.Brightness = 1
+		lighting.Brightness = 0.5
 		lighting.ColorShift_Top = Color3.fromRGB(255, 137, 172)
  
 		-- Daytime (8-17)
 	elseif time >= 8 and time < 17 then
-		lighting.Ambient = Color3.fromRGB(74, 75, 124)
-		lighting.OutdoorAmbient = Color3.fromRGB(200, 180, 160)
-		lighting.Brightness = 1.5
-		lighting.ColorShift_Top = Color3.fromRGB(216, 235, 255)
+		lighting.Ambient = Color3.fromRGB(98, 92, 148)
+		lighting.OutdoorAmbient = Color3.fromRGB(222, 185, 154)
+		lighting.Brightness = 0.9
+		lighting.ColorShift_Top = Color3.fromRGB(131, 130, 222)
 
 
 		-- Sunset (17-19)
 	elseif time >= 17 and time < 19 then
 		lighting.Ambient = Color3.fromRGB(74, 75, 124)
 		lighting.OutdoorAmbient = Color3.fromRGB(180, 120, 90)
-		lighting.Brightness = 1
+		lighting.Brightness = 0.5
 		lighting.ColorShift_Top = Color3.fromRGB(255, 76, 44)
 
 
@@ -48,7 +49,7 @@ local function updateLightingColors(time)
 	else
 		lighting.Ambient = Color3.fromRGB(100, 100, 150)
 		lighting.OutdoorAmbient = Color3.fromRGB(50, 50, 80)
-		lighting.Brightness = 1
+		lighting.Brightness = 0.3
 		lighting.ColorShift_Top = Color3.fromRGB(128, 185, 255)
 
 	end

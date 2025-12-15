@@ -37,11 +37,10 @@ function Button(
 		onActivated: (() -> ())?,
 	}
 ): TextButton
-
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
 
-	local backgroundColor = props.backgroundColor or UI_CONSTANTS.TASTEMAKER_PURPLE
+	local backgroundColor = props.backgroundColor or UI_CONSTANTS.COLOUR_WHITE
 
 	local backgroundColorSpring = scope:Spring(
 		scope:Computed(function(use)
@@ -67,7 +66,7 @@ function Button(
 		Position = props.position or UDim2.fromScale(0.5, 0.5),
 		Size = props.size or UDim2.fromScale(0.8, 0.5),
 		Text = props.text or "BUTTON",
-		TextColor3 = props.textColor or UI_CONSTANTS.COLOUR_WHITE,
+		TextColor3 = props.textColor or UI_CONSTANTS.TASTEMAKER_PURPLE,
 		TextStrokeTransparency = 1,
 		BackgroundColor3 = backgroundColorSpring,
 		BackgroundTransparency = 0,
@@ -75,6 +74,7 @@ function Button(
 		TextScaled = props.textScaled or true,
 		TextWrapped = true,
 		ZIndex = props.zIndex or 1,
+		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 
 		[OnEvent "Activated"] = function()
 			if props.onActivated then
@@ -104,13 +104,13 @@ function Button(
 
 		[Children] = {
 			scope:New "UICorner" {
-				CornerRadius = props.cornerRadius or UDim.new(0.4, 0)
+				CornerRadius = props.cornerRadius or UDim.new(0.5, 0)
 			},
 
 			scope:New "UIStroke" {
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Color = props.strokeColor or UI_CONSTANTS.COLOUR_WHITE,
-				Thickness = props.strokeThickness or 2,
+				Color = props.strokeColor or UI_CONSTANTS.TASTEMAKER_PURPLE,
+				Thickness = props.strokeThickness or 3,
 			},
 
 			scope:New "UIPadding" {

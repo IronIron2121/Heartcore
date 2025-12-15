@@ -11,6 +11,9 @@ local Remotes 		= ReplicatedStorage:WaitForChild("Remotes")
 local Utility		= ReplicatedStorage:WaitForChild("Utility")
 local Trackers		= ReplicatedStorage:WaitForChild("Trackers")
 
+--local VotingClientManager = require(Utility:WaitForChild("VotingClientManager"))
+
+
 -- Module Scripts
 local HighlightClosestShop	= require(Utility:WaitForChild("HighlightClosestShop"))
 local teleportPlayer 		= require(Utility:WaitForChild("teleportPlayer"))
@@ -25,6 +28,9 @@ local MainHUD 				= playerGui:WaitForChild("MainHUD")
 local ShopButtons 			= MainHUD:WaitForChild("ShopButtons")
 local GoToShopButton 		= ShopButtons:WaitForChild("GoToShopButton")
 local EditShopButton 		= ShopButtons:WaitForChild("EditShopButton")
+-- local voteButtonContainer 	= MainHUD:WaitForChild("voteButtonContainer")
+-- local voteButton			= voteButtonContainer:WaitForChild("voteButton")
+
 
 -- Remotes | Bindables
 local PlayerEnteredOwnShopAsync	= Remotes:WaitForChild("PlayerEnteredOwnShop")
@@ -80,6 +86,7 @@ local function onGoToShopButtonPressed()
 	end
 end
 
+
 --[[
 
 PlayerEnteredOwnShopAsync.OnClientEvent:Connect(onPlayerEnteredOwnShop)
@@ -87,3 +94,14 @@ PlayerExitedShopAsync.OnClientEvent:Connect(onPlayerExitedShop)
 GoToShopButton.Activated:Connect(onGoToShopButtonPressed)
 
 ]]
+
+
+-- --- Vote button ---
+
+--  VotingClientManager.initialiseVotingGui()
+
+-- -- -- When player clicks, trigger the same toggle function
+--  voteButton.MouseButton1Click:Connect(function()
+--  	VotingClientManager.onVotePromptActivated()
+--  end) 
+

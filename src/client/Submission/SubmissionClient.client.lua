@@ -2,10 +2,11 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local centralPond = workspace:WaitForChild("centralPond")
+local submissionZone = workspace:WaitForChild("submissionZone")
 
 -- Modules
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
@@ -16,23 +17,28 @@ local SubmissionResultRF = Remotes:WaitForChild("SubmissionResultRF")
 local PhaseChangedRemote = Remotes:WaitForChild("PhaseChangedRemote")
 
 -- Instances
-local SubmissionPad = centralPond:WaitForChild("SubmissionPad")
+local SubmissionPad = submissionZone:WaitForChild("SubmissionPad")
 local PromptHolder = SubmissionPad:WaitForChild("PromptHolder")
 local prompt = PromptHolder:WaitForChild("SubmissionPrompt") :: ProximityPrompt
 
 --
 
-local function updateSubmitButton()
-    warn("Updating submit button...")
-    local canPlayerSubmit = SubmissionResultRF:InvokeServer()
-    if canPlayerSubmit then
-        warn("Player can submit!", canPlayerSubmit)
-        prompt.Enabled = true
-        PromptHolder.Color = Color3.fromRGB(190, 190, 192)
-    else 
-        warn("Player cannot submit!", canPlayerSubmit)
+local function enableSubmitButton()
+    prompt.Enabled = true
+    PromptHolder.Color = Color3.fromRGB(190, 190, 192)
+end
+
+local function disableSubmitButton()
         prompt.Enabled = false
         PromptHolder.Color = Color3.fromRGB(100,100,100)
+end
+
+local function updateSubmitButton()
+    local canPlayerSubmit = SubmissionResultRF:InvokeServer()
+    if canPlayerSubmit then
+        enableSubmitButton()
+    else 
+        disableSubmitButton()
     end 
 end
 
@@ -53,13 +59,22 @@ local function onSubmissionResult(
 
     if result.ok then
         warn("Player submitted successfully!")
-        prompt.Enabled = false
-        PromptHolder.Color = Color3.fromRGB(100,100,100)
+        disableSubmitButton()
+        StarterGui:SetCore("SendNotification",{
+            Title = "Outfit Submitted Successfully!", -- Required
+            Text = "", -- Required
+            Icon = "rbxassetid://1234567890" -- Optional
+        })
     else 
-        warn("Player failed to submit!")
-        prompt.Enabled = true
-        PromptHolder.Color = Color3.fromRGB(190, 190, 192)
-    end 
+        enableSubmitButton()
+        StarterGui:SetCore("SendNotification",{
+            Title = "Outfit Submission Failed!", 
+            Text = result.msg, 
+            Icon = "rbxassetid://1234567890" 
+        })
+    end
+
+
     --updateSubmitButton()
 end
 

@@ -11,6 +11,7 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
+local ForValues = require(ReplicatedStorage.Utility.Fusion.State.ForValues)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
@@ -22,6 +23,15 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local SearchBox = require(script:WaitForChild("SearchBox"))
 local SearchResultsFrame = require(script:WaitForChild("SearchResultsFrame"))
 local FusionDropdown = require(Widgets:WaitForChild("FusionDropdown"))
+
+local options = {
+	"Relevance",
+	"Bestselling",
+	"Most Favorited",
+	"Price High To Low",
+	"Price Low To High",
+	"Recently Created",
+}
 
 function SearchFrame(
 	scope: Fusion.Scope,
@@ -110,13 +120,14 @@ function SearchFrame(
 						layoutOrder = 2,
 						placeholder = "Search for items...",
 						searchText = props.searchText,
-						searchCallback = props.searchCallback
+						searchCallback = props.searchCallback,
+						TextXAlignment = Enum.TextXAlignment.Left,
 					}),
 
 					-- Sort dropdown
 					FusionDropdown(scope, {
 						name = "SortDropdown",
-						options = Enum.CatalogSortType:GetEnumItems(),
+						options = options,
 						selectedValue = props.searchSort,
 						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
 						layoutOrder = 3,
@@ -135,3 +146,4 @@ function SearchFrame(
 end
 
 return SearchFrame
+

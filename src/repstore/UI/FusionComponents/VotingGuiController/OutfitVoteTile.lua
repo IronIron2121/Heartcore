@@ -143,8 +143,6 @@ function OutfitVoteTile(
 						CornerRadius = UDim.new(0.05, 0)
 					},
 
-					
-
                     scope:New "ImageButton" {
                         Size = UDim2.fromScale(1, 1),
                         ImageTransparency = 1,

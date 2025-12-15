@@ -11,7 +11,7 @@ local VotingStoreManager = require(Voting:WaitForChild("VotingStoreManager"))
 
 local function onServerClose()
     warn("Server Closing")
-    --VotingStoreManager.forceFlush()
+    VotingStoreManager.forceFlush()
     warn("Server Closed...")
 end
 

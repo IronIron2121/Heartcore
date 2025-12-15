@@ -1,5 +1,5 @@
 --!strict
-
+--[[
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -68,3 +68,4 @@ function LocalTimer.getTimeToNextPhase()
 end
 
 return LocalTimer
+]]

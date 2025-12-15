@@ -121,9 +121,7 @@ function FullMannequin:initialiseInstance(shopItemRecipe : Types.ShopItemRecipe)
 	-- We need to use hip height otherwise the rig ends up being buried in the ground
 	local targetHipHeight = 2.6423325538635254 -- Use your preferred height
 
-	-- TODO: This is an ugly workaround but I do not have time to wait for roblox to start working properly again
-	-- Refer to tastemakers 4 where, with the exacty same code, the above floating point value is received
-	--local height = rig.Humanoid.HipHeight + rig.HumanoidRootPart.Size.Y * 0.5
+	-- TODO: Make this more elegant
 	local height = targetHipHeight + rig.HumanoidRootPart.Size.Y * 0.5
 	
 	rig:PivotTo(base.CFrame * CFrame.new(0, height, 0))
@@ -210,9 +208,7 @@ function FullMannequin:reinstantiate()
 	-- We need to use hip height otherwise the rig ends up being buried in the ground
 	local targetHipHeight = 2.6423325538635254 -- Use your preferred height
 
-	-- TODO: This is an ugly workaround but I do not have time to wait for roblox to start working properly again
-	-- Refer to tastemakers 4 where, with the exacty same code, the above floating point value is received
-	--local height = rig.Humanoid.HipHeight + rig.HumanoidRootPart.Size.Y * 0.5
+	-- TODO: Make this more elegant
 	local height = targetHipHeight + rig.HumanoidRootPart.Size.Y * 0.5
 
 	rig:PivotTo(base.CFrame * CFrame.new(0, height, 0))

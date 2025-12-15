@@ -55,8 +55,6 @@ local function reset()
 	Description.Text = ""
 	NameLabel.Text = ""
 	CostButton.Text = ""
-	print("Just reset")
-	
 end
 
 local function close()

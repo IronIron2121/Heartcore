@@ -125,6 +125,15 @@ local Constants = {
 		"Torso",
 	},
 
+	HUMANOID_SCALE_VARIABLES = {
+		"BodyTypeScale",
+		"DepthScale",
+		"HeadScale",
+		"HeightScale",
+		"ProportionScale",
+		"WidthScale"
+	},
+
 	-- We have to list this slightly differently as the actual assetType in Enum does not appear in the humanoid description
 	CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES = {
 		"GraphicTShirt",

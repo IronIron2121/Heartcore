@@ -20,18 +20,14 @@ local localPlayerGui = localPlayer:WaitForChild("PlayerGui")
 -- Gui Components
 local OpenWardrobeButton = require(FusionComponents:WaitForChild("OpenWardrobeButton"))
 
+
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
-
-local New = Fusion.New
-local Children = Fusion.Children
-local Value = Fusion.Value
-local Out = Fusion.Out
-local peek = Fusion.peek
 local scope = Fusion:scoped()
 
 return function()
 	local OpenWardrobeButton, Toggled = OpenWardrobeButton(scope) 
+
 
 	local MainHudGui = scope:New "ScreenGui" {
 		Name = "MainHudGui",
@@ -39,7 +35,7 @@ return function()
 		ResetOnSpawn = false,
 		IgnoreGuiInset = true,
 		[Fusion.Children] = {
-			OpenWardrobeButton,
+			OpenWardrobeButton,			
 		}
 	}
 
