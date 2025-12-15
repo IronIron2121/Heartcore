@@ -15,8 +15,8 @@ game.Players.PlayerAdded:Connect(function(player)
         
         
         --All custom animations go here vvv --
-        animScript.jump.JumpAnim.AnimationId = animPrefix .. tostring(flipId)
-        animScript.fall.FallAnim.AnimationId = animPrefix .. tostring(fallId)
+        --animScript.jump.JumpAnim.AnimationId = animPrefix .. tostring(flipId)
+        --animScript.fall.FallAnim.AnimationId = animPrefix .. tostring(fallId)
 
     end)
 end)

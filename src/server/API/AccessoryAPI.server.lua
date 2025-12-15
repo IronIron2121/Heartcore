@@ -9,44 +9,16 @@
 --]]
 
 -- Services
-local MarketplaceService 			= game:GetService("MarketplaceService")
 local ReplicatedStorage 			= game:GetService("ReplicatedStorage")
-local CollectionService 			= game:GetService("CollectionService")
-local DataStoreService 				= game:GetService("DataStoreService")
-local InsertService					= game:GetService("InsertService")
-local ServerStorage 				= game:GetService("ServerStorage")
-local Players 						= game:GetService("Players")
 
 -- Folders
-local Templates				= ReplicatedStorage:WaitForChild("Templates")
-local Libraries				= ReplicatedStorage:WaitForChild("Libraries")
-local Bindables 			= ReplicatedStorage:WaitForChild("Bindables")
-local Checkers				= ReplicatedStorage:WaitForChild("Checkers")
 local Remotes     			= ReplicatedStorage:WaitForChild("Remotes")
 local Utility 				= ReplicatedStorage:WaitForChild("Utility")
-local Getters				= ReplicatedStorage:WaitForChild("Getters")
 local Trackers 				= ReplicatedStorage:WaitForChild("Trackers")
 
-
--- Templates
-local MannequinTemplate 			= Templates:WaitForChild("FullMannequin")
-
 -- Module Scripts
-local applyItemsToDescriptionAsync 	= require(Utility:WaitForChild("applyItemsToDescriptionAsync"))
-local setDescriptionSkinColor 		= require(Utility:WaitForChild("setDescriptionSkinColor"))
-local stringOfNumbersToArray 		= require(Utility:WaitForChild("stringOfNumbersToArray")) 
-local arrayOfNumbersToString 		= require(Utility:WaitForChild("arrayOfNumbersToString"))
-local getRandomIdNumber 			= require(Utility:WaitForChild("getRandomIdNumber"))
-local PlayerTracker					= require(Trackers:WaitForChild("PlayerTracker"))
 local ShopTracker 					= require(Trackers:WaitForChild("ShopTracker"))
 local Types 						= require(Utility:WaitForChild("Types"))
-
--- Module Script
-local Constants 					= require(ReplicatedStorage:WaitForChild("Constants")) 
-local getMannequinFromId 			= require(Getters:WaitForChild("getMannequinFromId"))
-
--- Datastores
-local playerShopsDataStore 		    = DataStoreService:GetDataStore(Constants.PLAYER_SHOPS_DATA_STORE_NAME)
 
 -- Remotes / Bindables
 local AddAccessoryEvent				= Remotes:WaitForChild("AddAccessory")

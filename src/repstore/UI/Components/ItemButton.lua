@@ -39,11 +39,13 @@ local function ItemButton(itemId: number, productType: Enum.MarketplaceProductTy
 
 	local function onActivated()
 		if AvatarCustomisationService.IsWearingItem(LocalPlayer, itemId) then
+			warn("removing item from mannequin!")
 			PlayerRemovedItem:FireServer(itemId)
-			itemButton.TryOnFrame.Visible = false
+			refresh()
 		else
+			warn("equipping item from mannequin!")
 			PlayerEquippedItem:FireServer(itemId, assetType, itemType)
-			itemButton.TryOnFrame.Visible = true
+			refresh()
 		end
 	end
 

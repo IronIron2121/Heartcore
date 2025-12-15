@@ -13,7 +13,6 @@ local Getters = ReplicatedStorage:WaitForChild("Getters")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local connectTreeVisibilityChanged = require(script.Parent.connectTreeVisibilityChanged)
 local PlayerHasMaxOfAccessoryTypeEquipped = require(Checkers:WaitForChild("PlayerHasMaxOfAccessoryTypeEquipped"))
 local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessoryTypeFromAssetType"))
 local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
@@ -55,6 +54,7 @@ function AvatarCustomisationService.applyDescription(player: Player, description
 	-- For some reason, 2d clothing doesn't update locally unless something is added to the character
 	local refresher = Instance.new("Pants", humanoid.Parent)
 	refresher:Destroy()
+	description:Destroy()
 
 	return true
 end
@@ -203,6 +203,8 @@ function AvatarCustomisationService.AddBodyPartsToAvatar(player: Player, bodyPar
 	for _, bodyPart in ipairs(bodyParts) do
 		-- TODO: Modularise this with the redundant code in above singular add body part function
 		-- Get the bodypart enum
+		warn("equipping", bodyPart)
+
 		local bodyPartEnum = Enum.BodyPart[bodyPart.bodyPartType]
 		if not bodyPartEnum then
 			warn("Bad bodypart type:", bodyPart.bodyPartType)
@@ -282,7 +284,7 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 
 				if assetSuccess and assetInfo then
 					if assetInfo.AssetTypeId == 19 then
-						warn("gear!")
+						warn("Item is a gear! Skipping equip...")
 						continue
 					elseif assetInfo.AssetTypeId == 79 then
 						table.insert(bodyParts, {
@@ -290,7 +292,7 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 							bodyPartType = Enum.BodyPart.Head.Name
 						})
 					elseif table.find(Constants.ANIMATION_ASSET_TYPE_IDS, assetInfo.AssetTypeId) then
-						warn("Item is an animation!")
+						warn("Item is an animation! Skipping equip...")
 						continue
 					else
 						-- Check if it's a body part or accessory

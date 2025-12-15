@@ -6,17 +6,19 @@
 --]]
 
 -- Services
+local MarketplaceService = game:GetService("MarketplaceService")
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local InsertService = game:GetService("InsertService")
+local AssetService = game:GetService("AssetService")
+local Players = game:GetService("Players")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local applyItemsToDescriptionAsync = require(Utility:WaitForChild("applyItemsToDescriptionAsync"))
-local setDescriptionSkinColor = require(Utility:WaitForChild("setDescriptionSkinColor"))
 local stringOfNumbersToArray = require(Utility:WaitForChild("stringOfNumbersToArray"))
+local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
 local function makeMannequinInvisible(mannequin: Instance)
@@ -28,22 +30,30 @@ local function makeMannequinInvisible(mannequin: Instance)
 end
 
 local function setupMannequinAsync(mannequin: Instance)
-	-- Get the list of accessories, bundles, and skin color to apply to the mannequin
 	local accessoryIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_ACCESSORY_IDS_ATTRIBUTE)
 	local bundleIdsString = mannequin:GetAttribute(Constants.MANNEQUIN_BUNDLE_IDS_ATTRIBUTE)
-
-	-- Convert the accessory and bundle ID strings into arrays
-	local accessoryIds = stringOfNumbersToArray(accessoryIdsString)
-	local bundleIds = stringOfNumbersToArray(bundleIdsString)
 
 	if bundleIdsString == "" or not bundleIdsString then
 		makeMannequinInvisible(mannequin)
 	end
 
-	local humanoid = mannequin:FindFirstChildOfClass("Humanoid")
-	assert(humanoid, "No humanoid found for " .. mannequin.Name .. "!!")
+	local accessoryIds = stringOfNumbersToArray(accessoryIdsString)
+	local bundleIds = stringOfNumbersToArray(bundleIdsString)
 
-	-- Apply accessories to the mannequin
+	local humanoid = mannequin:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return false end
+
+	local humDesc = humanoid:WaitForChild("HumanoidDescription", 1)
+	if not humDesc then return false end
+
+	for _, description in ipairs(humDesc:GetChildren()) do
+		if description:IsA("AccessoryDescription") then
+			description:Destroy()
+		end
+	end
+
+	assert(humanoid, "No humanoid found for " .. mannequin.Name .. "!")
+
 	for _, accessoryId in accessoryIds do
 		local success, asset = pcall(function()
 			return InsertService:LoadAsset(accessoryId)
@@ -61,24 +71,53 @@ local function setupMannequinAsync(mannequin: Instance)
 		end
 	end
 
-	-- Note: Bundle handling might need additional logic depending on your requirements
-	-- You may want to apply bundles to the humanoid description here as well
 	if #bundleIds > 0 then
-		-- Add bundle handling logic here if needed
+		warn("Equipping bundles...")
+		local bodyParts = {}
+		
+		for _, bundleId in ipairs(bundleIds) do
+			-- Get each bundle's details
+			local success, bundleInfo = callWithRetry(function()
+				return AssetService:GetBundleDetailsAsync(bundleId)
+			end, 3)
+
+			if not success then
+				warn("Failed to get bundle!", bundleId)
+				continue
+			end
+			
+			print("Got bundle info for:", bundleId)
+			
+			-- Extract the constituent items
+			local bundleItems = bundleInfo.Items
+
+			for _, item in ipairs(bundleItems) do
+				if item.Type == "UserOutfit" then
+					local descSuccess, outfitDescription = pcall(
+						function()
+							return Players:GetHumanoidDescriptionFromOutfitId(item.Id)
+						end
+					)
+
+					if descSuccess then
+						humanoid:ApplyDescriptionReset(outfitDescription)
+					end
+					break
+				end
+			end
+		end
 	end
-	
-	--print("Finished setting up clothing for mannequin:", mannequin.Name)
+
+	return true
 end
 
 local function onMannequinAdded(mannequin: Model)
-	-- Wait for humanoid to be ready
 	local humanoid = mannequin:WaitForChild("Humanoid", 5)
 	if not humanoid then
 		warn("Timed out waiting for humanoid in mannequin:", mannequin.Name)
 		return
 	end
 
-	-- Setup clothing asynchronously to avoid blocking
 	task.spawn(function()
 		setupMannequinAsync(mannequin)
 	end)
@@ -86,19 +125,15 @@ end
 
 local function onMannequinRemoved(mannequin: Instance)
 	print("Mannequin removed:", mannequin.Name)
-	-- Cleanup logic if needed
 end
 
 local function initialise()
-	-- Set up mannequin tracking
 	CollectionService:GetInstanceAddedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(onMannequinAdded)
 	CollectionService:GetInstanceRemovedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(onMannequinRemoved)
 
-	-- Initialise existing mannequins
 	for _, mannequin in CollectionService:GetTagged(Constants.FLOOR_MANNEQUIN_TAG) do
-		--print("Initialising clothing for existing mannequin:", mannequin.Name)
 		onMannequinAdded(mannequin)
 	end
 end
 
-initialise() 
+initialise()
