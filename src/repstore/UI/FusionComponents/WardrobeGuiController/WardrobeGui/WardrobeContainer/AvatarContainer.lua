@@ -1,19 +1,15 @@
 --!strict
 
 -- Services
-local Players = game:GetService("Players")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
--- Instances
-local localPlayer = Players.LocalPlayer
-local localPlayerGui = localPlayer:WaitForChild("PlayerGui")
-
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
+
+--
 
 return function(scope: Fusion.Scope)
 	return scope:New "Frame" {
