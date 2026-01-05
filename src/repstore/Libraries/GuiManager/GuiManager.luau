@@ -50,8 +50,8 @@ local HudContainer = modalScope:New "ScreenGui" {
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 }
 
-local registeredModals: {[string]: GuiObject}       = {}
-local modalStack: Value<{GuiObject}>                = modalScope:Value({})
+local registeredModals: {[string]: GuiObject} = {}
+local modalStack: Value<{GuiObject}> = modalScope:Value({})
 
 local CentreActive = modalScope:Computed(function(use) 
         return #use(modalStack) ~= 0
@@ -75,9 +75,10 @@ end)
 
 local modalContainer = modalScope:New "Frame" {
     Name = "ModalContainer",
+    AnchorPoint = Vector2.new(0.5,0.5),
     Position = modalScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad)),
     Size = UDim2.fromScale(1, 1),
-    BackgroundTransparency = 1,
+    BackgroundTransparency = 0.5,
     Parent = ModalGui
 }
 

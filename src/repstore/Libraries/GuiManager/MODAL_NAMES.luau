@@ -1,8 +1,7 @@
 --!strict
 
 local MODAL_NAMES = {
-    Test = "Test",
-    Test2 = "Test2"
+    DAILY_CHALLENGE_GUI = "dcg"
 }
 
 return MODAL_NAMES

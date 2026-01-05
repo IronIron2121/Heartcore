@@ -18,7 +18,6 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local localPlayer = Players.LocalPlayer
 
 -- Fusion
-local scope = Fusion:scoped()
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
@@ -29,7 +28,6 @@ local leaderstats = localPlayer:WaitForChild("leaderstats")
 local Level = leaderstats:WaitForChild("Level")
 local Rank = leaderstats:WaitForChild("Rank")
 
-local rankText = scope:Value("(Lv. " .. Level.Value .. ") " .. Rank.Value)
 
 --Anim function
 local function animateRank(label)
@@ -87,7 +85,9 @@ local function animateRank(label)
 	label.Position = originalPosition
 end
 
-local function ExpHud()
+local function ExpHud(scope: Fusion.Scope)
+	local rankText = scope:Value("(Lv. " .. Level.Value .. ") " .. Rank.Value)
+
 	local playerRankLabel = scope:New "TextLabel" {
 		Name = "playerRankDisplay",
 		Size = UDim2.fromScale(1, 1),
