@@ -13,7 +13,7 @@ local WardrobeGuiController = require(FusionComponents:WaitForChild("WardrobeGui
 --
 
 local function initialiseWardrobeGui()
-	WardrobeGuiController.Initialise()
+	--WardrobeGuiController.Initialise()
 end
 
 initialiseWardrobeGui()

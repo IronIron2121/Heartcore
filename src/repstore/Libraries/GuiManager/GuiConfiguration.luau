@@ -21,7 +21,7 @@ type scope          = Fusion.Scope
 
 local SLOT_CONSTANTS = {
     Colour = Color3.new(0.686275, 0.105882, 0.105882),
-    BackgroundTransparency = 0,
+    BackgroundTransparency = 0.5,
     Visible = true
 }
 
@@ -159,7 +159,7 @@ function GuiConfiguration.new(props: {
         AnchorPoint = SLOT_LAYOUTS.BottomMiddle.AnchorPoint,
         Position    = self.scope:Tween(self.BottomMiddlePosition, Constants.DEFAULT_TWEEN),
         Size        = SLOT_LAYOUTS.BottomMiddle.Size,
-        BackgroundColor3      = props.color or SLOT_CONSTANTS.Colour,
+        BackgroundColor3 = props.color or SLOT_CONSTANTS.Colour,
         Visible     = SLOT_CONSTANTS.Visible,
         Parent      = self.ConfigurationContainer,
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,

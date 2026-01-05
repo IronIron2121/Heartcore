@@ -12,8 +12,6 @@ local Lighting          = game:GetService("Lighting")
 local Players           = game:GetService("Players")
 
 -- Folders
-local Libraries = ReplicatedStorage:WaitForChild("Libraries")
-local GuiManagerFolder = Libraries:WaitForChild("GuiManager")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
@@ -45,6 +43,7 @@ local registeredConfigurations: {[string]: Types.GuiConfiguration} = {}
 
 local HudContainer = modalScope:New "ScreenGui" {
         Name = "HudContainer",
+        IgnoreGuiInset = true,
         Enabled = true,
         Parent = PlayerGui,
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
@@ -78,7 +77,7 @@ local modalContainer = modalScope:New "Frame" {
     AnchorPoint = Vector2.new(0.5,0.5),
     Position = modalScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad)),
     Size = UDim2.fromScale(1, 1),
-    BackgroundTransparency = 0.5,
+    BackgroundTransparency = 1,
     Parent = ModalGui
 }
 

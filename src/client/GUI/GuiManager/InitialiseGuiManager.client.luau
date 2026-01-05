@@ -12,6 +12,11 @@ local DailyChallengeFolder = FusionComponents.DailyChallengeGui
 
 
 -- Modules
+local OpenWardrobeButton = require(ReplicatedStorage.UI.FusionComponents.OpenWardrobeButton)
+local AvatarEditorController = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.AvatarEditorController)
+local CatalogSearchController = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.CatalogSearchController)
+local OutfitViewController = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.OutfitViewController)
+local WardrobeContainer = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.WardrobeGui.WardrobeContainer)
 local Fusion = require(ReplicatedStorage.Utility.Fusion)
 local GuiConfiguration = require(GuiManangerLibrary.GuiConfiguration)
 local MODAL_NAMES = require(GuiManangerLibrary.MODAL_NAMES)
@@ -30,6 +35,8 @@ local function initialiseGuiManager()
     local hudScope = Fusion:scoped()
     local expHud = ExpHud(hudScope)
     local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
+    local openWardrobeButton = OpenWardrobeButton(hudScope)
+
     local buttonsFrame = hudScope:New "Frame" {
         Size = UDim2.fromScale(1, 1),
         AnchorPoint = Vector2.new(0.5, 0.5),
@@ -45,7 +52,8 @@ local function initialiseGuiManager()
                 VerticalAlignment = Enum.VerticalAlignment.Center
             },
 
-            openDailyChallengesButton
+            openDailyChallengesButton,
+            openWardrobeButton
         }
     } :: Frame
 
@@ -55,14 +63,24 @@ local function initialiseGuiManager()
         bottomMiddle = buttonsFrame
     })
 
-    local modalScope = Fusion:scoped()
+    local modalScope = Fusion:scoped() 
     local dailyChallengeFrame = DailyChallengeFrame(modalScope)
+    local wardrobeContainer, avatarContainer, catalogContainer = WardrobeContainer(modalScope)
+    warn("____")
+    warn(wardrobeContainer, avatarContainer, catalogContainer)
 
-    GuiManager.RegisterConfiguration(Configuration1)
+	local controllers = {}
+	controllers["AvatarEditorController"] = AvatarEditorController.new(avatarContainer) 
+	controllers["CatalogSearchController"] = CatalogSearchController.new(catalogContainer) 
+	controllers["OutfitViewController"] = OutfitViewController
+	controllers["AvatarEditorController"]:Initialise()
+	controllers["CatalogSearchController"]:Initialise()
+
+    GuiManager.RegisterConfiguration(Configuration1) 
     GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.Configuration1)
 
     GuiManager.RegisterModal(MODAL_NAMES.DAILY_CHALLENGE_GUI, dailyChallengeFrame)
-    --GuiManager.RegisterModal(MODAL_NAMES.Test2, TestFrame2) 
+    GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer) 
 end
 
 initialiseGuiManager()

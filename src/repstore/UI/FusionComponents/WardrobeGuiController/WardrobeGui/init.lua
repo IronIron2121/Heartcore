@@ -17,18 +17,15 @@ local WardrobeContainer = require(script:WaitForChild("WardrobeContainer"))
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
-local New = Fusion.New
 local Children = Fusion.Children
 local Value = Fusion.Value
-local Out = Fusion.Out
-local peek = Fusion.peek
 local scope = Fusion:scoped()
 
 type UsedAs<T> = Fusion.UsedAs<T>
 
-return function(Toggled: Fusion.Value<boolean>)
+return function()
 	local wardrobeContainerVisible = Value(scope, true)
-	local WardrobeContainer, AvatarContainer, CatalogContainer = WardrobeContainer(scope, Toggled) 
+	local WardrobeContainer, AvatarContainer, CatalogContainer = WardrobeContainer(scope) 
 	
 	return scope:New("ScreenGui")({
 		Name = "WardrobeGui",
@@ -36,9 +33,7 @@ return function(Toggled: Fusion.Value<boolean>)
 		IgnoreGuiInset = true,
 		ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		Enabled = scope:Computed(function(use)
-			return use(Toggled) and use(wardrobeContainerVisible)
-		end),
+		Enabled = true,
 
 		[Children] = { 
 			WardrobeContainer

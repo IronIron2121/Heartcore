@@ -10,6 +10,7 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Gui Components
+local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local AvatarContainer = require(script:WaitForChild("AvatarContainer"))
 local CatalogContainer = require(script:WaitForChild("CatalogContainer")) 
 local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
@@ -19,9 +20,9 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
-return function(scope: Fusion.Scope, wardrobeContainerVisible: UsedAs<boolean>)
-	local avatarContainer = AvatarContainer(scope)
-	local catalogContainer = CatalogContainer(scope)
+return function(scope: Fusion.Scope)
+	local avatarContainer = AvatarContainer(scope) :: Frame
+	local catalogContainer = CatalogContainer(scope) :: Frame
 
 	return scope:New "Frame" { 
 		Name = "WardrobeContainer",
@@ -39,7 +40,7 @@ return function(scope: Fusion.Scope, wardrobeContainerVisible: UsedAs<boolean>)
                 position = UDim2.fromScale(1, 0.02),
 						
 				onClick = function()
-					wardrobeContainerVisible:set(not Fusion.peek(wardrobeContainerVisible))
+					GuiManager.PopCentre()
 				end,
 			}),
 
@@ -59,7 +60,7 @@ return function(scope: Fusion.Scope, wardrobeContainerVisible: UsedAs<boolean>)
 				}
 			}
 		}
-	},
+	} :: Frame,
 		avatarContainer,
 		catalogContainer
 end
