@@ -42,11 +42,11 @@ local currentConfiguration: Types.GuiConfiguration? = nil
 local registeredConfigurations: {[string]: Types.GuiConfiguration} = {}
 
 local HudContainer = modalScope:New "ScreenGui" {
-        Name = "HudContainer",
-        IgnoreGuiInset = true,
-        Enabled = true,
-        Parent = PlayerGui,
-        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    Name = "HudContainer",
+    IgnoreGuiInset = true,
+    Enabled = true,
+    Parent = PlayerGui,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 }
 
 local registeredModals: {[string]: GuiObject} = {}

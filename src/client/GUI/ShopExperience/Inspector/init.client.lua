@@ -47,7 +47,6 @@ local LoadingDisplay 		   	= require(UIComponentsFolder:WaitForChild("LoadingDis
 local CartButton 			   	= require(UIComponentsFolder:WaitForChild("CartButton"))
 local ItemTile 				   	= require(UIComponentsFolder:WaitForChild("ItemTile"))
 local ItemDetailsCache  	   	= require(LibrariesFolder:WaitForChild("ItemDetailsCache"))
-local ModalManager 			  	= require(LibrariesFolder:WaitForChild("ModalManager"))
 
 -- Module script functions
 local getMannequinFromId 	   	= require(GettersFolder:WaitForChild("getMannequinFromId"))
@@ -65,6 +64,7 @@ local inspectingItems: { { id: number, type: Enum.MarketplaceProductType } } = {
 local isLoading = false
 local isEditing = false
 
+--[[
 local function hideAllPrompts()
 	for _, prompt in inspectPrompts do
 		prompt.Enabled = false
@@ -320,7 +320,7 @@ local function initialize()
 		onMannequinAdded(mannequin)
 	end
 end
-
+]]
 --initialize()
 --[[
 -- Connections

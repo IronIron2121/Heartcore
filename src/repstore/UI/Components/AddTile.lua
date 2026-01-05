@@ -6,6 +6,7 @@
 
 	This is used both for the shop as well as the mannequin inspect UI.
 --]]
+--[[
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -51,8 +52,8 @@ local PlayerClickedShopItemThumbnailAsync = Bindables:WaitForChild("PlayerClicke
 local PlayerClickedAddToShopAsync = Bindables:WaitForChild("PlayerClickedAddToShop")
 local GetPlayerOwnedItems = Remotes:WaitForChild("GetPlayerOwnedItems")
 local SetPlayerOwnedItems = Remotes:WaitForChild("SetPlayerOwnedItems")
-
-
+]]
+--[[
 local function AddTile(itemDetails: {}): Frame
 	warn("Beginning add tile")
 	-- Create a new tile for this item and initialise all features
@@ -66,12 +67,13 @@ local function AddTile(itemDetails: {}): Frame
 	
 	local itemTags = itemDetails["Tags"]
 	addTile:SetAttribute("Tags", arrayOfStringsToString(itemTags))
-	
 	-- Function
 	local function update()
-		local playerOwnedItems = GetPlayerOwnedItems:InvokeServer(localPlayer.UserId)
+--		local playerOwnedItems = GetPlayerOwnedItems:InvokeServer(localPlayer.UserId)
+]]
 
-		if playerOwnedItems[itemDetails["Name"]] == "true" then
+--		if playerOwnedItems[itemDetails["Name"]] == "true" then
+--[[
 			addTile.BuyFrame.Visible = false
 			addTile.AddButton.Visible = true
 		else
@@ -109,3 +111,6 @@ local function AddTile(itemDetails: {}): Frame
 end
 
 return AddTile
+]]
+
+return {}

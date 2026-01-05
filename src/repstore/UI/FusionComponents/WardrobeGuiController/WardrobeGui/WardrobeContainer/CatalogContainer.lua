@@ -27,9 +27,6 @@ return function(scope: Fusion.Scope)
 				HorizontalAlignment = Enum.HorizontalAlignment.Left,
 				VerticalAlignment = Enum.VerticalAlignment.Top,
 			}
-			-- CategoryFrame,
-			-- SearchFrame
-			
 		}
 	}
 end

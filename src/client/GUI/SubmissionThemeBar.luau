@@ -2,7 +2,6 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players           = game:GetService("Players")
 
 -- Folders
 local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
@@ -13,8 +12,6 @@ local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
 
 -- Instances
-local localPlayer               = Players.LocalPlayer
-local PlayerGui                 = localPlayer.PlayerGui
 local centralPond               = workspace:WaitForChild("centralPond")
 local pondModel                 = centralPond:WaitForChild("centralPond")
 local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
@@ -49,21 +46,13 @@ task.spawn(function()
     end
 end)
 
-local function initialiseGUI()
-	local screenGUI = scope:New "ScreenGui" {
-        Name = "SubmissionThemeGUI",
-		Parent = PlayerGui,
-		ZIndexBehavior = Enum.ZIndexBehavior.Global,
-        IgnoreGuiInset = true,
-	}
-    
-	local frame = scope:New "Frame" {
+local function SubmissionThemeBar()
+	local submissionThemeBar = scope:New "Frame" {
         Name = "Container",
-        Size = UDim2.fromScale(1, 0.1),
+        Size = UDim2.fromScale(1, 1),
         Position = UDim2.fromScale(0,0),
         BackgroundTransparency = 1,
         BackgroundColor3 = Color3.fromRGB(218, 35, 35),
-        Parent = screenGUI,
 
         [Children] = {
             scope:New "UIListLayout"{
@@ -158,8 +147,9 @@ local function initialiseGUI()
                 }
             }
         }
-    }
-	
+    } :: Frame
+
+    return submissionThemeBar
 end
 
-initialiseGUI()
+return SubmissionThemeBar

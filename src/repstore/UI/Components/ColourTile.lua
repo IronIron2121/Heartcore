@@ -32,7 +32,6 @@ local Types 					= require(UtilityFolder:WaitForChild("Types"))
 local getThumbnailFromId		= require(GettersFolder:WaitForChild("getThumbnailFromId"))
 local BuyableShopItems 			= require(DataTablesFolder:WaitForChild("BuyableShopItems"))
 local Constants 				= require(ReplicatedStorage:WaitForChild("Constants"))
-local ModalManager 				= require(LibrariesFolder:WaitForChild("ModalManager"))
 
 -- UI Components
 local colourTileTemplate 	= ObjectsFolder:WaitForChild("ColourTile")

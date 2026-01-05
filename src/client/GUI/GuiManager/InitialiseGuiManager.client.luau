@@ -2,6 +2,7 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
@@ -12,6 +13,7 @@ local DailyChallengeFolder = FusionComponents.DailyChallengeGui
 
 
 -- Modules
+local SubmissionThemeBar = require(StarterPlayer.StarterPlayerScripts.GUI.SubmissionThemeBar)
 local OpenWardrobeButton = require(ReplicatedStorage.UI.FusionComponents.OpenWardrobeButton)
 local AvatarEditorController = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.AvatarEditorController)
 local CatalogSearchController = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.CatalogSearchController)
@@ -36,6 +38,7 @@ local function initialiseGuiManager()
     local expHud = ExpHud(hudScope)
     local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
     local openWardrobeButton = OpenWardrobeButton(hudScope)
+    local submissionThemeBar = SubmissionThemeBar()
 
     local buttonsFrame = hudScope:New "Frame" {
         Size = UDim2.fromScale(1, 1),
@@ -60,15 +63,15 @@ local function initialiseGuiManager()
     local Configuration1 = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.Configuration1,
         bottomLeft = expHud,
-        bottomMiddle = buttonsFrame
+        bottomMiddle = buttonsFrame,
+        topMiddle = submissionThemeBar
     })
 
     local modalScope = Fusion:scoped() 
     local dailyChallengeFrame = DailyChallengeFrame(modalScope)
     local wardrobeContainer, avatarContainer, catalogContainer = WardrobeContainer(modalScope)
-    warn("____")
-    warn(wardrobeContainer, avatarContainer, catalogContainer)
 
+    -- TODO: Find a more robust way of doing the below, this is vestigial code
 	local controllers = {}
 	controllers["AvatarEditorController"] = AvatarEditorController.new(avatarContainer) 
 	controllers["CatalogSearchController"] = CatalogSearchController.new(catalogContainer) 
