@@ -17,7 +17,7 @@ local GuiManagerFolder = Libraries:WaitForChild("GuiManager")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local Types         = require(GuiManagerFolder.Types)
+local Types         = require(Utility.Types)
 
 -- Fusion
 local Fusion        = require(Utility.Fusion)
