@@ -59,7 +59,11 @@ local function SubmissionThemeBar()
                 FillDirection = Enum.FillDirection.Vertical,
                 SortOrder = Enum.SortOrder.LayoutOrder,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                VerticalAlignment = Enum.VerticalAlignment.Center,
+                VerticalAlignment = Enum.VerticalAlignment.Top,
+            },
+
+            scope:New "UIPadding" {
+                PaddingTop = UDim.new(0.07, 0),
             },
             
             scope:New "TextLabel" {
@@ -67,7 +71,7 @@ local function SubmissionThemeBar()
                 FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
                 RichText = true,
                 Text = ThemeText,
-                Size = UDim2.fromScale(0.5,0.5),
+                Size = UDim2.fromScale(1,0.2),
                 TextScaled = true,
                 LayoutOrder = 0,
                 BackgroundTransparency = 1,
@@ -83,7 +87,7 @@ local function SubmissionThemeBar()
 
             scope:New "Frame" {
                 Name = "TimerContainer",
-                Size = UDim2.fromScale(0.5,0.5),
+                Size = UDim2.fromScale(1,0.2),
                 BackgroundTransparency = 1,
                 LayoutOrder = 1,
 
@@ -131,7 +135,7 @@ local function SubmissionThemeBar()
                         Name = "Timer",
                         FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
                         Text = TimeText,
-                        Size = UDim2.fromScale(0.15,1),
+                        Size = UDim2.fromScale(0.1,1),
                         TextScaled = true,
                         LayoutOrder = 2,
                         BackgroundTransparency = 1,
