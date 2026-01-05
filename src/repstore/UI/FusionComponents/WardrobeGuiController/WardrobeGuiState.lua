@@ -19,4 +19,12 @@ local WardrobeGuiState = {
 	currentView = scope:Value(DEFAULT_VIEW)
 }
 
+function WardrobeGuiState.ResetView()
+	WardrobeGuiState.currentView:set(DEFAULT_VIEW)
+end
+
+function WardrobeGuiState.ChangeCurrentView(newView: string)
+	WardrobeGuiState.currentView:set(newView)
+end
+
 return WardrobeGuiState

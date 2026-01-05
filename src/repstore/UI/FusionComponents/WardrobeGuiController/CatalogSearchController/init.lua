@@ -61,6 +61,10 @@ function CatalogSearchController.new(parentFrame: Frame)
 	return self
 end
 
+function CatalogSearchController:ChangeCurrentView(newView: string)
+	
+end
+
 function CatalogSearchController:Initialise()
 	self:_intialiseOutfitFrame()
 	self:_initialiseSearchFrame()

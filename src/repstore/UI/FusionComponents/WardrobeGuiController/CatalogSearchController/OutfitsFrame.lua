@@ -34,7 +34,6 @@ local GetPlayerTastemakerOutfits = Remotes:WaitForChild("GetPlayerTastemakerOutf
 
 -- Fusion
 local Children = Fusion.Children
-local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 type UsedAs<T> = Fusion.UsedAs<T>
 
