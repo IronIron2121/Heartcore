@@ -20,10 +20,10 @@ type scope          = Fusion.Scope
 --
 
 local SLOT_CONSTANTS = {
-    Colour = Color3.new(0.686275, 0.105882, 0.105882),
+    Colour = Color3.new(1, 1, 1),
     BackgroundTransparency = 0.5,
     Visible = true
-}
+} 
 
 local SLOT_LAYOUTS = {
     [Constants.GUI_SLOT_NAMES.TopMiddle] = {
