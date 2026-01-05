@@ -15,6 +15,7 @@ local Players           = game:GetService("Players")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local Constants = require(ReplicatedStorage.Constants)
 local Types         = require(Utility.Types)
 
 -- Fusion
@@ -34,7 +35,7 @@ local PlayerGui = localPlayer.PlayerGui
 -- Constants
 local OFF_SCREEN_POSITION = UDim2.fromScale(0.5, 3)
 local ON_SCREEN_POSITION = UDim2.fromScale(0.5, 0.5)
-local TWEEN_LENGTH = 0.5
+local TWEEN_LENGTH = 0.4
 
 --
 
