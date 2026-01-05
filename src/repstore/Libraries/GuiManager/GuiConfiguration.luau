@@ -21,7 +21,7 @@ type scope          = Fusion.Scope
 
 local SLOT_CONSTANTS = {
     Colour = Color3.new(1, 1, 1),
-    BackgroundTransparency = 0.5,
+    BackgroundTransparency = 1,
     Visible = true
 } 
 

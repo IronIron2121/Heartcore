@@ -92,7 +92,7 @@ function CategoryFrame(
 			-- Inner scrolling frame
 			scope:New "ScrollingFrame" {
 				Name = "CategoryScrollFrame",
-				Size = UDim2.fromScale(0.9, 1),
+				Size = UDim2.fromScale(1, 0.99),
 				Position = UDim2.fromScale(0, 0),
 				BackgroundTransparency = 1,
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -107,6 +107,11 @@ function CategoryFrame(
 						HorizontalAlignment = Enum.HorizontalAlignment.Center,
 						VerticalAlignment = Enum.VerticalAlignment.Top,
 						Padding = UDim.new(0, 10)
+					},
+
+					scope:New "UIPadding" {
+						PaddingTop = UDim.new(0.01,0),
+						PaddingLeft = UDim.new(0.01,0),
 					},
 					
 					CategoryButton(scope, {

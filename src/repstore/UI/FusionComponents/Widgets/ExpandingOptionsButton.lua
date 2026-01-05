@@ -149,7 +149,7 @@ function ExpandingOptionsButton(
 								Size = UDim2.new(0, 16, 0, 16),
 								BackgroundTransparency = 1,
 								Text = scope:Computed(function(use)  
-									return use(isExpanded) and "▼" or "▸"								
+									return use(isExpanded) and "▼" or "►"								
 								end),
 								TextSize = 14,
 								TextColor3 = textColorSpring,
