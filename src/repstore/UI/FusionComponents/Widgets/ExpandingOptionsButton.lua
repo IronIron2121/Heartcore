@@ -87,7 +87,7 @@ function ExpandingOptionsButton(
 			-- Header button
 			scope:New "TextButton" {
 				Name = "HeaderButton",
-				Size = props.size or UDim2.new(1, 0, 0, 45),
+				Size = props.size or UDim2.new(1, 0, 0, 60),
 				LayoutOrder = 1,
 				Text = "",  -- Custom layout instead
 				BackgroundColor3 = backgroundColorSpring,
