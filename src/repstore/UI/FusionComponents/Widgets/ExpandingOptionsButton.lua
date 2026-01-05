@@ -25,7 +25,8 @@ function ExpandingOptionsButton(
 		size: UsedAs<UDim2>?,
 		layoutOrder: UsedAs<number>?,
 		isSelected: UsedAs<boolean>?,
-		children: {any}?
+		children: {any}?,
+		textSize: UsedAs<number>?
 	}
 ): Frame
 	local isHovering = scope:Value(false)
@@ -164,9 +165,10 @@ function ExpandingOptionsButton(
 								BackgroundTransparency = 1,
 								Text = props.text,
 								TextColor3 = textColorSpring,
-								TextScaled = true,
+								TextScaled = false,
 								FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
-								LayoutOrder = 2
+								LayoutOrder = 2,
+								TextSize = props.textSize or 20
 							}
 						}
 					}

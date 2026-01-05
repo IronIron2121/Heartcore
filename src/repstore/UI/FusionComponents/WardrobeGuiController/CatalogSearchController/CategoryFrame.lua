@@ -149,6 +149,7 @@ function CategoryFrame(
 					ExpandingOptionsButton(scope, {
 						text = "Accessories",
 						layoutOrder = 2,
+						textSize = 20,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false
