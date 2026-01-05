@@ -52,7 +52,7 @@ local function OpenDailyChallengeGuiButton(
 	return scope:New "TextButton" {
 		Name = "DailyChallengeButton",
 		
-		LayoutOrder = 0,
+		LayoutOrder = 1,
 		Position = UDim2.fromScale(0.55, 0.95),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		ZIndex = 0, 
