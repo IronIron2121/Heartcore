@@ -33,6 +33,7 @@ local COLOUR_HOVER = COLOUR_WHITE:Lerp(COLOUR_GREY, 0.5)
 -- Config
 local CONFIG = {
 	SIZE = UDim2.fromOffset(300, 300),
+	ACTIVATION_DURATION = 2.5
 }
 
 -- BIG NOTE / TODO: This should really be what we use for all item tiles, i.e. also the ones when we equip
@@ -55,10 +56,32 @@ function FusionItemTile(
 	print(props.itemDetails)
 	local isHovering = scope:Value(false)
 	local isActivated = scope:Value(false)
+
+	local buttonsVisible = scope:Computed(function(use)
+		if use(isActivated) or use(isHovering) then
+			return true
+		else
+			return false
+		end
+	end)
 	
-	local function toggleActivationCallback(): ()
-		isActivated:set(not peek(isActivated))
+	local function activate(): ()
+		isActivated:set(true)
 	end
+
+	local function deactivate(): ()
+		isActivated:set(false)
+	end
+
+	local function toggleActivationCallback(): ()
+		if peek(isActivated) then
+			return
+		end
+		activate()
+		task.wait(CONFIG.ACTIVATION_DURATION)
+		deactivate()
+	end
+	
 	
 	local backgroundColorSpring = scope:Spring(
 		scope:Computed(function(use)
@@ -78,6 +101,10 @@ function FusionItemTile(
 		BackgroundTransparency = 1,
 		Active = false,
 		LayoutOrder = props.layoutOrder,
+
+		[OnEvent "MouseLeave"] = function()
+			warn("leaving frame")
+		end,
 		
 		[Children] = {
 			scope:New "UIListLayout" {
@@ -159,8 +186,8 @@ function FusionItemTile(
 					scope:New "Frame"{
 						Name = "ButtonsFrame",
 						ZIndex = 2,
-						Visible = isActivated or isHovering,
-						Active = false,
+						Visible = buttonsVisible,
+						Active = true,
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						Position = UDim2.fromScale(0.5, 0.5),
 						Size = UDim2.fromScale(0.9, 0.8),
@@ -184,13 +211,13 @@ function FusionItemTile(
 								assetOrBundleType = props.itemDetails.AssetType or props.itemDetails.BundleType,
 								itemType = props.itemDetails.ItemType,
 								layoutOrder = 1,
-								onTryonCallback = toggleActivationCallback
+								onTryonCallback = deactivate
 							}), 
 
 							BuyButton(scope, {
 								assetId = props.itemDetails.Id,
 								layoutOrder = 2,  
-								onPurchaseCallback = toggleActivationCallback
+								onPurchaseCallback = deactivate
 							})
 						}
 					}
