@@ -66,6 +66,7 @@ local ModalGui = modalScope:New "ScreenGui" {
         Name = "ModalGui",
         Enabled = true,
         Parent = PlayerGui,
+        IgnoreGuiInset = true,
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 } :: ScreenGui
 
