@@ -8,6 +8,8 @@ local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
+local MODAL_NAMES = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
@@ -16,7 +18,6 @@ local OnEvent = Fusion.OnEvent
 type UsedAs<T> = Fusion.UsedAs<T>
 
 -- Constants
-local COLOUR_BLACK = Color3.new(0, 0, 0)
 local COLOUR_ORANGE = Color3.new(0.901961, 0.380392, 0.078431)
 local COLOUR_GREY = Color3.new(1, 1, 1)
 
@@ -31,7 +32,11 @@ local function OpenDailyChallengeGuiButton(
 	local Toggled = scope:Value(false) 
 
 	local OnClick = function()
-		Toggled:set(not Fusion.peek(Toggled))
+		if GuiManager.IsCentreActive() then
+			GuiManager.PopCentre()
+		else
+			GuiManager.PushCentreByName(MODAL_NAMES.DAILY_CHALLENGE_GUI)
+		end
 	end
 	
 	local isHovering = scope:Value(false)
@@ -47,11 +52,11 @@ local function OpenDailyChallengeGuiButton(
 	return scope:New "TextButton" {
 		Name = "DailyChallengeButton",
 		
-		LayoutOrder = 0,
+		LayoutOrder = 1,
 		Position = UDim2.fromScale(0.55, 0.95),
-		AnchorPoint = Vector2.new(0.5, 1),
+		AnchorPoint = Vector2.new(0.5, 0.5),
 		ZIndex = 0, 
-		Size = UDim2.fromScale(0.1,0.1),
+		Size = UDim2.fromScale(0.5,0.5),
 		AutomaticSize = Enum.AutomaticSize.X,
 		
 		Transparency = 1,
@@ -108,8 +113,7 @@ local function OpenDailyChallengeGuiButton(
 				AspectRatio = 1
 			}
 		}
-	},  
-		Toggled
+	} :: TextButton
 end
 
 return OpenDailyChallengeGuiButton

@@ -5,6 +5,19 @@
 	AvatarEditorService:GetItemDetails(), :SearchCatalog(), etc.
 --]]
 
+-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Folders
+local Utility = ReplicatedStorage:WaitForChild("Utility")
+
+-- Fusion
+local Fusion        = require(Utility.Fusion)
+type scope          = Fusion.Scope
+type UsedAs<T>      = Fusion.UsedAs<T>
+type Value<T>       = Fusion.Value<T>
+type Computed<T>    = Fusion.Computed<T>
+
 export type ItemDetails = {
 	AssetType: string,
 	CreatorHasVerifiedBadge: boolean,
@@ -199,6 +212,30 @@ export type MannequinRig = Model & {
 		Animator: Animator,
 	},
 	HumanoidRootPart: BasePart,
+}
+
+export type GuiConfiguration = {
+    -- Properties
+    Name: string,
+    ConfigurationContainer: Frame,
+    TopMiddle: Frame,
+    TopMiddlePosition: Value<UDim2>,
+    BottomLeft: Frame,
+    BottomLeftPosition: Value<UDim2>,
+    BottomMiddle: Frame,
+    BottomMiddlePosition: Value<UDim2>,
+    BottomRight: Frame,
+    BottomRightPosition: Value<UDim2>,
+    GuiSlotPositions: {[string]: Value<UDim2>},
+    scope: scope,
+
+    -- Methods
+    Disable: (self: GuiConfiguration) -> (),
+    Enable: (self: GuiConfiguration) -> (),
+}
+
+export type GuiManager = {
+    CurrentDisplayedConfiguration: GuiConfiguration?,
 }
 
 

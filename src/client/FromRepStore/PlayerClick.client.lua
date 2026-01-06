@@ -1,5 +1,6 @@
 --!strict
 
+--[[
 -- Services
 local ReplicatedStorage 		  	= game:GetService("ReplicatedStorage")
 local Players 					  	= game:GetService("Players")
@@ -57,7 +58,6 @@ local inconstantElements = {
 -- Module scripts
 local getPlayerFromPlayerName 		= require(GettersFolder:WaitForChild("getPlayerFromPlayerName"))
 local TeleportButton 			  	= require(ComponentsFolder:WaitForChild("TeleportButton"))
-local ModalManager 			   	  	= require(LibrariesFolder:WaitForChild("ModalManager"))
 
 -- Templates
 local PreviewRigTemplate 			= TemplatesFolder:WaitForChild("PreviewRig")
@@ -159,3 +159,4 @@ end
 
 PlayerClickedPlayerBindable.Event:Connect(playerClickedAsync)
 closeButton.Activated:Connect(closeButtonPressed)
+]]

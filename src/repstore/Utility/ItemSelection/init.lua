@@ -16,7 +16,6 @@ local hoverHighlight = script:WaitForChild("HoverHighlight")
 local selectedHighlight	= script:WaitForChild("SelectedHighlight")
 
 -- Folders
-local LibrariesFolder = ReplicatedStorage:WaitForChild("Libraries")
 local RemotesFolder	= ReplicatedStorage:WaitForChild("Remotes")
 local GettersFolder = ReplicatedStorage:WaitForChild("Getters")
 local UtilityFolder = ReplicatedStorage:WaitForChild("Utility")
@@ -26,22 +25,14 @@ local Trackers = ReplicatedStorage:WaitForChild("Trackers")
 -- Module Scripts
 local localPlayerDetails = require(Trackers:WaitForChild("localPlayerDetails"))
 local getTopLevelModel = require(GettersFolder:WaitForChild("getTopLevelModel"))
-local ModalManager = require(LibrariesFolder:WaitForChild("ModalManager"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local Types = require(UtilityFolder:WaitForChild("Types"))
---local ShopGuiFSM = require(UtilityFolder:WaitForChild("ShopGuiFSM"))
-
--- GUI Elements
-local PlayerGui	= localPlayer.PlayerGui
-local ClaimedShopGui = PlayerGui:WaitForChild("ClaimedShopGui")
-local EditFurnitureFrame	= ClaimedShopGui:WaitForChild("EditFurnitureFrame")
 
 -- Remotes | Bindables
 local DeleteShopItemEvent = RemotesFolder:WaitForChild("DeleteShopItem")
 local PlayerSelectedMannequin 	= BindablesFolder:WaitForChild("PlayerSelectedMannequin")
 local PlayerDeSelectedMannequin = BindablesFolder:WaitForChild("PlayerDeSelectedMannequin")
 local GetShopGuiFSMState = GettersFolder:WaitForChild("GetShopGuiFSMState")
-local getPlayerDetailsRemote = RemotesFolder:WaitForChild("getPlayerDetailsRemote")
 
 -- Variables
 local mouseHoverConnection: RBXScriptConnection? = nil

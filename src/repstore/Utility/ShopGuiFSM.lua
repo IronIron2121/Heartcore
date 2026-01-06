@@ -2,18 +2,17 @@
 	Defines a state manager for the shop item store GUI
 ]]
 
+--[[
 -- Services
 local ReplicatedStorage 		= game:GetService("ReplicatedStorage")
 local Players 					= game:GetService("Players")
 
--- s
+-- Folders
 local Bindables 			= ReplicatedStorage:WaitForChild("Bindables")
-local Libraries			= ReplicatedStorage:WaitForChild("Libraries")
 local Utility				= ReplicatedStorage:WaitForChild("Utility")
 local Getters				= ReplicatedStorage:WaitForChild("Getters")
 
 -- Module Scripts
-local ModalManager 				= require(Libraries:WaitForChild("ModalManager"))
 local ItemSelection				= require(Utility:WaitForChild("ItemSelection"))
 
 -- Remotes / Bindables
@@ -192,5 +191,7 @@ end
 PlayerSelectedMannequin.Event:Connect(mannequinSelected)
 PlayerDeSelectedMannequin.Event:Connect(mannequinDeSelected)
 GetShopGuiFSMState.OnInvoke = getShopGuiFSMState
+]]
 
-return ShopGuiFSM
+return {}
+--return ShopGuiFSM

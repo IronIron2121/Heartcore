@@ -42,7 +42,6 @@ local LoadingDisplay = require(UIComponentsFolder:WaitForChild("LoadingDisplay")
 local CartButton = require(UIComponentsFolder:WaitForChild("CartButton"))
 local ItemTile = require(UIComponentsFolder:WaitForChild("ItemTile"))
 local ItemDetailsCache = require(LibrariesFolder:WaitForChild("ItemDetailsCache"))
-local ModalManager = require(LibrariesFolder:WaitForChild("ModalManager"))
 
 -- Getters
 local getMannequinFromId = require(GettersFolder:WaitForChild("getMannequinFromId"))

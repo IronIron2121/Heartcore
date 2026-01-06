@@ -48,7 +48,7 @@ function ExpBar(
 ): Frame
 
     local scale = (exp.Value % 10) * 0.075
-    local expBarSize = Fusion.Value(scope, UDim2.fromScale(scale, 0.15))
+    local expBarSize = Fusion.Value(scope, UDim2.fromScale(scale, 0.16))
 
     -- Tween settings
     local tweenInfo = TweenInfo.new(
@@ -89,7 +89,7 @@ function ExpBar(
         BackgroundColor3 = Color3.new(1,1,1),
         BackgroundTransparency = 1,
         AnchorPoint = Vector2.new(0,0),
-        Size = UDim2.fromScale(0.15,0.5),
+        Size = UDim2.fromScale(0.5,0.5),
         Position = UDim2.fromScale(0,0),
 
         [Children] = {

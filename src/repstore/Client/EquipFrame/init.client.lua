@@ -2,6 +2,7 @@
 	This script contains all functionality for the GUI that allows user to equip accessories to mannequins
 ]]
 
+--[[
 -- Services
 local AvatarEditorService = game:GetService("AvatarEditorService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -247,3 +248,4 @@ end
 initialise()
 
 
+]]

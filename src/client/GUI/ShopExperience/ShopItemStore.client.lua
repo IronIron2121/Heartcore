@@ -1,10 +1,7 @@
 --!strict
-
+--[[
 -- Services
 local ReplicatedStorage 		= game:GetService("ReplicatedStorage")
-local UserInputService			= game:GetService("UserInputService")
-local DataStoreService			= game:GetService("DataStoreService")
-local GuiService				= game:GetService("GuiService")
 local Players 					= game:GetService("Players")
 
 -- Instances
@@ -38,31 +35,20 @@ local OwnedButton 				= TopBar:WaitForChild("OwnedButton")
 -- Module Scripts
 local AddTile					= require(UIComponentsFolder:WaitForChild("AddTile"))
 local CategoryButton			= require(UIComponentsFolder:WaitForChild("CategoryButton"))
-local Constants 				= require(ReplicatedStorage:WaitForChild("Constants"))
 local BuyableShopItems			= require(DataTablesFolder:WaitForChild("BuyableShopItems"))
-local ModalManager 				= require(LibrariesFolder:WaitForChild("ModalManager"))
 local stringToArray				= require(UtilityFolder:WaitForChild("stringToArray"))
 local ShopGuiFSM 				= require(UtilityFolder:WaitForChild("ShopGuiFSM"))
 local ShopItemStoreCategories 	= require(DataTablesFolder:WaitForChild("ShopItemStoreCategories"))
 
 -- Remotes | Bindables
 local CategoryButtonClickedEvent= Bindables:WaitForChild("CategoryButtonClicked")
-local DeleteShopItemEvent 		= RemotesFolder:WaitForChild("DeleteShopItem")
 local ShopItemStoreOpenedAsync 	= Bindables:WaitForChild("ShopItemStoreOpened")
 
 -- Variables
-local editingShop : boolean 	= false
-local visible : boolean 		= false
 local categoryButtons 			= {}
 
 -- Constants
 local DEFAULT_SELECT 			= ShopItemStoreCategories[1]
-local UNSELECTED_BUTTON_COLOUR 	= Color3.new(0.360784, 0.376471, 0.839216)
-local UNSELECTED_TEXT_COLOUR 	= Color3.new(1, 1, 1)
-local SELECTED_BUTTON_COLOUR 	= Color3.new(1, 1, 1)
-local SELECTED_TEXT_COLOUR		= Color3.new(0.360784, 0.376471, 0.839216)
-local UNSELECTED_BACKGROUND_TRANSPARENCY 	= 1
-local SELECTED_BACKGROUND_TRANSPARENCY 		= 0
 
 
 local function getHoverColour(buttonColour : Color3)
@@ -162,16 +148,18 @@ local function selectCategory(button: CategoryButton)
 		end
 	end	
 end
-
-local function selectCategoryByText(category : string)
+]]
+--local function selectCategoryByText(category : string)
 	--[[
 	if not categoryButtons[category] then
 		return 
 	end
 	]]
-	selectCategory(categoryButtons[category].Button)
-end
+--	selectCategory(categoryButtons[category].Button)
+--end
 
+
+--[[
 local function initialiseShopItemStoreFrame()
 	-- POPULATE ITEM FRAME
 	dePopulateItemFrame()
@@ -193,3 +181,4 @@ CloseShopItemStoreFrameButton.Activated:Connect(closeShopItemStoreFrameButtonCli
 ShopItemStoreButton.Activated:Connect(onShopItemStoreButtonClicked)
 CategoryButtonClickedEvent.Event:Connect(selectCategory)
 ShopItemStoreOpenedAsync.Event:Connect(initialiseShopItemStoreFrame)
+]]

@@ -16,9 +16,8 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Instances
 local localPlayer = Players.LocalPlayer
-local PlayerGui = localPlayer.PlayerGui
 
-local scope = Fusion:scoped()
+-- Fusion
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
@@ -29,12 +28,11 @@ local leaderstats = localPlayer:WaitForChild("leaderstats")
 local Level = leaderstats:WaitForChild("Level")
 local Rank = leaderstats:WaitForChild("Rank")
 
-local rankText = scope:Value("(Lv. " .. Level.Value .. ") " .. Rank.Value)
 
 --Anim function
 local function animateRank(label)
 	-- Store original properties
-	local originalSize = label.Size
+	local originalSize: UDim2 = label.Size
 	local originalPosition = label.Position
 	
 	-- Size anim
@@ -87,11 +85,8 @@ local function animateRank(label)
 	label.Position = originalPosition
 end
 
-local function initialiseGUI()
-	local screenGUI = scope:New "ScreenGui" {
-		Parent = PlayerGui,
-		ZIndexBehavior = Enum.ZIndexBehavior.Global
-	}
+local function ExpHud(scope: Fusion.Scope)
+	local rankText = scope:Value("(Lv. " .. Level.Value .. ") " .. Rank.Value)
 
 	local playerRankLabel = scope:New "TextLabel" {
 		Name = "playerRankDisplay",
@@ -108,18 +103,16 @@ local function initialiseGUI()
 		TextXAlignment = "Left",
 		TextYAlignment = "Top",
         ZIndex = 2
-	}
+	} :: TextLabel
 	
-	local _hudTopBar = scope:New "Frame" {
-		Size = UDim2.fromScale(1,0.2),
-		Position = UDim2.fromScale(0,0.88),
+	local hudTopBar = scope:New "Frame" {
+		Size = UDim2.fromScale(1,1),
+		Position = UDim2.fromScale(0,0),
 		AnchorPoint = Vector2.new(0,0),
-		Parent = screenGUI,
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		BackgroundTransparency = 1,
 
 		[Children] = {
-
 			scope:New "Frame" {
 				Name = "Container",
 				Size = UDim2.fromScale(1,1),
@@ -137,8 +130,8 @@ local function initialiseGUI()
 			scope:New "Frame" {
 				Name = "rankContainer",
 				AnchorPoint = Vector2.new(0,0),
-				Size = UDim2.fromScale(0.2, 0.2),
-				Position = UDim2.fromScale(0.03,0.3),
+				Size = UDim2.fromScale(0.5, 0.2),
+				Position = UDim2.fromScale(0.11,0.35),
 				BackgroundTransparency = 1,
 
 				[Children] = {
@@ -146,17 +139,21 @@ local function initialiseGUI()
 				}
 			}
 		}
-	}
+	} :: Frame 
 	
 	Level:GetPropertyChangedSignal("Value"):Connect(function() 
 		if Level.Value % 10 == 0 then
 			rankText:set("(Lv. " .. Level.Value .. ") " .. Rank.Value)
-			task.spawn(animateRank, playerRankLabel)
+			task.spawn(function()
+				animateRank(playerRankLabel)
+			end)
 		else
 			rankText:set("(Lv. " .. Level.Value .. ") " .. Rank.Value)
 		end
 
 	end)
+
+	return hudTopBar
 end
 
-initialiseGUI()
+return ExpHud

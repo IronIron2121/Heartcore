@@ -9,6 +9,7 @@ local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
 local UI                = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents  = UI:WaitForChild("FusionComponents")
 local Widgets           = FusionComponents:WaitForChild("Widgets")
+local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local ImageUris         = require(DataTables:WaitForChild("ImageUris"))
 local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
 
@@ -59,10 +60,7 @@ task.spawn(
 )
 
 local function DailyChallengeFrame(
-    scope: Fusion.Scope,
-    props: {
-        visible: Value<boolean>
-    }
+    scope: Fusion.Scope
 ): Frame
     -- Fetch challenges from server
     local challenges = Fusion.Value(scope, {})
@@ -111,7 +109,7 @@ local function DailyChallengeFrame(
         Size = UDim2.fromScale(0.5, 0.5),
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.fromScale(0.5, 0.5),
-        Visible = props.visible,
+        Visible = true,
 
         [Children] = {
             CloseButton(scope, {
@@ -120,10 +118,10 @@ local function DailyChallengeFrame(
                 position = UDim2.fromScale(1, 0),
 
                 onClick = function()
-                    props.visible:set(not peek(props.visible)) 
+                    GuiManager.PopCentre()
                 end
             }),
-
+ 
             scope:New "TextLabel" {
                 Name = "ChallengesLabel",
                 Size = UDim2.fromScale(0.3, 0.1),
