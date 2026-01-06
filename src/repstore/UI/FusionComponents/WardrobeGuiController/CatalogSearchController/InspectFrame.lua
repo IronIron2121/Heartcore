@@ -83,7 +83,6 @@ function InspectFrame(
 			},
 
 			scope:ForValues(inspectedItems, function(use, scope, item)
-				local itemIsCached = table.find(detailsCache, item.id)
 				local success
 				local itemDetails = detailsCache[item.id]
 
@@ -102,7 +101,6 @@ function InspectFrame(
 
 				return FusionItemTile(scope, {itemDetails = itemDetails, layoutOrder = 1})
 			end) 
-
 		}
 	} :: ScrollingFrame
 
