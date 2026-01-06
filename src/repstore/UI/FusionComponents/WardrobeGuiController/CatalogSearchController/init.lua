@@ -224,7 +224,9 @@ function CatalogSearchController:_intialiseOutfitFrame()
 end
 
 function CatalogSearchController:_initialiseInspectFrame()
-	local inspectFrame = InspectFrame(self.scope, self.currentView)
+	local inspectFrame = InspectFrame(self.scope, {
+		currentView = self.currentView
+	})
 	inspectFrame.Parent = self.parentFrame
 end
 

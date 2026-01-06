@@ -23,6 +23,7 @@ local function callWithRetry(
             tries += 1
         end
     end
+
     return success, result
 end
 

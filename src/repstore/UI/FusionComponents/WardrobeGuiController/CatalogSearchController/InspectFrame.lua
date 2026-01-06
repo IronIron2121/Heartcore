@@ -16,6 +16,7 @@ local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspecto
 local Constants = require(ReplicatedStorage.Constants)
 local ItemTile = require(ReplicatedStorage.UI.Components.ItemTile)
 local FusionItemTile = require(ReplicatedStorage.UI.FusionComponents.Widgets.FusionItemTile)
+local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
@@ -25,7 +26,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- Config
 local CONFIG = {
-	MIN_CELL_SIZE = Vector2.new(120, 150), -- Minimum size for each item tile
+	MIN_CELL_SIZE = Vector2.new(320, 350), -- Minimum size for each item tile
 	CELL_PADDING_X = 10,
 	CELL_PADDING_Y = 10 -- Padding between cells
 }
@@ -41,13 +42,6 @@ function InspectFrame(
 		layoutOrder: UsedAs<number>?,
 		backgroundTransparency: UsedAs<number>?,
 		currentView: UsedAs<string>,
-		searchAssetCategories: UsedAs<{Enum.AvatarAssetType}>, 
-		searchBundleCategories: UsedAs<Enum.BundleType>,
-		searchSort: UsedAs<Enum.CatalogSortType>,
-		searchResults: UsedAs<CatalogPages>,
-		searchText: UsedAs<string>,
-		searchCallback: () -> (),
-		loadMoreCallback: () -> ()
 	}
 ): ScrollingFrame
 	-- Reactive values for responsive grid
@@ -55,7 +49,7 @@ function InspectFrame(
 	local gridLayout = scope:New "UIGridLayout" {
 		FillDirection = Enum.FillDirection.Horizontal,
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
-		VerticalAlignment = Enum.VerticalAlignment.Top,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		CellSize = cellSize,
 		CellPadding = UDim2.fromOffset(CONFIG.CELL_PADDING_X, CONFIG.CELL_PADDING_Y)
@@ -105,12 +99,48 @@ function InspectFrame(
 						detailsCache[item.id] = itemDetails
 					end
 				end
+
 				return FusionItemTile(scope, {itemDetails = itemDetails, layoutOrder = 1})
 			end) 
 
 		}
-
 	} :: ScrollingFrame
+
+	-- Responsive grid update function
+	local function updateResponsiveGrid()
+		local currentGridLayout = peek(gridLayout)
+		if not currentGridLayout then return end
+
+		-- Calculate the total cell width including padding
+		local cellWidth = CONFIG.MIN_CELL_SIZE.X + CONFIG.CELL_PADDING_X
+		local canvasWidth = inspectFrame.AbsoluteSize.X - inspectFrame.ScrollBarThickness
+
+		-- Prevent division by zero
+		if canvasWidth <= 0 then return end
+
+		-- Calculate how many cells will fit per line at minimum size
+		local numCells = math.max(1, math.floor(canvasWidth / cellWidth))
+
+		-- Calculate the scaling ratio required to fit the cells into the canvas
+		local availableWidth = canvasWidth - (numCells * CONFIG.CELL_PADDING_X)
+		local ratio = availableWidth / (numCells * CONFIG.MIN_CELL_SIZE.X)
+
+		-- Ensure ratio doesn't go below 1 (don't shrink below minimum size)
+		ratio = math.max(1, ratio)
+
+		-- Update cell size reactively
+		local newCellSize = UDim2.fromOffset(
+			CONFIG.MIN_CELL_SIZE.X * ratio, 
+			CONFIG.MIN_CELL_SIZE.Y * ratio
+		)
+		cellSize:set(newCellSize)
+	end
+
+	-- Connect to size changes for responsive behavior
+	inspectFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateResponsiveGrid)
+
+	-- Initial update
+	task.defer(updateResponsiveGrid)
 
 	return inspectFrame
 end
