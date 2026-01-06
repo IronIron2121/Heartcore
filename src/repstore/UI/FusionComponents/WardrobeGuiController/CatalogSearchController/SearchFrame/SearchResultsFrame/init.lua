@@ -12,6 +12,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 -- Fusion
 local Children = Fusion.Children
 local peek = Fusion.peek
+
 -- Config
 local CONFIG = {
 	MIN_CELL_SIZE = Vector2.new(120, 150), -- Minimum size for each item tile
@@ -20,13 +21,19 @@ local CONFIG = {
 }
 
 function SearchResultsFrame(
-	scope: Fusion.Scope,
-	searchResults: Fusion.UsedAs<CatalogPages>?
+	scope: Fusion.Scope
 ): ScrollingFrame
 
 	-- Reactive values for responsive grid
 	local cellSize = scope:Value(UDim2.fromOffset(CONFIG.MIN_CELL_SIZE.X, CONFIG.MIN_CELL_SIZE.Y))
-	local gridLayout = scope:Value(nil)
+	local gridLayout = scope:New "UIGridLayout" {
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		VerticalAlignment = Enum.VerticalAlignment.Top,
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		CellSize = cellSize,
+		CellPadding = UDim2.fromOffset(CONFIG.CELL_PADDING_X, CONFIG.CELL_PADDING_Y)
+	}
 
 	local searchResultsFrame = scope:New "ScrollingFrame" {
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -42,17 +49,7 @@ function SearchResultsFrame(
 		ScrollBarThickness = 8,
 
 		[Children] = {
-			gridLayout:set(
-				scope:New "UIGridLayout" {
-					FillDirection = Enum.FillDirection.Horizontal,
-					HorizontalAlignment = Enum.HorizontalAlignment.Center,
-					VerticalAlignment = Enum.VerticalAlignment.Top,
-					SortOrder = Enum.SortOrder.LayoutOrder,
-					CellSize = cellSize,
-					CellPadding = UDim2.fromOffset(CONFIG.CELL_PADDING_X, CONFIG.CELL_PADDING_Y)
-				}
-			),
-
+			gridLayout,
 			scope:New "UIPadding" {
 				PaddingTop = UDim.new(0,10),
 				PaddingBottom = UDim.new(0,0),

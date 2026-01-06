@@ -10,20 +10,23 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local StarterPlayer = game:GetService("StarterPlayer")
+local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
 
 -- Folders
 local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
+local Mannequins = StarterPlayerScripts:WaitForChild("Mannequins")
 
 -- Modules
-local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local UI_CONSTANTS = require(ReplicatedStorage.Utility:WaitForChild("UI_CONSTANTS"))
- 
+local Constants = require(ReplicatedStorage.Constants)
+local Inspector = require(Mannequins.Inspector) 
+
 -- Bindables
 local PlayerCreatedPreview = BindablesFolder:WaitForChild("PlayerCreatedPreview")
 local PlayerDestroyedPreview = BindablesFolder:WaitForChild("PlayerDestroyedPreview")
 local HideAllPromptsBindable = BindablesFolder:WaitForChild("HideAllPromptsBindable")
 local ShowAllPromptsBindable = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
-local PlayerInspectedMannequin = BindablesFolder:WaitForChild("PlayerInspectedMannequin")
 
 -- parent to player gui so buttons are interactable
 local player = Players.LocalPlayer
@@ -97,7 +100,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 
 	-- hover animations
 	button.MouseEnter:Connect(function()
-		tweenStroke(UI_CONSTANTS.TASTEMAKER_GREEN)
+		tweenStroke(UI_CONSTANTS.TASTEMAKER_GREEN, 2)
 	end)
 
 	button.MouseLeave:Connect(function()
@@ -105,7 +108,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 	end)
 
 	button.Activated:Connect(function()
-		PlayerInspectedMannequin:Fire(mannequin)
+		Inspector.inspectMannequin(mannequin)
 	end)
 
 	-- Update the text key prompt dynamically

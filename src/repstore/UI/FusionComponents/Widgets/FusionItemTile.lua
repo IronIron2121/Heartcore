@@ -51,17 +51,7 @@ function FusionItemTile(
 		layoutOrder: number
 	}
 )
-	warn("Making...")
 	print(props.itemDetails)
-	-- Get info type for product info query
-	local infoType
-	
-	if props.itemDetails.ItemType == Enum.InfoType.Asset.Name then
-		infoType = Enum.InfoType.Asset.Name
-	elseif props.itemDetails.ItemType == Enum.InfoType.Bundle.Name then
-		infoType = Enum.InfoType.Bundle.Name
-	end
-	
 	local isHovering = scope:Value(false)
 	
 	local backgroundColorSpring = scope:Spring(

@@ -51,7 +51,7 @@ function SearchFrame(
 		loadMoreCallback: () -> ()
 	}
 ): (Frame, ScrollingFrame)
-	local searchResultsFrame = SearchResultsFrame(scope, props.searchResults) :: ScrollingFrame
+	local searchResultsFrame = SearchResultsFrame(scope) :: ScrollingFrame
 
 	local canvasPositionObserver = searchResultsFrame:GetPropertyChangedSignal("CanvasPosition")
 

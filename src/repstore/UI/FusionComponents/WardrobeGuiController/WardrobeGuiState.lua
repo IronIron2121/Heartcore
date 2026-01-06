@@ -6,25 +6,32 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
--- Modules
+-- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local scope = Fusion:scoped()
 
 -- Constants
 local DEFAULT_VIEW = "Catalog"
 
-local scope = Fusion:scoped()
+--
 
 -- TODO: this should be updated to be a state machine in time, but for now this will do.
 local WardrobeGuiState = {
 	currentView = scope:Value(DEFAULT_VIEW)
 }
 
+local function logGuiState()
+	warn("Just changed view to ", Fusion.peek(WardrobeGuiState.currentView))
+end
+
 function WardrobeGuiState.ResetView()
 	WardrobeGuiState.currentView:set(DEFAULT_VIEW)
+	logGuiState()
 end
 
 function WardrobeGuiState.ChangeCurrentView(newView: string)
 	WardrobeGuiState.currentView:set(newView)
+	logGuiState()
 end
 
 return WardrobeGuiState

@@ -41,6 +41,7 @@ local function OpenWardrobeButton(
 		if GuiManager.IsCentreActive() then
 			GuiManager.PopCentre()
 		else
+			-- We do this here rather than in the close button because otherwise players see the view change for a split second before the closing animation finishes
 			WardrobeGuiState.ResetView()
 			GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
 		end

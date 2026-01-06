@@ -193,7 +193,11 @@ local Constants = {
         ["BottomLeft"] = "BottomLeft",
         ["BottomMiddle"] = "BottomMiddle",
         ["BottomRight"] = "BottomRight",
-    }
+    },
+
+	WARDROBE_GUI_STATES = {
+		InspectFrame = "if",
+	}
 
 }
 

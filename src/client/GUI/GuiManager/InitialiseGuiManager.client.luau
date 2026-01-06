@@ -6,19 +6,22 @@ local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
+
 local GuiManangerLibrary = Libraries:WaitForChild("GuiManager")
+
 local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
+local FusionComponents = UI.FusionComponents
 local DailyChallengeFolder = FusionComponents.DailyChallengeGui 
+local WardrobeGuiController = FusionComponents.WardrobeGuiController
 
 
 -- Modules
 local SubmissionThemeBar = require(StarterPlayer.StarterPlayerScripts.GUI.SubmissionThemeBar)
 local OpenWardrobeButton = require(ReplicatedStorage.UI.FusionComponents.OpenWardrobeButton)
-local AvatarEditorController = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.AvatarEditorController)
-local CatalogSearchController = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.CatalogSearchController)
-local OutfitViewController = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.OutfitViewController)
-local WardrobeContainer = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.WardrobeGui.WardrobeContainer)
+local AvatarEditorController = require(WardrobeGuiController.AvatarEditorController)
+local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
+local OutfitViewController = require(WardrobeGuiController.OutfitViewController)
+local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
 local Fusion = require(ReplicatedStorage.Utility.Fusion)
 local GuiConfiguration = require(GuiManangerLibrary.GuiConfiguration)
 local MODAL_NAMES = require(GuiManangerLibrary.MODAL_NAMES)
@@ -33,7 +36,7 @@ local Children = Fusion.Children
  
 --
 
-local function initialiseGuiManager()
+local function InitialiseHuds()
     local hudScope = Fusion:scoped()
     local expHud = ExpHud(hudScope)
     local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
@@ -67,6 +70,11 @@ local function initialiseGuiManager()
         topMiddle = submissionThemeBar
     })
 
+    GuiManager.RegisterConfiguration(Configuration1) 
+    GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.Configuration1)
+end
+
+local function InitialiseModals()
     local modalScope = Fusion:scoped() 
     local dailyChallengeFrame = DailyChallengeFrame(modalScope)
     local wardrobeContainer, avatarContainer, catalogContainer = WardrobeContainer(modalScope)
@@ -79,11 +87,13 @@ local function initialiseGuiManager()
 	controllers["AvatarEditorController"]:Initialise()
 	controllers["CatalogSearchController"]:Initialise()
 
-    GuiManager.RegisterConfiguration(Configuration1) 
-    GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.Configuration1)
-
     GuiManager.RegisterModal(MODAL_NAMES.DAILY_CHALLENGE_GUI, dailyChallengeFrame)
     GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer) 
+end
+
+local function initialiseGuiManager()
+    InitialiseHuds()
+    InitialiseModals()
 end
 
 initialiseGuiManager()
