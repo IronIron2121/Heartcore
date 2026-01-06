@@ -187,13 +187,17 @@ local Constants = {
 
 	NO_CURRENT_PHASE_MESSAGE = "NO_CURRENT_PHASE",
 
-    DEFAULT_TWEEN = TweenInfo.new(0.5, Enum.EasingStyle.Quad),
+    DEFAULT_TWEEN = TweenInfo.new(0.4, Enum.EasingStyle.Quad),
     GUI_SLOT_NAMES = {
         ["TopMiddle"] = "TopMiddle",
         ["BottomLeft"] = "BottomLeft",
         ["BottomMiddle"] = "BottomMiddle",
         ["BottomRight"] = "BottomRight",
-    }
+    },
+
+	WARDROBE_GUI_STATES = {
+		InspectFrame = "if",
+	}
 
 }
 

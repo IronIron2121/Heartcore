@@ -30,6 +30,7 @@ local peek = Fusion.peek
 local CategoryFrame = require(script:WaitForChild("CategoryFrame"))
 local OutfitsFrame = require(script:WaitForChild("OutfitsFrame"))
 local SearchFrame = require(script:WaitForChild("SearchFrame"))
+local InspectFrame = require(script:WaitForChild("InspectFrame"))
 
 -- Constants
 
@@ -65,6 +66,8 @@ function CatalogSearchController:Initialise()
 	self:_intialiseOutfitFrame()
 	self:_initialiseSearchFrame()
 	self:_initialiseCategoryFrame()
+	self:_initialiseInspectFrame()
+
 	EditorsPick.initialiseItemDetails()
  	self.editorsPickCallback()
 end
@@ -122,7 +125,6 @@ function CatalogSearchController:_initialiseSearchFrame()
 
 	self.editorsPickSelected = self.scope:Value(false)
 
-	-- Define callbacks FIRST
 	self.searchCallback = function(keyword: string?)
 		if not self.SearchResultsFrame then
 			warn("SearchResultsFrame not ready yet")
@@ -219,6 +221,13 @@ function CatalogSearchController:_intialiseOutfitFrame()
 		self.currentView
 	)
 	outfitsFrame.Parent = self.parentFrame
+end
+
+function CatalogSearchController:_initialiseInspectFrame()
+	local inspectFrame = InspectFrame(self.scope, {
+		currentView = self.currentView
+	})
+	inspectFrame.Parent = self.parentFrame
 end
 
 function CatalogSearchController:Cleanup()
