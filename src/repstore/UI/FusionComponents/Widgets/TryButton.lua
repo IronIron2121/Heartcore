@@ -35,7 +35,7 @@ function TryButton(
 		position: UsedAs<UDim2>?,
 		anchorPoint: UsedAs<Vector2>?,
 		text: UsedAs<string>?,
-		onPurchaseCallback: (() -> ())?,
+		onTryonCallback: (() -> ())?,
 	}
 ): TextButton
 	local isHovering = scope:Value(false)
@@ -58,6 +58,7 @@ function TryButton(
 
 	local tryButton = scope:New "TextButton" {
 		Name = "TryButton",
+		Active = true,
 		Visible = props.visible or true,
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		Position = props.position or UDim2.fromScale(0.5, 0.5),
@@ -78,8 +79,8 @@ function TryButton(
 			PlayerEquippedItem:FireServer(props.assetId, props.assetOrBundleType, props.itemType)
 
 			-- Call optional callback after purchase prompt
-			if props.onPurchaseCallback then
-				props.onPurchaseCallback()
+			if props.onTryonCallback then
+				props.onTryonCallback()
 			end
 		end,
 		 

@@ -75,8 +75,6 @@ function AvatarViewport(
 	
 	local viewportOut = scope:Value(nil)
 
-
-
 	local viewport = scope:New "ViewportFrame" {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Name = "AvatarViewport",

@@ -52,6 +52,7 @@ function BuyButton(
 	local buyButton = scope:New "TextButton" {
 		Name = "BuyButton",
 		Visible = props.visible or true,
+		Active = true,
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		Position = props.position or UDim2.fromScale(0.5, 0.5),
 		Size = props.size or UDim2.fromScale(0.8, 0.5),

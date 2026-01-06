@@ -22,6 +22,7 @@ local PriceLabel = require(Widgets:WaitForChild("PriceLabel"))
 -- Fusion
 local Children = Fusion.Children
 local OnEvent = Fusion.OnEvent
+local peek = Fusion.peek
 
 -- Colors
 local COLOUR_WHITE = UI_CONSTANTS.COLOUR_WHITE
@@ -53,10 +54,15 @@ function FusionItemTile(
 )
 	print(props.itemDetails)
 	local isHovering = scope:Value(false)
+	local isActivated = scope:Value(false)
+	
+	local function toggleActivationCallback(): ()
+		isActivated:set(not peek(isActivated))
+	end
 	
 	local backgroundColorSpring = scope:Spring(
 		scope:Computed(function(use)
-			if use(isHovering) then
+			if use(isActivated) or use(isHovering) then
 				return COLOUR_HOVER
 			else
 				return COLOUR_WHITE
@@ -117,7 +123,7 @@ function FusionItemTile(
 				BackgroundColor3 = backgroundColorSpring,
 				BackgroundTransparency = 0,
 				ZIndex = 1,
-				Active = false,
+				Active = true, 
 				
 				[OnEvent "MouseEnter"] = function()
 					isHovering:set(true)
@@ -125,6 +131,10 @@ function FusionItemTile(
 				
 				[OnEvent "MouseLeave"] = function()
 					isHovering:set(false)
+				end,
+
+				[OnEvent "MouseButton1Click"] = function()
+					toggleActivationCallback()
 				end,
 				
 				[Children] = {
@@ -149,8 +159,8 @@ function FusionItemTile(
 					scope:New "Frame"{
 						Name = "ButtonsFrame",
 						ZIndex = 2,
-						Visible = isHovering,
-						Active = isHovering,
+						Visible = isActivated or isHovering,
+						Active = false,
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						Position = UDim2.fromScale(0.5, 0.5),
 						Size = UDim2.fromScale(0.9, 0.8),
@@ -173,12 +183,14 @@ function FusionItemTile(
 								assetId = props.itemDetails.Id,
 								assetOrBundleType = props.itemDetails.AssetType or props.itemDetails.BundleType,
 								itemType = props.itemDetails.ItemType,
-								layoutOrder = 1 
+								layoutOrder = 1,
+								onTryonCallback = toggleActivationCallback
 							}), 
 
 							BuyButton(scope, {
 								assetId = props.itemDetails.Id,
 								layoutOrder = 2,  
+								onPurchaseCallback = toggleActivationCallback
 							})
 						}
 					}
