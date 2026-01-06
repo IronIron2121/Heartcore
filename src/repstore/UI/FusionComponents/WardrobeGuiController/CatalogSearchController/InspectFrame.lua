@@ -1,47 +1,72 @@
 --!strict
--- SearchResultsFrame.lua
+-- InspectFrame.lua
+
 -- Services
+local AssetCounterService = game:GetService("AssetCounterService")
+local AvatarEditorService = game:GetService("AvatarEditorService")
+local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
+local Constants = require(ReplicatedStorage.Constants)
+local ItemTile = require(ReplicatedStorage.UI.Components.ItemTile)
+local FusionItemTile = require(ReplicatedStorage.UI.FusionComponents.Widgets.FusionItemTile)
+local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
+local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion
 local Children = Fusion.Children
-local peek = Fusion.peek
+type UsedAs<T> = Fusion.UsedAs<T>
 
 -- Config
 local CONFIG = {
-	MIN_CELL_SIZE = Vector2.new(120, 150), -- Minimum size for each item tile
+	MIN_CELL_SIZE = Vector2.new(320, 350), -- Minimum size for each item tile
 	CELL_PADDING_X = 10,
 	CELL_PADDING_Y = 10 -- Padding between cells
 }
 
-function SearchResultsFrame(
-	scope: Fusion.Scope
-): ScrollingFrame
+local detailsCache = {}
 
+function InspectFrame(
+	scope: Fusion.Scope,
+	props: {
+		size: UsedAs<UDim2>?,
+		position: UsedAs<UDim2>?,
+		anchorPoint: UsedAs<Vector2>?,
+		layoutOrder: UsedAs<number>?,
+		backgroundTransparency: UsedAs<number>?,
+		currentView: UsedAs<string>,
+	}
+): ScrollingFrame
 	-- Reactive values for responsive grid
 	local cellSize = scope:Value(UDim2.fromOffset(CONFIG.MIN_CELL_SIZE.X, CONFIG.MIN_CELL_SIZE.Y))
 	local gridLayout = scope:New "UIGridLayout" {
 		FillDirection = Enum.FillDirection.Horizontal,
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
-		VerticalAlignment = Enum.VerticalAlignment.Top,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		CellSize = cellSize,
 		CellPadding = UDim2.fromOffset(CONFIG.CELL_PADDING_X, CONFIG.CELL_PADDING_Y)
 	}
 
-	local searchResultsFrame = scope:New "ScrollingFrame" {
+	local inspectedItems = Inspector.getInspectingItems()
+
+	local inspectFrame = scope:New "ScrollingFrame" {
+		Name = "InspectFrame",
+		Visible = scope:Computed(function(use)
+			return use(props.currentView) == Constants.WARDROBE_GUI_STATES.InspectFrame
+		end),
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Name = "SearchResultsFrame",
-		Size = UDim2.fromScale(1, 0.85),  
+		Size = UDim2.fromScale(1, 1),
 		Position = UDim2.fromScale(0.5, 0.5),
 		BackgroundColor3 = Color3.new(1, 1, 1),
-		BackgroundTransparency = 1,
+		BackgroundTransparency = 0.8,
 		LayoutOrder = 2,
 		CanvasSize = UDim2.fromScale(0, 0),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -56,8 +81,27 @@ function SearchResultsFrame(
 				PaddingRight = UDim.new(0,0),
 				PaddingLeft = UDim.new(0,0),
 			},
-		}
 
+			scope:ForValues(inspectedItems, function(use, scope, item)
+				local success
+				local itemDetails = detailsCache[item.id]
+
+				if not itemDetails then
+					success, itemDetails = callWithRetry(
+						function()
+							return AvatarEditorService:GetItemDetailsAsync(item.id, (item.type == Enum.MarketplaceProductType.AvatarAsset and Enum.AvatarItemType.Asset or Enum.AvatarItemType.Bundle))
+						end
+					)
+					if not success then 
+						return
+					else
+						detailsCache[item.id] = itemDetails
+					end
+				end
+
+				return FusionItemTile(scope, {itemDetails = itemDetails, layoutOrder = 1})
+			end) 
+		}
 	} :: ScrollingFrame
 
 	-- Responsive grid update function
@@ -67,7 +111,7 @@ function SearchResultsFrame(
 
 		-- Calculate the total cell width including padding
 		local cellWidth = CONFIG.MIN_CELL_SIZE.X + CONFIG.CELL_PADDING_X
-		local canvasWidth = searchResultsFrame.AbsoluteSize.X - searchResultsFrame.ScrollBarThickness
+		local canvasWidth = inspectFrame.AbsoluteSize.X - inspectFrame.ScrollBarThickness
 
 		-- Prevent division by zero
 		if canvasWidth <= 0 then return end
@@ -91,12 +135,12 @@ function SearchResultsFrame(
 	end
 
 	-- Connect to size changes for responsive behavior
-	searchResultsFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateResponsiveGrid)
+	inspectFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateResponsiveGrid)
 
 	-- Initial update
 	task.defer(updateResponsiveGrid)
 
-	return searchResultsFrame
+	return inspectFrame
 end
 
-return SearchResultsFrame
+return InspectFrame

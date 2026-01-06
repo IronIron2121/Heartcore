@@ -27,14 +27,11 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
 local ThemeText = scope:Value("Loading...")
-
 ThemeLabel:GetPropertyChangedSignal("Text"):Connect(function()
     ThemeText:set("Today's Fit Check theme: <font color=\"rgb(89, 247, 128)\">" .. ThemeLabel.Text .. "</font>")
 end)
 	
 local TimeText = scope:Value("Loading...")
-
-
 local function updateTimeText(newText: string)
     TimeText:set(newText)
 end
@@ -133,7 +130,7 @@ local function SubmissionThemeBar()
         
                     scope:New "TextLabel" {
                         Name = "Timer",
-                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
+                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
                         Text = TimeText,
                         Size = UDim2.fromScale(0.1,1),
                         TextScaled = true,

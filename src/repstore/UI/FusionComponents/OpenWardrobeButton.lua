@@ -11,6 +11,7 @@ local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 -- Modules
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local MODAL_NAMES = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
+local WardrobeGuiState = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.WardrobeGuiState)
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
@@ -40,6 +41,8 @@ local function OpenWardrobeButton(
 		if GuiManager.IsCentreActive() then
 			GuiManager.PopCentre()
 		else
+			-- We do this here rather than in the close button because otherwise players see the view change for a split second before the closing animation finishes
+			WardrobeGuiState.ResetView()
 			GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
 		end
 	end
