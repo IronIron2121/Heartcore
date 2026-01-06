@@ -10,7 +10,6 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Voting = ServerScriptService:WaitForChild("Voting")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local centralPond = workspace:WaitForChild("centralPond")
-local submissionZone = workspace:WaitForChild("submissionZone")
 
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
@@ -56,9 +55,6 @@ local function updateSubmissionThemeBillboard()
         end)
     end
 end
-
-
-
 
 local function getRolloverLockStore()
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
