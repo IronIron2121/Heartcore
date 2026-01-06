@@ -13,9 +13,9 @@ local Players           = game:GetService("Players")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
+local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
-local Constants = require(ReplicatedStorage.Constants)
 local Types         = require(Utility.Types)
 
 -- Fusion
@@ -25,6 +25,10 @@ local peek          = Fusion.peek
 type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
 type Computed<T>    = Fusion.Computed<T>
+
+-- Bindables
+local HideAllPromptsBindable = BindablesFolder:WaitForChild("HideAllPromptsBindable")
+local ShowAllPromptsBindable = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -160,6 +164,7 @@ function GuiManager.PushCentreByName(modalName: string): ()
     if #currentModals >= 1 then
         currentModals[#currentModals].Visible = false
     else
+        HideAllPromptsBindable:Fire()
         GuiManager.HideCurrentConfiguration()
     end
 
@@ -186,11 +191,12 @@ function GuiManager.PopCentre(guiObject: GuiObject?): ()
         modals[#modals].Visible = true
         topModal.Visible = false 
     else
-        -- Only show config when stack is empty
+        -- Only show HUD when stack is empty
         -- Hide the popped modal after it slides off-screen
         task.delay(TWEEN_LENGTH, function()
             topModal.Visible = false
         end)
+        ShowAllPromptsBindable:Fire()
         GuiManager.ShowCurrentConfiguration()
     end
 
