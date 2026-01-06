@@ -62,7 +62,7 @@ function CatalogSearchController.new(parentFrame: Frame)
 end
 
 function CatalogSearchController:ChangeCurrentView(newView: string)
-	self.currentView = newView
+	
 end
 
 function CatalogSearchController:Initialise()
