@@ -165,11 +165,12 @@ function FusionDropdown<T>(
 		layoutOrder: UsedAs<number>?,
 		anchorPoint: UsedAs<Vector2>?,
 		placeholder: UsedAs<string>?,
-		searchCallback: () -> ()
+		searchCallback: () -> (),
+		isOpen: UsedAs<boolean>
 	}
 ): Frame
 	local isHovering = scope:Value(false)
-	local isOpen = scope:Value(false)
+	local isOpen = scope:Value(initialValue)
 	local currentDisplay = scope:Value(nil)
 
 	-- Track absolute position for dropdown positioning
@@ -208,33 +209,7 @@ function FusionDropdown<T>(
 		end
 	end)
 
-	-- Watch for isOpen changes and manage display
-	scope:Observer(isOpen):onChange(function()
-		local display = peek(currentDisplay)
-		local open = peek(isOpen)
 
-		if open and not display then
-			-- Create new display
-			local newDisplay = createDropdownDisplay(
-				scope,
-				props.options,
-				dropdownPosition,
-				function(selectedOption)
-					if selectedOption then
-						props.selectedValue:set(selectedOption)
-					end
-					isOpen:set(false)
-					props.searchCallback()
-				end
-			)
-			newDisplay.Parent = playerGui
-			currentDisplay:set(newDisplay)
-		elseif not open and display then
-			-- Destroy existing display
-			display:Destroy()
-			currentDisplay:set(nil)
-		end
-	end)
 
 	-- Toggle dropdown function
 	local function toggleDropdown()
@@ -317,6 +292,34 @@ function FusionDropdown<T>(
 			},
 		}
 	} :: Frame
+
+	-- Watch for isOpen changes and manage display
+	scope:Observer(isOpen):onChange(function()
+		local display = peek(currentDisplay)
+		local open = peek(isOpen)
+
+		if open and not display then
+			-- Create new display
+			local newDisplay = createDropdownDisplay(
+				scope,
+				props.options,
+				dropdownPosition,
+				function(selectedOption)
+					if selectedOption then
+						props.selectedValue:set(selectedOption)
+					end
+					isOpen:set(false)
+					props.searchCallback()
+				end
+			)
+			newDisplay.Parent = playerGui
+			currentDisplay:set(newDisplay)
+		elseif not open and display then
+			-- Destroy existing display
+			display:Destroy()
+			currentDisplay:set(nil)
+		end
+	end)
 
 	return dropdownFrame
 end

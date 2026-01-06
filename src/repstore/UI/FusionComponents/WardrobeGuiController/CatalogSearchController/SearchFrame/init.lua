@@ -52,7 +52,6 @@ function SearchFrame(
 	}
 ): (Frame, ScrollingFrame)
 	local searchResultsFrame = SearchResultsFrame(scope) :: ScrollingFrame
-
 	local canvasPositionObserver = searchResultsFrame:GetPropertyChangedSignal("CanvasPosition")
 
     canvasPositionObserver:Connect(function()
