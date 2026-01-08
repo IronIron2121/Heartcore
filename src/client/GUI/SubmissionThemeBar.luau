@@ -32,6 +32,7 @@ ThemeLabel:GetPropertyChangedSignal("Text"):Connect(function()
 end)
 	
 local TimeText = scope:Value("Loading...")
+
 local function updateTimeText(newText: string)
     TimeText:set(newText)
 end

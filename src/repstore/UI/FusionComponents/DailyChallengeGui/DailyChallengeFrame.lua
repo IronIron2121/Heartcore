@@ -5,12 +5,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility           = ReplicatedStorage:WaitForChild("Utility")
-local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
 local UI                = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents  = UI:WaitForChild("FusionComponents")
 local Widgets           = FusionComponents:WaitForChild("Widgets")
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
-local ImageUris         = require(DataTables:WaitForChild("ImageUris"))
 local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
