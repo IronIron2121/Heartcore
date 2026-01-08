@@ -40,11 +40,6 @@ EditorsPick.ids = {
     },
 
     {
-        id = 68401381314613,
-        itemType = Enum.AvatarItemType.Asset
-    },
-
-    {
         id = 592, -- Davy Bazooka
         itemType = Enum.AvatarItemType.Bundle
     },

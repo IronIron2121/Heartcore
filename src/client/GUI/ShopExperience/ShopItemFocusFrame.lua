@@ -1,11 +1,10 @@
 --!strict
-
+--[[
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 -- Folders
-local Libraries 	= ReplicatedStorage:WaitForChild("Libraries")
 local DataTables 	= ReplicatedStorage:WaitForChild("DataTables")
 local Bindables 	= ReplicatedStorage:WaitForChild("Bindables") 
 local Remotes 		= ReplicatedStorage:WaitForChild("Remotes")
@@ -13,7 +12,6 @@ local Utility 		= ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
 local BuyableShopItems = require(DataTables:WaitForChild("BuyableShopItems"))
-local ModalManager = require(Libraries:WaitForChild("ModalManager"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local ShopGuiFsm  = require(Utility:WaitForChild("ShopGuiFSM"))
 
@@ -116,3 +114,4 @@ end
 initialise()
 
 PlayerClickedShopItemThumbnailAsync.Event:Connect(update)
+]]

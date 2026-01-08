@@ -1,3 +1,4 @@
+--[[
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -80,3 +81,4 @@ end
 closeButton.Activated:Connect(onCloseButtonActivated)
 CloseColoursBindable.Event:Connect(dePopulateColours)
 InitialiseColours.Event:Connect(initialise)
+]]

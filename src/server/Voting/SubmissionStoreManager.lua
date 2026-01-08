@@ -47,10 +47,8 @@ local REUPDATE_THEME_WAIT_TIME = 5
 local SubmissionStoreManager = {}
 
 local function updateSubmissionThemeBillboard()
-    print("Getting theme name...")
     local themeName = ThemeManager.getCurrentThemeName()
     SubmissionThemeTextLabel.Text = themeName
-    print("Updating theme", SubmissionThemeTextLabel.Text, themeName)
     if themeName == "Loading..." then
         warn("Failed to get theme name - trying again...")
         task.wait(REUPDATE_THEME_WAIT_TIME)

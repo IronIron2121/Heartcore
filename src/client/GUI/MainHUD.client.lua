@@ -1,7 +1,7 @@
 --[[
 	Contains functionality for player HUD gui
 ]]
-
+--[[
 -- Services
 local Players 			= game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -87,13 +87,11 @@ local function onGoToShopButtonPressed()
 end
 
 
---[[
 
 PlayerEnteredOwnShopAsync.OnClientEvent:Connect(onPlayerEnteredOwnShop)
 PlayerExitedShopAsync.OnClientEvent:Connect(onPlayerExitedShop)
 GoToShopButton.Activated:Connect(onGoToShopButtonPressed)
 
-]]
 
 
 -- --- Vote button ---
@@ -104,4 +102,4 @@ GoToShopButton.Activated:Connect(onGoToShopButtonPressed)
 --  voteButton.MouseButton1Click:Connect(function()
 --  	VotingClientManager.onVotePromptActivated()
 --  end) 
-
+]]

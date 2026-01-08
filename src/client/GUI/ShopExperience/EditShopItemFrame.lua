@@ -1,4 +1,4 @@
-
+--[[
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -51,3 +51,4 @@ RepositionButton.Activated:Connect(onRepositionButtonActivated)
 DuplicateButton.Activated:Connect(onDuplicateButtonActivated)
 RecolourButton.Activated:Connect(onRecolourButtonActivated)
 DeleteButton.Activated:Connect(onDeleteButtonActivated)
+]]
