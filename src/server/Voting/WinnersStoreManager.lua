@@ -157,13 +157,12 @@ function WinnersStoreManager.updateTopTwentyLeaderboard()
 
         if not success then
             warn("Failed to get username for userId:", currentEntryId)
-            continue
         end
 
         local newLabel = Instance.new("TextLabel")
         newLabel.Parent = leaderboardFrame
         newLabel.LayoutOrder = i
-        newLabel.Text = i .. ". " .. playerName
+        newLabel.Text = i .. ". " .. (success and playerName or "Player " .. tostring(i))
         -- newLabel.Text = i .. ". " .. playerName .. " - " .. currentEntry.votes .. " votes"
         newLabel.Size = UDim2.new(1, 0, 0, 30)
         newLabel.BackgroundTransparency = 1
