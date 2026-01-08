@@ -107,10 +107,6 @@ function FusionItemTile(
 			warn("leaving frame")
 		end,
 
-		[OnEvent "InputBegan"] = function(input: InputObject)
-			warn("input bega item frame", input.KeyCode.Name)
-		end,
-
 		[OnEvent "TouchTap"] = function(touchPositions)
 			warn("tap began", touchPositions) 
 		end,
@@ -165,6 +161,7 @@ function FusionItemTile(
 				Interactable = true,
 				
 				[OnEvent "MouseEnter"] = function()
+					warn("Mouse entered")
 					isHovering:set(true)
 				end,
 				
@@ -173,11 +170,17 @@ function FusionItemTile(
 				end,
 
 				[OnEvent "MouseButton1Click"] = function()
-					--toggleActivationCallback()
+					toggleActivationCallback()
 				end,
 
 				[OnEvent "InputBegan"] = function(input: InputObject)
+					--toggleActivationCallback()
+				end,
+
+
+				[OnEvent "TouchTap"] = function(touchPositions)
 					toggleActivationCallback()
+					warn("tap began", touchPositions) 
 				end,
 				
 				[Children] = {
