@@ -1,5 +1,6 @@
 --!strict
 
+--[[
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -21,3 +22,4 @@ local function playerClickedCloseShopButton(player : Player)
 end
 
 CloseShopButtonClickedAsync.OnServerEvent:Connect(playerClickedCloseShopButton)
+]]
