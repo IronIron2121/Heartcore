@@ -1,15 +1,7 @@
 -- CacheBasedBalancedSelector.lua
 -- Uses VotingStoreManager's public cache to build selection buckets
 
--- Services
-local ServerScriptService = game:GetService("ServerScriptService")
-
--- Folders
-local Voting = ServerScriptService:WaitForChild("Voting")
-
---
 local PlayerVotedOutfitsTracker = require(script.Parent.PlayerVotedOutfitsTracker)
-local PlayerOutedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
 --
 
 local CacheBasedBalancedSelector = {}
@@ -219,14 +211,12 @@ function CacheBasedBalancedSelector:selectFromBucket(bucket, player: Player)
     local availableOutfits = {}
     for _, outfit in ipairs(outfits) do
         if outfit.userId ~= player.UserId and not PlayerVotedOutfitsTracker.HasPlayerVotedOutfit(player, outfit.userId) then
-            warn("Inserting available outfit!")
             table.insert(availableOutfits, outfit)
         end
     end
     
     -- If no outfits (only player's own outfit), return nil
     if #availableOutfits == 0 then
-        warn("No available outfits!")
         return nil
     end
     

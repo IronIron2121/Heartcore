@@ -116,13 +116,6 @@ function ChallengeManager.IncrementTrackerStat(player: Player, trackerKey: strin
     local oldValue = profile.Data.ChallengeProgressTracker[trackerKey] or 0
     profile.Data.ChallengeProgressTracker[trackerKey] = oldValue + amount
     
-    print(string.format(
-        "%s: %s = %d",
-        player.Name,
-        trackerKey,
-        profile.Data.ChallengeProgressTracker[trackerKey]
-    ))
-    
     -- Notify client of all challenges that use this tracker
     for challengeId, _ in pairs(profile.Data.DailyChallenges or {}) do
         local definition = ChallengeDefinitions.GetChallenge(challengeId)
@@ -213,7 +206,6 @@ end
 -- Send challenge update to client
 function ChallengeManager.SendChallengeUpdate(player: Player, challengeId: string, claimed: boolean)
     local progress = ChallengeManager.getChallengeProgress(player, challengeId)
-    warn("Updating", player, "on challenge", challengeId, progress)
 
     UpdateChallengeProgress:FireClient(player, {
         id = challengeId,

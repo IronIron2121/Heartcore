@@ -279,9 +279,12 @@ end
 local function getAllEntriesFromSubmissionStore(storeName: string): {[string]: any}
 	local entries = {}
 	
+
 	local success, store = callWithRetry(function()
 		return MemoryStoreService:GetSortedMap(storeName)
 	end, 3)
+
+
 	
 	if not success or not store then
 		--warn("Failed to get submission store:", storeName)
@@ -297,6 +300,9 @@ local function getAllEntriesFromSubmissionStore(storeName: string): {[string]: a
 		return entries
 	end
 	
+	warn("GETTING ENTRIES FROM SUB STORE")
+	warn("GETTING ENTRIES FROM SUB STORE")
+	warn("GETTING ENTRIES FROM SUB STORE")
 	for _, item in ipairs(items) do
 		entries[item.key] = item.value
 	end
@@ -393,8 +399,6 @@ function VotingStoreManager.loadCacheFromCurrentStore()
 	
 	-- Update the public cache
 	publicCache = newCache
-	
-	--print("Loaded", totalEntries, "entries from", currentActiveStoreName)
 	
 	-- Rebuild selection buckets
 	local rebuildSuccess = balancedSelector:onCacheUpdated(publicCache)
@@ -512,11 +516,11 @@ function VotingStoreManager.flushPendingUpdates(): ()
 	for entryKey, updates in pairs(updatesToFlush) do
 		if updates.votes ~= 0 or updates.views ~= 0 then
 			local success = callWithRetry(function()
-				return currentActiveStore:UpdateAsync(entryKey, function(oldValue)
-					if oldValue then
-						oldValue.votes = (oldValue.votes or 0) + updates.votes
+				return currentActiveStore:UpdateAsync(entryKey, function(oldValue: {userId: number, humDesc: {}, views: number}, votes: number)
+					if oldValue and votes then
+        				local newVotes = (votes or 0) + updates.votes
 						oldValue.views = (oldValue.views or 0) + updates.views
-						return oldValue
+						return oldValue, newVotes
 					else
 						--warn("Entry not found during flush:", entryKey)
 						return nil

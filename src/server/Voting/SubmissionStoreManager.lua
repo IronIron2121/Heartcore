@@ -479,14 +479,13 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
     -- TODO: We should probably add a cooldown for adding an outfit here
     if isRolloverLockActive() then
         warn("Rollover in progress for player " .. player.Name .. ", adding to cache instead")
-        SubmissionStoreManager:AddEntryToCache(player, serialisedHumanoidDescription)
         SubmissionResultRE:FireClient(player, {
             ok = false,
             msg = "Outfit failed to submit! Roll-over in progress"
         })
         return false
     end
-    warn("Adding outfit to sub store")
+
     local currentSubmissionsMemoryStore = self.getCurrentSubmissionMemoryStore()
     if not currentSubmissionsMemoryStore then 
         warn("Failed to get submissions memory store") 
@@ -503,11 +502,10 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             {
                 userId = player.UserId,
                 humanoidDescription = serialisedHumanoidDescription,
-                votes = 0,
                 views = 0,
             },
             Constants.MEMORYSTORE_STORE_DURATION,
-            DateTime.now().UnixTimestamp
+            0 -- This will hold votes, and is being used as the sort key
         )
     end, 3)
 

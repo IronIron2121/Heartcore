@@ -1,4 +1,5 @@
 --!strict
+--[[
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -12,7 +13,6 @@ local Trackers = ReplicatedStorage:WaitForChild("Trackers")
 local PlayerTracker = require(Trackers:WaitForChild("PlayerTracker"))
 local Types = require(Utility:WaitForChild("Types"))
 
-
 local function getPlayerDetails(player : Player) : Types.PlayerDetails
 	return PlayerTracker.getPlayerDetails(player)
 end
@@ -22,3 +22,4 @@ local function testReturn()
 end
 
 getPlayerDetailsRemote.OnServerInvoke = getPlayerDetails
+]]
