@@ -5,6 +5,8 @@
 	an item icon. When clicked, it adds an accessory to a mannequin
 --]]
 
+
+--[[
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -23,7 +25,6 @@ local localPlayer = Players.LocalPlayer
 
 -- Module Scripts
 local doesMannequinHaveAssetEquipped = require(CheckersFolder:WaitForChild("doesMannequinHaveAssetEquipped"))
-local getRecentMannequinId = require(GettersFolder:WaitForChild("getRecentMannequinId"))
 local ItemContainer = require(UtilityFolder:WaitForChild("ItemContainer"))
 local getItemIcon = require(UtilityFolder:WaitForChild("getItemIcon"))
 
@@ -72,3 +73,4 @@ local function EquipButton(itemId: number, itemType: Enum.MarketplaceProductType
 end
 
 return EquipButton
+]]

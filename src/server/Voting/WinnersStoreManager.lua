@@ -157,13 +157,12 @@ function WinnersStoreManager.updateTopTwentyLeaderboard()
 
         if not success then
             warn("Failed to get username for userId:", currentEntryId)
-            continue
         end
 
         local newLabel = Instance.new("TextLabel")
         newLabel.Parent = leaderboardFrame
         newLabel.LayoutOrder = i
-        newLabel.Text = i .. ". " .. playerName
+        newLabel.Text = i .. ". " .. (success and playerName or "Player " .. tostring(i))
         -- newLabel.Text = i .. ". " .. playerName .. " - " .. currentEntry.votes .. " votes"
         newLabel.Size = UDim2.new(1, 0, 0, 30)
         newLabel.BackgroundTransparency = 1
@@ -250,7 +249,7 @@ end
 local function getTopEntriesFromStore(storeName: string, topN: number): {{}}
     local topEntries = {}
     
-    local success, store = callWithRetry(function()
+    local success: boolean, store: MemoryStoreSortedMap? = callWithRetry(function()
         return MemoryStoreService:GetSortedMap(storeName)
     end, 3)
     
@@ -261,7 +260,7 @@ local function getTopEntriesFromStore(storeName: string, topN: number): {{}}
     
     -- GetRangeAsync doesn't sort by votes, so we need to get all and sort manually
     local rangeSuccess, items = callWithRetry(function()
-        return store:GetRangeAsync(Enum.SortDirection.Ascending, 200)
+        return store:GetRangeAsync(Enum.SortDirection.Descending, 5)
     end, 3)
     
     if not rangeSuccess or not items then
@@ -276,7 +275,7 @@ local function getTopEntriesFromStore(storeName: string, topN: number): {{}}
             key = item.key,
             userId = item.value.userId,
             humanoidDescription = item.value.humanoidDescription,
-            votes = item.value.votes or 0,
+            votes = item.sortKey or 0,
             views = item.value.views or 0
         })
     end
@@ -349,7 +348,7 @@ function WinnersStoreManager.setNewWinners()
     local erePreviousPrefix = GameTimer.getErePreviousPhasePrefix()
     
     if not erePreviousPrefix then
-        warn("No ereyesterday phase available yet - cannot determine winners")
+        print("No ereyesterday phase available yet - cannot determine winners")
         return false
     end
     

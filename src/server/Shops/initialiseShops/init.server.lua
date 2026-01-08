@@ -5,6 +5,7 @@
 
 	This is disabled until we integrate this into the main game
 ]]
+--[[
 -- Services
 local ReplicatedStorage   		= game:GetService("ReplicatedStorage")
 local DataStoreService 	  		= game:GetService("DataStoreService")
@@ -57,3 +58,4 @@ local function initialise()
 end
 
 --initialise()
+]]
