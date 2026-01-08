@@ -41,7 +41,6 @@ end
 
 local function onGetActiveChallenges(player: Player)
     local challenges = ChallengeManager.GetActiveChallenges(player)
-    warn("Returning", #challenges, "challenges to", player.Name)
 
     return challenges
 end

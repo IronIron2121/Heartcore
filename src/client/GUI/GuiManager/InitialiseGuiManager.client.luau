@@ -92,8 +92,8 @@ local function InitialiseModals()
 end
 
 local function initialiseGuiManager()
-    InitialiseHuds()
     InitialiseModals()
+    InitialiseHuds()
     GuiManager.SetLoaded()
 end
 

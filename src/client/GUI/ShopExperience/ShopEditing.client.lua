@@ -1,5 +1,6 @@
 --!strict
 
+--[[
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -83,3 +84,4 @@ editShopButton.Activated:Connect(onEditButtonClicked)
 
 EditFurnitureFrame.MouseEnter:Connect(enterEditGui)
 EditFurnitureFrame.MouseLeave:Connect(exitEditGui) 
+]]

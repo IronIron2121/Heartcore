@@ -34,7 +34,6 @@ local currentTheme = nil -- Theme for the voting phase (yesterday's theme)
 local currentActiveStore = nil -- The ONE store this server is currently working with
 local currentActiveStoreName = "" -- Name of that store
 local STORE_ROTATION_INTERVAL = 600 -- 10 minutes
-local STORE_ROTATION_INTERVAL = 60 -- 10 minutes
 
 -- Caching variables
 local pendingUpdates = {} -- {entryKey = {votes = 0, views = 0}}
@@ -312,7 +311,6 @@ end
 
 -- Pick a random store and load it into cache
 function VotingStoreManager.rotateStore()
-	warn("ROTATING_STORE")
 	if not activeVotingPhasePrefix then
 		warn("No active voting phase set, cannot rotate store")
 		return
@@ -327,7 +325,6 @@ function VotingStoreManager.rotateStore()
 	local storeNames = getSubmissionStoreNames(activeVotingPhasePrefix)
 	
 	if #storeNames == 0 then
-		warn("No submission stores available for phase:", activeVotingPhasePrefix)
 		return
 	end
 	
@@ -335,8 +332,6 @@ function VotingStoreManager.rotateStore()
 	local randomIndex = math.random(1, #storeNames)
 	local selectedStoreName = storeNames[randomIndex]
 
-	print(storeNames)
-	warn("Rotating to store ", selectedStoreName)	
 	-- Get the store
 	local success, store = callWithRetry(function()
 		return MemoryStoreService:GetSortedMap(selectedStoreName)
@@ -400,7 +395,7 @@ function VotingStoreManager.loadCacheFromCurrentStore()
 	-- Update the public cache
 	publicCache = newCache
 	
-	-- Rebuild selection buckets
+	-- Rebuild selection buckets TODO: What is this meant to do??
 	local rebuildSuccess = balancedSelector:onCacheUpdated(publicCache)
 	
 	isCacheUpdating = false

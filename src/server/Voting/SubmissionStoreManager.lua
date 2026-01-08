@@ -47,10 +47,8 @@ local REUPDATE_THEME_WAIT_TIME = 5
 local SubmissionStoreManager = {}
 
 local function updateSubmissionThemeBillboard()
-    print("Getting theme name...")
     local themeName = ThemeManager.getCurrentThemeName()
     SubmissionThemeTextLabel.Text = themeName
-    print("Updating theme", SubmissionThemeTextLabel.Text, themeName)
     if themeName == "Loading..." then
         warn("Failed to get theme name - trying again...")
         task.wait(REUPDATE_THEME_WAIT_TIME)
@@ -537,17 +535,12 @@ end
 
 -- Phase transition handler - called when the day changes
 function SubmissionStoreManager.onPhaseTransition()
-    print("SubmissionStoreManager handling phase transition...")
-    
     -- Update the submission billboard with new theme
     updateSubmissionThemeBillboard() 
-    
-    print("Submission billboard updated with new theme")
 end
 
 -- Phase transition handler - called when the day changes
 function SubmissionStoreManager.onThemeTransition()
-    print("Updating after theme transition")
     -- Update the submission billboard with new theme
     updateSubmissionThemeBillboard() 
 end
