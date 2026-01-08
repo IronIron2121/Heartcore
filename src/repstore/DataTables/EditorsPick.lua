@@ -77,7 +77,6 @@ function EditorsPick.initialiseItemDetails()
             warn(success, itemDetails)
         end
     end
-    print("Editor's pick item details initialised")
 end
 
 return EditorsPick

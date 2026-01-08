@@ -67,7 +67,6 @@ local function DailyChallengeFrame(
     
     -- Load challenges on open
     local function loadChallenges()
-        warn("Loading challenges")
         local activeChallenges = GetActiveChallenges:InvokeServer()
         challenges:set(activeChallenges or {})
     end

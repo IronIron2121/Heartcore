@@ -161,7 +161,6 @@ function ThemeManager.getErePreviousPhaseTheme(): {}?
 end
 
 local function createAndStoreNewTheme(): boolean
-    print("Creating new theme for current phase...")
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
     
     if not currentPrefix then
@@ -191,7 +190,6 @@ local function createAndStoreNewTheme(): boolean
     if success then
         currentThemeCache = newTheme
         ThemeChangedRemote:FireAllClients(newTheme)
-        print("Created and stored new theme:", newTheme.theme, "for phase:", currentPrefix)
         return true
     else
         warn("Failed to store new theme")
@@ -200,7 +198,6 @@ local function createAndStoreNewTheme(): boolean
 end
 
 local function loadCurrentTheme(): boolean
-    print("Loading current phase theme...")
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
     
     if not currentPrefix then
@@ -227,18 +224,15 @@ local function loadCurrentTheme(): boolean
     end
     
     if not themeData or not themeData.theme then
-        print("No existing theme found for current phase, creating new one...")
         return createAndStoreNewTheme()
     else
         currentThemeCache = themeData
         ThemeChangedRemote:FireAllClients(themeData)
-        print("Loaded existing theme:", themeData.theme, "for phase:", currentPrefix)
         return true
     end
 end
 
 local function loadPreviousTheme(): ()
-    print("Loading previous phase theme...")
     local previousPrefix = GameTimer.getPreviousPhasePrefix()
     
     if not previousPrefix then
@@ -250,7 +244,6 @@ local function loadPreviousTheme(): ()
     local themeData = ThemeManager.getThemeForPhase(previousPrefix)
     if themeData then
         previousThemeCache = themeData
-        print("Loaded previous theme:", themeData.theme, "for phase:", previousPrefix)
     else
         warn("Failed to load previous theme")
         previousThemeCache = nil
@@ -258,11 +251,9 @@ local function loadPreviousTheme(): ()
 end
 
 local function loadErePreviousTheme(): ()
-    print("Loading ere-previous phase theme...")
     local erePrefix = GameTimer.getErePreviousPhasePrefix()
     
     if not erePrefix then
-        warn("No ere-previous phase prefix available")
         erePreviousThemeCache = nil
         return
     end
@@ -270,7 +261,6 @@ local function loadErePreviousTheme(): ()
     local themeData = ThemeManager.getThemeForPhase(erePrefix)
     if themeData then
         erePreviousThemeCache = themeData
-        print("Loaded ere-previous theme:", themeData.theme, "for phase:", erePrefix)
     else
         warn("Failed to load ere-previous theme")
         erePreviousThemeCache = nil
@@ -279,8 +269,6 @@ end
 
 -- Called when phase transitions (24-hour cycle)
 function ThemeManager.onPhaseTransition()
-    print("ThemeManager handling phase transition...")
-    
     -- Create and store new theme for the new phase
     local success = createAndStoreNewTheme()
     

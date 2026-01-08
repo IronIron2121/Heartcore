@@ -28,7 +28,6 @@ end
 
 -- Initialize challenges for a player (called on join or daily reset)
 function ChallengeManager.InitialiseChallenges(player: Player)
-    warn("Initialising challenges!")
     local profile = DataManager.Profiles[player]
     if not profile then
         warn("No profile found for player:", player.Name)

@@ -177,7 +177,7 @@ end
 function WinnersStoreManager.updateWinnersPodiums()
     local currentWinners = WinnersStoreManager.getCurrentWinners()
     if not currentWinners then 
-        warn("Error when loading current winners!")
+        print("No current winners")
         return false
     end
 
@@ -222,7 +222,6 @@ local function getSubmissionStoreNames(phasePrefix: string): {string}
     end, 3)
     
     if not success or not infoStore then
-        warn("Could not get voted store for phase:", phasePrefix)
         return storeNames
     end
     
@@ -231,7 +230,6 @@ local function getSubmissionStoreNames(phasePrefix: string): {string}
     end, 3)
     
     if not infoSuccess or not info then
-        warn("Could not get voted info for phase:", phasePrefix)
         return storeNames
     end
     
@@ -241,7 +239,6 @@ local function getSubmissionStoreNames(phasePrefix: string): {string}
         table.insert(storeNames, storeName)
     end
     
-    print("Found", #storeNames, "submission stores for phase:", phasePrefix)
     return storeNames
 end
 
@@ -294,8 +291,6 @@ local function getTopEntriesFromStore(storeName: string, topN: number): {{}}
 end
 
 function WinnersStoreManager.initialise()
-    print("Initializing WinnersStoreManager...")
-    
     -- Update displays with error handling using pcall
     local podiumSuccess, podiumError = pcall(function()
         WinnersStoreManager.updateWinnersPodiums()
@@ -320,8 +315,6 @@ function WinnersStoreManager.initialise()
         WinnersStoreManager.resetWinners()
         return false
     end
-    
-    print("WinnersStoreManager initialized successfully")
     return true
 end
 
