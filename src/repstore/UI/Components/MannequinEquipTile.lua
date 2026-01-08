@@ -5,6 +5,8 @@
 	displays the item name, icon, and price, and allows the user to equip any accessory to a mannequin instantly.
 --]]
 
+--[[
+
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -62,3 +64,4 @@ local function MannequinEquipTile(itemDetails: Types.AssetDetails | Types.Bundle
 end
 
 return MannequinEquipTile
+]]
