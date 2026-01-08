@@ -68,7 +68,6 @@ local function initialiseVoteGui()
         while true do
             task.wait(1)
             updateTimeText(TimeLabel.Text)
-			--VotingClientManager.updateTimeText(TimeLabel.Text)
         end
     end)
 
@@ -76,7 +75,6 @@ local function initialiseVoteGui()
         VoteGuiVisible = VoteGuiVisible, 
         TimeText = TimeText
     })
-	--VotingClientManager.initialiseVotingGui()
 end 
 
 initialiseVoteGui()
