@@ -18,6 +18,7 @@ local Data = ServerScriptService:WaitForChild("Data")
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
 local SubmissionResultRF = Remotes:WaitForChild("SubmissionResultRF")
+local RolloverSubStore = Remotes:WaitForChild("RolloverSubStore")
 local PhaseChanged = Bindables:WaitForChild("PhaseChanged") 
 
 -- Modules
@@ -36,12 +37,10 @@ local SubmissionPad = submissionZone:WaitForChild("SubmissionPad")
 
 -- Fusion
 local scope = Fusion:scoped()
-local peek = Fusion.peek
 local OnEvent = Fusion.OnEvent
 
 local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
 local promptEnabled = scope:Value(true)
-local isSubmitting = scope:Value(false)
 
 local function onPhaseTransition()
 	SubmissionStoreManager.onPhaseTransition()
@@ -88,15 +87,6 @@ local function onOutfitSubmitted(player: Player)
 		return 
 	end
 
-	if not canPlayerSubmit(player) then
-		SubmissionResultRE:FireClient(player, { 
-			ok = false, 
-			msg = "You've already submitted this phase. Try again tomorrow!"
-		})
-
-		warn("can't submit rn!!!")
-		return 
-	end
 
 	-- Get humanoid description
 	local humanoidDescription = getHumanoidDescriptionFromPlayer(player)
@@ -137,3 +127,6 @@ local prompt = scope:New "ProximityPrompt" {
 
 SubmissionResultRF.OnServerInvoke = canPlayerSubmit
 PhaseChanged.Event:Connect(onPhaseTransition)
+RolloverSubStore.OnServerEvent:Connect(function(player)
+	SubmissionStoreManager.incrementIndex()
+end)

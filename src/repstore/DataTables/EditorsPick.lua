@@ -37,7 +37,33 @@ EditorsPick.ids = {
     {
         id = 191101707, -- flaming mohawk
         itemType = Enum.AvatarItemType.Asset
-    }
+    },
+
+    {
+        id = 68401381314613,
+        itemType = Enum.AvatarItemType.Asset
+    },
+
+    {
+        id = 592, -- Davy Bazooka
+        itemType = Enum.AvatarItemType.Bundle
+    },
+
+    {
+        id = 390970950, -- Paper Tix Hat
+        itemType = Enum.AvatarItemType.Asset
+    },
+
+    {
+        id = 21025037, -- Wintertime R&R&R
+        itemType = Enum.AvatarItemType.Asset
+    },
+
+    {
+        id = 1567446, -- Verified Sign
+        itemType = Enum.AvatarItemType.Asset
+    },
+
 }
 
 EditorsPick.itemDetails = {}

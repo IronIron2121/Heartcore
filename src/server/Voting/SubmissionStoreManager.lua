@@ -215,6 +215,7 @@ function SubmissionStoreManager.initialiseNewSubmissionStore()
 end
 
 function SubmissionStoreManager.incrementIndex(): boolean
+    warn("Beginning roll-over")
     local currentPrefix = GameTimer.getCurrentPhasePrefix()
     if not currentPrefix then 
         warn("No current prefix!")
@@ -232,7 +233,7 @@ function SubmissionStoreManager.incrementIndex(): boolean
     local currentTheme = ThemeManager.getCurrentTheme()
     local themeName = currentTheme and currentTheme.theme or "Unknown"
 
-    local success, result = callWithRetry(
+    local success: boolean, result: MemoryStoreSortedMap? = callWithRetry(
         function()
             return MemoryStoreService:GetSortedMap(currentPrefix .. Constants.SUBMISSION_INFO_MEMORYSTORE_NAME)
         end
@@ -254,6 +255,7 @@ function SubmissionStoreManager.incrementIndex(): boolean
                     theme = themeName
                 }
 
+                if not infoTable.currentStoreNumber then infoTable.currentStoreNumber = 1 end
                 infoTable.currentStoreNumber = tonumber(infoTable.currentStoreNumber) + 1
                 infoTable.storeSubmissionCount = 0
                 infoTable.lastUpdated = DateTime.now().UnixTimestamp
@@ -261,7 +263,7 @@ function SubmissionStoreManager.incrementIndex(): boolean
                 infoTable.theme = themeName
 
                 return infoTable
-            end)
+            end, Constants.MEMORYSTORE_STORE_DURATION)
         end, 3)
         
         releaseRolloverLock()
@@ -269,6 +271,8 @@ function SubmissionStoreManager.incrementIndex(): boolean
         if infoSuccess and info then
             print("Successfully rolled over to submission store #" .. info.currentStoreNumber .. " with theme:", themeName)
             return true
+        else
+            warn("FAILED to roll-over - infoSuccess and info == ", infoSuccess, info)
         end
     end
     
@@ -281,6 +285,8 @@ function SubmissionStoreManager.getCurrentMemoryStoreName(): string?
     local currentIndex = getCurrentMemoryStoreIndex()
     
     if currentPrefix and currentIndex then
+        warn("Getting memorystore name with index: ", currentIndex)
+        warn(currentPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME .. currentIndex)
         return currentPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME .. currentIndex
     else
         warn("Failed to get name!", currentPrefix, currentIndex)
@@ -434,7 +440,6 @@ function SubmissionStoreManager.startPeriodicFlush(): ()
             end
         end
     end)
-    warn("Done!")
 end
 
 function SubmissionStoreManager.initialise(): () 
@@ -467,6 +472,7 @@ end
 
 function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumanoidDescription: {}): boolean
     -- Check if rollover is happening
+    -- TODO: We should probably add a cooldown for adding an outfit here
     if isRolloverLockActive() then
         warn("Rollover in progress for player " .. player.Name .. ", adding to cache instead")
         SubmissionStoreManager:AddEntryToCache(player, serialisedHumanoidDescription)
@@ -476,7 +482,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         })
         return false
     end
-    
+    warn("Adding outfit to sub store")
     local currentSubmissionsMemoryStore = self.getCurrentSubmissionMemoryStore()
     if not currentSubmissionsMemoryStore then 
         warn("Failed to get submissions memory store") 
@@ -500,6 +506,8 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
             DateTime.now().UnixTimestamp
         )
     end, 3)
+
+    warn("Just submitted for ID", player.UserId)
 
     if success then
         print("Successfully submitted outfit for player:", player.Name)

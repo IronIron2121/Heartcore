@@ -197,7 +197,6 @@ function FusionItemTile(
 						Image = "rbxthumb://type=" .. (props.itemDetails.ItemType == "Asset" and "Asset" or "BundleThumbnail") .. "&id=" .. props.itemDetails.Id .. "&w=420&h=420",
 						ZIndex = 1,
 						Active = false,
-
 					},
 					
 					scope:New "Frame"{
@@ -248,7 +247,7 @@ function FusionItemTile(
 			-- PriceLabel
 			PriceLabel(scope, {
 				layoutOrder = 2,
-				text = props.itemDetails.Price,
+				text = tostring(props.itemDetails.Price),
 			}),
 		}
 	}

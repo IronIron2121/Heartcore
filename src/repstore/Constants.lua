@@ -14,9 +14,9 @@ local Constants = {
 	DEFAULT_ROTATE = 45,	
 
 	-- Voting Constants
-	SUBMISSION_MEMORYSTORE_NAME = "CurrentSubmissionsMemoryStore",
-	CONTEST_MEMORYSTORE_NAME = "CurrentContestMemoryStore",
-	WINNERS_MEMORYSTORE_NAME = "CurrentWinnersMemoryStore",
+	SUBMISSION_MEMORYSTORE_NAME = "CSMS",
+	CONTEST_MEMORYSTORE_NAME = "CCMS",
+	WINNERS_MEMORYSTORE_NAME = "CWMS",
 	THEME_MEMORYSTORE_NAME = "ThemesMemoryStore",
 	CURRENT_WINNERS_KEY = "CurrentWinners",
 	CURRENT_TOP_TWENTY_KEY = "TopTwenty",

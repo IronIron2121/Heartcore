@@ -34,6 +34,7 @@ local currentTheme = nil -- Theme for the voting phase (yesterday's theme)
 local currentActiveStore = nil -- The ONE store this server is currently working with
 local currentActiveStoreName = "" -- Name of that store
 local STORE_ROTATION_INTERVAL = 600 -- 10 minutes
+local STORE_ROTATION_INTERVAL = 60 -- 10 minutes
 
 -- Caching variables
 local pendingUpdates = {} -- {entryKey = {votes = 0, views = 0}}
@@ -220,7 +221,7 @@ function VotingStoreManager.setActiveVotingPhase(phasePrefix: string)
 	if currentTheme then
 		updateVotingThemeBillboard()
 	else
-		--warn("Could not load theme for voting phase:", phasePrefix)
+		warn("Could not load theme for voting phase:", phasePrefix)
 	end
 	
 	-- Pick a random store and load it
@@ -305,8 +306,9 @@ end
 
 -- Pick a random store and load it into cache
 function VotingStoreManager.rotateStore()
+	warn("ROTATING_STORE")
 	if not activeVotingPhasePrefix then
-		--warn("No active voting phase set, cannot rotate store")
+		warn("No active voting phase set, cannot rotate store")
 		return
 	end
 	
@@ -319,21 +321,23 @@ function VotingStoreManager.rotateStore()
 	local storeNames = getSubmissionStoreNames(activeVotingPhasePrefix)
 	
 	if #storeNames == 0 then
-		--warn("No submission stores available for phase:", activeVotingPhasePrefix)
+		warn("No submission stores available for phase:", activeVotingPhasePrefix)
 		return
 	end
 	
 	-- Pick a random store
 	local randomIndex = math.random(1, #storeNames)
 	local selectedStoreName = storeNames[randomIndex]
-	
+
+	print(storeNames)
+	warn("Rotating to store ", selectedStoreName)	
 	-- Get the store
 	local success, store = callWithRetry(function()
 		return MemoryStoreService:GetSortedMap(selectedStoreName)
 	end, 3)
 	
 	if not success or not store then
-		--warn("Failed to get selected store:", selectedStoreName)
+		warn("Failed to get selected store:", selectedStoreName)
 		return
 	end
 	

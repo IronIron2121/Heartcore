@@ -203,20 +203,26 @@ local function onMannequinAdded(mannequin: Model)
 	inspectPrompt:AddTag(Constants.INSPECT_PROMPT_TAG)
 	inspectPrompt.Parent = mannequin.PrimaryPart or mannequin:FindFirstChildOfClass("BasePart")
 
-	setupCustomPromptUI(inspectPrompt, mannequin) -- Cece addition
-	
-	if not inspectPrompt.Parent then
+	local maxTries = 3
+	local tries = 0
+	while not inspectPrompt.Parent and tries < maxTries do
+		tries += 1
+		task.wait(tries)
+
 		local highlight = Instance.new("Highlight")
 		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 		highlight.Enabled = true
 		highlight.FillColor = Color3.new(1,0,0)
 		highlight.Name = "BadMannequin"
 		highlight.Parent = mannequin
-
-		print(mannequin)
-		print(mannequin.Name)
-		assert(inspectPrompt.Parent, "Error: No parent of inspect prompt!")
+		warn("Error: No parent of inspect prompt! Attempt: ", tries)
 	end
+	
+	if not inspectPrompt.Parent then
+		assert(inspectPrompt.Parent, "Failure to add parent to prompt")
+	end
+
+	setupCustomPromptUI(inspectPrompt, mannequin) -- Cece addition
 
 	inspectPrompts[mannequin] = inspectPrompt
 end

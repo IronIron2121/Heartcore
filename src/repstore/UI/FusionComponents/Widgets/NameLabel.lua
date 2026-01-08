@@ -30,7 +30,7 @@ function NameLabel(
 		anchorPoint: UsedAs<Vector2>?,
 		text: UsedAs<string>?,
 		onPurchaseCallback: (() -> ())?,
-		textSize: UsedAs<string>?,
+		textSize: UsedAs<number>?,
 	}
 ): TextButton
 	local nameLabel = scope:New "TextLabel" {
