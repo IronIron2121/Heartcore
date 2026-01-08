@@ -33,12 +33,13 @@ local function createDropdownDisplay(
 	local screenGui = scope:New "ScreenGui" {
 		Name = "DropdownDisplay",
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		IgnoreGuiInset = true,
 
 		[Children] = {
 			-- Input sink (click outside to close)
 			scope:New "TextButton" {
 				Name = "InputSink",
-				Size = UDim2.fromScale(1, 1),
+				Size = UDim2.fromScale(1, 2),
 				BackgroundTransparency = 1,
 				Text = "",
 				ZIndex = 1,
