@@ -295,8 +295,6 @@ end
 
 -- Initialize the theme system
 function ThemeManager.initialise(): boolean
-    print("Initializing ThemeManager...")
-    
     -- Load current theme
     local success = loadCurrentTheme()
     
@@ -309,7 +307,6 @@ function ThemeManager.initialise(): boolean
     loadPreviousTheme()
     loadErePreviousTheme()
     
-    print("ThemeManager initialized successfully")
     return true
 end
 

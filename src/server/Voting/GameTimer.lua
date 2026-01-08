@@ -324,7 +324,6 @@ function GameTimer.initialiseTimer(): ()
             task.wait(CHECK_TIME_LAPSE_INTERVAL)
             
             if currentPhaseHasExpired() then
-                print("Phase has expired, attempting transition...")
                 attemptPhaseTransition()
             end
         end

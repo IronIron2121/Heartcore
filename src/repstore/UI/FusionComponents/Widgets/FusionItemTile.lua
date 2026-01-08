@@ -53,7 +53,6 @@ function FusionItemTile(
 		layoutOrder: number
 	}
 )
-	print(props.itemDetails)
 	local isHovering = scope:Value(false)
 	local isActivated = scope:Value(false)
 
