@@ -70,11 +70,11 @@ function FusionItemTile(
 	end
 
 	local function deactivate(): ()
+		warn("Deactivating!")
 		isActivated:set(false)
 	end
 
 	local function toggleActivationCallback(): ()
-		warn("ACTIVATED")
 		if peek(isActivated) then
 			return
 		end
@@ -102,16 +102,6 @@ function FusionItemTile(
 		BackgroundTransparency = 1,
 		Active = false,
 		LayoutOrder = props.layoutOrder,
-
-		[OnEvent "MouseLeave"] = function()
-			warn("leaving frame")
-		end,
-
-		[OnEvent "TouchTap"] = function(touchPositions)
-			warn("tap began", touchPositions) 
-		end,
-		
-		
 		
 		[Children] = {
 			scope:New "UIListLayout" {
@@ -161,7 +151,6 @@ function FusionItemTile(
 				Interactable = true,
 				
 				[OnEvent "MouseEnter"] = function()
-					warn("Mouse entered")
 					isHovering:set(true)
 				end,
 				
@@ -173,14 +162,8 @@ function FusionItemTile(
 					toggleActivationCallback()
 				end,
 
-				[OnEvent "InputBegan"] = function(input: InputObject)
-					--toggleActivationCallback()
-				end,
-
-
 				[OnEvent "TouchTap"] = function(touchPositions)
 					toggleActivationCallback()
-					warn("tap began", touchPositions) 
 				end,
 				
 				[Children] = {
@@ -212,9 +195,6 @@ function FusionItemTile(
 						Size = UDim2.fromScale(0.9, 0.8),
 						BackgroundTransparency = 1,
 
-						[OnEvent "InputBegan"] = function(input: InputObject)
-							warn("input began buttons frame", input.KeyCode.Name)
-						end,
 
 						[Children] = {
 							scope:New "UIListLayout" {
