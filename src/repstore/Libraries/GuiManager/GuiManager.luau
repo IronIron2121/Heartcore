@@ -95,12 +95,24 @@ local BackgroundBlur = modalScope:New "BlurEffect" {
     Size = modalScope:Tween(blurSize, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
 } :: BlurEffect
 
+local isLoaded = false
+
 local GuiManager = {} 
+
+
+function GuiManager.IsLoaded()
+    return isLoaded
+end
+
+function GuiManager.SetLoaded()
+    isLoaded = true
+end
 
 function GuiManager.DisplayConfiguration(configurationName: string): ()
     if currentConfiguration then
         currentConfiguration:Disable()
     end
+
     local newConfiguration = registeredConfigurations[configurationName]
     currentConfiguration = newConfiguration
     assert(currentConfiguration, "Configuration should not be nil") -- type checker unfortunately redlines if we don't put this here
@@ -149,6 +161,10 @@ function GuiManager.GetRegisteredModal(modalName: string): GuiObject
 end
 
 function GuiManager.PushCentreByName(modalName: string): ()
+    if not isLoaded then 
+        warn("Still initialising GUI!")
+        return
+    end 
     assert(registeredModals[modalName], "Attempt to push modal " .. modalName .. " but no such modal found in registered modals!")
 
     -- Clone to avoid mutating the original table

@@ -73,8 +73,6 @@ local function onSubmissionResult(
             Icon = "rbxassetid://1234567890" 
         })
     end
-
-
     --updateSubmitButton()
 end
 

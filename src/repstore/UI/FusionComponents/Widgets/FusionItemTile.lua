@@ -74,6 +74,7 @@ function FusionItemTile(
 	end
 
 	local function toggleActivationCallback(): ()
+		warn("ACTIVATED")
 		if peek(isActivated) then
 			return
 		end
@@ -105,6 +106,16 @@ function FusionItemTile(
 		[OnEvent "MouseLeave"] = function()
 			warn("leaving frame")
 		end,
+
+		[OnEvent "InputBegan"] = function(input: InputObject)
+			warn("input bega item frame", input.KeyCode.Name)
+		end,
+
+		[OnEvent "TouchTap"] = function(touchPositions)
+			warn("tap began", touchPositions) 
+		end,
+		
+		
 		
 		[Children] = {
 			scope:New "UIListLayout" {
@@ -151,6 +162,7 @@ function FusionItemTile(
 				BackgroundTransparency = 0,
 				ZIndex = 1,
 				Active = true, 
+				Interactable = true,
 				
 				[OnEvent "MouseEnter"] = function()
 					isHovering:set(true)
@@ -161,6 +173,10 @@ function FusionItemTile(
 				end,
 
 				[OnEvent "MouseButton1Click"] = function()
+					--toggleActivationCallback()
+				end,
+
+				[OnEvent "InputBegan"] = function(input: InputObject)
 					toggleActivationCallback()
 				end,
 				
@@ -180,7 +196,7 @@ function FusionItemTile(
 						Size = UDim2.fromScale(1, 1),
 						Image = "rbxthumb://type=" .. (props.itemDetails.ItemType == "Asset" and "Asset" or "BundleThumbnail") .. "&id=" .. props.itemDetails.Id .. "&w=420&h=420",
 						ZIndex = 1,
-						Active = false
+						Active = false,
 					},
 					
 					scope:New "Frame"{
@@ -192,6 +208,10 @@ function FusionItemTile(
 						Position = UDim2.fromScale(0.5, 0.5),
 						Size = UDim2.fromScale(0.9, 0.8),
 						BackgroundTransparency = 1,
+
+						[OnEvent "InputBegan"] = function(input: InputObject)
+							warn("input began buttons frame", input.KeyCode.Name)
+						end,
 
 						[Children] = {
 							scope:New "UIListLayout" {
@@ -227,7 +247,7 @@ function FusionItemTile(
 			-- PriceLabel
 			PriceLabel(scope, {
 				layoutOrder = 2,
-				text = props.itemDetails.Price,
+				text = tostring(props.itemDetails.Price),
 			}),
 		}
 	}

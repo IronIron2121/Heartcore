@@ -133,6 +133,8 @@ function WinnersStoreManager.updateTopTwentyLeaderboard()
     local topTwenty = WinnersStoreManager.getCurrentTopTwenty()
     if not topTwenty then 
         return false
+    else
+        warn("Top twenty == ", topTwenty)
     end
 
     local lengthOfList = #topTwenty
@@ -221,7 +223,7 @@ local function getSubmissionStoreNames(phasePrefix: string): {string}
     end, 3)
     
     if not success or not infoStore then
-        warn("Could not get submission info store for phase:", phasePrefix)
+        warn("Could not get voted store for phase:", phasePrefix)
         return storeNames
     end
     
@@ -230,7 +232,7 @@ local function getSubmissionStoreNames(phasePrefix: string): {string}
     end, 3)
     
     if not infoSuccess or not info then
-        warn("Could not get submission info for phase:", phasePrefix)
+        warn("Could not get voted info for phase:", phasePrefix)
         return storeNames
     end
     
@@ -326,7 +328,7 @@ end
 
 function WinnersStoreManager.resetRig(rig: Model & {Humanoid: Humanoid})
     rig:ScaleTo(1)
-    rig.Humanoid:ApplyDescription(defaultWinnerDescription)
+    rig.Humanoid:ApplyDescriptionResetAsync(defaultWinnerDescription)
     rig:ScaleTo(winnersRigScale) 
 end
 
@@ -366,6 +368,7 @@ function WinnersStoreManager.setNewWinners()
     for _, storeName in ipairs(storeNames) do
         local topFromStore = getTopEntriesFromStore(storeName, 5)
         for _, entry in ipairs(topFromStore) do
+            warn("THIS ENTRY IS", entry)
             table.insert(topCandidates, entry)
         end
     end
@@ -421,6 +424,8 @@ function WinnersStoreManager.setNewWinners()
         end,
         3
     )
+
+    warn("Just set top twenty as, ", topTwenty)
     
     if not success or not twentySuccess then
         warn("Failed to set new winners or top twenty in MemoryStore")

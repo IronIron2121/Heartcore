@@ -142,11 +142,6 @@ function DataManager.ProcessLogin(player: Player)
     local lastLoginDayStart = getDayStart(profile.Data.LastLoginTime or 0)
     local yesterdayStart = getYesterdayStart()
     
-    print("Processing login for:", player.Name)
-    print("Current day start:", currentDayStart)
-    print("Last login day start:", lastLoginDayStart) 
-    print("Yesterday start:", yesterdayStart)
-    
     -- Check if they've already logged in today
     if lastLoginDayStart == currentDayStart then
         print("Player already logged in today")

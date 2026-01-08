@@ -26,7 +26,7 @@ local function initialiseCatalogConsole(ConsoleBase: BasePart)
         consolePrompt.HoldDuration = 0
         consolePrompt.Enabled = true
         consolePrompt.ActionText = "Browse the catalog"
-        consolePrompt.MaxActivationDistance = 30
+        consolePrompt.MaxActivationDistance = 10
         consolePrompt.RequiresLineOfSight = false
         consolePrompt.Triggered:Connect(function(player)
             onCatalogConsoleActivated(player)

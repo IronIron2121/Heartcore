@@ -3,7 +3,6 @@
 -- ChallengeServer.server.lua
 -- Handles remote routing and challenge system initialization
 
-warn("c server")
 -- Services
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

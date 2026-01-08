@@ -72,7 +72,6 @@ local function setupMannequinAsync(mannequin: Instance)
 	end
 
 	if #bundleIds > 0 then
-		warn("Equipping bundles...")
 		local bodyParts = {}
 		
 		for _, bundleId in ipairs(bundleIds) do
@@ -86,8 +85,6 @@ local function setupMannequinAsync(mannequin: Instance)
 				continue
 			end
 			
-			print("Got bundle info for:", bundleId)
-			
 			-- Extract the constituent items
 			local bundleItems = bundleInfo.Items
 
@@ -100,7 +97,7 @@ local function setupMannequinAsync(mannequin: Instance)
 					)
 
 					if descSuccess then
-						humanoid:ApplyDescriptionReset(outfitDescription)
+						humanoid:ApplyDescriptionResetAsync(outfitDescription)
 					end
 					break
 				end

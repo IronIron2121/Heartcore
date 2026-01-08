@@ -316,7 +316,6 @@ end
 function GameTimer.initialiseTimer(): ()
     if TimerStarted then return end
     TimerStarted = true
-    print("Initializing GameTimer system...")
     
     initialiseGameTimerCache()
 

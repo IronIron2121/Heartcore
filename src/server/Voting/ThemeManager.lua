@@ -114,7 +114,7 @@ function ThemeManager.getThemeForPhase(phasePrefix: string): {}?
     
     local themeStore = getThemeMemoryStore(phasePrefix)
     if not themeStore then
-        warn("Failed to get theme store for phase:", phasePrefix)
+        warn("Failed to get theme store for phase prefix:", phasePrefix)
         return nil
     end
     
@@ -128,7 +128,6 @@ function ThemeManager.getThemeForPhase(phasePrefix: string): {}?
     if success and themeData then
         return themeData
     else
-        warn("Failed to get theme for phase:", phasePrefix)
         return nil
     end
 end
