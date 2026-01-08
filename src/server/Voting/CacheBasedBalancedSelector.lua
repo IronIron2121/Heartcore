@@ -1,15 +1,7 @@
 -- CacheBasedBalancedSelector.lua
 -- Uses VotingStoreManager's public cache to build selection buckets
 
--- Services
-local ServerScriptService = game:GetService("ServerScriptService")
-
--- Folders
-local Voting = ServerScriptService:WaitForChild("Voting")
-
---
 local PlayerVotedOutfitsTracker = require(script.Parent.PlayerVotedOutfitsTracker)
-local PlayerOutedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
 --
 
 local CacheBasedBalancedSelector = {}
