@@ -94,6 +94,7 @@ end
 local function initialiseGuiManager()
     InitialiseHuds()
     InitialiseModals()
+    GuiManager.SetLoaded()
 end
 
 initialiseGuiManager()
