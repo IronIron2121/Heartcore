@@ -5,13 +5,14 @@
 -- Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI Components
@@ -58,7 +59,7 @@ function EquippedItemButtons(
 	local currentHumanoidDescription = scope:Value(humanoid:WaitForChild("HumanoidDescription") :: HumanoidDescription) 
 	
 	local currentItemDescriptions = scope:Computed(function(use)
-		return use(currentHumanoidDescription):GetChildren()
+		return use(currentHumanoidDescription):GetChildren() :: {AccessoryDescription | BodyPartDescription}
 	end)
 
 	local currentClassicItems = scope:Computed(function(use)
@@ -74,7 +75,12 @@ function EquippedItemButtons(
 			return EquippedItemButton(scope, {
 				buttonSize = props.buttonSize, 
 				visible = props.equipItemButtonsVisible,
-				itemDescription = description
+				itemDescription = description, 
+				removeCb = function()
+					ClientCustomisationService.RemoveItem(description.AssetId)
+					-- TODO: Figure this thing here out...
+					props.equipItemButtonsVisible:set(false)				
+				end
 			}) 
 		else
 			-- These are "dud buttons" that allow us to know when all accessories and body parts have a corresponding "EquippedItemButton"

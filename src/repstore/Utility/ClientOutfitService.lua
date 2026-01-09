@@ -16,34 +16,12 @@ local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local PlayerDeletedTastemakerOutfit = Remotes:WaitForChild("PlayerDeletedTastemakerOutfit")
 local PlayerPurchasedCurrentOutfit = Remotes:WaitForChild("PlayerPurchasedCurrentOutfit")
 local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
-local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
-
--- Variables
-local currentlyResetting = false
 
 --
 
-local OutfitClientService = {}
+local ClientOutfitService = {}
 
-function OutfitClientService.ResetPlayerOutfit(player: Player)
-	if currentlyResetting then 
-		warn("Already resetting!")
-	end
-
-	currentlyResetting = true
-
-	local success, result = callWithRetry(
-		function()	
-			return PlayerResetOutfit:InvokeServer()
-		end
-	)
-
-	currentlyResetting = false
-
-	return result
-end
-
-function OutfitClientService.PurchasePlayerOutfit(player: Player): boolean
+function ClientOutfitService.PurchasePlayerOutfit(player: Player): boolean
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoid = character:WaitForChild("Humanoid") :: Humanoid
 	local humanoidDescription = humanoid:GetAppliedDescription()
@@ -100,7 +78,7 @@ end
 
 
 
-function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
+function ClientOutfitService.SaveCurrentPlayerOutfit(player: Player)
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoid = character:WaitForChild("Humanoid") :: Humanoid
 	local humanoidDescription = humanoid:GetAppliedDescription()
@@ -130,13 +108,13 @@ function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 	AvatarEditorService:PromptCreateOutfit(humanoidDescription, Enum.HumanoidRigType.R15)
 end
 
-function OutfitClientService.DeleteOutfit(outfitId: number)
+function ClientOutfitService.DeleteOutfit(outfitId: number)
 	AvatarEditorService:PromptDeleteOutfit(outfitId)
 	AvatarEditorService.PromptDeleteOutfitCompleted:Wait()
 end
 
-function OutfitClientService.DeleteTastemakerOutfit(outfitIndex: number)
+function ClientOutfitService.DeleteTastemakerOutfit(outfitIndex: number)
 	return PlayerDeletedTastemakerOutfit:InvokeServer(outfitIndex)
 end
 
-return OutfitClientService
+return ClientOutfitService

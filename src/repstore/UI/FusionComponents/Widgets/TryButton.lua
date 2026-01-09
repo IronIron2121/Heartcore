@@ -2,20 +2,14 @@
 -- BuyButton.lua
 
 -- Services
-local Players = game:GetService("Players")
-local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
-
--- Remotes
-local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 
 -- Fusion
 local OnEvent = Fusion.OnEvent
@@ -26,9 +20,6 @@ type UsedAs<T> = Fusion.UsedAs<T>
 function TryButton(
 	scope: Fusion.Scope,
 	props: {
-		assetId: number,
-		assetOrBundleType: string?,
-		itemType: string,
 		layoutOrder: UsedAs<number>?,
 		visible: UsedAs<boolean>?,
 		size: UsedAs<UDim2>?,
@@ -55,7 +46,6 @@ function TryButton(
 		1
 	)
 
-
 	local tryButton = scope:New "TextButton" {
 		Name = "TryButton",
 		Active = true,
@@ -75,9 +65,6 @@ function TryButton(
 		TextWrapped = true,
 
 		[OnEvent "Activated"] = function()
-			--local productInfo = MarketplaceService:GetProductInfo(itemDetails.Id, infoType)
-			PlayerEquippedItem:FireServer(props.assetId, props.assetOrBundleType, props.itemType)
-
 			-- Call optional callback after purchase prompt
 			if props.onTryonCallback then
 				props.onTryonCallback()

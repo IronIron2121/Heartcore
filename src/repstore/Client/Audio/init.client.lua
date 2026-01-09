@@ -12,7 +12,6 @@ local SoundService = game:GetService("SoundService")
 
 local Constants = require(ReplicatedStorage.Constants)
 local Types = require(ReplicatedStorage.Utility.Types)
-local Cart = require(ReplicatedStorage.Libraries.Cart)
 local ItemContainer = require(ReplicatedStorage.Utility.ItemContainer)
 local playFromStart = require(script.playFromStart)
 
@@ -51,14 +50,6 @@ local function onBundlePurchaseFinished(_: Instance, _: number, wasPurchased: bo
 	playFromStart(purchasePlayer)
 end
 
-local function onCartItemAdded(_: ItemContainer.ContainedItem)
-	playFromStart(cartAddPlayer)
-end
-
-local function onCartItemRemoved(_: ItemContainer.ContainedItem)
-	playFromStart(cartRemovePlayer)
-end
-
 local function onUIButtonAdded(button: Instance)
 	assert(button:IsA("GuiButton"), `{button:GetFullName()} is not a GuiButton!`)
 
@@ -85,8 +76,6 @@ local function initialise()
 	MarketplaceService.PromptPurchaseFinished:Connect(onPurchaseFinished)
 	MarketplaceService.PromptBundlePurchaseFinished:Connect(onBundlePurchaseFinished)
 	MarketplaceService.PromptBulkPurchaseFinished:Connect(onBulkPurchaseFinished)
-	Cart.itemAdded:Connect(onCartItemAdded)
-	Cart.itemRemoved:Connect(onCartItemRemoved)
 
 	for _, button in CollectionService:GetTagged(Constants.UI_BUTTON_TAG) do
 		onUIButtonAdded(button)

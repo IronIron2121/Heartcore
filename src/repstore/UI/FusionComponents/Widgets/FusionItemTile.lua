@@ -4,20 +4,28 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MarketplaceService = game:GetService("MarketplaceService")
+local Players = game:GetService("Players")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
+local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local BuyButton = require(Widgets:WaitForChild("BuyButton"))
 local TryButton = require(Widgets:WaitForChild("TryButton"))
 local NameLabel = require(Widgets:WaitForChild("NameLabel"))
 local PriceLabel = require(Widgets:WaitForChild("PriceLabel"))
+
+-- Remotes
+local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 
 -- Fusion
 local Children = Fusion.Children
@@ -36,7 +44,9 @@ local CONFIG = {
 	ACTIVATION_DURATION = 2.5
 }
 
--- BIG NOTE / TODO: This should really be what we use for all item tiles, i.e. also the ones when we equip
+--
+
+-- TODO: Turn "Try" button into a "Remove" button if the item is equipped
 function FusionItemTile( 
 	scope: Fusion.Scope,
 	props: {
@@ -209,17 +219,19 @@ function FusionItemTile(
 							},
 
 							TryButton(scope, {
-								assetId = props.itemDetails.Id,
-								assetOrBundleType = props.itemDetails.AssetType or props.itemDetails.BundleType,
-								itemType = props.itemDetails.ItemType,
 								layoutOrder = 1,
-								onTryonCallback = deactivate
+								onTryonCallback = function()
+									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType, props.itemDetails.ItemType)
+									deactivate()
+								end
 							}), 
 
 							BuyButton(scope, {
-								assetId = props.itemDetails.Id,
 								layoutOrder = 2,  
-								onPurchaseCallback = deactivate
+								onPurchaseCallback = function()
+									MarketplaceService:PromptPurchase(Players.LocalPlayer, props.itemDetails.Id)
+									deactivate()
+								end
 							})
 						}
 					}

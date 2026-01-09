@@ -2,8 +2,6 @@
 -- BuyButton.lua
 
 -- Services
-local Players = game:GetService("Players")
-local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
@@ -21,7 +19,6 @@ type UsedAs<T> = Fusion.UsedAs<T>
 function BuyButton(
 	scope: Fusion.Scope,
 	props: {
-		assetId: number,
 		visible: UsedAs<boolean>?,
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
@@ -66,7 +63,6 @@ function BuyButton(
 		TextWrapped = true,
 
 		[OnEvent "Activated"] = function()
-			MarketplaceService:PromptPurchase(Players.LocalPlayer, props.assetId)
 			if props.onPurchaseCallback then
 				props.onPurchaseCallback()
 			end

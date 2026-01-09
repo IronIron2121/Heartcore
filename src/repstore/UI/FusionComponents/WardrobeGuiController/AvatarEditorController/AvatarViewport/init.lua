@@ -4,6 +4,7 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 
 -- Folders
@@ -13,8 +14,9 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
+local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local OutfitClientService = require(Utility:WaitForChild("OutfitClientService"))
+local ClientOutfitService = require(Utility:WaitForChild("ClientOutfitService"))
 
 -- Fusion
 local peek = Fusion.peek
@@ -126,8 +128,8 @@ function AvatarViewport(
 				zIndex = 3,
 				
 				onActivated = function()
-					OutfitClientService.ResetPlayerOutfit(localPlayer)
-				end,
+					ClientCustomisationService.ResetPlayerOutfit(localPlayer)
+				end, 
 			}),
 
 			Button(scope, {
@@ -153,7 +155,7 @@ function AvatarViewport(
 				visible = true,
 				
 				onActivated = function()
-					OutfitClientService.PurchasePlayerOutfit(localPlayer)
+					ClientOutfitService.PurchasePlayerOutfit(localPlayer)
 				end,
 			}),
 			
@@ -165,7 +167,7 @@ function AvatarViewport(
 				anchorPoint = Vector2.new(0,1),
 				zIndex = 3,
 				onActivated = function()
-					OutfitClientService.SaveCurrentPlayerOutfit(localPlayer)
+					ClientOutfitService.SaveCurrentPlayerOutfit(localPlayer)
 				end
 			}),
 

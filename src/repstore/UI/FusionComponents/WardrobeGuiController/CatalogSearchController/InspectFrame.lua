@@ -2,9 +2,7 @@
 -- InspectFrame.lua
 
 -- Services
-local AssetCounterService = game:GetService("AssetCounterService")
 local AvatarEditorService = game:GetService("AvatarEditorService")
-local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
@@ -14,7 +12,6 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 -- Modules
 local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
 local Constants = require(ReplicatedStorage.Constants)
-local ItemTile = require(ReplicatedStorage.UI.Components.ItemTile)
 local FusionItemTile = require(ReplicatedStorage.UI.FusionComponents.Widgets.FusionItemTile)
 local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
