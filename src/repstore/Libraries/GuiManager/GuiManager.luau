@@ -47,8 +47,8 @@ local currentConfiguration: Types.GuiConfiguration? = nil
 local registeredConfigurations: {[string]: Types.GuiConfiguration} = {}
 
 local HudContainer = modalScope:New "ScreenGui" {
-    Name = "HudContainer",
-    IgnoreGuiInset = true,
+    Name = "HudGui",
+    IgnoreGuiInset = false,
     Enabled = true,
     Parent = PlayerGui,
     ZIndexBehavior = Enum.ZIndexBehavior.Global,
@@ -67,11 +67,11 @@ local modalPosition = modalScope:Computed(function(use)
 end)
 
 local ModalGui = modalScope:New "ScreenGui" {
-        Name = "ModalGui",
-        Enabled = true,
-        Parent = PlayerGui,
-        IgnoreGuiInset = true,
-        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    Name = "ModalGui",
+    Enabled = true,
+    Parent = PlayerGui,
+    IgnoreGuiInset = false,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 } :: ScreenGui
 
 local blurSize: Computed<number> = modalScope:Computed(function(use) 
@@ -84,7 +84,7 @@ local modalContainer = modalScope:New "Frame" {
     Position = modalScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad)),
     Size = UDim2.fromScale(1, 1),
     BackgroundTransparency = 1,
-    Parent = ModalGui
+    Parent = ModalGui,
 }
 
 local BackgroundBlur = modalScope:New "BlurEffect" {

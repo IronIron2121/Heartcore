@@ -49,10 +49,12 @@ end
 function AvatarCustomisationService.applyDescription(player: Player, description: HumanoidDescription)
 	local humanoid = GetHumanoidFromPlayer(player)
 
+	--[[
 	local connection
 	connection = humanoid.ApplyDescriptionFinished:Connect(function()
 		connection:Disconnect()
 	end)
+	]]
 
 	humanoid:ApplyDescription(description)
 

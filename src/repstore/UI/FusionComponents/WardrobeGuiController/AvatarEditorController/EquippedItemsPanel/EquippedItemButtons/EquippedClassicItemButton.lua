@@ -40,7 +40,7 @@ function EquippedClassicItemButton(
 		itemId: number,
 		itemType: string,
 		visible: UsedAs<boolean>,
-		onClick: () -> (),
+		onClick: () -> ()?,
 	}
 ): Frame
 	if not props.itemId or props.itemId == 0 then

@@ -503,7 +503,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
                 views = 0,
             },
             Constants.MEMORYSTORE_STORE_DURATION,
-            0 -- This will hold votes, and is being used as the sort key
+            0 -- This represents votes, and is being used as the sort key
         )
     end, 3)
 

@@ -69,8 +69,6 @@ function EquippedItemButtons(
 		}
 	end)
 
-
-
 	local equippedItemButtons = scope:ForValues(currentItemDescriptions, function(use, scope, description)
 		if description.assetId ~= 0 then
 			return EquippedItemButton(scope, {

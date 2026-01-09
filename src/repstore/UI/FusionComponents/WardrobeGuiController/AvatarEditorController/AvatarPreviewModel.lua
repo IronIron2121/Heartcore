@@ -70,7 +70,7 @@ end
 
 function AvatarPreviewModel:onHumanoidDescriptionChanged(child: HumanoidDescription)
 	-- Fix any Unknown AccessoryTypes
-	fixAccessoryTypes(child)
+	--fixAccessoryTypes(child)
 
 	-- Update the reactive value
 	self.currentHumanoidDescription:set(child)

@@ -19,7 +19,6 @@ local TimeLabel = Frame.TimeLabel :: TextLabel
 
 task.spawn(function()
     while true do
-        warn("bloop")
         task.wait(1)
         timerLabel.Text = TimeLabel.Text
     end
