@@ -46,6 +46,14 @@ local podiumRigs = {
     [3] = dailyWinners:WaitForChild("ThirdPlace") :: RigModel
 }
 
+local winnerIds = {
+    156,
+    5226107848,
+    7356280958
+}
+
+--
+
 local WinnersStoreManager = {}
 
 function WinnersStoreManager.getCurrentMemoryStoreName(): string
@@ -291,6 +299,7 @@ local function getTopEntriesFromStore(storeName: string, topN: number): {{}}
 end
 
 function WinnersStoreManager.initialise()
+    WinnersStoreManager.resetWinners()
     -- Update displays with error handling using pcall
     local podiumSuccess, podiumError = pcall(function()
         WinnersStoreManager.updateWinnersPodiums()
@@ -318,19 +327,27 @@ function WinnersStoreManager.initialise()
     return true
 end
 
-function WinnersStoreManager.resetRig(rig: Model & {Humanoid: Humanoid})
+function WinnersStoreManager.resetRig(rig: Model & {Humanoid: Humanoid}, index: number)
+    warn("Resetting rig!")
     rig:ScaleTo(1)
-    rig.Humanoid:ApplyDescriptionResetAsync(defaultWinnerDescription)
+    local description
+    if index then
+        description = Players:GetHumanoidDescriptionFromUserIdAsync(winnerIds[index])
+    else
+        description = defaultWinnerDescription
+    end
+    rig.Humanoid:ApplyDescriptionResetAsync(description)
     rig:ScaleTo(winnersRigScale) 
 end
 
 function WinnersStoreManager.resetWinnersPodiums()
-    for _, rig in pairs(podiumRigs) do
-        WinnersStoreManager.resetRig(rig)
+    for index, rig in ipairs(podiumRigs) do
+        WinnersStoreManager.resetRig(rig, index)
     end
 end
 
 function WinnersStoreManager.resetWinners()
+    warn("Resetting winners")
     WinnersStoreManager.resetWinnersPodiums()
     WinnersStoreManager.resetWinnersThemeDisplay()
     WinnersStoreManager.resetTopTwentyLeaderboard()
