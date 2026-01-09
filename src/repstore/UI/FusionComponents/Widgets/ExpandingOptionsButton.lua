@@ -25,7 +25,8 @@ function ExpandingOptionsButton(
 		size: UsedAs<UDim2>?,
 		layoutOrder: UsedAs<number>?,
 		isSelected: UsedAs<boolean>?,
-		children: {any}?
+		children: {any}?,
+		textSize: UsedAs<number>?
 	}
 ): Frame
 	local isHovering = scope:Value(false)
@@ -87,7 +88,7 @@ function ExpandingOptionsButton(
 			-- Header button
 			scope:New "TextButton" {
 				Name = "HeaderButton",
-				Size = props.size or UDim2.new(1, 0, 0, 45),
+				Size = props.size or UDim2.new(1, 0, 0, 60),
 				LayoutOrder = 1,
 				Text = "",  -- Custom layout instead
 				BackgroundColor3 = backgroundColorSpring,
@@ -149,7 +150,7 @@ function ExpandingOptionsButton(
 								Size = UDim2.new(0, 16, 0, 16),
 								BackgroundTransparency = 1,
 								Text = scope:Computed(function(use)  
-									return use(isExpanded) and "▼" or "▸"								
+									return use(isExpanded) and "▼" or "►"								
 								end),
 								TextSize = 14,
 								TextColor3 = textColorSpring,
@@ -164,9 +165,10 @@ function ExpandingOptionsButton(
 								BackgroundTransparency = 1,
 								Text = props.text,
 								TextColor3 = textColorSpring,
-								TextScaled = true,
+								TextScaled = false,
 								FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
-								LayoutOrder = 2
+								LayoutOrder = 2,
+								TextSize = props.textSize or 20
 							}
 						}
 					}

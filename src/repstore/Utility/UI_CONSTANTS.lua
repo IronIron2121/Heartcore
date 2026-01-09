@@ -11,7 +11,7 @@ local UI_CONSTANTS = {
 	SEARCH_SORT_BOX_SIZE = UDim2.fromScale(.4, .5),
 	ROBOTO = "rbxasset://fonts/families/Roboto.json",
 	SECONDARY_FONT = "rbxasset://fonts/families/SonoMonospace.json",
-	CATEGORY_BUTTON_SIZE = UDim2.new(0.8, 0, 0, 45),
+	CATEGORY_BUTTON_SIZE = UDim2.new(0.8, 0, 0, 60),
 }
 
 return UI_CONSTANTS

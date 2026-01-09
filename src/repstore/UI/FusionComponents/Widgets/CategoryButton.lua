@@ -23,7 +23,8 @@ function CategoryButton(
 		text: UsedAs<string>,
 		size: UsedAs<UDim2>?,
 		layoutOrder: UsedAs<number>?,
-		isSelected: UsedAs<boolean>?
+		isSelected: UsedAs<boolean>?,
+		textSize: UsedAs<number>?
 	}
 ): TextButton
 
@@ -73,11 +74,12 @@ function CategoryButton(
 		LayoutOrder = props.layoutOrder or 1,
 		Text = props.text,
 		TextColor3 = textColorSpring,
-		TextScaled = true,
+		TextScaled = false,
 		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 		BackgroundColor3 = backgroundColorSpring,
 		BackgroundTransparency = backgroundTransparencySpring,
 		BorderSizePixel = 0,
+		TextSize = props.textSize or 20,
 
 		[OnEvent "Activated"] = function()
 			if props.onActivated then

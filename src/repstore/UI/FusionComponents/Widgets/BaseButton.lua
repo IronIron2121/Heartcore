@@ -104,7 +104,7 @@ function Button(
 
 		[Children] = {
 			scope:New "UICorner" {
-				CornerRadius = props.cornerRadius or UDim.new(0.5, 0)
+				CornerRadius = props.cornerRadius or UDim.new(0.4, 0)
 			},
 
 			scope:New "UIStroke" {

@@ -33,17 +33,17 @@ local SEARCH_ACCESSORIES = {
 local AssetFilterCategories = {
 	-- Classic Clothing
 	{
-		name = "2D T-Shirts",
+		name = "T-Shirts",
 		assetType = Enum.AvatarAssetType.TShirt,
 		description = "Classic 2D T-Shirts"
 	},
 	{
-		name = "2D Shirts",
+		name = "Shirts",
 		assetType = Enum.AvatarAssetType.Shirt,
 		description = "Classic 2D shirts"
 	},
 	{
-		name = "2D Pants",
+		name = "Pants",
 		assetType = Enum.AvatarAssetType.Pants,
 		description = "Classic 2D pants"
 	},
@@ -104,17 +104,17 @@ local AssetFilterCategories = {
 
 	-- Layered Clothing
 	{
-		name = "Layered T-Shirts",
+		name = "T-Shirts",
 		assetType = Enum.AvatarAssetType.TShirtAccessory,
 		description = "Layered clothing T-Shirts"
 	},
 	{
-		name = "Layered Shirts",
+		name = "Shirts",
 		assetType = Enum.AvatarAssetType.ShirtAccessory,
 		description = "Layered clothing shirts"
 	},
 	{
-		name = "Layered Pants",
+		name = "Pants",
 		assetType = Enum.AvatarAssetType.PantsAccessory,
 		description = "Layered clothing pants"
 	},

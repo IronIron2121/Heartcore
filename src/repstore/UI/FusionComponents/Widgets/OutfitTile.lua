@@ -251,7 +251,7 @@ function OutfitTile(
 							-- Wear/Select Button
 							BaseButton(scope, {
 								name = "WearButton",
-								size = UDim2.fromScale(0.4, 0.8),
+								size = UDim2.fromScale(0.6, 0.8),
 								LayoutOrder = 1,
 								text = "Wear Outfit",
 								textScaled = true,
