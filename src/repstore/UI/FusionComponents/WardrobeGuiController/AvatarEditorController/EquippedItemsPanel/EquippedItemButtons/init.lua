@@ -49,7 +49,7 @@ function EquippedItemButtons(
 	scope: Fusion.Scope,
 	props: {
 		buttonSize: UsedAs<UDim2>,
-		equipItemButtonsVisible: UsedAs<boolean>
+		equipItemButtonsVisible: UsedAs<boolean>?
 	}
 )
 	local localPlayer = Players.LocalPlayer
@@ -79,7 +79,7 @@ function EquippedItemButtons(
 				removeCb = function()
 					ClientCustomisationService.RemoveItem(description.AssetId)
 					-- TODO: Figure this thing here out...
-					props.equipItemButtonsVisible:set(false)				
+					props.equipItemButtonsVisible:set(false)
 				end
 			}) 
 		else

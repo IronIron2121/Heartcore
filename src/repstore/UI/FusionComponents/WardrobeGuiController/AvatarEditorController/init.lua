@@ -12,6 +12,7 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiController")
 
 -- Modules
+local EquippedItemButton = require(script.EquippedItemsPanel.EquippedItemButtons.EquippedItemButton)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local AvatarPreviewModel = require(script:WaitForChild("AvatarPreviewModel"))
 local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGuiState"))
@@ -57,10 +58,26 @@ end
 
 function AvatarEditorController:_initialiseEquippedItemsPanel()
 	-- Pass the avatar preview model instead of trying to use self.model
-	local EquippedItemsPanel = EquippedItemsPanel(self.scope, {
+	self.EquippedItemsPanel = EquippedItemsPanel(self.scope, {
 		layoutOrder = 1
 	})
-	EquippedItemsPanel.Parent = self.parentFrame
+	self.EquippedItemsPanel.Parent = self.parentFrame
+end
+
+function AvatarEditorController:RemoveEquippedItemTile(assetId: number)
+	for _, tile in self.EquippedItemsPanel do
+		if tile.Name == assetId or tile.Name == tostring(assetId) then
+			tile:Destroy() -- or whatever the fusion equivalent is...
+		end
+	end
+end
+
+function AvatarEditorController:AddEquippedItemTile(asset: number)
+	local itemButton = EquippedItemButton(self.scope, {
+		buttonSize = UDim2.fromScale(0.7, 0.7)
+	})
+
+	itemButton.Parent = self.EquippedItemsPanel
 end
 
 -- Simple cleanup
@@ -70,7 +87,7 @@ function AvatarEditorController:Cleanup()
 	end
 	if self.avatarViewport then
 		self.avatarViewport:Destroy()
-	end
+	end 
 end
 
 return AvatarEditorController

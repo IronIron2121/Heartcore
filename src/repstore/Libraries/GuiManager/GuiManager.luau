@@ -119,7 +119,6 @@ function GuiManager.DisplayConfiguration(configurationName: string): ()
     if not peek(CentreActive) then
         currentConfiguration:Enable()
     end
-
 end 
 
 function GuiManager.HideCurrentConfiguration(): ()
