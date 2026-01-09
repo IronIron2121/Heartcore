@@ -3,6 +3,7 @@
 -- AvatarViewport.lua
 
 -- Services
+local EncodingService = game:GetService("EncodingService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
@@ -63,6 +64,8 @@ function FusionItemTile(
 		layoutOrder: number
 	}
 )
+	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return end
+	
 	local isHovering = scope:Value(false)
 	local isActivated = scope:Value(false)
 
@@ -91,7 +94,6 @@ function FusionItemTile(
 		task.wait(CONFIG.ACTIVATION_DURATION)
 		deactivate()
 	end
-	
 	
 	local backgroundColorSpring = scope:Spring(
 		scope:Computed(function(use)
