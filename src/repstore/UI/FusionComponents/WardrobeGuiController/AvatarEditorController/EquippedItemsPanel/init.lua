@@ -83,8 +83,6 @@ function EquippedItemsPanel(
 				SortOrder = Enum.SortOrder.LayoutOrder
 			},			
 
-			equippedItemButtons,
-
 			scope:New "Frame" {
 				Name = "rightBuffer",
 				Size = UDim2.fromScale(1, 0.03),

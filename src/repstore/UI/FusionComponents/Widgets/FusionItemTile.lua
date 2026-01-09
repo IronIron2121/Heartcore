@@ -221,16 +221,16 @@ function FusionItemTile(
 							TryButton(scope, {
 								layoutOrder = 1,
 								onTryonCallback = function()
-									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType, props.itemDetails.ItemType)
 									deactivate()
+									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType, props.itemDetails.ItemType)
 								end
 							}), 
 
 							BuyButton(scope, {
 								layoutOrder = 2,  
 								onPurchaseCallback = function()
-									MarketplaceService:PromptPurchase(Players.LocalPlayer, props.itemDetails.Id)
 									deactivate()
+									ClientCustomisationService.PlayerPurchasedItem(props.itemDetails.Id)
 								end
 							})
 						}

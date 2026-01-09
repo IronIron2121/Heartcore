@@ -112,16 +112,6 @@ function EquippedItemButtons(
 	-- Combine both button lists into one reactive table
 	local allEquippedButtons = combineItemButtons(scope, equippedItemButtons, equippedClassicItemButtons)
 
-	-- Watch for when HumanoidDescription gets replaced
-	-- We track this because the humanoid description is completely replaced when you change clothing
-	humanoid.ChildAdded:Connect(function(child)
-		if child:IsA("HumanoidDescription") then
-			currentHumanoidDescription:set(child)
-			props.equipItemButtonsVisible:set(true)
-			-- TODO: Add a while loop that guards against premature display...
-		end
-	end)
-
 	return allEquippedButtons
 end
 

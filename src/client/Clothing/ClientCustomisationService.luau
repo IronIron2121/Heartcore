@@ -1,6 +1,7 @@
 --!strict
 
 -- Services
+local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
@@ -19,6 +20,7 @@ local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local peek = Fusion.peek
 local scope = Fusion:scoped()
 type UsedAs<T> = Fusion.UsedAs<T>
 
@@ -31,15 +33,17 @@ local humanoid = char.Humanoid
 
 local currentHumanoidDescription = scope:Value(humanoid:WaitForChild("HumanoidDescription") :: HumanoidDescription) 
 
-local currentItemDescriptions = scope:Computed(function(use)
-	return use(currentHumanoidDescription):GetChildren() :: {AccessoryDescription | BodyPartDescription}
+humanoid.ChildAdded:Connect(function(child)
+	if child:IsA("HumanoidDescription") then
+		currentHumanoidDescription:set(child)
+	end
 end)
 
 --
 
 local ClientCustomisationService = {}
 
-function ClientCustomisationService.ResetPlayerOutfit(player: Player)
+function ClientCustomisationService.ResetPlayerOutfit(player: Player): boolean
 	if currentlyResetting then 
 		warn("Already resetting!")
 	end
@@ -57,16 +61,35 @@ function ClientCustomisationService.ResetPlayerOutfit(player: Player)
 	return success and result
 end
 
-function ClientCustomisationService.AddItem(assetId: number, assetTypeOrBundleType: string, itemType: string)
-	PlayerEquippedItem:FireServer(assetId, assetTypeOrBundleType, itemType)
+function ClientCustomisationService.PlayerPurchasedItem(itemId: number)
+	MarketplaceService:PromptPurchase(Players.LocalPlayer, itemId)
 end
 
-function ClientCustomisationService.RemoveItem(assetId: number)
-	return PlayerRemovedItem:InvokeServer(assetId)	
+function ClientCustomisationService.AddItem(assetId: number, assetTypeOrBundleType: string, itemType: string): boolean
+	local success = callWithRetry(
+		function()  
+			return PlayerEquippedItem:FireServer(assetId, assetTypeOrBundleType, itemType)
+		end
+	)
+
+	-- Add the item tile here
+
+	return success
 end
 
-function ClientCustomisationService.GetCurrentEquippedItems()
-	return currentItemDescriptions
+function ClientCustomisationService.RemoveItem(assetId: number): boolean
+	local success = callWithRetry(
+		function()
+			return PlayerRemovedItem:Invoke(assetId)
+		end
+	)
+
+	-- Remove the item tile
+	return success
+end
+
+function ClientCustomisationService.GetCurrentEquippedItems(): {any}
+	return peek(currentHumanoidDescription):GetChildren()
 end
 
 return ClientCustomisationService

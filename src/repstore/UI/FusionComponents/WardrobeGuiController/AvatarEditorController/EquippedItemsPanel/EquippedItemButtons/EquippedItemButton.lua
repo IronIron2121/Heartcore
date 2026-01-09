@@ -42,10 +42,6 @@ function EquippedItemButton(
 			Visible = false
 		} :: Frame
 	end
-
-	-- Get product info
-	local productInfo = MarketplaceService:GetProductInfo(props.itemDescription.AssetId, Enum.InfoType.Asset)
-
 	-- State management
 	local Toggled = scope:Value(false)
 	local isHovering = scope:Value(false)
@@ -92,7 +88,7 @@ function EquippedItemButton(
 	end
 
 	return scope:New "Frame" {
-		Name = productInfo.Name,
+		Name = props.itemDescription.AssetId,
 		Size = props.buttonSize,
 		Visible = props.visible,
 		BackgroundTransparency = backgroundTransparencySpring,
