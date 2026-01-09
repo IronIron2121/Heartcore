@@ -91,8 +91,8 @@ function EquippedClassicItemButton(
 
 	-- Buy button toggle logic
 	local function toggleBuyButton()
-		isToggled:set(true)
 		task.spawn(function()
+			isToggled:set(true)
 			task.wait(BUY_BUTTON_DISPLAY_TIME)
 			isToggled:set(false)
 		end)
