@@ -162,7 +162,7 @@ function ExpandingOptionsButton(
 			-- Dropdown content (children)
 			scope:New "Frame" {
 				Name = "DropdownContent",
-				Size = UDim2.fromScale(0.95, 0), 
+				Size = UDim2.fromScale(0.75, 0), 
 				AutomaticSize = Enum.AutomaticSize.Y,
 				BackgroundTransparency = 1,
 				Visible = isExpanded, 
