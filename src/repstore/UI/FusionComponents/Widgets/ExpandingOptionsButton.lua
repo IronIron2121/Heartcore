@@ -11,6 +11,11 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
+-- Contstants
+local COLOUR_SELECTED = Color3.fromRGB(180, 188, 254)
+local DEFAULT_COLOUR = Color3.fromRGB(54, 24, 220)
+local HOVER_SCALE = 1.1 
+
 -- Fusion
 local Children = Fusion.Children
 local OnEvent = Fusion.OnEvent
@@ -51,22 +56,26 @@ function ExpandingOptionsButton(
 	
 	local textColorSpring = scope:Spring(
 		scope:Computed(function(use)
-			if use(props.isSelected) then
-				return UI_CONSTANTS.TASTEMAKER_PURPLE
+			local expanded = use(isExpanded)
+			if expanded then
+				return COLOUR_SELECTED
 			else
-				return UI_CONSTANTS.COLOUR_WHITE
+				return DEFAULT_COLOUR
 			end
 		end)
 	)
-	
-	local backgroundTransparencySpring = scope:Spring(
+
+	local sizeSpring = scope:Spring(
 		scope:Computed(function(use)
-			if use(props.isSelected) then
-				return 0
+			local hovering = use(isHovering)
+			if hovering then
+				return HOVER_SCALE
 			else
-				return UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT
+				return 1
 			end
-		end)
+		end),
+		20, 
+		1  
 	)
 
 	local expandingOptionsButton = scope:New "Frame" {
@@ -92,7 +101,8 @@ function ExpandingOptionsButton(
 				LayoutOrder = 1,
 				Text = "",  -- Custom layout instead
 				BackgroundColor3 = backgroundColorSpring,
-				BackgroundTransparency = backgroundTransparencySpring,
+				TextColor3 = textColorSpring,
+				BackgroundTransparency = 1,
 				BorderSizePixel = 0,
 				AutoButtonColor = false,
 
@@ -112,21 +122,15 @@ function ExpandingOptionsButton(
 				end,
 
 				[Children] = {
-					scope:New "UICorner" {
-						CornerRadius = UDim.new(0.5, 0)
-					},
-
-					scope:New "UIStroke" {
-						ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-						Color = Color3.new(1, 1, 1),
-						Thickness = 1,
-					},
-
 					scope:New "UIPadding" {
 						PaddingTop = UDim.new(0.1,0),
 						PaddingBottom = UDim.new(0.1,0),
-						PaddingLeft = UDim.new(0.1,0),
-						PaddingRight = UDim.new(0.1,0)
+						PaddingLeft = UDim.new(0.05,0),
+						PaddingRight = UDim.new(0.05,0)
+					},
+
+					scope:New "UIScale" {
+						Scale = sizeSpring
 					},
 
 					-- Content container for text + arrow
@@ -136,28 +140,6 @@ function ExpandingOptionsButton(
 						BackgroundTransparency = 1,
 
 						[Children] = {
-							scope:New "UIListLayout" {
-								FillDirection = Enum.FillDirection.Horizontal,
-								VerticalAlignment = Enum.VerticalAlignment.Center,
-								HorizontalAlignment = Enum.HorizontalAlignment.Center,
-								Padding = UDim.new(0, 8),
-								SortOrder = Enum.SortOrder.LayoutOrder
-							},
-
-							-- Arrow indicator
-							scope:New "TextLabel" {
-								Name = "Arrow",
-								Size = UDim2.new(0, 16, 0, 16),
-								BackgroundTransparency = 1,
-								Text = scope:Computed(function(use)  
-									return use(isExpanded) and "▼" or "►"								
-								end),
-								TextSize = 14,
-								TextColor3 = textColorSpring,
-								Font = Enum.Font.GothamBold,
-								LayoutOrder = 1,
-							},
-
 							-- Category text
 							scope:New "TextLabel" {
 								Name = "CategoryText",
@@ -166,9 +148,11 @@ function ExpandingOptionsButton(
 								Text = props.text,
 								TextColor3 = textColorSpring,
 								TextScaled = false,
+								TextWrapped = true,
 								FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 								LayoutOrder = 2,
-								TextSize = props.textSize or 20
+								TextSize = props.textSize or 20,
+								TextXAlignment = Enum.TextXAlignment.Left,
 							}
 						}
 					}

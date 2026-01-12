@@ -11,6 +11,10 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
+--Constants
+local COLOUR_SELECTED = Color3.fromRGB(180, 188, 254)
+local HOVER_SCALE = 1.1 
+
 -- Fusion
 local Children = Fusion.Children
 local OnEvent = Fusion.OnEvent
@@ -30,7 +34,6 @@ function CategoryButton(
 
 	local isHovering = scope:Value(false)
 
-	-- Visual feedback based on selection and hover state
 	local backgroundColorSpring = scope:Spring(scope:Computed(function(use)
 		local selected = use(props.isSelected) or false
 		local hovering = use(isHovering)
@@ -51,25 +54,30 @@ function CategoryButton(
 	local textColorSpring = scope:Spring(
 		scope:Computed(function(use)
 			if use(props.isSelected) then
-				return UI_CONSTANTS.TASTEMAKER_PURPLE
+				return COLOUR_SELECTED
 			else
 				return UI_CONSTANTS.COLOUR_WHITE
 			end
 		end)
 	)
 	
-	local backgroundTransparencySpring = scope:Spring(
+	
+	local sizeSpring = scope:Spring(
 		scope:Computed(function(use)
-			if use(props.isSelected) then
-				return 0
+			local hovering = use(isHovering)
+			if hovering then
+				return HOVER_SCALE
 			else
-				return UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT
+				return 1
 			end
-		end)
+		end),
+		20, 
+		1  
 	)
 
 	local categoryButton = scope:New "TextButton" {
 		Name = "CategoryButton",
+		AnchorPoint = Vector2.new(0, 0.5),
 		Size = props.size or UDim2.fromScale(0.15, 0.07),
 		LayoutOrder = props.layoutOrder or 1,
 		Text = props.text,
@@ -77,9 +85,10 @@ function CategoryButton(
 		TextScaled = false,
 		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 		BackgroundColor3 = backgroundColorSpring,
-		BackgroundTransparency = backgroundTransparencySpring,
+		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		TextSize = props.textSize or 20,
+		TextXAlignment = Enum.TextXAlignment.Left,
 
 		[OnEvent "Activated"] = function()
 			if props.onActivated then
@@ -97,21 +106,15 @@ function CategoryButton(
 		end,
 
 		[Children] = {
-			scope:New "UICorner" {
-				CornerRadius = UDim.new(0.5, 0)
-			},
-
-			scope:New "UIStroke" {
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Color = Color3.new(1, 1, 1),
-				Thickness = 1,
-			},
-
 			scope:New "UIPadding" {
 				PaddingTop = UDim.new(0.1,0),
 				PaddingBottom = UDim.new(0.1,0),
 				PaddingLeft = UDim.new(0.1,0),
 				PaddingRight = UDim.new(0.1,0)
+			},
+
+			scope:New "UIScale" {
+				Scale = sizeSpring
 			}
 		}
 	} :: TextButton
