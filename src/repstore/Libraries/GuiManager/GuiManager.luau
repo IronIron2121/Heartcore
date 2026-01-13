@@ -48,7 +48,7 @@ local registeredConfigurations: {[string]: Types.GuiConfiguration} = {}
 
 local HudContainer = modalScope:New "ScreenGui" {
     Name = "HudGui",
-    IgnoreGuiInset = false,
+    IgnoreGuiInset = true,
     Enabled = true,
     Parent = PlayerGui,
     ZIndexBehavior = Enum.ZIndexBehavior.Global,

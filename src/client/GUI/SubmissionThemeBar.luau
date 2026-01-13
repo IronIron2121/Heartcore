@@ -83,72 +83,24 @@ local function SubmissionThemeBar()
                 }
             },
 
-            scope:New "Frame" {
-                Name = "TimerContainer",
-                Size = UDim2.fromScale(1,0.2),
-                BackgroundTransparency = 1,
+             scope:New "TextLabel" {
+                Name = "SubmitText",
+                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
+                Text = "Submit your fit in the submission hut!",
+                Size = UDim2.fromScale(1, 0.2),
+                TextScaled = true,
                 LayoutOrder = 1,
+                BackgroundTransparency = 1,
+                TextColor3 = Color3.fromRGB(255, 255, 255),
 
                 [Children] = {
-                    scope:New "UIListLayout"{
-                        FillDirection = Enum.FillDirection.Horizontal,
-                        SortOrder = Enum.SortOrder.LayoutOrder,
-                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                        VerticalAlignment = Enum.VerticalAlignment.Center,
-                    },
-
-                    scope:New "TextLabel" {
-                        Name = "Time left text",
-                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
-                        Text = "Time left to submit:",
-                        Size = UDim2.fromScale(0.3,1),
-                        TextScaled = true,
-                        LayoutOrder = 0,
-                        BackgroundTransparency = 1,
-                        TextColor3 = Color3.fromRGB(255, 255, 255),
-
-                        [Children] = {
-                            scope:New "UIStroke" {
-                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                Thickness = 2,
-                            }
-                        }
-                    },
-
-                    scope:New "ImageLabel" {
-                        Name = "StopwatchIcon",
-                        Size = UDim2.fromScale(0.5,1),
-                        BackgroundTransparency = 1,
-                        Image = ImageUris.StopwatchIcon,
-                        LayoutOrder = 1,
-
-                        [Children] = {
-                            scope:New("UIAspectRatioConstraint") {
-                                AspectRatio = 1
-                            }
-                        }
-                    },
-        
-                    scope:New "TextLabel" {
-                        Name = "Timer",
-                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
-                        Text = TimeText,
-                        Size = UDim2.fromScale(0.1,1),
-                        TextScaled = true,
-                        LayoutOrder = 2,
-                        BackgroundTransparency = 1,
-                        TextColor3 = Color3.fromRGB(255, 255, 255),
-
-                        [Children] = {
-                            scope:New "UIStroke"{
-                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                Thickness = 2,
-                            }
-                        }
+                    scope:New "UIStroke" {
+                        Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                        Thickness = 2,
                     }
                 }
-            }
-        }
+            },
+        }   
     } :: Frame
 
     return submissionThemeBar
