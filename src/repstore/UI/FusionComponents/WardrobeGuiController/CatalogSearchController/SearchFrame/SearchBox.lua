@@ -122,8 +122,8 @@ function SearchBox(
 			},
 
 			scope:New "UIPadding"{
-				PaddingTop = UDim.new(0.1,0),
-				PaddingBottom = UDim.new(0.1,0),
+				PaddingTop = UDim.new(0.2,0),
+				PaddingBottom = UDim.new(0.2,0),
 				PaddingRight = UDim.new(0.1,0),
 				PaddingLeft = UDim.new(0.02,0),
 			}

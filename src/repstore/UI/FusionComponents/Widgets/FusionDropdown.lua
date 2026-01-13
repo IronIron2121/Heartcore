@@ -188,16 +188,26 @@ function FusionDropdown<T>(
 	end)
 
 	-- Visual feedback
-	local backgroundColorSpring = scope:Spring(
+	-- local backgroundColorSpring = scope:Spring(
+	-- 	scope:Computed(function(use)
+	-- 		if use(isHovering) then
+	-- 			return UI_CONSTANTS.TASTEMAKER_PURPLE:Lerp(UI_CONSTANTS.COLOUR_WHITE, 0.20)
+	-- 		else
+	-- 			return UI_CONSTANTS.TASTEMAKER_PURPLE
+	-- 		end
+	-- 	end),
+	-- 	20,
+	-- 	1
+	-- )
+
+	local backgroundTransparencySpring = scope:Spring(
 		scope:Computed(function(use)
 			if use(isHovering) then
-				return UI_CONSTANTS.TASTEMAKER_PURPLE:Lerp(UI_CONSTANTS.COLOUR_WHITE, 0.20)
+				return 0
 			else
-				return UI_CONSTANTS.TASTEMAKER_PURPLE
+				return UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT
 			end
-		end),
-		20,
-		1
+		end)
 	)
 
 	-- Current selection text
@@ -223,8 +233,8 @@ function FusionDropdown<T>(
 		Position = props.position or UDim2.fromScale(0, 0),
 		AnchorPoint = props.anchorPoint or Vector2.new(0, 0),
 		LayoutOrder = props.layoutOrder or 1,
-		BackgroundColor3 = backgroundColorSpring,
-		BackgroundTransparency = UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
+		BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+		BackgroundTransparency = backgroundTransparencySpring,
 
 		[Out "AbsolutePosition"] = absolutePosition,
 		[Out "AbsoluteSize"] = absoluteSize,
@@ -245,7 +255,7 @@ function FusionDropdown<T>(
 			scope:New "UIStroke" {
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				Color = Color3.new(1, 1, 1),
-				Thickness = 1,
+				Thickness = 2,
 			},
 
 			scope:New "UIListLayout" {
@@ -257,8 +267,8 @@ function FusionDropdown<T>(
 			},
 
 			scope:New "UIPadding" {
-				PaddingTop = UDim.new(0.05,0),
-				PaddingBottom = UDim.new(0.05,0),
+				PaddingTop = UDim.new(0.2,0),
+				PaddingBottom = UDim.new(0.2,0),
 				PaddingLeft = UDim.new(0.05,0),
 				PaddingRight = UDim.new(0.05,0),
 			},
