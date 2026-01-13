@@ -47,9 +47,9 @@ function Button(
 			local baseColor = backgroundColor
 
 			if use(isHeldDown) then
-				return baseColor:Lerp(Color3.fromRGB(89, 247, 128), 1)
+				return baseColor:Lerp(UI_CONSTANTS.TASTEMAKER_PURPLE, 1)
 			elseif use(isHovering) then
-				return baseColor:Lerp(Color3.fromRGB(89, 247, 128), 0.20)
+				return baseColor:Lerp(UI_CONSTANTS.TASTEMAKER_PURPLE, 0.20)
 			else
 				return baseColor
 			end
@@ -104,13 +104,13 @@ function Button(
 
 		[Children] = {
 			scope:New "UICorner" {
-				CornerRadius = props.cornerRadius or UDim.new(0.4, 0)
+				CornerRadius = props.cornerRadius or UDim.new(0.5, 0)
 			},
 
 			scope:New "UIStroke" {
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				Color = props.strokeColor or UI_CONSTANTS.TASTEMAKER_PURPLE,
-				Thickness = props.strokeThickness or 3,
+				Thickness = props.strokeThickness or 2,
 			},
 
 			scope:New "UIPadding" {
