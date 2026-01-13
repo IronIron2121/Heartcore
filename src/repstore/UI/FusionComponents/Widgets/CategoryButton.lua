@@ -12,8 +12,9 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 --Constants
-local COLOUR_SELECTED = Color3.fromRGB(180, 188, 254)
-local HOVER_SCALE = 1.1 
+local COLOUR_SELECTED = UI_CONSTANTS.COLOUR_LILAC
+local DEFAULT_COLOUR = UI_CONSTANTS.TASTEMAKER_PURPLE
+local HOVER_SCALE = 1.2 
 
 -- Fusion
 local Children = Fusion.Children
@@ -56,7 +57,7 @@ function CategoryButton(
 			if use(props.isSelected) then
 				return COLOUR_SELECTED
 			else
-				return UI_CONSTANTS.COLOUR_WHITE
+				return DEFAULT_COLOUR
 			end
 		end)
 	)
@@ -65,7 +66,7 @@ function CategoryButton(
 	local sizeSpring = scope:Spring(
 		scope:Computed(function(use)
 			local hovering = use(isHovering)
-			if hovering then
+			if hovering or use(props.isSelected) then
 				return HOVER_SCALE
 			else
 				return 1
@@ -109,8 +110,8 @@ function CategoryButton(
 			scope:New "UIPadding" {
 				PaddingTop = UDim.new(0.1,0),
 				PaddingBottom = UDim.new(0.1,0),
-				PaddingLeft = UDim.new(0.1,0),
-				PaddingRight = UDim.new(0.1,0)
+				PaddingLeft = UDim.new(0.05,0),
+				PaddingRight = UDim.new(0.05,0)
 			},
 
 			scope:New "UIScale" {

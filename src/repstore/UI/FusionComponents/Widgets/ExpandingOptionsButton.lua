@@ -12,9 +12,9 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Contstants
-local COLOUR_SELECTED = Color3.fromRGB(180, 188, 254)
-local DEFAULT_COLOUR = Color3.fromRGB(54, 24, 220)
-local HOVER_SCALE = 1.1 
+local COLOUR_SELECTED = UI_CONSTANTS.COLOUR_LILAC
+local DEFAULT_COLOUR = UI_CONSTANTS.TASTEMAKER_PURPLE
+local HOVER_SCALE = 1.2 
 
 -- Fusion
 local Children = Fusion.Children
@@ -68,7 +68,8 @@ function ExpandingOptionsButton(
 	local sizeSpring = scope:Spring(
 		scope:Computed(function(use)
 			local hovering = use(isHovering)
-			if hovering then
+			local expanded = use(isExpanded)
+			if hovering or expanded then
 				return HOVER_SCALE
 			else
 				return 1

@@ -53,7 +53,7 @@ local function createDropdownDisplay(
 			scope:New "Frame" {
 				Name = "OptionsFrame",
 				AnchorPoint = Vector2.new(0, 0),
-				Position = UDim2.fromScale(0.77, 0.074),
+				Position = UDim2.fromScale(0.77, 0.16),
 				Size = scope:Computed(function()
 					local optionHeight = 35
 					local totalHeight = #options * optionHeight
@@ -71,7 +71,7 @@ local function createDropdownDisplay(
 					scope:New "UIStroke" {
 						ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 						Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-						Thickness = 1,
+						Thickness = 2,
 					},
 
 					scope:New "UICorner" {
@@ -138,6 +138,11 @@ local function createDropdownDisplay(
 									end,
 
 									[Children] = {
+										scope:New "UIPadding" {
+											PaddingTop = UDim.new(0.1,0),
+											PaddingBottom = UDim.new(0.1,0)
+										},
+
 										scope:New "UIScale" {
 											Scale = textSizeSpring -- this will still scale the whole label
 										}

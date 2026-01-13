@@ -70,7 +70,7 @@ function CategoryFrame(
 		Position = (props and props.position) or UDim2.fromScale(0.5, 0.1),
 		AnchorPoint = (props and props.anchorPoint) or Vector2.new(0.5, 0.5),
 		LayoutOrder = (props and props.layoutOrder) or 1,
-		BackgroundColor3 = (props and props.backgroundColor3) or UI_CONSTANTS.TASTEMAKER_PURPLE,
+		BackgroundColor3 = UI_CONSTANTS.COLOUR_WHITE,
 		BackgroundTransparency = (props and props.backgroundTransparency) or UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
 		Visible = scope:Computed(function(use)
 			return use(props.currentView) == "Catalog"
@@ -86,7 +86,7 @@ function CategoryFrame(
 			},
 			
 			scope:New "UICorner" {
-				CornerRadius = UDim.new(0.1, 0)
+				CornerRadius = UDim.new(0.2, 0)
 			},
 			
 			-- Inner scrolling frame
