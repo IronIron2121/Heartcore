@@ -92,7 +92,7 @@ local function ExpHud(scope: Fusion.Scope)
 		Name = "playerRankDisplay",
 		Size = UDim2.fromScale(1, 1),
 		Position = UDim2.fromScale(0,1),
-        AnchorPoint = Vector2.new(0,1),
+        AnchorPoint = Vector2.new(1,0),
 		BackgroundTransparency = 1,
 		Text = rankText,
 		TextColor3 = Color3.new(1,1,1),
@@ -129,9 +129,9 @@ local function ExpHud(scope: Fusion.Scope)
 
 			scope:New "Frame" {
 				Name = "rankContainer",
-				AnchorPoint = Vector2.new(0,0),
+				AnchorPoint = Vector2.new(0, 1),
 				Size = UDim2.fromScale(0.5, 0.2),
-				Position = UDim2.fromScale(0.11,0.75),
+				Position = UDim2.fromScale(0.97,0.35),
 				BackgroundTransparency = 1,
 
 				[Children] = {
