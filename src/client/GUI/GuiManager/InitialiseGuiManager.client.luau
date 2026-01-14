@@ -65,9 +65,9 @@ local function InitialiseHuds()
 
     local Configuration1 = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.Configuration1,
-        bottomLeft = expHud,
+        topMiddle = submissionThemeBar,
+        topRight = expHud,
         bottomMiddle = buttonsFrame,
-        topMiddle = submissionThemeBar
     })
 
     GuiManager.RegisterConfiguration(Configuration1) 

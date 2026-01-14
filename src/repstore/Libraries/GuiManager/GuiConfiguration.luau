@@ -34,6 +34,14 @@ local SLOT_LAYOUTS = {
         Size = UDim2.fromScale(0.5, 0.2)
     },
 
+    [Constants.GUI_SLOT_NAMES.TopRight] = {
+        Name =  Constants.GUI_SLOT_NAMES.TopRight,
+        AnchorPoint = Vector2.new(1, 0),
+        InPosition = UDim2.fromScale(1, 0),
+        OutPosition = UDim2.fromScale(2, 0),
+        Size = UDim2.fromScale(0.3, 0.2)
+    },
+
     [Constants.GUI_SLOT_NAMES.BottomLeft] = {
         Name =  Constants.GUI_SLOT_NAMES.BottomLeft,
         AnchorPoint = Vector2.new(0, 1),
@@ -86,6 +94,7 @@ function GuiConfiguration.new(props: {
     ConfigurationName: string,
     color: Color3?,
     topMiddle: GuiObject?,
+    topRight: GuiObject?,
     bottomLeft: GuiObject?,
     bottomMiddle: GuiObject?,
     bottomRight: GuiObject?
@@ -131,6 +140,25 @@ function GuiConfiguration.new(props: {
         }
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopMiddle] = self.TopMiddlePosition
+
+    self.TopRightPosition = self.scope:Computed(function(use)  
+        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].OutPosition  
+    end)
+    self.TopRight = self.scope:New "Frame" {
+        Name        = SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].Name,
+        AnchorPoint = SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].AnchorPoint,
+        Position    = self.scope:Tween(self.TopRightPosition, Constants.DEFAULT_TWEEN),
+        Size        = SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].Size,
+        BackgroundColor3      = props.color or SLOT_CONSTANTS.Colour,
+        Visible     = SLOT_CONSTANTS.Visible,
+        Parent      = self.ConfigurationContainer,
+        BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
+
+        [Children] = {
+            props.topRight
+        }
+    } :: Frame
+    self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopRight] = self.TopRightPosition
 
     self.BottomLeftPosition = self.scope:Computed(function(use)  
         return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].OutPosition  

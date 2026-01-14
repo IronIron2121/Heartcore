@@ -90,7 +90,7 @@ function ExpBar(
         BackgroundTransparency = 1,
         AnchorPoint = Vector2.new(0,0),
         Size = UDim2.fromScale(0.5,0.5),
-        Position = UDim2.fromScale(0,0.4),
+        Position = UDim2.fromScale(0.35,0),
 
         [Children] = {
             scope:New "ImageLabel" {
