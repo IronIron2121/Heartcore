@@ -79,7 +79,7 @@ local function InitialiseModals()
     local modalScope = Fusion:scoped() 
     local dailyChallengeFrame = DailyChallengeFrame(modalScope)
     local wardrobeContainer, avatarContainer, catalogContainer = WardrobeContainer(modalScope)
-    local votingFrame = VotingFrame(modalScope)
+    local votingFrame, refreshOutfitVoteTiles = VotingFrame(modalScope)
 
     -- TODO: Find a more robust way of doing the below, this is vestigial code
 	local controllers = {}
@@ -92,7 +92,8 @@ local function InitialiseModals()
 
     GuiManager.RegisterModal(MODAL_NAMES.DAILY_CHALLENGE_GUI, dailyChallengeFrame)
     GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer) 
-    GuiManager.RegisterModal(MODAL_NAMES.VOTING_GUI, votingFrame)
+    GuiManager.RegisterModal(MODAL_NAMES.VOTING_GUI, votingFrame, refreshOutfitVoteTiles)
+    
 end
 
 local function initialiseGuiManager()

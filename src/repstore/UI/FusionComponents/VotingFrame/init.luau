@@ -54,7 +54,7 @@ type TileData = {
     views: number
 }
 
-local function VotingFrame(scope: Fusion.Scope): Frame
+local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
     -- Variables
     local timeToNextRotation = scope:Value("LOADING...")
     local outfitVoteTiles = scope:Value({})
@@ -355,7 +355,7 @@ local function VotingFrame(scope: Fusion.Scope): Frame
         }
     } :: Frame
 
-    return VotingFrame
+    return VotingFrame, refreshOutfitVoteTiles
 end
 
 return VotingFrame

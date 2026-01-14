@@ -54,7 +54,7 @@ local HudContainer = modalScope:New "ScreenGui" {
     ZIndexBehavior = Enum.ZIndexBehavior.Global,
 }
 
-local registeredModals: {[string]: {guiObject: GuiObject, cb: () -> ()?}} = {}
+local registeredModals: {[string]: {guiObject: GuiObject, callback: () -> ()?}} = {}
 local modalStack: Value<{GuiObject}> = modalScope:Value({})
 
 local CentreActive = modalScope:Computed(function(use) 
@@ -152,14 +152,14 @@ function GuiManager.RegisterModal(objectName: string, guiObject: GuiObject, onAc
     assert(objectName and guiObject, "Inadequate information to register modal! Name = " .. objectName)
     registeredModals[objectName] = {
         ["guiObject"] = guiObject,
-        ["cb"] = onActivated
+        ["callback"] = onActivated
     }
     guiObject.Parent = modalContainer
     guiObject.AnchorPoint = Vector2.new(0.5, 0.5)
     guiObject.Visible = false
 end
 
-function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject, cb: () -> ()?}
+function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject, callback: () -> ()?}
     return registeredModals[modalName]
 end
 
@@ -190,8 +190,8 @@ function GuiManager.PushCentreByName(modalName: string): ()
     table.insert(currentModals, modalToPush.guiObject)
     modalToPush.guiObject.Visible = true
     
-    if modalToPush.cb then
-        modalToPush.cb()
+    if modalToPush.callback then
+        modalToPush.callback()
     end 
 
     modalStack:set(currentModals)
