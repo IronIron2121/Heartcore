@@ -7,7 +7,7 @@ local StarterPlayer = game:GetService("StarterPlayer")
 -- Folders
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 
-local GuiManangerLibrary = Libraries:WaitForChild("GuiManager")
+local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI.FusionComponents
@@ -23,10 +23,10 @@ local CatalogSearchController = require(WardrobeGuiController.CatalogSearchContr
 local OutfitViewController = require(WardrobeGuiController.OutfitViewController)
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
 local Fusion = require(ReplicatedStorage.Utility.Fusion)
-local GuiConfiguration = require(GuiManangerLibrary.GuiConfiguration)
-local MODAL_NAMES = require(GuiManangerLibrary.MODAL_NAMES)
-local CONFIGURATION_NAMES = require(GuiManangerLibrary.CONFIGURATION_NAMES)
-local GuiManager = require(GuiManangerLibrary.GuiManager)
+local GuiConfiguration = require(GuiManagerLibrary.GuiConfiguration)
+local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
+local CONFIGURATION_NAMES = require(GuiManagerLibrary.CONFIGURATION_NAMES)
+local GuiManager = require(GuiManagerLibrary.GuiManager)
 local ExpHud = require(FusionComponents:WaitForChild("ExpHud"))
 local DailyChallengeFrame = require(DailyChallengeFolder.DailyChallengeFrame)
 local OpenDailyChallengeGuiButton = require(FusionComponents:WaitForChild("OpenDailyChallengeGuiButton"))

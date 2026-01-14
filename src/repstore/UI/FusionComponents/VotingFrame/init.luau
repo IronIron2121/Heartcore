@@ -39,6 +39,7 @@ type Value<T> = Fusion.Value<T>
 -- Constants
 local maxDisplayedOutfits = 3
 local VOTE_TILE_SIZE = UDim2.fromScale(0.3, 0.9)
+local MIN_SECS_BETWEEN_REFRESH = 10
 
 -- Remotes / Bindables
 local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTheme")
@@ -59,16 +60,26 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
     local timeToNextRotation = scope:Value("LOADING...")
     local outfitVoteTiles = scope:Value({})
     local isRefreshing = false
+    local lastRefresh = scope:Value(DateTime.now().UnixTimestamp)
     local selectedTileId = scope:Value(0)
     local votingTheme = scope:Value("")
 
-    local function refreshOutfitVoteTiles()
+    local function refreshOutfitVoteTiles(force: boolean?)
         if isRefreshing then
             warn("Already refreshing outfit tiles, skipping...")
             return
         end
-        
+
+        local currentRefresh = DateTime.now().UnixTimestamp
+        local refreshInterval = currentRefresh - peek(lastRefresh)
+
+        if not force and refreshInterval then
+            warn("Refresh triggered too soon since last refresh")
+            return
+        end
+
         isRefreshing = true
+        lastRefresh:set(DateTime.now().UnixTimestamp)
         
         -- Clear selection and existing tiles
         outfitVoteTiles:set({})
@@ -119,7 +130,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
     task.spawn(function()
         task.wait(1)
         votingTheme:set(PlayerRequestedVotingTheme:InvokeServer())
-        refreshOutfitVoteTiles()
+        refreshOutfitVoteTiles(true)
     end)
 
     -- Initialize rotation timer
@@ -332,10 +343,10 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
                                                 end
 
                                                 PlayerSubmittedVote:InvokeServer(outfitData.userId, viewIds)
-                                                refreshOutfitVoteTiles()
+                                                refreshOutfitVoteTiles(true)
                                             else
-                                                refreshOutfitVoteTiles()
                                                 warn("No outfitData user id!")
+                                                refreshOutfitVoteTiles(true)
                                             end
                                         end
                                     })

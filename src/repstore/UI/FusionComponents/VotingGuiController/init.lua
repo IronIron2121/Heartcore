@@ -17,8 +17,6 @@ local localPlayer = Players.LocalPlayer
 
 -- GUI
 local PlayerGui         = localPlayer.PlayerGui
-local OutfitVoteTile    = require(script:WaitForChild("OutfitVoteTile"))
-local EmptyVoteTile     = require(script:WaitForChild("EmptyVoteTile"))
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 
 -- Modules
