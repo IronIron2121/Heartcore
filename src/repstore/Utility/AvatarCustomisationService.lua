@@ -279,7 +279,8 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 	end
 
 	-- Handle Body Parts bundles
-	if bundleInfo.BundleType == Enum.BundleType.BodyParts.Name then
+	if bundleInfo.BundleType == Enum.BundleType.BodyParts.Name or bundleInfo.BundleType == Enum.BundleType.Shoes.Name then
+		warn("Adding here...")
 		local bodyParts = {}
 		local accessories = {}
 		
@@ -338,6 +339,7 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		return
 	end
 
+	warn("Not found ABOVE; ", bundleInfo)
 	-- Check for UserOutfit (simpler approach for other bundle types)
 	local userOutfitId = getUserOutfitIdFromBundleItems(bundleItems)
 	if userOutfitId then
@@ -413,6 +415,7 @@ end
 
 -- Public API
 function AvatarCustomisationService.AddItemToAvatar(player: Player, itemId: number, assetOrBundleType: string, itemType: string)
+	warn("Adding item to avatar; ", itemId, assetOrBundleType, itemType)
 	if itemType == "Asset" and table.find(Constants.CLASSIC_CLOTHING_ASSET_TYPES, assetOrBundleType) then
 		AvatarCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Asset" and assetOrBundleType == Constants.EMOTE_ASSET_TYPE then
@@ -420,6 +423,7 @@ function AvatarCustomisationService.AddItemToAvatar(player: Player, itemId: numb
 	elseif itemType == "Asset" then
 		AvatarCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Bundle" then
+		warn("Adding bundle")
 		AvatarCustomisationService.AddBundleToAvatar(player, itemId, assetOrBundleType)
 	else
 		warn("Invalid item type:", itemType, "Expected 'Asset' or 'Bundle'")
