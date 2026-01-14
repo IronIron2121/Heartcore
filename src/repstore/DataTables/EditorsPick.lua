@@ -40,7 +40,7 @@ EditorsPick.ids = {
     },
 
     {
-        id = 592, -- Davy Bazooka
+        id = 128696312129556, -- Black Loafers
         itemType = Enum.AvatarItemType.Bundle
     },
 
