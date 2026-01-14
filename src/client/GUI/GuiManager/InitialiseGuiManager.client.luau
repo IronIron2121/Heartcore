@@ -30,6 +30,7 @@ local GuiManager = require(GuiManangerLibrary.GuiManager)
 local ExpHud = require(FusionComponents:WaitForChild("ExpHud"))
 local DailyChallengeFrame = require(DailyChallengeFolder.DailyChallengeFrame)
 local OpenDailyChallengeGuiButton = require(FusionComponents:WaitForChild("OpenDailyChallengeGuiButton"))
+local VotingFrame = require(FusionComponents.VotingFrame)
 
 -- Fusion
 local Children = Fusion.Children
@@ -78,17 +79,20 @@ local function InitialiseModals()
     local modalScope = Fusion:scoped() 
     local dailyChallengeFrame = DailyChallengeFrame(modalScope)
     local wardrobeContainer, avatarContainer, catalogContainer = WardrobeContainer(modalScope)
+    local votingFrame = VotingFrame(modalScope)
 
     -- TODO: Find a more robust way of doing the below, this is vestigial code
 	local controllers = {}
 	controllers["AvatarEditorController"] = AvatarEditorController.new(avatarContainer) 
 	controllers["CatalogSearchController"] = CatalogSearchController.new(catalogContainer) 
+    controllers["VotingGuiController"] = nil
 	controllers["OutfitViewController"] = OutfitViewController
 	controllers["AvatarEditorController"]:Initialise()
 	controllers["CatalogSearchController"]:Initialise()
 
     GuiManager.RegisterModal(MODAL_NAMES.DAILY_CHALLENGE_GUI, dailyChallengeFrame)
     GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer) 
+    GuiManager.RegisterModal(MODAL_NAMES.VOTING_GUI, votingFrame)
 end
 
 local function initialiseGuiManager()

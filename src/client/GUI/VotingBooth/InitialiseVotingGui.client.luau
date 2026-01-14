@@ -7,7 +7,7 @@ local workspace = game:GetService("Workspace")
 
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
-local FusionComponents = UI:WaitForChild("FusionComponents")
+local FusionCmponents = UI:WaitForChild("FusionComponents")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local votingZone = workspace:WaitForChild("votingZone")
 local centralPond = workspace:WaitForChild("centralPond")
@@ -22,8 +22,9 @@ local Frame = BillboardGui:WaitForChild("Frame")
 local TimeLabel = Frame:WaitForChild("TimeLabel")
 
 -- Modules
-local VotingGuiController = require(FusionComponents:WaitForChild("VotingGuiController"))
---local VotingClientManager = require(Utility:WaitForChild("VotingClientManager"))
+local Constants = require(ReplicatedStorage.Constants)
+local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
+local MODAL_NAMES = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
 
@@ -59,11 +60,11 @@ local function initialiseVoteGui()
         ActionText = "Vote Here!",
 
         [OnEvent "Triggered"] = function()
-            warn("triggering!")
-            onVotePromptActivated()
+            GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
         end
     }
 
+    --[[
     task.spawn(function()
         while true do
             task.wait(1)
@@ -75,6 +76,7 @@ local function initialiseVoteGui()
         VoteGuiVisible = VoteGuiVisible, 
         TimeText = TimeText
     })
+    ]]
 end 
 
 initialiseVoteGui()

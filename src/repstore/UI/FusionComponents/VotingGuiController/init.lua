@@ -63,8 +63,8 @@ local isRefreshing = false
 --
 
 local VotingGuiController = {}
- 
-local function refreshOutfitVoteTiles()
+
+function VotingGuiController.refreshOutfits()
     if isRefreshing then
         warn("Already refreshing outfit tiles, skipping...")
         return
@@ -115,10 +115,6 @@ local function refreshOutfitVoteTiles()
     
     outfitVoteTiles:set(newTiles)
     isRefreshing = false
-end
-
-function VotingGuiController.refreshOutfits()
-    refreshOutfitVoteTiles()
 end
 
 local function initialiseRotationTimer()

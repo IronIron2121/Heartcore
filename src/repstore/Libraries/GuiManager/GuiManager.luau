@@ -54,7 +54,7 @@ local HudContainer = modalScope:New "ScreenGui" {
     ZIndexBehavior = Enum.ZIndexBehavior.Global,
 }
 
-local registeredModals: {[string]: GuiObject} = {}
+local registeredModals: {[string]: {guiObject: GuiObject, cb: () -> ()?}} = {}
 local modalStack: Value<{GuiObject}> = modalScope:Value({})
 
 local CentreActive = modalScope:Computed(function(use) 
@@ -148,15 +148,18 @@ function GuiManager.RegisterConfiguration(config: Types.GuiConfiguration)
 end
 
 -- Registers a modal so that it can easily be referenced from within the GUI manager
-function GuiManager.RegisterModal(objectName: string, guiObject: GuiObject): ()
+function GuiManager.RegisterModal(objectName: string, guiObject: GuiObject, onActivated: () -> ()?): ()
     assert(objectName and guiObject, "Inadequate information to register modal! Name = " .. objectName)
-    registeredModals[objectName] = guiObject
+    registeredModals[objectName] = {
+        ["guiObject"] = guiObject,
+        ["cb"] = onActivated
+    }
     guiObject.Parent = modalContainer
     guiObject.AnchorPoint = Vector2.new(0.5, 0.5)
     guiObject.Visible = false
 end
 
-function GuiManager.GetRegisteredModal(modalName: string): GuiObject
+function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject, cb: () -> ()?}
     return registeredModals[modalName]
 end
 
@@ -171,7 +174,7 @@ function GuiManager.PushCentreByName(modalName: string): ()
     local currentModals = table.clone(peek(modalStack))
     local modalToPush = GuiManager.GetRegisteredModal(modalName)
 
-    if table.find(currentModals, modalToPush) then
+    if table.find(currentModals, modalToPush.guiObject) then
         warn("Cannot push already active modal!")
         return
     end
@@ -184,8 +187,12 @@ function GuiManager.PushCentreByName(modalName: string): ()
         GuiManager.HideCurrentConfiguration()
     end
 
-    table.insert(currentModals, modalToPush)
-    modalToPush.Visible = true
+    table.insert(currentModals, modalToPush.guiObject)
+    modalToPush.guiObject.Visible = true
+    
+    if modalToPush.cb then
+        modalToPush.cb()
+    end 
 
     modalStack:set(currentModals)
 end
