@@ -190,6 +190,7 @@ local Constants = {
     DEFAULT_TWEEN = TweenInfo.new(0.5, Enum.EasingStyle.Quad),
     GUI_SLOT_NAMES = {
         ["TopMiddle"] = "TopMiddle",
+        ["TopRight"] = "TopRight",
         ["BottomLeft"] = "BottomLeft",
         ["BottomMiddle"] = "BottomMiddle",
         ["BottomRight"] = "BottomRight",
