@@ -60,7 +60,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 	local frame = Instance.new("Frame")
 	frame.Size = UDim2.new(1, 0, 1, 0)
 	frame.BackgroundColor3 = Color3.fromRGB(90, 47, 243)
-	frame.BackgroundTransparency = 0.3
+	frame.BackgroundTransparency = 0.5
 	frame.BorderSizePixel = 0
 	frame.Parent = billboard
 	
@@ -92,23 +92,18 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 	buttonCorner.CornerRadius = UDim.new(3,0)
 	buttonCorner.Parent = button
 
-	-- tween settings
-	local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad,	Enum.EasingDirection.Out)
-	local function tweenStroke(targetColor: Color3, targetThickness: number)
-		TweenService:Create(stroke, tweenInfo, {Color = targetColor, Thickness = targetThickness}):Play()
+	local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local function tweenBackground(targetTransparency: number)
+		TweenService:Create(frame, tweenInfo, {BackgroundTransparency = targetTransparency}):Play()
 	end
 
 	-- hover animations
 	button.MouseEnter:Connect(function()
-		tweenStroke(UI_CONSTANTS.TASTEMAKER_GREEN, 2)
+		tweenBackground(0.1) -- more opaque on hover
 	end)
 
 	button.MouseLeave:Connect(function()
-		tweenStroke(Color3.fromRGB(255, 255, 255), 2) -- back to white
-	end)
-
-	button.Activated:Connect(function()
-		Inspector.inspectMannequin(mannequin)
+		tweenBackground(0.5) -- back to original transparency
 	end)
 
 	-- Update the text key prompt dynamically
@@ -142,7 +137,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 			keyText = "[Tap]"
 		end
 
-		button.Text = action .. " " .. keyText
+		button.Text = action --.. " " .. keyText
 	end
 
 	updateLabel()
