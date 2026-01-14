@@ -111,10 +111,6 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 		Inspector.inspectMannequin(mannequin)
 	end)
 
-	button.Activated:Connect(function()
-		Inspector.inspectMannequin(mannequin)
-	end)
-
 	-- Update the text key prompt dynamically
 	local function keyCodeToLabel(keyCode: Enum.KeyCode): string
 		if keyCode == Enum.KeyCode.Unknown then
