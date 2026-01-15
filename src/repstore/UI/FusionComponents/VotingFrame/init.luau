@@ -16,6 +16,12 @@ local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
+local centralPond               = workspace:WaitForChild("centralPond")
+local pondModel                 = centralPond:WaitForChild("centralPond")
+local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
+local BillboardGui              = SubmissionBillboardHolder:WaitForChild("BillboardGui")
+local Frame                     = BillboardGui:WaitForChild("Frame")
+local TimeLabel                 = Frame:WaitForChild("TimeLabel")
 
 -- GUI
 local OutfitVoteTile    = require(script:WaitForChild("OutfitVoteTile"))
@@ -137,7 +143,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
     task.spawn(function()
         while true do
             task.wait(1) 
-            timeToNextRotation:set("Out of outfits to load! Please wait for next voting phase!")   
+            timeToNextRotation:set(TimeLabel.Text)   
         end
     end)
 
@@ -224,7 +230,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
                                 LayoutOrder = 0,
                                 BackgroundTransparency = 1,
                                 TextColor3 = Color3.fromRGB(92, 96, 214),
-                                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
+                                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
                             },
 
                             scope:New "TextLabel" {
@@ -355,7 +361,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         name = tileName,
                                         layoutOrder = index,
                                         size = VOTE_TILE_SIZE,
-                                        timeToNextRotation = timeToNextRotation
+                                        timeToNextRotation = "Out of outfits to load! Please wait for next voting phase."
                                     })
                                 end
                             end)

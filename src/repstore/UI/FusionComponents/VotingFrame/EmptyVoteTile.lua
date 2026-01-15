@@ -22,7 +22,6 @@ local HOLD_COLOR = Color3.new(0.117647, 0.023529, 0.941176)
 local OnEvent = Fusion.OnEvent
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
-local peek = Fusion.peek
 
 --
 
