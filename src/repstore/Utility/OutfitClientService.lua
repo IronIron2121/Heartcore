@@ -101,6 +101,9 @@ end
 
 
 function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
+	PlayerSavedTastemakerOutfit:FireServer()
+
+	--[[
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoid = character:WaitForChild("Humanoid") :: Humanoid
 	local humanoidDescription = humanoid:GetAppliedDescription()
@@ -110,7 +113,6 @@ function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 			if MarketplaceService:PlayerOwnsAsset(player, description.AssetId) then
 				continue
 			else
-				PlayerSavedTastemakerOutfit:FireServer()
 				-- do local outfit creation
 				return
 			end
@@ -128,6 +130,7 @@ function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 	end
 	
 	AvatarEditorService:PromptCreateOutfit(humanoidDescription, Enum.HumanoidRigType.R15)
+	]]
 end
 
 function OutfitClientService.DeleteOutfit(outfitId: number)

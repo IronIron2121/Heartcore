@@ -171,9 +171,6 @@ function AvatarViewport(
 						"Are you sure you want to save this outfit?", 
 						function()  
 							OutfitClientService.SaveCurrentPlayerOutfit(localPlayer)
-						end, 
-						function()  
-
 						end
 					)
 

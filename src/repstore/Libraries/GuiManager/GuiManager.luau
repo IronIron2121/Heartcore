@@ -261,8 +261,8 @@ function GuiManager.ResetNotificationDetails()
     end)
 end
 
-function GuiManager.PushNotificationCentre(notificationName: string, message: string, yesCb: () -> (), noCb: () -> (), showAgain: boolean?)
-    warn(peek(notificationActive))
+function GuiManager.PushNotificationCentre(notificationName: string, message: string, yesCb: () -> (), noCb: () -> ()?, showAgain: boolean?)
+    warn("Pushing notification")
     if hiddenNotifications[notificationName] then
         -- TODO
     end
@@ -281,7 +281,9 @@ function GuiManager.PushNotificationCentre(notificationName: string, message: st
     noCallback:set(function()
         GuiManager.PopNotification()
         GuiManager.ResetNotificationDetails()
-        noCb()
+        if noCb then
+            noCb()
+        end
 
     end)
 
