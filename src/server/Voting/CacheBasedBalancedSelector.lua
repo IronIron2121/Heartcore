@@ -319,8 +319,6 @@ function CacheBasedBalancedSelector:getStats()
 end
 
 function CacheBasedBalancedSelector:resetCache()
-    print("Resetting selection cache...")
-    
     -- Clear all buckets
     self.selectionBuckets = {}
     self.totalWeightedOutfits = 0
@@ -333,8 +331,6 @@ function CacheBasedBalancedSelector:resetCache()
         fallbackSelections = 0,
         lastRebuildTime = 0
     }
-    
-    print("Selection cache reset complete")
 end
 
 return CacheBasedBalancedSelector

@@ -74,7 +74,6 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
         local refreshInterval = currentRefresh - peek(lastRefresh)
 
         if not force and refreshInterval then
-            warn("Refresh triggered too soon since last refresh")
             return
         end
 

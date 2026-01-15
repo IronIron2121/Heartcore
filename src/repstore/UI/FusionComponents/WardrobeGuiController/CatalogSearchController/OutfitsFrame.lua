@@ -84,17 +84,15 @@ function OutfitsFrame(
 		
 		-- Get Tastemaker Outfits
 		local tastemakerSuccess, result = pcall(function()
-			warn("getting tastemaker outfits")
 			return GetPlayerTastemakerOutfits:InvokeServer()
 		end) 
 
 		if tastemakerSuccess and result then
-			warn("Got them! setting...", result)
 			tastemakerOutfits:set(result)
 		elseif tastemakerSuccess and not result then
 			warn("Successful query but no outfits")
-		else
-			assert("Error on attempt to get tastemaker outfits!")
+		elseif not tastemakerSuccess then
+			warn("Error on attempt to get tastemaker outfits!")
 		end
 		isLoading:set(false)
 	end

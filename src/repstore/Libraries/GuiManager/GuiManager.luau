@@ -77,16 +77,6 @@ end)
 
 local modalTween = guiScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
 
-local TRANSITION_THRESHOLD = 1
-
-local isModalInTransition = guiScope:Computed(function(use)  
-    local tweenPos = use(modalTween) :: UsedAs<UDim2>
-    local targetPos = use(modalPosition) :: UsedAs<UDim2>
-    local xDiff = math.abs(tweenPos.X.Scale - targetPos.X.Scale)
-    local yDiff = math.abs(tweenPos.Y.Scale - targetPos.Y.Scale)
-    return xDiff > TRANSITION_THRESHOLD or yDiff > TRANSITION_THRESHOLD
-end)
-
 local ModalGui = guiScope:New "ScreenGui" {
     Name = "ModalGui",
     Enabled = true,
@@ -132,7 +122,9 @@ local notificationTextLabel = guiScope:New "TextLabel" {
     Text = notificationText,
     FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Regular),
     Size = UDim2.fromScale(1, 0.5),
-    TextScaled = true,
+    TextScaled = false,
+    TextWrapped = true,
+    TextSize = 50,
     BackgroundColor3 = Color3.new(0,0,0),
     [Children] = {
         guiScope:New "UICorner" {
@@ -254,9 +246,51 @@ local NotificationGui = guiScope:New "ScreenGui" {
 -- ## NOTIFICATION MANAGER END -- ##
 
 local isLoaded = false
-
 local GuiManager = {} 
+local hiddenNotifications = {
 
+}
+
+function GuiManager.ResetNotificationDetails()
+    notificationText:set("")
+    yesCallback:set(function()
+        return
+    end)
+    noCallback:set(function()
+        return
+    end)
+end
+
+function GuiManager.PushNotificationCentre(notificationName: string, message: string, yesCb: () -> (), noCb: () -> (), showAgain: boolean?)
+    warn(peek(notificationActive))
+    if hiddenNotifications[notificationName] then
+        -- TODO
+    end
+
+    if peek(notificationActive) then
+        warn("Notification already active!")
+        return
+    end
+
+    notificationText:set(message)
+    yesCallback:set(function()
+        GuiManager.PopNotification()
+        GuiManager.ResetNotificationDetails()
+        yesCb()
+    end)
+    noCallback:set(function()
+        GuiManager.PopNotification()
+        GuiManager.ResetNotificationDetails()
+        noCb()
+
+    end)
+
+    notificationActive:set(true)
+end
+
+function GuiManager.PopNotification()
+    notificationActive:set(false)
+end
 
 function GuiManager.IsLoaded()
     return isLoaded
@@ -279,7 +313,7 @@ function GuiManager.DisplayConfiguration(configurationName: string): ()
     end
 
 end 
-
+ 
 function GuiManager.HideCurrentConfiguration(): ()
     if currentConfiguration then
         currentConfiguration:Disable()
@@ -289,10 +323,6 @@ end
 function GuiManager.ShowCurrentConfiguration(): ()
     if currentConfiguration then
         currentConfiguration:Enable()
-    end
-
-    if peek(CentreActive) then
-        GuiManager.PopCentre()
     end
 end
 
@@ -326,8 +356,8 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
 end
 
 function GuiManager.PushCentreByName(modalName: string): ()
-    if not isLoaded or peek(isModalInTransition) then 
-        warn("Still initialising GUI!", isLoaded, isModalInTransition)
+    if not isLoaded  then 
+        warn("Still initialising GUI!", isLoaded)
         return
     end 
 
@@ -344,10 +374,8 @@ function GuiManager.PushCentreByName(modalName: string): ()
 
     -- Hide previous top modal if exists
     if #currentModals >= 1 then
-        warn("Hiding Top Modal")
         currentModals[#currentModals].Visible = false
     else
-        warn("Hiding all prompts and configuration!")
         HideAllPromptsBindable:Fire()
         GuiManager.HideCurrentConfiguration()
     end
@@ -356,7 +384,6 @@ function GuiManager.PushCentreByName(modalName: string): ()
     modalToPush.guiObject.Visible = true
     
     if modalToPush.callback then
-        warn("Callingback...")
         modalToPush.callback()
     end 
 
@@ -364,14 +391,6 @@ function GuiManager.PushCentreByName(modalName: string): ()
 end
 
 function GuiManager.PopCentre(guiObject: GuiObject?): ()
-    warn("Popping centre")
-    if peek(isModalInTransition) then
-        return
-    else
-        warn(peek(modalTween))
-        warn(peek(ON_SCREEN_POSITION))
-    end
-
     -- Clone to avoid mutating the original table
     local modals = table.clone(peek(modalStack))
 
@@ -387,15 +406,12 @@ function GuiManager.PopCentre(guiObject: GuiObject?): ()
     if #modals > 0 then
         modals[#modals].Visible = true
         topModal.Visible = false 
-        warn("Popped with more than one")
     else
+        GuiManager.ShowCurrentConfiguration()
         -- Only show HUD when stack is empty
-        -- Hide the popped modal after it slides off-screen
-        warn("Popped the last")
         task.delay(TWEEN_LENGTH, function()
             topModal.Visible = false
             ShowAllPromptsBindable:Fire()
-            GuiManager.ShowCurrentConfiguration()
         end)
     end
 
