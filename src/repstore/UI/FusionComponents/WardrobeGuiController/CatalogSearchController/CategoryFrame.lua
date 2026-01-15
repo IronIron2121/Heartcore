@@ -92,7 +92,8 @@ function CategoryFrame(
 			-- Inner scrolling frame
 			scope:New "ScrollingFrame" {
 				Name = "CategoryScrollFrame",
-				Size = UDim2.fromScale(1, 0.99),
+				AnchorPoint = Vector2.new(0.5,0),
+				Size = UDim2.fromScale(0.95, 0.99),
 				Position = UDim2.fromScale(0, 0),
 				BackgroundTransparency = 1,
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
