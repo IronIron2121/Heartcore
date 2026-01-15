@@ -299,9 +299,6 @@ local function getAllEntriesFromSubmissionStore(storeName: string): {[string]: a
 		return entries
 	end
 	
-	warn("GETTING ENTRIES FROM SUB STORE")
-	warn("GETTING ENTRIES FROM SUB STORE")
-	warn("GETTING ENTRIES FROM SUB STORE")
 	for _, item in ipairs(items) do
 		entries[item.key] = item.value
 	end

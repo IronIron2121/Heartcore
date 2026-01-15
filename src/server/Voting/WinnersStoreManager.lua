@@ -355,17 +355,13 @@ function WinnersStoreManager.setNewWinners()
     local erePreviousPrefix = GameTimer.getErePreviousPhasePrefix()
     
     if not erePreviousPrefix then
-        print("No ereyesterday phase available yet - cannot determine winners")
         return false
     end
-    
-    print("Determining winners from phase:", erePreviousPrefix)
     
     -- Get all submission stores for that phase
     local storeNames = getSubmissionStoreNames(erePreviousPrefix)
     
     if #storeNames == 0 then
-        warn("No submission stores found for phase:", erePreviousPrefix)
         return false
     end
     

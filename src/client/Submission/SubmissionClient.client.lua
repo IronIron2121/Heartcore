@@ -48,8 +48,6 @@ local function onSubmissionResult(
         msg: string
     }
 ): ()
-    warn("Got result....")
-
     if result.msg == Constants.NO_CURRENT_PHASE_MESSAGE then
         warn(result.msg)
         task.wait(5)
@@ -58,7 +56,6 @@ local function onSubmissionResult(
     end
 
     if result.ok then
-        warn("Player submitted successfully!")
         disableSubmitButton()
         StarterGui:SetCore("SendNotification",{
             Title = "Outfit Submitted Successfully!", -- Required
