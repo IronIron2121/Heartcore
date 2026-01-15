@@ -39,7 +39,7 @@ type Value<T> = Fusion.Value<T>
 -- Constants
 local maxDisplayedOutfits = 3
 local VOTE_TILE_SIZE = UDim2.fromScale(0.3, 0.9)
-local MIN_SECS_BETWEEN_REFRESH = 10
+local MIN_SECS_BETWEEN_REFRESH = 1
 
 -- Remotes / Bindables
 local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTheme")
@@ -73,7 +73,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
         local currentRefresh = DateTime.now().UnixTimestamp
         local refreshInterval = currentRefresh - peek(lastRefresh)
 
-        if not force and refreshInterval then
+        if not force and (refreshInterval < MIN_SECS_BETWEEN_REFRESH) then
             warn("Refresh triggered too soon since last refresh")
             return
         end
