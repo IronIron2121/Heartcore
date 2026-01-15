@@ -144,7 +144,6 @@ function DataManager.ProcessLogin(player: Player)
     
     -- Check if they've already logged in today
     if lastLoginDayStart == currentDayStart then
-        print("Player already logged in today")
         return
     end
     

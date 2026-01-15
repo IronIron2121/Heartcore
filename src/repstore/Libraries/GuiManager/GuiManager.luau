@@ -67,17 +67,8 @@ local modalPosition = modalScope:Computed(function(use) : Fusion.UsedAs<UDim2>
     return use(CentreActive) and ON_SCREEN_POSITION or OFF_SCREEN_POSITION 
 end)
 
-local modalTween = modalScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad)) :: Fusion.UsedAs<UDim2>
+local modalTween = modalScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
 
-local TRANSITION_THRESHOLD = 1
-
-local isModalInTransition = modalScope:Computed(function(use)  
-    local tweenPos = use(modalTween) :: UsedAs<UDim2>
-    local targetPos = use(modalPosition) :: UsedAs<UDim2>
-    local xDiff = math.abs(tweenPos.X.Scale - targetPos.X.Scale)
-    local yDiff = math.abs(tweenPos.Y.Scale - targetPos.Y.Scale)
-    return xDiff > TRANSITION_THRESHOLD or yDiff > TRANSITION_THRESHOLD
-end)
 
 local ModalGui = modalScope:New "ScreenGui" {
     Name = "ModalGui",
@@ -146,10 +137,6 @@ function GuiManager.ShowCurrentConfiguration(): ()
     if currentConfiguration then
         currentConfiguration:Enable()
     end
-
-    if peek(CentreActive) then
-        GuiManager.PopCentre()
-    end
 end
 
 function GuiManager.IsModalActive(modal: GuiObject): boolean
@@ -182,11 +169,6 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
 end
 
 function GuiManager.PushCentreByName(modalName: string): ()
-    if not isLoaded or peek(isModalInTransition) then 
-        warn("Still initialising GUI!", isLoaded, isModalInTransition)
-        return
-    end 
-
     assert(registeredModals[modalName], "Attempt to push modal " .. modalName .. " but no such modal found in registered modals!")
 
     -- Clone to avoid mutating the original table
@@ -194,16 +176,13 @@ function GuiManager.PushCentreByName(modalName: string): ()
     local modalToPush = GuiManager.GetRegisteredModal(modalName)
 
     if table.find(currentModals, modalToPush.guiObject) then
-        warn("Cannot push already active modal!")
         return
     end
 
     -- Hide previous top modal if exists
     if #currentModals >= 1 then
-        warn("Hiding Top Modal")
         currentModals[#currentModals].Visible = false
     else
-        warn("Hiding all prompts and configuration!")
         HideAllPromptsBindable:Fire()
         GuiManager.HideCurrentConfiguration()
     end
@@ -212,7 +191,6 @@ function GuiManager.PushCentreByName(modalName: string): ()
     modalToPush.guiObject.Visible = true
     
     if modalToPush.callback then
-        warn("Callingback...")
         modalToPush.callback()
     end 
 
@@ -220,14 +198,6 @@ function GuiManager.PushCentreByName(modalName: string): ()
 end
 
 function GuiManager.PopCentre(guiObject: GuiObject?): ()
-    warn("Popping centre")
-    if peek(isModalInTransition) then
-        return
-    else
-        warn(peek(modalTween))
-        warn(peek(ON_SCREEN_POSITION))
-    end
-
     -- Clone to avoid mutating the original table
     local modals = table.clone(peek(modalStack))
 
@@ -243,11 +213,9 @@ function GuiManager.PopCentre(guiObject: GuiObject?): ()
     if #modals > 0 then
         modals[#modals].Visible = true
         topModal.Visible = false 
-        warn("Popped with more than one")
     else
         -- Only show HUD when stack is empty
         -- Hide the popped modal after it slides off-screen
-        warn("Popped the last")
         task.delay(TWEEN_LENGTH, function()
             topModal.Visible = false
             ShowAllPromptsBindable:Fire()

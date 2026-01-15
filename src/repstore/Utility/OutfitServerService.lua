@@ -43,8 +43,6 @@ end
 function OutfitServerService.GetPlayerTastemakerOutfits(player: Player)
 	local success, result = pcall(function()
 		local playerOutfits = PlayerOutfitsDatastore:GetAsync(player.UserId)
-		warn("Getting t maker outfits @ server")
-		print(playerOutfits)
 		return playerOutfits
 	end)
 	

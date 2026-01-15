@@ -185,7 +185,6 @@ end
 function WinnersStoreManager.updateWinnersPodiums()
     local currentWinners = WinnersStoreManager.getCurrentWinners()
     if not currentWinners then 
-        print("No current winners")
         return false
     end
 
@@ -328,7 +327,6 @@ function WinnersStoreManager.initialise()
 end
 
 function WinnersStoreManager.resetRig(rig: Model & {Humanoid: Humanoid}, index: number)
-    warn("Resetting rig!")
     rig:ScaleTo(1)
     local description
     if index then
@@ -347,7 +345,6 @@ function WinnersStoreManager.resetWinnersPodiums()
 end
 
 function WinnersStoreManager.resetWinners()
-    warn("Resetting winners")
     WinnersStoreManager.resetWinnersPodiums()
     WinnersStoreManager.resetWinnersThemeDisplay()
     WinnersStoreManager.resetTopTwentyLeaderboard()

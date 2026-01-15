@@ -56,7 +56,6 @@ function OutfitsFrame(
 	
 	local function updatePlayerOutfits()
 		isLoading:set(true)
-		warn("Updating player outfits!")
 		-- Get outfits and filter for editable avatar outfits
 		local success, outfits = pcall(function()
 			return AvatarEditorService:GetOutfits()
@@ -84,16 +83,14 @@ function OutfitsFrame(
 		
 		-- Get Tastemaker Outfits
 		local tastemakerSuccess, result = pcall(function()
-			warn("getting tastemaker outfits")
 			return GetPlayerTastemakerOutfits:InvokeServer()
 		end) 
 
 		if tastemakerSuccess and result then
-			warn("Got them! setting...", result)
 			tastemakerOutfits:set(result)
 		elseif tastemakerSuccess and not result then
 			warn("Successful query but no outfits")
-		else
+		elseif not tastemakerSuccess then
 			assert("Error on attempt to get tastemaker outfits!")
 		end
 		isLoading:set(false)
@@ -113,8 +110,6 @@ function OutfitsFrame(
 					inventoryAccessGranted:set(false)
 					return
 				end
-			else
-				print("Access already granted")
 			end
 			
 			updatePlayerOutfits()

@@ -262,7 +262,6 @@ local function loadErePreviousTheme(): ()
     if themeData then
         erePreviousThemeCache = themeData
     else
-        warn("Failed to load ere-previous theme")
         erePreviousThemeCache = nil
     end
 end
