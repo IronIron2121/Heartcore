@@ -207,7 +207,8 @@ function WinnersStoreManager.updateWinnersPodiums()
 
         local success = pcall(function()
             rig:ScaleTo(1)
-            rig.Humanoid:ApplyDescription(description)
+            rig.Humanoid:ApplyDescriptionResetAsync(description)
+            task.wait(1)
             rig:ScaleTo(winnersRigScale) 
         end)
         
@@ -326,7 +327,7 @@ function WinnersStoreManager.initialise()
     return true
 end
 
-function WinnersStoreManager.resetRig(rig: Model & {Humanoid: Humanoid}, index: number)
+function WinnersStoreManager.resetRig(rig: Model & {Humanoid: Humanoid}, index: number?)
     rig:ScaleTo(1)
     local description
     if index then

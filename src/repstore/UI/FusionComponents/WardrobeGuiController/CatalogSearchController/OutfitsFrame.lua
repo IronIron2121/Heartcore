@@ -116,7 +116,6 @@ function OutfitsFrame(
 			end
 			
 			updatePlayerOutfits()
-			
 			isLoading:set(false)
 		else
 			print("Outfits frame is not visible")
