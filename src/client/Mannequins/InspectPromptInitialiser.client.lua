@@ -110,17 +110,21 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 
 	-- tween settings
 	local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad,	Enum.EasingDirection.Out)
-	local function tweenStroke(targetColor: Color3, targetThickness: number)
-		TweenService:Create(stroke, tweenInfo, {Color = targetColor, Thickness = targetThickness}):Play()
+	local function tweenBackground(targetTransparency: number)
+		TweenService:Create(frame, tweenInfo, {BackgroundTransparency =  targetTransparency}):Play()
 	end
+
+	-- local function tweenStroke(targetColor: Color3, targetThickness: number)
+	-- 	TweenService:Create(stroke, tweenInfo, {Color = targetColor, Thickness = targetThickness}):Play()
+	-- end
 
 	-- hover animations
 	button.MouseEnter:Connect(function()
-		tweenStroke(UI_CONSTANTS.TASTEMAKER_GREEN, 2)
+		tweenBackground(0.1)
 	end)
 
 	button.MouseLeave:Connect(function()
-		tweenStroke(Color3.fromRGB(255, 255, 255), 2) -- back to white
+		tweenBackground(0.5)
 	end)
 
 	button.Activated:Connect(function()
@@ -158,7 +162,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 			keyText = "[Tap]"
 		end
 
-		button.Text = action .. " " .. keyText
+		button.Text = action --.. " " .. keyText
 	end
 
 	updateLabel()
