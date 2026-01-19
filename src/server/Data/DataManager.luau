@@ -11,7 +11,7 @@ local RANK_NAMES = {
     [6] = "Looksmaxxer",    -- Levels 51-60
     [7] = "Drip Master",    -- Levels 61-70
     [8] = "Runway Rizzer",      -- Levels 71-80
-    [9] = "Fashion Goat",  -- Levels 81-90
+    [9] = "Fashion GOAT",  -- Levels 81-90
     [10] = "Taste Maker",        -- Levels 91-100
 }
 
