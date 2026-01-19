@@ -141,6 +141,8 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 		end
 	end
 
+	serialisedHumanoidDescription.Face = humanoidDescription.Face
+
 	serialisedHumanoidDescription.GraphicTShirt = humanoidDescription.GraphicTShirt
 	serialisedHumanoidDescription.Shirt = humanoidDescription.Shirt
 	serialisedHumanoidDescription.Pants = humanoidDescription.Pants
@@ -185,14 +187,6 @@ function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidD
 			newDescription.Parent = humanoidDescription
 		end
 	end
-
-	--[[
-	humanoidDescription.DepthScale = serialisedHumanoidDescription.DepthScale
-	humanoidDescription.HeadScale = serialisedHumanoidDescription.HeadScale
-	humanoidDescription.HeightScale = serialisedHumanoidDescription.HeightScale
-	humanoidDescription.ProportionScale = serialisedHumanoidDescription.ProportionScale 
-	humanoidDescription.WidthScale = serialisedHumanoidDescription.WidthScale
-	]]
 
 	return humanoidDescription
 end

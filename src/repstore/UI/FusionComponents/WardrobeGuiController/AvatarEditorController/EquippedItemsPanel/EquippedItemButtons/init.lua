@@ -67,6 +67,7 @@ function EquippedItemButtons(
 			["GraphicTShirt"] = use(currentHumanoidDescription).GraphicTShirt,
 			["Shirt"] = use(currentHumanoidDescription).Shirt,
 			["Pants"] = use(currentHumanoidDescription).Pants,
+			["Face"] = use(currentHumanoidDescription).Face,
 		}
 	end)
 

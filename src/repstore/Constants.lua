@@ -138,7 +138,8 @@ local Constants = {
 	CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES = {
 		"GraphicTShirt",
 		Enum.AssetType.Shirt.Name,
-		Enum.AssetType.Pants.Name
+		Enum.AssetType.Pants.Name,
+		Enum.AssetType.Face.Name
 	},
 
 	CLASSIC_CLOTHING_ASSET_TYPES = {
@@ -153,6 +154,7 @@ local Constants = {
 		["GraphicTShirt"] = 0,
 		["Shirt"] = 855779323,
 		["Pants"] = 855785499,
+		["Face"] = 65724730
 	},
 	
 	DEFAULT_CLASSIC_CLOTHING_IDS_TABLE = {
