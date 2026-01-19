@@ -27,6 +27,8 @@ function BuyButton(
 		position: UsedAs<UDim2>?,
 		layoutOrder: UsedAs<number>?,
 		anchorPoint: UsedAs<Vector2>?,
+		assetType: UsedAs<string>?,
+		bundleType: UsedAs<string>?,
 		text: UsedAs<string>?,
 		onPurchaseCallback: (() -> ())?,
 	}
@@ -66,10 +68,18 @@ function BuyButton(
 		TextWrapped = true,
 
 		[OnEvent "Activated"] = function()
-			MarketplaceService:PromptPurchase(Players.LocalPlayer, props.assetId)
+			if props.assetType then
+				MarketplaceService:PromptPurchase(Players.LocalPlayer, props.assetId)
+			elseif props.bundleType then
+				MarketplaceService:PromptBundlePurchase(Players.LocalPlayer, props.assetId)
+			else
+				warn("Failed to purchase item! No valiid asset or bundle type")
+				warn(props.assetType, props.bundleType)
+			end
+			
 			if props.onPurchaseCallback then
 				props.onPurchaseCallback()
-			end
+			end 
 		end,
 		
 		[OnEvent "MouseButton1Down"] = function()

@@ -217,6 +217,8 @@ function FusionItemTile(
 
 							BuyButton(scope, {
 								assetId = props.itemDetails.Id,
+								assetType = props.itemDetails.AssetType or nil,
+								bundleType = props.itemDetails.BundleType or nil,
 								layoutOrder = 2,  
 								onPurchaseCallback = deactivate
 							})
