@@ -66,7 +66,7 @@ function InspectFrame(
 		Size = UDim2.fromScale(1, 1),
 		Position = UDim2.fromScale(0.5, 0.5),
 		BackgroundColor3 = Color3.new(1, 1, 1),
-		BackgroundTransparency = 0.6,
+		BackgroundTransparency = 0.3,
 		LayoutOrder = 2,
 		CanvasSize = UDim2.fromScale(0, 0),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
