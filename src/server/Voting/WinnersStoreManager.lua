@@ -213,7 +213,7 @@ function WinnersStoreManager.updateWinnersPodiums()
             rig.Humanoid:ApplyDescriptionResetAsync(description)
 
             callWithRetry(function()
-                return rig:ScaleTo(1)
+                return rig:ScaleTo(winnersRigScale)
             end)        
         end)
         

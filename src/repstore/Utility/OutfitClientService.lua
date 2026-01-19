@@ -103,7 +103,7 @@ end
 function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 	PlayerSavedTastemakerOutfit:FireServer()
 
-	-- The Below code is commented out until we need to implement saving outfits via Roblox official API
+	-- The below code is commented out until we need to implement saving outfits via Roblox official API
 
 
 	--local character = player.Character or player.CharacterAdded:Wait()
@@ -116,7 +116,6 @@ function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 			if MarketplaceService:PlayerOwnsAsset(player, description.AssetId) then
 				continue
 			else
-				PlayerSavedTastemakerOutfit:FireServer()
 				-- do local outfit creation
 				return
 			end

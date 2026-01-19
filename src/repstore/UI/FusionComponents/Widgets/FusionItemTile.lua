@@ -69,7 +69,6 @@ function FusionItemTile(
 	end
 
 	local function deactivate(): ()
-		warn("Deactivating!")
 		isActivated:set(false)
 	end
 

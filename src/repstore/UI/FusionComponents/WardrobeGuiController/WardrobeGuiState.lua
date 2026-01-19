@@ -20,18 +20,12 @@ local WardrobeGuiState = {
 	currentView = scope:Value(DEFAULT_VIEW)
 }
 
-local function logGuiState()
-	warn("Just changed view to ", Fusion.peek(WardrobeGuiState.currentView))
-end
-
 function WardrobeGuiState.ResetView()
 	WardrobeGuiState.currentView:set(DEFAULT_VIEW)
-	logGuiState()
 end
 
 function WardrobeGuiState.ChangeCurrentView(newView: string)
 	WardrobeGuiState.currentView:set(newView)
-	logGuiState()
 end
 
 return WardrobeGuiState

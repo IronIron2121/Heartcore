@@ -25,6 +25,7 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local OutfitTile = require(Widgets:WaitForChild("OutfitTile"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 local BaseButton = require(Widgets:WaitForChild("BaseButton"))
+local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 
 
 -- Remotes
@@ -91,7 +92,7 @@ function OutfitsFrame(
 		elseif tastemakerSuccess and not result then
 			warn("Successful query but no outfits")
 		elseif not tastemakerSuccess then
-			assert("Error on attempt to get tastemaker outfits!")
+			warn("Error on attempt to get tastemaker outfits!")
 		end
 		isLoading:set(false)
 	end
@@ -113,7 +114,6 @@ function OutfitsFrame(
 			end
 			
 			updatePlayerOutfits()
-			
 			isLoading:set(false)
 		else
 			print("Outfits frame is not visible")
@@ -229,13 +229,19 @@ function OutfitsFrame(
 							humanoidDescription = humanoidDescription,
 							outfit = serialisedOutfit,
 							onDelete = function()
-								OutfitClientService.DeleteTastemakerOutfit(index)
-								updatePlayerOutfits()
+								GuiManager.PushNotificationCentre(
+											"DeleteTastemakerOutfit",
+											"Are you sure you want to delete this outfit?",
+											function()  
+												OutfitClientService.DeleteTastemakerOutfit(index)
+												updatePlayerOutfits()
+											end
+										)
 							end,
 							
 							onSelect = function()
 								print("About to invoke server...")
-								local deleted = PlayerEquippedTastemakerOutfit:FireServer(serialisedOutfit)
+								local equipped = PlayerEquippedTastemakerOutfit:FireServer(serialisedOutfit)
 							end,
 
 							visible = scope:Computed(function(use)

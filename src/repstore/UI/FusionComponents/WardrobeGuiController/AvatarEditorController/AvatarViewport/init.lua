@@ -13,6 +13,7 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
+local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local OutfitClientService = require(Utility:WaitForChild("OutfitClientService"))
 
@@ -165,7 +166,14 @@ function AvatarViewport(
 				anchorPoint = Vector2.new(0,1),
 				zIndex = 3,
 				onActivated = function()
-					OutfitClientService.SaveCurrentPlayerOutfit(localPlayer)
+					GuiManager.PushNotificationCentre(
+						"SaveOutfit", 
+						"Are you sure you want to save this outfit?", 
+						function()  
+							OutfitClientService.SaveCurrentPlayerOutfit(localPlayer)
+						end
+					)
+
 				end
 			}),
 

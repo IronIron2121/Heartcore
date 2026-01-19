@@ -69,8 +69,7 @@ end)
 
 local modalTween = modalScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
 
-
-local ModalGui = modalScope:New "ScreenGui" {
+local ModalGui = guiScope:New "ScreenGui" {
     Name = "ModalGui",
     Enabled = true,
     Parent = PlayerGui,
@@ -100,10 +99,192 @@ local BackgroundBlur = modalScope:New "BlurEffect" {
     Size = modalScope:Tween(blurSize, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
 } :: BlurEffect
 
+-- ## NOTIFICATION MANAGER BEGIN -- ##
+local notificationActive = guiScope:Value(false)
+
+local notificationPosition = guiScope:Computed(function(use)
+    return use(notificationActive) and ON_SCREEN_POSITION or NOTIFICATION_OFF_SCREEN_POSITION
+end)
+
+local notificationText = guiScope:Value("")
+
+local notificationTextLabel = guiScope:New "TextLabel" {
+    BackgroundTransparency = 1,
+    Name = "notificationTextLabel",
+    Text = notificationText,
+    FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Regular),
+    Size = UDim2.fromScale(1, 0.5),
+    TextScaled = false,
+    TextWrapped = true,
+    TextSize = 50,
+    BackgroundColor3 = Color3.new(0,0,0),
+    [Children] = {
+        guiScope:New "UICorner" {
+            CornerRadius = UDim.new(0.05, 0)
+        }
+    }
+}
+
+local yesCallback = guiScope:Value(function()
+    warn("No callback current assigned to YES button")
+end)
+local notificationYesButton = FusionImageButton(guiScope, {
+    name = "notificationYesButton",
+    visible = true,
+    backgroundTransparency = 1,
+    image = ImageUris.ConfirmButton,
+    size = UDim2.fromScale(0.5, 0.5),
+    onActivated = yesCallback
+
+})
+local noCallback = guiScope:Value(function()
+    warn("No callback current assigned to no button")
+end)
+local notificationNoButton = FusionImageButton(guiScope, {
+    name = "notificationNoButton",
+    visible = true,
+    backgroundTransparency = 1,
+    image = ImageUris.CloseButton,
+    size = UDim2.fromScale(0.5, 0.5),
+    onActivated = noCallback
+})
+
+local notificationButtonContainer = guiScope:New "Frame" {
+    Name = "notificationButtonContainer",
+    Visible = true,
+    BackgroundTransparency = 1,
+    Size = UDim2.fromScale(1, 0.5),
+    LayoutOrder = 2,
+    [Children] = {
+        guiScope:New "UIListLayout" {
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            FillDirection = Enum.FillDirection.Horizontal,
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            VerticalAlignment = Enum.VerticalAlignment.Center,
+        },
+        notificationYesButton,
+        notificationNoButton
+    }
+}
+
+local notificationMessageContainer = guiScope:New "Frame" {
+    Name = "NotificationMessageContainer",
+    LayoutOrder = 2,
+    BackgroundColor3 = Color3.new(1,0.8,0.8),
+    BackgroundTransparency = 0.2,
+    AnchorPoint = Vector2.new(0.5,0.5),
+    Position = UDim2.fromScale(0.5, 0.5),
+    ZIndex = 1,
+    Size = UDim2.fromScale(0.5, 0.5),
+
+    [Children] = {
+        notificationTextLabel,
+        notificationButtonContainer,
+        guiScope:New "UIListLayout" {
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            FillDirection = Enum.FillDirection.Vertical,
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            VerticalAlignment = Enum.VerticalAlignment.Center,
+        },
+        guiScope:New "UICorner" {
+            CornerRadius = UDim.new(0.05, 0)
+        },
+    }
+}
+
+local notificationContainer = guiScope:New "Frame" {
+    Name = "notificationContainer",
+    Visible = true,
+    LayoutOrder = 1,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    Position = guiScope:Spring(notificationPosition, 10, 0.8),
+    ZIndex = 2,
+    Size = UDim2.fromScale(1, 1),
+    [Children] = {
+        notificationMessageContainer
+    }
+}
+
+local inputSinkTransparency = guiScope:Computed(function(use)
+    return use(notificationActive) and 0.4 or 1
+end)
+
+local notificationInputSink = guiScope:New "Frame" {
+    Name = "notificationContainer",
+    Visible = notificationActive,
+    Active = notificationActive,
+    LayoutOrder = 1,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Color3.new(0,0,0),
+    BackgroundTransparency = guiScope:Tween(inputSinkTransparency, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad)),
+    Position = ON_SCREEN_POSITION,
+    ZIndex = 1,
+    Size = UDim2.fromScale(1, 1),
+}
+
+local NotificationGui = guiScope:New "ScreenGui" {
+    Name = "NotificationGui",
+    Enabled = true,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    IgnoreGuiInset = true,
+    DisplayOrder = 3,
+    Parent = PlayerGui,
+    [Children] = {
+        notificationContainer,
+        notificationInputSink
+    }
+}
+-- ## NOTIFICATION MANAGER END -- ##
+
 local isLoaded = false
-
 local GuiManager = {} 
+local hiddenNotifications = {
 
+}
+
+function GuiManager.ResetNotificationDetails()
+    notificationText:set("")
+    yesCallback:set(function()
+        return
+    end)
+    noCallback:set(function()
+        return
+    end)
+end
+
+function GuiManager.PushNotificationCentre(notificationName: string, message: string, yesCb: () -> (), noCb: () -> ()?, showAgain: boolean?)
+    warn("Pushing notification")
+    if hiddenNotifications[notificationName] then
+        -- TODO
+    end
+
+    if peek(notificationActive) then
+        warn("Notification already active!")
+        return
+    end
+
+    notificationText:set(message)
+    yesCallback:set(function()
+        GuiManager.PopNotification()
+        GuiManager.ResetNotificationDetails()
+        yesCb()
+    end)
+    noCallback:set(function()
+        GuiManager.PopNotification()
+        GuiManager.ResetNotificationDetails()
+        if noCb then
+            noCb()
+        end
+
+    end)
+
+    notificationActive:set(true)
+end
+
+function GuiManager.PopNotification()
+    notificationActive:set(false)
+end
 
 function GuiManager.IsLoaded()
     return isLoaded
@@ -126,7 +307,7 @@ function GuiManager.DisplayConfiguration(configurationName: string): ()
     end
 
 end 
-
+ 
 function GuiManager.HideCurrentConfiguration(): ()
     if currentConfiguration then
         currentConfiguration:Disable()
@@ -169,6 +350,11 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
 end
 
 function GuiManager.PushCentreByName(modalName: string): ()
+    if not isLoaded  then 
+        warn("Still initialising GUI!", isLoaded)
+        return
+    end 
+
     assert(registeredModals[modalName], "Attempt to push modal " .. modalName .. " but no such modal found in registered modals!")
 
     -- Clone to avoid mutating the original table
@@ -214,12 +400,12 @@ function GuiManager.PopCentre(guiObject: GuiObject?): ()
         modals[#modals].Visible = true
         topModal.Visible = false 
     else
+        GuiManager.ShowCurrentConfiguration()
         -- Only show HUD when stack is empty
         -- Hide the popped modal after it slides off-screen
         task.delay(TWEEN_LENGTH, function()
             topModal.Visible = false
             ShowAllPromptsBindable:Fire()
-            GuiManager.ShowCurrentConfiguration()
         end)
     end
 
