@@ -3,13 +3,11 @@
 -- Services
 local AvatarEditorService = game:GetService("AvatarEditorService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 
 -- local
 local localPlayer = Players.LocalPlayer
 local localChar = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-local localHumanoid = localChar:WaitForChild("Humanoid") :: Humanoid
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -25,6 +23,7 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local OutfitTile = require(Widgets:WaitForChild("OutfitTile"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 local BaseButton = require(Widgets:WaitForChild("BaseButton"))
+local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 
 
 -- Remotes
@@ -56,7 +55,6 @@ function OutfitsFrame(
 	
 	local function updatePlayerOutfits()
 		isLoading:set(true)
-		warn("Updating player outfits!")
 		-- Get outfits and filter for editable avatar outfits
 		local success, outfits = pcall(function()
 			return AvatarEditorService:GetOutfits()
@@ -84,17 +82,15 @@ function OutfitsFrame(
 		
 		-- Get Tastemaker Outfits
 		local tastemakerSuccess, result = pcall(function()
-			warn("getting tastemaker outfits")
 			return GetPlayerTastemakerOutfits:InvokeServer()
 		end) 
 
 		if tastemakerSuccess and result then
-			warn("Got them! setting...", result)
 			tastemakerOutfits:set(result)
 		elseif tastemakerSuccess and not result then
 			warn("Successful query but no outfits")
-		else
-			assert("Error on attempt to get tastemaker outfits!")
+		elseif not tastemakerSuccess then
+			warn("Error on attempt to get tastemaker outfits!")
 		end
 		isLoading:set(false)
 	end
@@ -113,12 +109,9 @@ function OutfitsFrame(
 					inventoryAccessGranted:set(false)
 					return
 				end
-			else
-				print("Access already granted")
 			end
 			
 			updatePlayerOutfits()
-			
 			isLoading:set(false)
 		else
 			print("Outfits frame is not visible")
@@ -234,13 +227,19 @@ function OutfitsFrame(
 							humanoidDescription = humanoidDescription,
 							outfit = serialisedOutfit,
 							onDelete = function()
-								ClientOutfitService.DeleteTastemakerOutfit(index)
-								updatePlayerOutfits()
+								GuiManager.PushNotificationCentre(
+											"DeleteTastemakerOutfit",
+											"Are you sure you want to delete this outfit?",
+											function()  
+												ClientOutfitService.DeleteTastemakerOutfit(index)
+												updatePlayerOutfits()
+											end
+										)
 							end,
 							
 							onSelect = function()
 								print("About to invoke server...")
-								local deleted = PlayerEquippedTastemakerOutfit:FireServer(serialisedOutfit)
+								local equipped = PlayerEquippedTastemakerOutfit:FireServer(serialisedOutfit)
 							end,
 
 							visible = scope:Computed(function(use)

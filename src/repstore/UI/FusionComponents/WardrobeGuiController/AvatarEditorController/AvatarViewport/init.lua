@@ -15,6 +15,7 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
+local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local ClientOutfitService = require(Utility:WaitForChild("ClientOutfitService"))
 
@@ -122,7 +123,7 @@ function AvatarViewport(
 			Button(scope, {
 				name = "ResetButton",
 				text = "Reset Outfit",
-				size = UDim2.fromScale(0.3, 0.1),
+				size = UDim2.fromScale(0.4, 0.05),
 				position = UDim2.fromScale(1,0),
 				anchorPoint = Vector2.new(1,0),
 				zIndex = 3,
@@ -135,7 +136,7 @@ function AvatarViewport(
 			Button(scope, {
 				name = "OutfitsButtonFrame",
 				text = "My Outfits",
-				size = UDim2.fromScale(0.3, 0.1), 
+				size = UDim2.fromScale(0.4, 0.05), 
 				position = UDim2.fromScale(0,0),
 				anchorPoint = Vector2.new(0,0),
 				zIndex = 3,
@@ -148,7 +149,7 @@ function AvatarViewport(
 			
 			Button(scope, {
 				text = "Buy outfit",
-				size = UDim2.fromScale(0.3, 0.1),
+				size = UDim2.fromScale(0.4, 0.05),
 				position = UDim2.fromScale(1,1),
 				anchorPoint = Vector2.new(1,1),
 				zIndex = 3,
@@ -162,12 +163,19 @@ function AvatarViewport(
 			Button(scope, {
 				text = "Save Outfit",
 				visible = true,
-				size = UDim2.fromScale(0.3, 0.1),
+				size = UDim2.fromScale(0.4, 0.05),
 				position = UDim2.fromScale(0,1),
 				anchorPoint = Vector2.new(0,1),
 				zIndex = 3,
 				onActivated = function()
-					ClientOutfitService.SaveCurrentPlayerOutfit(localPlayer)
+					GuiManager.PushNotificationCentre(
+						"SaveOutfit", 
+						"Are you sure you want to save this outfit?", 
+						function()  
+							ClientOutfitService.SaveCurrentPlayerOutfit(localPlayer)
+						end
+					)
+
 				end
 			}),
 

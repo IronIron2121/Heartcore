@@ -70,7 +70,7 @@ function CategoryFrame(
 		Position = (props and props.position) or UDim2.fromScale(0.5, 0.1),
 		AnchorPoint = (props and props.anchorPoint) or Vector2.new(0.5, 0.5),
 		LayoutOrder = (props and props.layoutOrder) or 1,
-		BackgroundColor3 = (props and props.backgroundColor3) or UI_CONSTANTS.TASTEMAKER_PURPLE,
+		BackgroundColor3 = UI_CONSTANTS.COLOUR_WHITE,
 		BackgroundTransparency = (props and props.backgroundTransparency) or UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
 		Visible = scope:Computed(function(use)
 			return use(props.currentView) == "Catalog"
@@ -86,13 +86,14 @@ function CategoryFrame(
 			},
 			
 			scope:New "UICorner" {
-				CornerRadius = UDim.new(0.1, 0)
+				CornerRadius = UDim.new(0.2, 0)
 			},
 			
 			-- Inner scrolling frame
 			scope:New "ScrollingFrame" {
 				Name = "CategoryScrollFrame",
-				Size = UDim2.fromScale(0.9, 1),
+				AnchorPoint = Vector2.new(0.5,0),
+				Size = UDim2.fromScale(0.95, 0.99),
 				Position = UDim2.fromScale(0, 0),
 				BackgroundTransparency = 1,
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -107,6 +108,11 @@ function CategoryFrame(
 						HorizontalAlignment = Enum.HorizontalAlignment.Center,
 						VerticalAlignment = Enum.VerticalAlignment.Top,
 						Padding = UDim.new(0, 10)
+					},
+
+					scope:New "UIPadding" {
+						PaddingTop = UDim.new(0.01,0),
+						PaddingLeft = UDim.new(0.01,0),
 					},
 					
 					CategoryButton(scope, {
@@ -144,6 +150,7 @@ function CategoryFrame(
 					ExpandingOptionsButton(scope, {
 						text = "Accessories",
 						layoutOrder = 2,
+						textSize = 20,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false

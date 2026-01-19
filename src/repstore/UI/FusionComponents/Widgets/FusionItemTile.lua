@@ -3,7 +3,6 @@
 -- AvatarViewport.lua
 
 -- Services
-local EncodingService = game:GetService("EncodingService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
@@ -82,7 +81,6 @@ function FusionItemTile(
 	end
 
 	local function deactivate(): ()
-		warn("Deactivating!")
 		isActivated:set(false)
 	end
 
@@ -229,6 +227,9 @@ function FusionItemTile(
 							}), 
 
 							BuyButton(scope, {
+								assetId = props.itemDetails.Id,
+								assetType = props.itemDetails.AssetType or nil,
+								bundleType = props.itemDetails.BundleType or nil,
 								layoutOrder = 2,  
 								onPurchaseCallback = function()
 									deactivate()

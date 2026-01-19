@@ -8,43 +8,40 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local Fusion = require(Utility:WaitForChild("Fusion"))
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local UI_CONSTANTS  = require(Utility.UI_CONSTANTS)
+local Fusion = require(Utility.Fusion)
 
 -- Fusion
 local OnEvent = Fusion.OnEvent
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
+local peek = Fusion.peek
 
-function Button(
+function ImageButton(
 	scope: Fusion.Scope,
 	props: {
 		name: UsedAs<string>?,
 		active: UsedAs<boolean>?,
 		visible: UsedAs<boolean>?,
 		size: UsedAs<UDim2>?,
-		position: UsedAs<UDim2>?,
+		image: UsedAs<string>?,
+		position: UsedAs<UDim2>?, 
 		layoutOrder: UsedAs<number>?,
 		anchorPoint: UsedAs<Vector2>?,
-		text: UsedAs<string>?,
-		textScaled: UsedAs<boolean>?,
-		backgroundColor: UsedAs<Color3>?,
-		textColor: UsedAs<Color3>?,
-		strokeColor: UsedAs<Color3>?,
-		strokeThickness: UsedAs<number>?,
+		imageColor: UsedAs<Color3>?,
 		cornerRadius: UsedAs<UDim>?,
 		zIndex: UsedAs<number>?,
-		onActivated: (() -> ())?,
+		onActivated: UsedAs<(() -> ())>?,
 	}
-): TextButton
+): ImageButton
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
 
-	local backgroundColor = props.backgroundColor or UI_CONSTANTS.COLOUR_WHITE
+	local imageColor = props.imageColor or UI_CONSTANTS.COLOUR_WHITE
 
-	local backgroundColorSpring = scope:Spring(
+	local imageColorSpring = scope:Spring(
 		scope:Computed(function(use)
-			local baseColor = backgroundColor
+			local baseColor = imageColor
 
 			if use(isHeldDown) then
 				return baseColor:Lerp(UI_CONSTANTS.TASTEMAKER_PURPLE, 1)
@@ -58,27 +55,24 @@ function Button(
 		1
 	)
 
-	local button = scope:New "TextButton" {
-		Name = props.name or "Button",
+	local imageButton = scope:New "ImageButton" {
+		Name = props.name or "ImageButton",
 		Active = props.active or true,
 		Visible = props.visible or true,
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		Position = props.position or UDim2.fromScale(0.5, 0.5),
 		Size = props.size or UDim2.fromScale(0.8, 0.5),
-		Text = props.text or "BUTTON",
-		TextColor3 = props.textColor or UI_CONSTANTS.TASTEMAKER_PURPLE,
-		TextStrokeTransparency = 1,
-		BackgroundColor3 = backgroundColorSpring,
-		BackgroundTransparency = 0,
+		Image = props.image or nil,
+		ImageColor3 = imageColorSpring,
+		BackgroundTransparency = 1,
 		LayoutOrder = props.layoutOrder or 1,
-		TextScaled = props.textScaled or true,
-		TextWrapped = true,
 		ZIndex = props.zIndex or 1,
-		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 
 		[OnEvent "Activated"] = function()
 			if props.onActivated then
-				props.onActivated()
+				peek(props.onActivated)()
+			else
+				warn("Button has no callback")
 			end
 		end,
 
@@ -104,22 +98,14 @@ function Button(
 				CornerRadius = props.cornerRadius or UDim.new(0.5, 0)
 			},
 
-			scope:New "UIStroke" {
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Color = props.strokeColor or UI_CONSTANTS.TASTEMAKER_PURPLE,
-				Thickness = props.strokeThickness or 2,
-			},
-
-			scope:New "UIPadding" {
-				PaddingTop = UDim.new(0.1,0),
-				PaddingBottom = UDim.new(0.1,0),
-				PaddingLeft = UDim.new(0.1,0),
-				PaddingRight = UDim.new(0.1,0)
+			scope:New "UIAspectRatioConstraint" {
+				AspectRatio = 1,
+				DominantAxis = 1,
 			}
 		}
-	} :: TextButton
+	} :: ImageButton
 
-	return button
+	return imageButton
 end
 
-return Button
+return ImageButton

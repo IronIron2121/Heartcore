@@ -12,15 +12,24 @@ local Lighting          = game:GetService("Lighting")
 local Players           = game:GetService("Players")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
 local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
+local Utility   = ReplicatedStorage:WaitForChild("Utility")
+local UI            = ReplicatedStorage:WaitForChild("UI")
+local Widgets       = UI.FusionComponents.Widgets
+local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Modules
+local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
+local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Types         = require(Utility.Types)
+
+-- UI Modules
+local FusionImageButton = require(Widgets.FusionImageButton)
 
 -- Fusion
 local Fusion        = require(Utility.Fusion)
-local modalScope    = Fusion:scoped()
+local guiScope      = Fusion:scoped()
+local Children      = Fusion.Children
 local peek          = Fusion.peek
 type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
@@ -40,33 +49,36 @@ local PlayerGui = localPlayer.PlayerGui
 local OFF_SCREEN_POSITION = UDim2.fromScale(0.5, 3)
 local ON_SCREEN_POSITION = UDim2.fromScale(0.5, 0.5)
 local TWEEN_LENGTH = 0.4
+local NOTIFICATION_OFF_SCREEN_POSITION = UDim2.fromScale(0.5, -5)
 
 --
 
 local currentConfiguration: Types.GuiConfiguration? = nil
 local registeredConfigurations: {[string]: Types.GuiConfiguration} = {}
 
-local HudContainer = modalScope:New "ScreenGui" {
+local HudContainer = guiScope:New "ScreenGui" {
     Name = "HudGui",
-    IgnoreGuiInset = false,
+    IgnoreGuiInset = true,
     Enabled = true,
     Parent = PlayerGui,
     ZIndexBehavior = Enum.ZIndexBehavior.Global,
 }
 
-local registeredModals: {[string]: GuiObject} = {}
-local modalStack: Value<{GuiObject}> = modalScope:Value({})
+local registeredModals: {[string]: {guiObject: GuiObject, callback: () -> ()?}} = {}
+local modalStack: Value<{GuiObject}> = guiScope:Value({})
 
-local CentreActive = modalScope:Computed(function(use) 
+local CentreActive = guiScope:Computed(function(use) 
         return #use(modalStack) ~= 0
     end
 )
 
-local modalPosition = modalScope:Computed(function(use)
-    return use(CentreActive) and ON_SCREEN_POSITION or OFF_SCREEN_POSITION
+local modalPosition = guiScope:Computed(function(use) : Fusion.UsedAs<UDim2>
+    return use(CentreActive) and ON_SCREEN_POSITION or OFF_SCREEN_POSITION 
 end)
 
-local ModalGui = modalScope:New "ScreenGui" {
+local modalTween = guiScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
+
+local ModalGui = guiScope:New "ScreenGui" {
     Name = "ModalGui",
     Enabled = true,
     Parent = PlayerGui,
@@ -74,31 +86,214 @@ local ModalGui = modalScope:New "ScreenGui" {
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 } :: ScreenGui
 
-local blurSize: Computed<number> = modalScope:Computed(function(use) 
+
+local blurSize: Computed<number> = guiScope:Computed(function(use) 
     return use(CentreActive) and 24 or 0
 end)
 
-local modalContainer = modalScope:New "Frame" {
+local modalContainer = guiScope:New "Frame" {
     Name = "ModalContainer",
     AnchorPoint = Vector2.new(0.5,0.5),
-    Position = modalScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad)),
+    Position = modalTween,
     Size = UDim2.fromScale(1, 1),
     BackgroundTransparency = 1,
     Parent = ModalGui,
 }
 
-local BackgroundBlur = modalScope:New "BlurEffect" {
+local BackgroundBlur = guiScope:New "BlurEffect" {
     Archivable = true,
     Name = "ModalBackgroundBlur",
     Parent = Lighting,
     Enabled = true,
-    Size = modalScope:Tween(blurSize, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
+    Size = guiScope:Tween(blurSize, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
 } :: BlurEffect
 
+-- ## NOTIFICATION MANAGER BEGIN -- ##
+local notificationActive = guiScope:Value(false)
+
+local notificationPosition = guiScope:Computed(function(use)
+    return use(notificationActive) and ON_SCREEN_POSITION or NOTIFICATION_OFF_SCREEN_POSITION
+end)
+
+local notificationText = guiScope:Value("")
+
+local notificationTextLabel = guiScope:New "TextLabel" {
+    BackgroundTransparency = 1,
+    Name = "notificationTextLabel",
+    Text = notificationText,
+    FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Regular),
+    Size = UDim2.fromScale(1, 0.5),
+    TextScaled = false,
+    TextWrapped = true,
+    TextSize = 50,
+    BackgroundColor3 = Color3.new(0,0,0),
+    [Children] = {
+        guiScope:New "UICorner" {
+            CornerRadius = UDim.new(0.05, 0)
+        }
+    }
+}
+
+local yesCallback = guiScope:Value(function()
+    warn("No callback current assigned to YES button")
+end)
+local notificationYesButton = FusionImageButton(guiScope, {
+    name = "notificationYesButton",
+    visible = true,
+    backgroundTransparency = 1,
+    image = ImageUris.ConfirmButton,
+    size = UDim2.fromScale(0.5, 0.5),
+    onActivated = yesCallback
+
+})
+local noCallback = guiScope:Value(function()
+    warn("No callback current assigned to no button")
+end)
+local notificationNoButton = FusionImageButton(guiScope, {
+    name = "notificationNoButton",
+    visible = true,
+    backgroundTransparency = 1,
+    image = ImageUris.CloseButton,
+    size = UDim2.fromScale(0.5, 0.5),
+    onActivated = noCallback
+})
+
+local notificationButtonContainer = guiScope:New "Frame" {
+    Name = "notificationButtonContainer",
+    Visible = true,
+    BackgroundTransparency = 1,
+    Size = UDim2.fromScale(1, 0.5),
+    LayoutOrder = 2,
+    [Children] = {
+        guiScope:New "UIListLayout" {
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            FillDirection = Enum.FillDirection.Horizontal,
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            VerticalAlignment = Enum.VerticalAlignment.Center,
+        },
+        notificationYesButton,
+        notificationNoButton
+    }
+}
+
+local notificationMessageContainer = guiScope:New "Frame" {
+    Name = "NotificationMessageContainer",
+    LayoutOrder = 2,
+    BackgroundColor3 = Color3.new(1,0.8,0.8),
+    BackgroundTransparency = 0.2,
+    AnchorPoint = Vector2.new(0.5,0.5),
+    Position = UDim2.fromScale(0.5, 0.5),
+    ZIndex = 1,
+    Size = UDim2.fromScale(0.5, 0.5),
+
+    [Children] = {
+        notificationTextLabel,
+        notificationButtonContainer,
+        guiScope:New "UIListLayout" {
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            FillDirection = Enum.FillDirection.Vertical,
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            VerticalAlignment = Enum.VerticalAlignment.Center,
+        },
+        guiScope:New "UICorner" {
+            CornerRadius = UDim.new(0.05, 0)
+        },
+    }
+}
+
+local notificationContainer = guiScope:New "Frame" {
+    Name = "notificationContainer",
+    Visible = true,
+    LayoutOrder = 1,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    Position = guiScope:Spring(notificationPosition, 10, 0.8),
+    ZIndex = 2,
+    Size = UDim2.fromScale(1, 1),
+    [Children] = {
+        notificationMessageContainer
+    }
+}
+
+local inputSinkTransparency = guiScope:Computed(function(use)
+    return use(notificationActive) and 0.4 or 1
+end)
+
+local notificationInputSink = guiScope:New "Frame" {
+    Name = "notificationContainer",
+    Visible = notificationActive,
+    Active = notificationActive,
+    LayoutOrder = 1,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Color3.new(0,0,0),
+    BackgroundTransparency = guiScope:Tween(inputSinkTransparency, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad)),
+    Position = ON_SCREEN_POSITION,
+    ZIndex = 1,
+    Size = UDim2.fromScale(1, 1),
+}
+
+local NotificationGui = guiScope:New "ScreenGui" {
+    Name = "NotificationGui",
+    Enabled = true,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    IgnoreGuiInset = true,
+    DisplayOrder = 3,
+    Parent = PlayerGui,
+    [Children] = {
+        notificationContainer,
+        notificationInputSink
+    }
+}
+-- ## NOTIFICATION MANAGER END -- ##
+
 local isLoaded = false
-
 local GuiManager = {} 
+local hiddenNotifications = {
 
+}
+
+function GuiManager.ResetNotificationDetails()
+    notificationText:set("")
+    yesCallback:set(function()
+        return
+    end)
+    noCallback:set(function()
+        return
+    end)
+end
+
+function GuiManager.PushNotificationCentre(notificationName: string, message: string, yesCb: () -> (), noCb: () -> ()?, showAgain: boolean?)
+    warn("Pushing notification")
+    if hiddenNotifications[notificationName] then
+        -- TODO
+    end
+
+    if peek(notificationActive) then
+        warn("Notification already active!")
+        return
+    end
+
+    notificationText:set(message)
+    yesCallback:set(function()
+        GuiManager.PopNotification()
+        GuiManager.ResetNotificationDetails()
+        yesCb()
+    end)
+    noCallback:set(function()
+        GuiManager.PopNotification()
+        GuiManager.ResetNotificationDetails()
+        if noCb then
+            noCb()
+        end
+
+    end)
+
+    notificationActive:set(true)
+end
+
+function GuiManager.PopNotification()
+    notificationActive:set(false)
+end
 
 function GuiManager.IsLoaded()
     return isLoaded
@@ -120,7 +315,7 @@ function GuiManager.DisplayConfiguration(configurationName: string): ()
         currentConfiguration:Enable()
     end
 end 
-
+ 
 function GuiManager.HideCurrentConfiguration(): ()
     if currentConfiguration then
         currentConfiguration:Disable()
@@ -147,31 +342,34 @@ function GuiManager.RegisterConfiguration(config: Types.GuiConfiguration)
 end
 
 -- Registers a modal so that it can easily be referenced from within the GUI manager
-function GuiManager.RegisterModal(objectName: string, guiObject: GuiObject): ()
+function GuiManager.RegisterModal(objectName: string, guiObject: GuiObject, onActivated: () -> ()?): ()
     assert(objectName and guiObject, "Inadequate information to register modal! Name = " .. objectName)
-    registeredModals[objectName] = guiObject
+    registeredModals[objectName] = {
+        ["guiObject"] = guiObject,
+        ["callback"] = onActivated
+    }
     guiObject.Parent = modalContainer
     guiObject.AnchorPoint = Vector2.new(0.5, 0.5)
     guiObject.Visible = false
 end
 
-function GuiManager.GetRegisteredModal(modalName: string): GuiObject
+function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject, callback: () -> ()?}
     return registeredModals[modalName]
 end
 
 function GuiManager.PushCentreByName(modalName: string): ()
-    if not isLoaded then 
-        warn("Still initialising GUI!")
+    if not isLoaded  then 
+        warn("Still initialising GUI!", isLoaded)
         return
     end 
+
     assert(registeredModals[modalName], "Attempt to push modal " .. modalName .. " but no such modal found in registered modals!")
 
     -- Clone to avoid mutating the original table
     local currentModals = table.clone(peek(modalStack))
     local modalToPush = GuiManager.GetRegisteredModal(modalName)
 
-    if table.find(currentModals, modalToPush) then
-        warn("Cannot push already active modal!")
+    if table.find(currentModals, modalToPush.guiObject) then
         return
     end
 
@@ -183,8 +381,12 @@ function GuiManager.PushCentreByName(modalName: string): ()
         GuiManager.HideCurrentConfiguration()
     end
 
-    table.insert(currentModals, modalToPush)
-    modalToPush.Visible = true
+    table.insert(currentModals, modalToPush.guiObject)
+    modalToPush.guiObject.Visible = true
+    
+    if modalToPush.callback then
+        modalToPush.callback()
+    end 
 
     modalStack:set(currentModals)
 end
@@ -206,13 +408,13 @@ function GuiManager.PopCentre(guiObject: GuiObject?): ()
         modals[#modals].Visible = true
         topModal.Visible = false 
     else
+        GuiManager.ShowCurrentConfiguration()
         -- Only show HUD when stack is empty
         -- Hide the popped modal after it slides off-screen
         task.delay(TWEEN_LENGTH, function()
             topModal.Visible = false
+            ShowAllPromptsBindable:Fire()
         end)
-        ShowAllPromptsBindable:Fire()
-        GuiManager.ShowCurrentConfiguration()
     end
 
     modalStack:set(modals)

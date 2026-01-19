@@ -63,7 +63,7 @@ function InspectFrame(
 		Size = UDim2.fromScale(1, 1),
 		Position = UDim2.fromScale(0.5, 0.5),
 		BackgroundColor3 = Color3.new(1, 1, 1),
-		BackgroundTransparency = 0.8,
+		BackgroundTransparency = 0.6,
 		LayoutOrder = 2,
 		CanvasSize = UDim2.fromScale(0, 0),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -77,6 +77,10 @@ function InspectFrame(
 				PaddingBottom = UDim.new(0,0),
 				PaddingRight = UDim.new(0,0),
 				PaddingLeft = UDim.new(0,0),
+			},
+
+			scope:New "UICorner" {
+				CornerRadius = UDim.new(0.03,0)
 			},
 
 			scope:ForValues(inspectedItems, function(use, scope, item)

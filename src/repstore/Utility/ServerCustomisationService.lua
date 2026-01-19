@@ -279,7 +279,8 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 	end
 
 	-- Handle Body Parts bundles
-	if bundleInfo.BundleType == Enum.BundleType.BodyParts.Name then
+	if bundleInfo.BundleType == Enum.BundleType.BodyParts.Name or bundleInfo.BundleType == Enum.BundleType.Shoes.Name then
+		warn("Adding here...")
 		local bodyParts = {}
 		local accessories = {}
 		
@@ -338,6 +339,7 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		return
 	end
 
+	warn("Not found ABOVE; ", bundleInfo)
 	-- Check for UserOutfit (simpler approach for other bundle types)
 	local userOutfitId = getUserOutfitIdFromBundleItems(bundleItems)
 	if userOutfitId then

@@ -17,7 +17,6 @@ local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
 --
 
 local function onPhaseChanged()
-    warn("Phase changed at outfits server tracker!")
     PlayerVotedOutfitsTracker.ResetPlayerList()
 end
 

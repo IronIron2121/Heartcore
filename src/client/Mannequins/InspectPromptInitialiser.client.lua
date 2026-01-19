@@ -12,15 +12,31 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local StarterPlayer = game:GetService("StarterPlayer")
 local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
+local UserInputService = game:GetService("UserInputService")
 
 -- Folders
 local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
 local Mannequins = StarterPlayerScripts:WaitForChild("Mannequins")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
+local Libraries         = ReplicatedStorage:WaitForChild("Libraries")
+local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 
 -- Modules
 local UI_CONSTANTS = require(ReplicatedStorage.Utility:WaitForChild("UI_CONSTANTS"))
 local Constants = require(ReplicatedStorage.Constants)
 local Inspector = require(Mannequins.Inspector) 
+local Fusion = require(Utility:WaitForChild("Fusion"))
+local votingZone = workspace:WaitForChild("votingZone")
+local GuiManager = require(GuiManagerLibrary:WaitForChild("GuiManager"))
+local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
+
+-- Instances
+local VotingPad = votingZone:WaitForChild("VotingPad")
+local promptHolder = VotingPad:WaitForChild("PromptHolder")
+
+-- Fusion Modules
+local scope = Fusion:scoped()
+local OnEvent = Fusion.OnEvent
 
 -- Bindables
 local PlayerCreatedPreview = BindablesFolder:WaitForChild("PlayerCreatedPreview")
@@ -94,17 +110,21 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 
 	-- tween settings
 	local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad,	Enum.EasingDirection.Out)
-	local function tweenStroke(targetColor: Color3, targetThickness: number)
-		TweenService:Create(stroke, tweenInfo, {Color = targetColor, Thickness = targetThickness}):Play()
+	local function tweenBackground(targetTransparency: number)
+		TweenService:Create(frame, tweenInfo, {BackgroundTransparency =  targetTransparency}):Play()
 	end
+
+	-- local function tweenStroke(targetColor: Color3, targetThickness: number)
+	-- 	TweenService:Create(stroke, tweenInfo, {Color = targetColor, Thickness = targetThickness}):Play()
+	-- end
 
 	-- hover animations
 	button.MouseEnter:Connect(function()
-		tweenStroke(UI_CONSTANTS.TASTEMAKER_GREEN, 2)
+		tweenBackground(0.1)
 	end)
 
 	button.MouseLeave:Connect(function()
-		tweenStroke(Color3.fromRGB(255, 255, 255), 2) -- back to white
+		tweenBackground(0.5)
 	end)
 
 	button.Activated:Connect(function()
@@ -128,7 +148,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 		end
 	end
 
-	local UserInputService = game:GetService("UserInputService")
+
 
 	local function updateLabel()
 		local action = "INSPECT"
@@ -142,7 +162,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 			keyText = "[Tap]"
 		end
 
-		button.Text = action .. " " .. keyText
+		button.Text = action --.. " " .. keyText
 	end
 
 	updateLabel()
@@ -243,6 +263,19 @@ local function initialise()
 	for _, mannequin in CollectionService:GetTagged(Constants.FLOOR_MANNEQUIN_TAG) do
 		onMannequinAdded(mannequin)
 	end
+
+    local VotePrompt = scope:New "ProximityPrompt" {
+        Parent = promptHolder,
+        MaxActivationDistance = 20,
+        RequiresLineOfSight = false,
+        ActionText = "Vote Here!",
+        [OnEvent "Triggered"] = function()
+            GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
+        end
+    } :: ProximityPrompt
+
+	local dudInstance = Instance.new("Model")
+	inspectPrompts[dudInstance] = VotePrompt
 
 	-- Connect prompt visibility controls
 	PlayerCreatedPreview.Event:Connect(hideAllPrompts)

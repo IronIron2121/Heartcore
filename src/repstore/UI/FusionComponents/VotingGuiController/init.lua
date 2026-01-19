@@ -17,8 +17,6 @@ local localPlayer = Players.LocalPlayer
 
 -- GUI
 local PlayerGui         = localPlayer.PlayerGui
-local OutfitVoteTile    = require(script:WaitForChild("OutfitVoteTile"))
-local EmptyVoteTile     = require(script:WaitForChild("EmptyVoteTile"))
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 
 -- Modules
@@ -63,8 +61,8 @@ local isRefreshing = false
 --
 
 local VotingGuiController = {}
- 
-local function refreshOutfitVoteTiles()
+
+function VotingGuiController.refreshOutfits()
     if isRefreshing then
         warn("Already refreshing outfit tiles, skipping...")
         return
@@ -115,10 +113,6 @@ local function refreshOutfitVoteTiles()
     
     outfitVoteTiles:set(newTiles)
     isRefreshing = false
-end
-
-function VotingGuiController.refreshOutfits()
-    refreshOutfitVoteTiles()
 end
 
 local function initialiseRotationTimer()

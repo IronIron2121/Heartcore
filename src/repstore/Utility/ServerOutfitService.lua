@@ -25,7 +25,7 @@ function ServerOutfitService.SaveCurrentOutfitWithUnownedItems(player: Player)
 	
 	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
 	
-	local success, result = pcall(function()
+	local success = pcall(function()
 		PlayerOutfitsDatastore:UpdateAsync(player.UserId, function(oldData)
 			local newData = oldData or {}
 			table.insert(newData, serialisedHumanoidDescription)
@@ -33,18 +33,13 @@ function ServerOutfitService.SaveCurrentOutfitWithUnownedItems(player: Player)
 		end)
 	end)
 	if not success then
-		print("Failed to saved")
-	else
-		print("Saved")
+		warn("Failed to saved")
 	end
-	warn(PlayerOutfitsDatastore:GetAsync(player.UserId))
 end
 
 function ServerOutfitService.GetPlayerTastemakerOutfits(player: Player)
 	local success, result = pcall(function()
 		local playerOutfits = PlayerOutfitsDatastore:GetAsync(player.UserId)
-		warn("Getting t maker outfits @ server")
-		print(playerOutfits)
 		return playerOutfits
 	end)
 	
@@ -72,7 +67,7 @@ function ServerOutfitService.PlayerPurchasedCurrentOutfit(player: Player, shoppi
 end
 
 function ServerOutfitService.playerDeletedTastemakerOutfit(player: Player, index: number)
-	local success, result = pcall(function()
+	local success = pcall(function()
 		PlayerOutfitsDatastore:UpdateAsync(player.UserId, function(oldData)
 			local newData = oldData or {}
 			newData[index] = nil

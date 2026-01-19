@@ -50,7 +50,6 @@ local function updateSubmissionThemeBillboard()
     local themeName = ThemeManager.getCurrentThemeName()
     SubmissionThemeTextLabel.Text = themeName
     if themeName == "Loading..." then
-        warn("Failed to get theme name - trying again...")
         task.wait(REUPDATE_THEME_WAIT_TIME)
         task.spawn(function()
             updateSubmissionThemeBillboard()
@@ -146,7 +145,6 @@ local function getCurrentMemoryStoreIndex(): number?
     
     if infoSuccess and not info then
         -- Info store exists but no data - initialise it
-        warn("No submission info found, initializing...")
         local initSuccess = SubmissionStoreManager.initialiseNewSubmissionStore()
         
         if not initSuccess then
@@ -173,8 +171,6 @@ function SubmissionStoreManager.getCurrentInfoStoreName(): string?
 end
 
 function SubmissionStoreManager.initialiseNewSubmissionStore()
-    warn("Initialising new submission store!")
-    
     -- Get current theme from ThemeManager
     local currentTheme = ThemeManager.getCurrentTheme()
     local themeName = currentTheme and currentTheme.theme or "Unknown"
@@ -206,10 +202,7 @@ function SubmissionStoreManager.initialiseNewSubmissionStore()
         end
     )
 
-    if setSuccess then
-       warn("Just ++ set current submission info with theme:", themeName)
-       print(submissionInfo:GetAsync(Constants.CURRENT_SUBMISSION_INFO_KEY)) 
-    else
+    if not setSuccess then
         warn("Failed to set submission info!")
     end
 
@@ -287,8 +280,6 @@ function SubmissionStoreManager.getCurrentMemoryStoreName(): string?
     local currentIndex = getCurrentMemoryStoreIndex()
     
     if currentPrefix and currentIndex then
-        warn("Getting memorystore name with index: ", currentIndex)
-        warn(currentPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME .. currentIndex)
         return currentPrefix .. Constants.SUBMISSION_MEMORYSTORE_NAME .. currentIndex
     else
         warn("Failed to get name!", currentPrefix, currentIndex)
@@ -507,10 +498,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         )
     end, 3)
 
-    warn("Just submitted for ID", player.UserId)
-
     if success then
-        print("Successfully submitted outfit for player:", player.Name)
         SubmissionResultRE:FireClient(player, {
             ok = true,
             msg = "Outfit submitted successfully!"
@@ -519,7 +507,7 @@ function SubmissionStoreManager:AddEntryToStore(player: Player, serialisedHumano
         -- Check if we need to rollover to a new store
         local currentSize = currentSubmissionsMemoryStore:GetSizeAsync()
         if currentSize >= Constants.MAX_SUBMISSIONS_PER_MEMORYSTORE then
-            print("Store full (" .. currentSize .. " entries), attempting rollover...")
+            warn("Store full (" .. currentSize .. " entries), attempting rollover...")
             SubmissionStoreManager.incrementIndex()
         end
         return true

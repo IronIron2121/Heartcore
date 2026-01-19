@@ -11,6 +11,7 @@ local ImageUris = {}
 local assets = {
 	OutfitCatalogButton = "116118796974877",
 	CloseButton = "85940627430036",
+	ConfirmButton = "86400028459418",
 	StopwatchIcon = "73600277679991",
 	RobuxIcon = "81055682730978",
 	ExpBar = "73207886316381",
@@ -28,6 +29,7 @@ setmetatable(ImageUris, {
 		if assets[key] then
 			return "rbxassetid://"..assets[key]
 		else
+			assert(assets[key], "No value stored at provided key!")
 			return nil
 		end
 	end,
