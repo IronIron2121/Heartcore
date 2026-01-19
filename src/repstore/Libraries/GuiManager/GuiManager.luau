@@ -125,6 +125,7 @@ local notificationTextLabel = guiScope:New "TextLabel" {
     Size = UDim2.fromScale(1, 0.5),
     TextScaled = false,
     TextWrapped = true,
+    TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
     TextSize = 50,
     BackgroundColor3 = Color3.new(0,0,0),
     [Children] = {
@@ -179,12 +180,12 @@ local notificationButtonContainer = guiScope:New "Frame" {
 local notificationMessageContainer = guiScope:New "Frame" {
     Name = "NotificationMessageContainer",
     LayoutOrder = 2,
-    BackgroundColor3 = Color3.new(1,0.8,0.8),
+    BackgroundColor3 = Color3.new(1, 1, 1),
     BackgroundTransparency = 0.2,
     AnchorPoint = Vector2.new(0.5,0.5),
     Position = UDim2.fromScale(0.5, 0.5),
     ZIndex = 1,
-    Size = UDim2.fromScale(0.5, 0.5),
+    Size = UDim2.fromScale(0.3, 0.3),
 
     [Children] = {
         notificationTextLabel,
@@ -198,6 +199,10 @@ local notificationMessageContainer = guiScope:New "Frame" {
         guiScope:New "UICorner" {
             CornerRadius = UDim.new(0.05, 0)
         },
+        guiScope:New "UIPadding" {
+            PaddingLeft = UDim.new(0.1,0),
+            PaddingRight = UDim.new(0.1,0)
+        }
     }
 }
 

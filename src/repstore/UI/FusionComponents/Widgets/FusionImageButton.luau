@@ -17,6 +17,9 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 local peek = Fusion.peek
 
+-- Constants
+local COLOUR_ORANGE = Color3.new(0.901961, 0.380392, 0.078431)
+
 function ImageButton(
 	scope: Fusion.Scope,
 	props: {
@@ -30,7 +33,7 @@ function ImageButton(
 		anchorPoint: UsedAs<Vector2>?,
 		imageColor: UsedAs<Color3>?,
 		cornerRadius: UsedAs<UDim>?,
-		zIndex: UsedAs<number>?,
+		zIndex: UsedAs<number>?, 
 		onActivated: UsedAs<(() -> ())>?,
 	}
 ): ImageButton
@@ -44,9 +47,9 @@ function ImageButton(
 			local baseColor = imageColor
 
 			if use(isHeldDown) then
-				return baseColor:Lerp(UI_CONSTANTS.TASTEMAKER_PURPLE, 1)
+				return baseColor:Lerp(COLOUR_ORANGE, 0.8)
 			elseif use(isHovering) then
-				return baseColor:Lerp(UI_CONSTANTS.TASTEMAKER_PURPLE, 0.20)
+				return baseColor:Lerp(COLOUR_ORANGE, 0.25)
 			else
 				return baseColor
 			end
