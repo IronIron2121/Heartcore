@@ -263,7 +263,6 @@ function GuiManager.ResetNotificationDetails()
 end
 
 function GuiManager.PushNotificationCentre(notificationName: string, message: string, yesCb: () -> (), noCb: () -> ()?, showAgain: boolean?)
-    warn("Pushing notification")
     if hiddenNotifications[notificationName] then
         -- TODO
     end
