@@ -295,7 +295,7 @@ function OutfitsFrame(
 		}
 	} :: Frame
 
-	return outfitsFrame
+	return outfitsFrame, updatePlayerOutfits
 end
 
 return OutfitsFrame

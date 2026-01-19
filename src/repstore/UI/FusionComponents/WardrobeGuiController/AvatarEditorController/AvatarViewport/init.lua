@@ -40,7 +40,8 @@ function AvatarViewport(
 	props: {
 		model: UsedAs<Model>,
 		currentView: Fusion.Value<string>,
-		layoutOrder: UsedAs<number>
+		layoutOrder: UsedAs<number>,
+		controllers: {}
 	}
 ): Frame
 	-- Avatar manipulation variables
@@ -171,9 +172,15 @@ function AvatarViewport(
 						"Are you sure you want to save this outfit?", 
 						function()  
 							OutfitClientService.SaveCurrentPlayerOutfit(localPlayer)
+							if not props.controllers.CatalogSearchController then
+								return 
+							end
+							if not props.controllers.CatalogSearchController.updatePlayerOutfits then
+								return 
+							end
+							props.controllers.CatalogSearchController.updatePlayerOutfits()
 						end
 					)
-
 				end
 			}),
 

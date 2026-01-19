@@ -83,8 +83,8 @@ local function InitialiseModals()
 
     -- TODO: Find a more robust way of doing the below, this is vestigial code
 	local controllers = {}
-	controllers["AvatarEditorController"] = AvatarEditorController.new(avatarContainer) 
-	controllers["CatalogSearchController"] = CatalogSearchController.new(catalogContainer) 
+	controllers["CatalogSearchController"] = CatalogSearchController.new(catalogContainer, controllers) 
+	controllers["AvatarEditorController"] = AvatarEditorController.new(avatarContainer, controllers) 
     controllers["VotingGuiController"] = nil
 	controllers["OutfitViewController"] = OutfitViewController
 	controllers["AvatarEditorController"]:Initialise()
