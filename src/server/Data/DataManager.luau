@@ -11,8 +11,9 @@ local RANK_NAMES = {
     [6] = "Looksmaxxer",    -- Levels 51-60
     [7] = "Drip Master",    -- Levels 61-70
     [8] = "Runway Rizzer",      -- Levels 71-80
-    [9] = "Fashion GOAT",  -- Levels 81-90
-    [10] = "Taste Maker",        -- Levels 91-100
+    [9] = "Fit Checker",  -- Levels 81-90
+    [10] = "Fashion GOAT", -- Levels 91-99
+    [11] = "Taste Maker",        -- Level 100
 }
 
 -- Helper function to get the start of a day (midnight UTC) for a given timestamp
