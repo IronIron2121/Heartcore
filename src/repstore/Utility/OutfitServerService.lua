@@ -18,7 +18,7 @@ local PlayerOutfitsDatastore = DatastoreService:GetDataStore(Constants.PLAYER_OU
 
 local OutfitServerService = {}
 
-function OutfitServerService.SaveCurrentOutfitWithUnownedItems(player: Player)
+function OutfitServerService.SaveTastemakerOutfit(player: Player)
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoid = character:WaitForChild("Humanoid") :: Humanoid
 	local humanoidDescription = humanoid:GetAppliedDescription()

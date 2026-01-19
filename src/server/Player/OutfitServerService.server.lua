@@ -52,7 +52,7 @@ local function playerPurchasedCurrentOutfit(player: Player, shoppingCart: {Type:
 end
 
 local function playerSavedTastemakerOutfit(player: Player)
-	OutfitServerService.SaveCurrentOutfitWithUnownedItems(player)
+	OutfitServerService.SaveTastemakerOutfit(player)
 end
 
 local function playerDeletedTastemakerOutfit(player: Player, index: number)
