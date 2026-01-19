@@ -154,6 +154,7 @@ local Constants = {
 		["GraphicTShirt"] = 0,
 		["Shirt"] = 855779323,
 		["Pants"] = 855785499,
+		["Face"] = 65724730
 	},
 	
 	DEFAULT_CLASSIC_CLOTHING_IDS_TABLE = {

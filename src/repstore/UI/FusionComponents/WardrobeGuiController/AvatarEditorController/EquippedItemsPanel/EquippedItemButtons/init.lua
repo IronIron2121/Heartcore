@@ -11,7 +11,6 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI Components
@@ -66,6 +65,7 @@ function EquippedItemButtons(
 			["GraphicTShirt"] = use(currentHumanoidDescription).GraphicTShirt,
 			["Shirt"] = use(currentHumanoidDescription).Shirt,
 			["Pants"] = use(currentHumanoidDescription).Pants,
+			["Face"] = use(currentHumanoidDescription).Face,
 		}
 	end)
 
