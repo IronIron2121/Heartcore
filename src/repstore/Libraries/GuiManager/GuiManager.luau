@@ -12,16 +12,24 @@ local Lighting          = game:GetService("Lighting")
 local Players           = game:GetService("Players")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
 local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
+local Utility   = ReplicatedStorage:WaitForChild("Utility")
+local UI            = ReplicatedStorage:WaitForChild("UI")
+local Widgets       = UI.FusionComponents.Widgets
+local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Modules
-local makeArrowPointingAtPart = require(ReplicatedStorage.Utility.makeArrowPointingAtPart)
+local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
+local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Types         = require(Utility.Types)
+
+-- UI Modules
+local FusionImageButton = require(Widgets.FusionImageButton)
 
 -- Fusion
 local Fusion        = require(Utility.Fusion)
-local modalScope    = Fusion:scoped()
+local guiScope      = Fusion:scoped()
+local Children      = Fusion.Children
 local peek          = Fusion.peek
 type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
@@ -41,13 +49,14 @@ local PlayerGui = localPlayer.PlayerGui
 local OFF_SCREEN_POSITION = UDim2.fromScale(0.5, 3)
 local ON_SCREEN_POSITION = UDim2.fromScale(0.5, 0.5)
 local TWEEN_LENGTH = 0.4
+local NOTIFICATION_OFF_SCREEN_POSITION = UDim2.fromScale(0.5, -5)
 
 --
 
 local currentConfiguration: Types.GuiConfiguration? = nil
 local registeredConfigurations: {[string]: Types.GuiConfiguration} = {}
 
-local HudContainer = modalScope:New "ScreenGui" {
+local HudContainer = guiScope:New "ScreenGui" {
     Name = "HudGui",
     IgnoreGuiInset = true,
     Enabled = true,
@@ -56,18 +65,18 @@ local HudContainer = modalScope:New "ScreenGui" {
 }
 
 local registeredModals: {[string]: {guiObject: GuiObject, callback: () -> ()?}} = {}
-local modalStack: Value<{GuiObject}> = modalScope:Value({})
+local modalStack: Value<{GuiObject}> = guiScope:Value({})
 
-local CentreActive = modalScope:Computed(function(use) 
+local CentreActive = guiScope:Computed(function(use) 
         return #use(modalStack) ~= 0
     end
 )
 
-local modalPosition = modalScope:Computed(function(use) : Fusion.UsedAs<UDim2>
+local modalPosition = guiScope:Computed(function(use) : Fusion.UsedAs<UDim2>
     return use(CentreActive) and ON_SCREEN_POSITION or OFF_SCREEN_POSITION 
 end)
 
-local modalTween = modalScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
+local modalTween = guiScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
 
 local ModalGui = guiScope:New "ScreenGui" {
     Name = "ModalGui",
@@ -78,11 +87,11 @@ local ModalGui = guiScope:New "ScreenGui" {
 } :: ScreenGui
 
 
-local blurSize: Computed<number> = modalScope:Computed(function(use) 
+local blurSize: Computed<number> = guiScope:Computed(function(use) 
     return use(CentreActive) and 24 or 0
 end)
 
-local modalContainer = modalScope:New "Frame" {
+local modalContainer = guiScope:New "Frame" {
     Name = "ModalContainer",
     AnchorPoint = Vector2.new(0.5,0.5),
     Position = modalTween,
@@ -91,12 +100,12 @@ local modalContainer = modalScope:New "Frame" {
     Parent = ModalGui,
 }
 
-local BackgroundBlur = modalScope:New "BlurEffect" {
+local BackgroundBlur = guiScope:New "BlurEffect" {
     Archivable = true,
     Name = "ModalBackgroundBlur",
     Parent = Lighting,
     Enabled = true,
-    Size = modalScope:Tween(blurSize, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
+    Size = guiScope:Tween(blurSize, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
 } :: BlurEffect
 
 -- ## NOTIFICATION MANAGER BEGIN -- ##

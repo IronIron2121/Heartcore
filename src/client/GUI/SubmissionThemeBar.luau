@@ -4,12 +4,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
 local Utility       = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
-local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
 
 -- Instances
 local centralPond               = workspace:WaitForChild("centralPond")
