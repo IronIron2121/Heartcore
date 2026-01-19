@@ -25,11 +25,12 @@ local EquippedItemsPanel = require(script:WaitForChild("EquippedItemsPanel"))
 local AvatarEditorController = {}
 AvatarEditorController.__index = AvatarEditorController
 
-function AvatarEditorController.new(parentFrame: Frame)
+function AvatarEditorController.new(parentFrame: Frame, controllers: {})
 	local self = setmetatable({}, AvatarEditorController)
 	self.parentFrame = parentFrame
 	self.avatarViewport = nil
 	self.scope = Fusion:scoped()
+	self.controllers = controllers
 
 	return self
 end
@@ -47,7 +48,8 @@ function AvatarEditorController:_initialiseAvatarViewport()
 	self.avatarViewport = AvatarViewport(self.scope, {
 		model = avatarPreviewModel:getInstance(),
 		currentView = WardrobeGuiState.currentView,
-		layoutOrder = 2
+		layoutOrder = 2,
+		controllers = self.controllers
 	}) 
 	
 	self.avatarViewport.Parent = self.parentFrame  
