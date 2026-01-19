@@ -17,12 +17,8 @@ local PhaseChanged = Bindables:WaitForChild("PhaseChanged")
 --
 
 local function onPhaseChanged()
-    print("Phase changed - determining winners...")
     local success = WinnersStoreManager.setNewWinners()
-    if success then
-        print("Winners set successfully")
-    else
-        warn("Failed to set winners")
+    if not success then
         WinnersStoreManager.resetWinners()
     end
 end

@@ -78,10 +78,7 @@ function Button(
 
 		[OnEvent "Activated"] = function()
 			if props.onActivated then
-				print("activating in button")
 				props.onActivated()
-			else
-				warn("No activated function!")
 			end
 		end,
 

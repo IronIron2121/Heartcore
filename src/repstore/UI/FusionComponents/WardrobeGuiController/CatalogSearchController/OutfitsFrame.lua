@@ -57,7 +57,6 @@ function OutfitsFrame(
 	
 	local function updatePlayerOutfits()
 		isLoading:set(true)
-		warn("Updating player outfits!")
 		-- Get outfits and filter for editable avatar outfits
 		local success, outfits = pcall(function()
 			return AvatarEditorService:GetOutfits()
@@ -112,8 +111,6 @@ function OutfitsFrame(
 					inventoryAccessGranted:set(false)
 					return
 				end
-			else
-				print("Access already granted")
 			end
 			
 			updatePlayerOutfits()

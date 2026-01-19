@@ -36,7 +36,6 @@ end
 
 local function initialiseAllCatalogConsoles()
     local catalogConsoles = CollectionService:GetTagged(Constants.CATALOG_CONSOLE_TAG)
-    warn(catalogConsoles)
     for _, ConsoleBase in ipairs(catalogConsoles) do
         initialiseCatalogConsole(ConsoleBase)
     end

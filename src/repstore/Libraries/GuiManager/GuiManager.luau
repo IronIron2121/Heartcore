@@ -12,24 +12,17 @@ local Lighting          = game:GetService("Lighting")
 local Players           = game:GetService("Players")
 
 -- Folders
-local Utility           = ReplicatedStorage:WaitForChild("Utility")
-local BindablesFolder   = ReplicatedStorage:WaitForChild("Bindables")
-local UI                = ReplicatedStorage:WaitForChild("UI")
-local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
-local FusionComponents  = UI.FusionComponents
-local Widgets           = FusionComponents.Widgets
+local Utility = ReplicatedStorage:WaitForChild("Utility")
+local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
-local FusionImageButton = require(Widgets.FusionImageButton)
-local UI_CONSTANTS      = require(Utility.UI_CONSTANTS)
-local Types             = require(Utility.Types) 
-local ImageUris         = require(DataTables.ImageUris)
+local makeArrowPointingAtPart = require(ReplicatedStorage.Utility.makeArrowPointingAtPart)
+local Types         = require(Utility.Types)
 
 -- Fusion
 local Fusion        = require(Utility.Fusion)
-local guiScope      = Fusion:scoped()
+local modalScope    = Fusion:scoped()
 local peek          = Fusion.peek
-local Children      = Fusion.Children
 type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
 type Computed<T>    = Fusion.Computed<T>
@@ -48,14 +41,13 @@ local PlayerGui = localPlayer.PlayerGui
 local OFF_SCREEN_POSITION = UDim2.fromScale(0.5, 3)
 local ON_SCREEN_POSITION = UDim2.fromScale(0.5, 0.5)
 local TWEEN_LENGTH = 0.4
-local NOTIFICATION_OFF_SCREEN_POSITION = UDim2.fromScale(0.5, -5)
 
 --
 
 local currentConfiguration: Types.GuiConfiguration? = nil
 local registeredConfigurations: {[string]: Types.GuiConfiguration} = {}
 
-local HudContainer = guiScope:New "ScreenGui" {
+local HudContainer = modalScope:New "ScreenGui" {
     Name = "HudGui",
     IgnoreGuiInset = true,
     Enabled = true,
@@ -64,18 +56,18 @@ local HudContainer = guiScope:New "ScreenGui" {
 }
 
 local registeredModals: {[string]: {guiObject: GuiObject, callback: () -> ()?}} = {}
-local modalStack: Value<{GuiObject}> = guiScope:Value({})
+local modalStack: Value<{GuiObject}> = modalScope:Value({})
 
-local CentreActive = guiScope:Computed(function(use) 
+local CentreActive = modalScope:Computed(function(use) 
         return #use(modalStack) ~= 0
     end
 )
 
-local modalPosition = guiScope:Computed(function(use) : Fusion.UsedAs<UDim2>
+local modalPosition = modalScope:Computed(function(use) : Fusion.UsedAs<UDim2>
     return use(CentreActive) and ON_SCREEN_POSITION or OFF_SCREEN_POSITION 
 end)
 
-local modalTween = guiScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
+local modalTween = modalScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
 
 local ModalGui = guiScope:New "ScreenGui" {
     Name = "ModalGui",
@@ -86,11 +78,11 @@ local ModalGui = guiScope:New "ScreenGui" {
 } :: ScreenGui
 
 
-local blurSize: Computed<number> = guiScope:Computed(function(use) 
+local blurSize: Computed<number> = modalScope:Computed(function(use) 
     return use(CentreActive) and 24 or 0
 end)
 
-local modalContainer = guiScope:New "Frame" {
+local modalContainer = modalScope:New "Frame" {
     Name = "ModalContainer",
     AnchorPoint = Vector2.new(0.5,0.5),
     Position = modalTween,
@@ -99,12 +91,12 @@ local modalContainer = guiScope:New "Frame" {
     Parent = ModalGui,
 }
 
-local BackgroundBlur = guiScope:New "BlurEffect" {
+local BackgroundBlur = modalScope:New "BlurEffect" {
     Archivable = true,
     Name = "ModalBackgroundBlur",
     Parent = Lighting,
     Enabled = true,
-    Size = guiScope:Tween(blurSize, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
+    Size = modalScope:Tween(blurSize, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
 } :: BlurEffect
 
 -- ## NOTIFICATION MANAGER BEGIN -- ##
@@ -370,7 +362,6 @@ function GuiManager.PushCentreByName(modalName: string): ()
     local modalToPush = GuiManager.GetRegisteredModal(modalName)
 
     if table.find(currentModals, modalToPush.guiObject) then
-        warn("Cannot push already active modal!")
         return
     end
 
@@ -411,6 +402,7 @@ function GuiManager.PopCentre(guiObject: GuiObject?): ()
     else
         GuiManager.ShowCurrentConfiguration()
         -- Only show HUD when stack is empty
+        -- Hide the popped modal after it slides off-screen
         task.delay(TWEEN_LENGTH, function()
             topModal.Visible = false
             ShowAllPromptsBindable:Fire()

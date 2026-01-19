@@ -69,7 +69,6 @@ local function canPlayerSubmit(player: Player)
 	end
 
 	if not success or lastSubmit >= currentPhaseStart then
-		warn("no, they can't submit")
 		return false
 	end
 
@@ -82,8 +81,6 @@ local function onOutfitSubmitted(player: Player)
 			ok = false, 
 			msg = "You've already submitted this phase. Try again tomorrow!"
 		})
-
-		warn("can't submit rn!!!")
 		return 
 	end
 

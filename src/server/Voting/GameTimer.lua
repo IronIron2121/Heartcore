@@ -203,8 +203,6 @@ local function currentPhaseHasExpired()
 end
 
 local function updatePhase()
-    print("Starting phase transition...")
-    
     local currentUnixTime = DateTime.now().UnixTimestamp 
     
     local recentSuccess = callWithRetry(function()
@@ -233,18 +231,7 @@ local function updatePhase()
         
         PhaseChanged:Fire()
         PhaseChangedRemote:FireAllClients()
-
-        
-        local currentDateTime = DateTime.fromUnixTimestamp(currentUnixTime)
-        local nextPhaseUnixTime = getNextPhaseStartTime()
-        local tomorrowDateTime = nextPhaseUnixTime and DateTime.fromUnixTimestamp(nextPhaseUnixTime) or nil
-        
-        print("Phase transition completed at:", currentDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
-        if tomorrowDateTime then
-            --print("Next transition at:", tomorrowDateTime:FormatUniversalTime("YYYY-MM-DD HH:mm", "en-us"))
-        end
     else
-        --warn("Failed to update phase transition times in GameTimerMemoryStore")
         return false
     end
     
@@ -269,7 +256,6 @@ local function attemptPhaseTransition()
     end, 3)
     
     if success and result and result.serverId == game.JobId then
-        print("Server", game.JobId, "won the transition lock at time", currentTime)
         updatePhase()
         return true
     else

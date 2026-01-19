@@ -153,8 +153,6 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 	serialisedHumanoidDescription.ProportionScale = humanoidDescription.ProportionScale
 	serialisedHumanoidDescription.WidthScale = humanoidDescription.WidthScale
 
-	warn("Just serialised", humanoidDescription:GetChildren(), serialisedHumanoidDescription)
-		
 	return serialisedHumanoidDescription
 end
 

@@ -206,10 +206,15 @@ function WinnersStoreManager.updateWinnersPodiums()
         end
 
         local success = pcall(function()
-            rig:ScaleTo(1)
+            callWithRetry(function()
+                return rig:ScaleTo(1)
+            end)
+            
             rig.Humanoid:ApplyDescriptionResetAsync(description)
-            task.wait(1)
-            rig:ScaleTo(winnersRigScale) 
+
+            callWithRetry(function()
+                return rig:ScaleTo(winnersRigScale)
+            end)        
         end)
         
         if not success then
@@ -356,17 +361,13 @@ function WinnersStoreManager.setNewWinners()
     local erePreviousPrefix = GameTimer.getErePreviousPhasePrefix()
     
     if not erePreviousPrefix then
-        print("No ereyesterday phase available yet - cannot determine winners")
         return false
     end
-    
-    print("Determining winners from phase:", erePreviousPrefix)
     
     -- Get all submission stores for that phase
     local storeNames = getSubmissionStoreNames(erePreviousPrefix)
     
     if #storeNames == 0 then
-        warn("No submission stores found for phase:", erePreviousPrefix)
         return false
     end
     

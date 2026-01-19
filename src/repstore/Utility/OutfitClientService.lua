@@ -103,11 +103,14 @@ end
 function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 	PlayerSavedTastemakerOutfit:FireServer()
 
-	--[[
-	local character = player.Character or player.CharacterAdded:Wait()
-	local humanoid = character:WaitForChild("Humanoid") :: Humanoid
-	local humanoidDescription = humanoid:GetAppliedDescription()
+	-- The below code is commented out until we need to implement saving outfits via Roblox official API
+
+
+	--local character = player.Character or player.CharacterAdded:Wait()
+	--local humanoid = character:WaitForChild("Humanoid") :: Humanoid
+	--local humanoidDescription = humanoid:GetAppliedDescription()
 	
+	--[[
 	for _, description in ipairs(humanoidDescription:GetChildren()) do
 		if description:IsA("AccessoryDescription") or description:IsA("BodyPartDescription") and description.AssetId ~= 0 then
 			if MarketplaceService:PlayerOwnsAsset(player, description.AssetId) then
@@ -128,9 +131,9 @@ function OutfitClientService.SaveCurrentPlayerOutfit(player: Player)
 			return
 		end
 	end
-	
-	AvatarEditorService:PromptCreateOutfit(humanoidDescription, Enum.HumanoidRigType.R15)
 	]]
+	
+	--AvatarEditorService:PromptCreateOutfit(humanoidDescription, Enum.HumanoidRigType.R15)
 end
 
 function OutfitClientService.DeleteOutfit(outfitId: number)

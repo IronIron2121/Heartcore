@@ -172,6 +172,10 @@ local function DailyChallengeFrame(
                         Padding = UDim.new(0, 10),
                         SortOrder = Enum.SortOrder.Name
                     },
+
+                    scope:New "UIPadding" {
+                        PaddingLeft = UDim.new(0.035,0)
+                    },
                     
                     -- Dynamically create cards based on challenges
                     scope:ForValues(challenges, function(use, scope, challenge)
