@@ -217,9 +217,10 @@ function CatalogSearchController:_initialiseSearchFrame()
 end
 
 function CatalogSearchController:_intialiseOutfitFrame()
-	self.outfitsFrame, self.updatePlayerOutfits = OutfitsFrame(self.scope, 
-		self.currentView
-	)
+	self.outfitsFrame, self.updatePlayerOutfits = OutfitsFrame(self.scope, {
+		currentView = self.currentView
+	})
+	
 	self.outfitsFrame.Parent = self.parentFrame
 end
 

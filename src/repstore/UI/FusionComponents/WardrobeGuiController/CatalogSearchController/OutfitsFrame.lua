@@ -37,26 +37,32 @@ local GetPlayerTastemakerOutfits = Remotes:WaitForChild("GetPlayerTastemakerOutf
 local Children = Fusion.Children
 local peek = Fusion.peek
 type UsedAs<T> = Fusion.UsedAs<T>
+type Value<T> = Fusion.Value<T>
 
 function OutfitsFrame(
 	scope: Fusion.Scope,
-	currentView: UsedAs<string>,
 	props: {
+		currentView: Value<string>,
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
 		anchorPoint: UsedAs<Vector2>?,
 		layoutOrder: UsedAs<number>?,
 		backgroundTransparency: UsedAs<number>?,
-	}?
+	}
 ): Frame
 	local robloxOutfits = scope:Value({})
 	local tastemakerOutfits = scope:Value({})
 	local isLoading = scope:Value(false)
-	local viewObserver = scope:Observer(currentView)
+	local viewObserver = scope:Observer(props.currentView)
 	local inventoryAccessGranted = scope:Value(false)
 	
 	local function updatePlayerOutfits()
+		if not (peek(props.currentView) == "Outfits") then
+			return
+		end
+
 		isLoading:set(true)
+
 		-- Get outfits and filter for editable avatar outfits
 		local success, outfits = pcall(function()
 			return AvatarEditorService:GetOutfits()
@@ -98,32 +104,31 @@ function OutfitsFrame(
 	end
 	
 	viewObserver:onChange(function()
-		if peek(currentView) == "Outfits" then
+		if peek(props.currentView) == "Outfits" then
 			isLoading:set(true)
 
 			if not peek(inventoryAccessGranted) then
 				AvatarEditorService:PromptAllowInventoryReadAccess()
 				local isAccessGranted = AvatarEditorService.PromptAllowInventoryReadAccessCompleted:Wait()
 				
-				if isAccessGranted then
+				if isAccessGranted == Enum.AvatarPromptResult.Success then
 					inventoryAccessGranted:set(true)
 				else
 					inventoryAccessGranted:set(false)
+					props.currentView:set("Catalog")
 					return
 				end
 			end
 			
 			updatePlayerOutfits()
 			isLoading:set(false)
-		else
-			print("Outfits frame is not visible")
 		end
 	end)
 
 	local outfitsFrame = scope:New "Frame" {
 		Name = "OutfitsFrame",
 		Visible = scope:Computed(function(use)
-			return use(currentView) == "Outfits"			
+			return use(props.currentView) == "Outfits"			
 		end),
 
 		Size = (props and props.size) or UDim2.fromScale(1, 1),
@@ -271,7 +276,7 @@ function OutfitsFrame(
 						textColor = Color3.new(1,1,1),
 
 						onActivated = function()
-							currentView:set("Catalog")
+							props.currentView:set("Catalog")
 						end,
 					}
 				),
