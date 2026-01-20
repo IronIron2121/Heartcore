@@ -43,14 +43,15 @@ local priceLabel = scope:New "Frame" {
 	LayoutOrder = props.layoutOrder or 1,
 	AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 	Position = props.position or UDim2.fromScale(0.5, 0.5),
-	Size = props.size or UDim2.fromScale(0.5, 0.3),
+	Size = props.size or UDim2.fromScale(0.5, 0.5),
 	BackgroundColor3 = Color3.new(1,1,1),
 	BackgroundTransparency = 1,
 
 	[Children] = {
 		scope:New "UIListLayout" {
 			FillDirection = Enum.FillDirection.Horizontal,
-			SortOrder = Enum.SortOrder.LayoutOrder
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center
 		},
 
 		scope:New "TextLabel" {
@@ -59,7 +60,7 @@ local priceLabel = scope:New "Frame" {
 			Visible = props.visible or true,
 			AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 			Position = props.position or UDim2.fromScale(0.5, 0.5),
-			Size = props.size or UDim2.fromScale(0.5,1),
+			Size = props.size or UDim2.fromScale(0.3,1),
 			Text = `{props.text}` or "",
 			TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 			BorderColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
@@ -68,7 +69,7 @@ local priceLabel = scope:New "Frame" {
 			TextStrokeTransparency = 1,
 			BackgroundColor3 = Color3.new(1, 1, 1),
 			BackgroundTransparency = 1,
-			TextScaled = false,
+			TextScaled = true,
 			TextSize = 20,
 			TextWrapped = false,
 			LayoutOrder = 2,
