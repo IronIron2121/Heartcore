@@ -12,7 +12,7 @@ local Remotes = RepStore:WaitForChild("Remotes")
 local Utility = RepStore:WaitForChild("Utility")
 
 -- Modules
-local OutfitServerService = require(Utility:WaitForChild("OutfitServerService"))
+local ServerOutfitService = require(Utility:WaitForChild("ServerOutfitService"))
 
 -- Remotes
 local PlayerDeletedTastemakerOutfit = Remotes:WaitForChild("PlayerDeletedTastemakerOutfit")
@@ -48,19 +48,19 @@ local function playerPurchasedOutfit(player: Player, outfitId: number)
 end
 
 local function playerPurchasedCurrentOutfit(player: Player, shoppingCart: {Type: Enum.MarketplaceProductType, itemId: number})
-	OutfitServerService.PlayerPurchasedCurrentOutfit(player, shoppingCart)
+	ServerOutfitService.PlayerPurchasedCurrentOutfit(player, shoppingCart)
 end
 
 local function playerSavedTastemakerOutfit(player: Player)
-	OutfitServerService.SaveTastemakerOutfit(player)
+	ServerOutfitService.SaveCurrentOutfitWithUnownedItems(player)
 end
 
 local function playerDeletedTastemakerOutfit(player: Player, index: number)
- 	return OutfitServerService.playerDeletedTastemakerOutfit(player, index)
+ 	return ServerOutfitService.playerDeletedTastemakerOutfit(player, index)
 end
 
 local function getPlayerTastemakerOutfits(player: Player)
-	local playerTastemakerOutfits = OutfitServerService.GetPlayerTastemakerOutfits(player)
+	local playerTastemakerOutfits = ServerOutfitService.GetPlayerTastemakerOutfits(player)
 	return playerTastemakerOutfits
 end
 

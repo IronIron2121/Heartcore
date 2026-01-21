@@ -2,9 +2,9 @@
 -- BuyButton.lua
 
 -- Services
-local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -21,12 +21,12 @@ type UsedAs<T> = Fusion.UsedAs<T>
 function BuyButton(
 	scope: Fusion.Scope,
 	props: {
-		assetId: number,
 		visible: UsedAs<boolean>?,
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
 		layoutOrder: UsedAs<number>?,
 		anchorPoint: UsedAs<Vector2>?,
+		assetId: UsedAs<number>,
 		assetType: UsedAs<string>?,
 		bundleType: UsedAs<string>?,
 		text: UsedAs<string>?,

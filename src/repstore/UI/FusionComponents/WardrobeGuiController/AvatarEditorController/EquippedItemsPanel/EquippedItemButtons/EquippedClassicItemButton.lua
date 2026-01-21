@@ -40,7 +40,7 @@ function EquippedClassicItemButton(
 		itemId: number,
 		itemType: string,
 		visible: UsedAs<boolean>,
-		onClick: () -> ()?,
+		removeCb: () -> ()?,
 	}
 ): Frame
 	if not props.itemId or props.itemId == 0 then
@@ -99,7 +99,7 @@ function EquippedClassicItemButton(
 	end
 
 	return scope:New "Frame" {
-		Name = productInfo.Name,
+		Name = productInfo.AssetId,
 		Size = props.buttonSize,
 		Visible = props.visible,
 		BackgroundTransparency = backgroundTransparencySpring,
@@ -194,8 +194,10 @@ function EquippedClassicItemButton(
 				Active = true,
 
 				[OnEvent "Activated"] = function()
-					if props.onClick ~= nil then
-						props.onClick()
+					if props.removeCb ~= nil then
+						props.removeCb()
+					else
+						warn("No CB")
 					end
 				end,
 				
@@ -229,12 +231,6 @@ function EquippedClassicItemButton(
 					end),
 					BG_FADE_SPEED
 				), 
-
-				[OnEvent "Activated"] = function()
-					-- TODO: Only set invisible if successfully removed...?
-					PlayerRemovedClassicItem:FireServer(props.itemId, props.itemType)
-					props.visible:set(false)
-				end,
 			}
 		}
 	} :: Frame 

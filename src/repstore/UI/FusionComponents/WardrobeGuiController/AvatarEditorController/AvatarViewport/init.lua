@@ -4,6 +4,7 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 
 -- Folders
@@ -13,9 +14,10 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
+local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local OutfitClientService = require(Utility:WaitForChild("OutfitClientService"))
+local ClientOutfitService = require(Utility:WaitForChild("ClientOutfitService"))
 
 -- Fusion
 local peek = Fusion.peek
@@ -41,7 +43,7 @@ function AvatarViewport(
 		model: UsedAs<Model>,
 		currentView: Fusion.Value<string>,
 		layoutOrder: UsedAs<number>,
-		controllers: {}
+		controllers: {any}
 	}
 ): Frame
 	-- Avatar manipulation variables
@@ -128,8 +130,8 @@ function AvatarViewport(
 				zIndex = 3,
 				
 				onActivated = function()
-					OutfitClientService.ResetPlayerOutfit(localPlayer)
-				end,
+					ClientCustomisationService.ResetPlayerOutfit(localPlayer)
+				end, 
 			}),
 
 			Button(scope, {
@@ -155,7 +157,7 @@ function AvatarViewport(
 				visible = true,
 				
 				onActivated = function()
-					OutfitClientService.PurchasePlayerOutfit(localPlayer)
+					ClientOutfitService.PurchasePlayerOutfit(localPlayer)
 				end,
 			}),
 			
@@ -171,7 +173,7 @@ function AvatarViewport(
 						"SaveOutfit", 
 						"Are you sure you want to save this outfit?", 
 						function()  
-							OutfitClientService.SaveCurrentPlayerOutfit(localPlayer)
+							ClientOutfitService.SaveCurrentPlayerOutfit(localPlayer)
 							if not props.controllers.CatalogSearchController then
 								return 
 							end

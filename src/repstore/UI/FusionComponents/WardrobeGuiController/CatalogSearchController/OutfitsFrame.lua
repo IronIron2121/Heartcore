@@ -3,13 +3,11 @@
 -- Services
 local AvatarEditorService = game:GetService("AvatarEditorService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 
 -- local
 local localPlayer = Players.LocalPlayer
 local localChar = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-local localHumanoid = localChar:WaitForChild("Humanoid") :: Humanoid
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -17,7 +15,7 @@ local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local OutfitClientService = require(Utility:WaitForChild("OutfitClientService"))
+local ClientOutfitService = require(Utility:WaitForChild("ClientOutfitService"))
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -215,7 +213,7 @@ function OutfitsFrame(
 							humanoidDescription = humanoidDescription,
 							outfit = outfit,
 							onDelete = function()
-								OutfitClientService.DeleteOutfit(outfit.Id)
+								ClientOutfitService.DeleteOutfit(outfit.Id)
 								updatePlayerOutfits()
 							end,
 							onSelect = function()
@@ -238,7 +236,7 @@ function OutfitsFrame(
 											"DeleteTastemakerOutfit",
 											"Are you sure you want to delete this outfit?",
 											function()  
-												OutfitClientService.DeleteTastemakerOutfit(index)
+												ClientOutfitService.DeleteTastemakerOutfit(index)
 												updatePlayerOutfits()
 											end
 										)

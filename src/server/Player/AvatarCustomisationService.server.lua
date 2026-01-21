@@ -9,7 +9,7 @@ local Utility = RepStore:WaitForChild("Utility")
 local Remotes = RepStore:WaitForChild("Remotes")
 
 -- Modules
-local AvatarCustomisationService = require(Utility:WaitForChild("AvatarCustomisationService"))
+local ServerCustomisationService = require(Utility:WaitForChild("ServerCustomisationService"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 
 -- Remotes
@@ -49,14 +49,15 @@ end
 local function playerRemovedItem(player: Player, itemId: number)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true)
-	AvatarCustomisationService.RemoveItemFromAvatar(player, itemId)
+	local success = ServerCustomisationService.RemoveItemFromAvatar(player, itemId)
 	setPlayerEquipping(player, false)
+	return success
 end
 
 local function playerRemovedClassicItem(player, itemId: number, itemType: string)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true)
-	AvatarCustomisationService.RemoveClassicClothingFromAvatar(player, itemId, itemType)
+	ServerCustomisationService.RemoveClassicClothingFromAvatar(player, itemId, itemType)
 	setPlayerEquipping(player, false)
 end
 
@@ -64,7 +65,7 @@ local function playerEquippedItem(player: Player, itemId: number, assetType: str
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true)
 	print(player, itemId, assetType, itemType)
-	AvatarCustomisationService.AddItemToAvatar(player, itemId, assetType, itemType)
+	ServerCustomisationService.AddItemToAvatar(player, itemId, assetType, itemType)
 	setPlayerEquipping(player, false)
 end
 
@@ -76,7 +77,7 @@ local function playerEquippedOutfit(player: Player, outfitId: number)
 	end
 	
 	setPlayerEquipping(player, true)
-	AvatarCustomisationService.ApplyOutfitToAvatar(player, outfitId) 
+	ServerCustomisationService.ApplyOutfitToAvatar(player, outfitId) 
 	setPlayerEquipping(player, false)
 end
 
@@ -84,14 +85,14 @@ local function playerEquippedTastemakerOutfit(player: Player, tastemakerOutfit: 
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true)
 	local description = SerialisationService.UnserialiseHumanoidDescription(tastemakerOutfit)
-	AvatarCustomisationService.applyDescription(player, description)
+	ServerCustomisationService.applyDescription(player, description)
 	setPlayerEquipping(player, false)
 end
 
 local function playerResetOutfit(player: Player)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true)
-	local success = AvatarCustomisationService.ResetPlayerOutfit(player)
+	local success = ServerCustomisationService.ResetPlayerOutfit(player)
 	setPlayerEquipping(player, false)
 
 	return success
@@ -101,7 +102,7 @@ PlayerEquippedOutfit.OnServerEvent:Connect(playerEquippedOutfit)
 PlayerEquippedTastemakerOutfit.OnServerEvent:Connect(playerEquippedTastemakerOutfit)
 PlayerRemovedClassicItem.OnServerEvent:Connect(playerRemovedClassicItem)
 PlayerEquippedItem.OnServerEvent:Connect(playerEquippedItem)
-PlayerRemovedItem.OnServerEvent:Connect(playerRemovedItem)
+PlayerRemovedItem.OnServerInvoke = playerRemovedItem
 PlayerResetOutfit.OnServerInvoke = playerResetOutfit
 Plrs.PlayerRemoving:Connect(onPlayerRemoving)
 Plrs.PlayerAdded:Connect(onPlayerAdded)

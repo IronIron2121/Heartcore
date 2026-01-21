@@ -1,5 +1,5 @@
 --!strict
--- AvatarCustomisationService - Handles adding, removing, and checking avatar items
+-- ServerCustomisationService - Handles adding, removing, and checking avatar items
 
 -- Services
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -22,12 +22,9 @@ local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlaye
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
--- Constants
-local DEFAULT_BODY_COLOR = Color3.fromRGB(200, 200, 200)
-
 --
 
-local AvatarCustomisationService = {}
+local ServerCustomisationService = {}
 
 -- Private helper functions
 local function getClonedDescription(player: Player): HumanoidDescription
@@ -46,7 +43,7 @@ local function findItemDescription(description: HumanoidDescription, itemId: num
 	return nil
 end
 
-function AvatarCustomisationService.applyDescription(player: Player, description: HumanoidDescription)
+function ServerCustomisationService.applyDescription(player: Player, description: HumanoidDescription)
 	local humanoid = GetHumanoidFromPlayer(player)
 
 	--[[
@@ -77,7 +74,7 @@ local function getUserOutfitIdFromBundleItems(bundleItems: {}): number?
 end
 
 -- Core functionality
-function AvatarCustomisationService.RemoveAllAccessories(player: Player)
+function ServerCustomisationService.RemoveAllAccessories(player: Player)
 	local clonedDescription = getClonedDescription(player)
 
 	-- Remove all accessories and body parts
@@ -87,10 +84,10 @@ function AvatarCustomisationService.RemoveAllAccessories(player: Player)
 		end
 	end
 
-	AvatarCustomisationService.applyDescription(player, clonedDescription)
+	ServerCustomisationService.applyDescription(player, clonedDescription)
 end  
 
-function AvatarCustomisationService.ResetPlayerOutfit(player: Player): boolean
+function ServerCustomisationService.ResetPlayerOutfit(player: Player): boolean
 	local originalHumanoidDescription = Players:GetHumanoidDescriptionFromUserId(player.UserId)
 	local humanoid = GetHumanoidFromPlayer(player)
 
@@ -104,7 +101,7 @@ function AvatarCustomisationService.ResetPlayerOutfit(player: Player): boolean
 	return true
 end
 
-function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId: number, assetType: string)
+function ServerCustomisationService.AddAccessoryToAvatar(player: Player, itemId: number, assetType: string)
 	local clonedDescription = getClonedDescription(player)
 
 	local accessoryDescription = Instance.new("AccessoryDescription")
@@ -132,10 +129,10 @@ function AvatarCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 	accessoryDescription.Order = 1
 	accessoryDescription.Parent = clonedDescription
 
-	AvatarCustomisationService.applyDescription(player, clonedDescription)
+	ServerCustomisationService.applyDescription(player, clonedDescription)
 end
 
-function AvatarCustomisationService.AddAccessoriesToAvatar(player: Player, accessories: {{itemId: number, assetType: string}})
+function ServerCustomisationService.AddAccessoriesToAvatar(player: Player, accessories: {{itemId: number, assetType: string}})
 	local clonedDescription = getClonedDescription(player)
 
 	for _, accessory in ipairs(accessories) do
@@ -165,10 +162,10 @@ function AvatarCustomisationService.AddAccessoriesToAvatar(player: Player, acces
 		accessoryDescription.Parent = clonedDescription
 	end
 
-	AvatarCustomisationService.applyDescription(player, clonedDescription)
+	ServerCustomisationService.applyDescription(player, clonedDescription)
 end
 
-function AvatarCustomisationService.AddBodyPartToAvatar(player: Player, itemId: number, bodyPartType: string)
+function ServerCustomisationService.AddBodyPartToAvatar(player: Player, itemId: number, bodyPartType: string)
 	if not player or not itemId or not bodyPartType then 
 		warn("Bad parameters at add bodypart!", player, itemId, bodyPartType)
 		return false
@@ -196,10 +193,10 @@ function AvatarCustomisationService.AddBodyPartToAvatar(player: Player, itemId: 
 	bodyPartDescription.BodyPart = bodyPartEnum
 	bodyPartDescription.Parent = clonedDescription
 
-	return AvatarCustomisationService.applyDescription(player, clonedDescription)
+	return ServerCustomisationService.applyDescription(player, clonedDescription)
 end
 
-function AvatarCustomisationService.AddBodyPartsToAvatar(player: Player, bodyParts: {{itemId: number, bodyPartType: string}})
+function ServerCustomisationService.AddBodyPartsToAvatar(player: Player, bodyParts: {{itemId: number, bodyPartType: string}})
 	if not player or not bodyParts then 
 		warn("Bad parameters at add bodyparts!", player, bodyParts)
 		return false
@@ -233,22 +230,22 @@ function AvatarCustomisationService.AddBodyPartsToAvatar(player: Player, bodyPar
 		bodyPartDescription.Parent = clonedDescription
 	end
 
-	return AvatarCustomisationService.applyDescription(player, clonedDescription)
+	return ServerCustomisationService.applyDescription(player, clonedDescription)
 end
 
-function AvatarCustomisationService.ApplyOutfitToAvatar(player: Player, outfitId: number)
+function ServerCustomisationService.ApplyOutfitToAvatar(player: Player, outfitId: number)
 	local success, outfitDescription = pcall(function()
 		return Players:GetHumanoidDescriptionFromOutfitId(outfitId)
 	end)
 
 	if success then
-		AvatarCustomisationService.applyDescription(player, outfitDescription)
+		ServerCustomisationService.applyDescription(player, outfitDescription)
 	else
 		warn("Failed to get outfit description for ID:", outfitId)
 	end
 end
 
-function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: number, bundleType: string)
+function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: number, bundleType: string)
 	local success, bundleInfo = callWithRetry(function()
 		return AssetService:GetBundleDetailsAsync(bundleId)
 	end, 3)
@@ -270,7 +267,7 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 
 				-- AssetTypeId 79 is DynamicHead
 				if assetSuccess and assetInfo and assetInfo.AssetTypeId == 79 then
-					AvatarCustomisationService.AddBodyPartToAvatar(player, item.Id, "Head")
+					ServerCustomisationService.AddBodyPartToAvatar(player, item.Id, "Head")
 					return
 				end
 			end
@@ -331,10 +328,10 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		end
 
 		if #bodyParts > 0 then
-			AvatarCustomisationService.AddBodyPartsToAvatar(player, bodyParts)
+			ServerCustomisationService.AddBodyPartsToAvatar(player, bodyParts)
 		end
 		if #accessories > 0 then
-			AvatarCustomisationService.AddAccessoriesToAvatar(player, accessories)
+			ServerCustomisationService.AddAccessoriesToAvatar(player, accessories)
 		end
 		return
 	end
@@ -348,7 +345,7 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		end)
 
 		if descSuccess then
-			AvatarCustomisationService.applyDescription(player, outfitDescription)
+			ServerCustomisationService.applyDescription(player, outfitDescription)
 			return
 		else
 			warn("Failed to get outfit description for ID:", userOutfitId)
@@ -363,13 +360,13 @@ function AvatarCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 			end, 3)
 			
 			if assetSuccess and assetInfo then
-				AvatarCustomisationService.AddAccessoryToAvatar(player, item.Id, assetInfo.AssetTypeId)
+				ServerCustomisationService.AddAccessoryToAvatar(player, item.Id, assetInfo.AssetTypeId)
 			end
 		end
 	end
 end
 
-function AvatarCustomisationService.AddClassicClothingToAvatar(player: Player, itemId: number, assetType: string)
+function ServerCustomisationService.AddClassicClothingToAvatar(player: Player, itemId: number, assetType: string)
 	local clonedDescription = getClonedDescription(player)
 
 	if assetType == "TShirt" then
@@ -380,10 +377,10 @@ function AvatarCustomisationService.AddClassicClothingToAvatar(player: Player, i
 		clonedDescription.Pants = itemId
 	end
 
-	AvatarCustomisationService.applyDescription(player, clonedDescription)
+	ServerCustomisationService.applyDescription(player, clonedDescription)
 end
 
-function AvatarCustomisationService.TryEmote(player: Player, itemId: number)
+function ServerCustomisationService.TryEmote(player: Player, itemId: number)
 	local humanoid = GetHumanoidFromPlayer(player)
 
 	local asset = InsertService:LoadAsset(itemId)
@@ -414,23 +411,21 @@ function AvatarCustomisationService.TryEmote(player: Player, itemId: number)
 end
 
 -- Public API
-function AvatarCustomisationService.AddItemToAvatar(player: Player, itemId: number, assetOrBundleType: string, itemType: string)
-	warn("Adding item to avatar; ", itemId, assetOrBundleType, itemType)
+function ServerCustomisationService.AddItemToAvatar(player: Player, itemId: number, assetOrBundleType: string, itemType: string)
 	if itemType == "Asset" and table.find(Constants.CLASSIC_CLOTHING_ASSET_TYPES, assetOrBundleType) then
-		AvatarCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
+		ServerCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Asset" and assetOrBundleType == Constants.EMOTE_ASSET_TYPE then
-		AvatarCustomisationService.TryEmote(player, itemId)
+		ServerCustomisationService.TryEmote(player, itemId)
 	elseif itemType == "Asset" then
-		AvatarCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
+		ServerCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Bundle" then
-		warn("Adding bundle")
-		AvatarCustomisationService.AddBundleToAvatar(player, itemId, assetOrBundleType)
+		ServerCustomisationService.AddBundleToAvatar(player, itemId, assetOrBundleType)
 	else
 		warn("Invalid item type:", itemType, "Expected 'Asset' or 'Bundle'")
 	end
 end
 
-function AvatarCustomisationService.RemoveItemFromAvatar(player: Player, itemId: number)
+function ServerCustomisationService.RemoveItemFromAvatar(player: Player, itemId: number)
 	local clonedDescription = getClonedDescription(player)
 	local itemDescription = findItemDescription(clonedDescription, itemId)
 
@@ -448,11 +443,11 @@ function AvatarCustomisationService.RemoveItemFromAvatar(player: Player, itemId:
 		return false
 	end
 
-	AvatarCustomisationService.applyDescription(player, clonedDescription)
+	ServerCustomisationService.applyDescription(player, clonedDescription)
 	return true
 end
 
-function AvatarCustomisationService.RemoveClassicClothingFromAvatar(player: Player, itemId: number, itemType: string)
+function ServerCustomisationService.RemoveClassicClothingFromAvatar(player: Player, itemId: number, itemType: string)
 	local defaultId = Constants.DEFAULT_CLASSIC_CLOTHING_IDS[itemType]
 
 	if not defaultId then 
@@ -463,18 +458,18 @@ function AvatarCustomisationService.RemoveClassicClothingFromAvatar(player: Play
 	local clonedDescription = getClonedDescription(player)
 	clonedDescription[itemType] = defaultId
 
-	AvatarCustomisationService.applyDescription(player, clonedDescription)
+	ServerCustomisationService.applyDescription(player, clonedDescription)
 
 	return true
 end
 
-function AvatarCustomisationService.IsWearingItem(player: Player, itemId: number): boolean
+function ServerCustomisationService.IsWearingItem(player: Player, itemId: number): boolean
 	local humanoid = GetHumanoidFromPlayer(player)
 	local humanoidDescription = humanoid:WaitForChild("HumanoidDescription") :: HumanoidDescription
 	return findItemDescription(humanoidDescription, itemId) ~= nil
 end
 
-function AvatarCustomisationService.GetWornItems(player: Player): {number}
+function ServerCustomisationService.GetWornItems(player: Player): {number}
 	local humanoid = GetHumanoidFromPlayer(player)
 	local humanoidDescription = humanoid:WaitForChild("HumanoidDescription") :: HumanoidDescription
 
@@ -488,4 +483,4 @@ function AvatarCustomisationService.GetWornItems(player: Player): {number}
 	return wornItems
 end
 
-return AvatarCustomisationService
+return ServerCustomisationService

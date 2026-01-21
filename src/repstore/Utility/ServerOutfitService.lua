@@ -16,9 +16,9 @@ local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 -- Datastores
 local PlayerOutfitsDatastore = DatastoreService:GetDataStore(Constants.PLAYER_OUTFITS_DATASTORE)
 
-local OutfitServerService = {}
+local ServerOutfitService = {}
 
-function OutfitServerService.SaveTastemakerOutfit(player: Player)
+function ServerOutfitService.SaveCurrentOutfitWithUnownedItems(player: Player)
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoid = character:WaitForChild("Humanoid") :: Humanoid
 	local humanoidDescription = humanoid:GetAppliedDescription()
@@ -37,7 +37,7 @@ function OutfitServerService.SaveTastemakerOutfit(player: Player)
 	end
 end
 
-function OutfitServerService.GetPlayerTastemakerOutfits(player: Player)
+function ServerOutfitService.GetPlayerTastemakerOutfits(player: Player)
 	local success, result = pcall(function()
 		local playerOutfits = PlayerOutfitsDatastore:GetAsync(player.UserId)
 		return playerOutfits
@@ -50,12 +50,12 @@ function OutfitServerService.GetPlayerTastemakerOutfits(player: Player)
 	return result
 end
 
-function OutfitServerService.DeleteOutfit(outfitId: number)
+function ServerOutfitService.DeleteOutfit(outfitId: number)
 	AvatarEditorService:PromptDeleteOutfit(outfitId)
 	AvatarEditorService.PromptDeleteOutfitCompleted:Wait() 
 end
 
-function OutfitServerService.PlayerPurchasedCurrentOutfit(player: Player, shoppingCart: {Type: Enum.MarketplaceProductType, itemId: number})
+function ServerOutfitService.PlayerPurchasedCurrentOutfit(player: Player, shoppingCart: {Type: Enum.MarketplaceProductType, itemId: number})
 	local success = callWithRetry(
 		function()
 			return MarketplaceService:PromptBulkPurchase(player, shoppingCart, {})
@@ -66,7 +66,7 @@ function OutfitServerService.PlayerPurchasedCurrentOutfit(player: Player, shoppi
 	return success
 end
 
-function OutfitServerService.playerDeletedTastemakerOutfit(player: Player, index: number)
+function ServerOutfitService.playerDeletedTastemakerOutfit(player: Player, index: number)
 	local success = pcall(function()
 		PlayerOutfitsDatastore:UpdateAsync(player.UserId, function(oldData)
 			local newData = oldData or {}
@@ -78,4 +78,4 @@ function OutfitServerService.playerDeletedTastemakerOutfit(player: Player, index
 	return success
 end
 
-return OutfitServerService 
+return ServerOutfitService 

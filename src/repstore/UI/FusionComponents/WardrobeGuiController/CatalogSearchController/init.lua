@@ -48,7 +48,7 @@ local sortTextToSortType = {
 local CatalogSearchController = {}
 CatalogSearchController.__index = CatalogSearchController
 
-function CatalogSearchController.new(parentFrame: Frame)
+function CatalogSearchController.new(parentFrame: Frame, controllers: {any})
 	local self = setmetatable({}, CatalogSearchController)
 	self.parentFrame = parentFrame
 	self.scope = Fusion:scoped()
