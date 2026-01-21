@@ -161,6 +161,7 @@ local Constants = {
 		0,
 		855779323,
 		855785499,
+		65724730
 	},
 
 	ANIMATION_ASSET_TYPE_IDS = {
