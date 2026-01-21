@@ -19,6 +19,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local AvatarPreviewModel = require(script:WaitForChild("AvatarPreviewModel"))
 local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGuiState"))
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
+local Constants = require(ReplicatedStorage.Constants)
 
 -- Gui Components
 local AvatarViewport = require(script:WaitForChild("AvatarViewport"))
@@ -168,7 +169,9 @@ function AvatarEditorController:_addClassicItemTile(assetId: number, itemType: s
 		itemId = assetId,
 		itemType = itemType,
 		removeCb = function()
-			warn("Removing in CB!")
+			if table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, assetId) then
+				return true
+			end
 			ClientCustomisationService.RemoveClassicItem(assetId, itemType)
 			self:RemoveClassicItemTile(itemType)
 		end

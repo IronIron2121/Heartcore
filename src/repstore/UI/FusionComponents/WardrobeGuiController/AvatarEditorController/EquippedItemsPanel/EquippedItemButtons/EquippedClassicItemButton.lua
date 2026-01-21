@@ -9,15 +9,12 @@ local Players 				= game:GetService("Players")
 -- Folders
 local DataTables 	= ReplicatedStorage:WaitForChild("DataTables")
 local Utility 		= ReplicatedStorage:WaitForChild("Utility")
-local Remotes 		= ReplicatedStorage:WaitForChild("Remotes")
 
--- Remotes
-local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
- 
 -- Modules
 local UI_CONSTANTS 	= require(Utility:WaitForChild("UI_CONSTANTS"))
 local ImageUris 	= require(DataTables:WaitForChild("ImageUris"))
 local Fusion 		= require(Utility:WaitForChild("Fusion"))
+local Constants 	= require(ReplicatedStorage.Constants)
 
 -- Fusion
 type UsedAs<T>	= Fusion.UsedAs<T>
@@ -49,6 +46,8 @@ function EquippedClassicItemButton(
 			Visible = false
 		} :: Frame
 	end
+
+	local isDefaultItem = scope:Value(table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, props.itemId))
 
 	-- Get product info
 	local productInfo = MarketplaceService:GetProductInfo(props.itemId, Enum.InfoType.Asset)
@@ -191,7 +190,9 @@ function EquippedClassicItemButton(
 				BackgroundTransparency = 1,
 				ImageTransparency = backgroundTransparencySpring,
 				Image = ImageUris.TrashButton,
-				Active = true,
+				Active = not peek(isDefaultItem),
+				Visible = not peek(isDefaultItem),
+
 
 				[OnEvent "Activated"] = function()
 					if props.removeCb ~= nil then

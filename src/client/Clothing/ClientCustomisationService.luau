@@ -10,6 +10,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local Constants = require(ReplicatedStorage.Constants)
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
 -- Remotes
@@ -90,6 +91,10 @@ function ClientCustomisationService.RemoveItem(assetId: number): boolean
 end
 
 function ClientCustomisationService.RemoveClassicItem(assetId: number, itemType: string): boolean
+	if table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, assetId) then
+		return true
+	end
+
 	local success = callWithRetry(function()  
 		return PlayerRemovedClassicItem:FireServer(assetId, itemType)
 	end)
