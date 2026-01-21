@@ -22,9 +22,6 @@ local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlaye
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
--- Constants
-local DEFAULT_BODY_COLOR = Color3.fromRGB(200, 200, 200)
-
 --
 
 local ServerCustomisationService = {}

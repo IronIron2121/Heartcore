@@ -10,10 +10,10 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
 -- Remotes
+local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
 local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
@@ -80,11 +80,20 @@ end
 function ClientCustomisationService.RemoveItem(assetId: number): boolean
 	local success = callWithRetry(
 		function()
-			return PlayerRemovedItem:Invoke(assetId)
+			warn("Removing item!")
+			return PlayerRemovedItem:InvokeServer(assetId)
 		end
 	)
 
 	-- Remove the item tile
+	return success
+end
+
+function ClientCustomisationService.RemoveClassicItem(assetId: number, itemType: string): boolean
+	local success = callWithRetry(function()  
+		return PlayerRemovedClassicItem:FireServer(assetId, itemType)
+	end)
+
 	return success
 end
 

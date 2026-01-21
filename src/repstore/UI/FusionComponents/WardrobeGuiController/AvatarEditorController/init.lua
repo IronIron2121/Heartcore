@@ -1,9 +1,10 @@
 --!strict
 -- AvatarEditorController.lua
 
-
 -- Services
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -13,15 +14,22 @@ local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiControll
 
 -- Modules
 local EquippedItemButton = require(script.EquippedItemsPanel.EquippedItemButtons.EquippedItemButton)
+local EquippedClassicItemButton = require(script.EquippedItemsPanel.EquippedItemButtons.EquippedClassicItemButton)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local AvatarPreviewModel = require(script:WaitForChild("AvatarPreviewModel"))
 local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGuiState"))
+local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 
 -- Gui Components
 local AvatarViewport = require(script:WaitForChild("AvatarViewport"))
 local EquippedItemsPanel = require(script:WaitForChild("EquippedItemsPanel"))
 
--- Fusion Modules
+-- Constants
+local CLASSIC_ITEMS = {"GraphicTShirt", "Shirt", "Pants", "Face"}
+
+-- Types
+type ItemTile = Frame
+
 local AvatarEditorController = {}
 AvatarEditorController.__index = AvatarEditorController
 
@@ -31,20 +39,34 @@ function AvatarEditorController.new(parentFrame: Frame, controllers: {})
 	self.avatarViewport = nil
 	self.scope = Fusion:scoped()
 	self.controllers = controllers
-
+	
+	-- Manual tile tracking
+	self.equippedTiles = {} :: {[number]: ItemTile}  -- assetId -> tile
+	self.classicTiles = {} :: {[string]: ItemTile}   -- itemType -> tile
+	
 	return self
 end
 
-function AvatarEditorController:Initialise()	
+function AvatarEditorController:Initialise()
+	local localPlayer = Players.LocalPlayer
+	local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+	self.character = char
+	self.humanoid = char:WaitForChild("Humanoid") :: Humanoid
+	
 	self:_initialiseAvatarViewport()
 	self:_initialiseEquippedItemsPanel()
+	self:_watchForItemChanges()
+	
+	-- Initial sync
+	local humDesc = self.humanoid:FindFirstChild("HumanoidDescription")
+	if humDesc then 
+		self:_syncItemsFromDescription(humDesc)
+	end
 end
 
 function AvatarEditorController:_initialiseAvatarViewport()
-	-- Create the avatar preview model
 	local avatarPreviewModel = AvatarPreviewModel.new(self.scope)
 
-	-- Pass the reactive instance directly (it's already a Computed)
 	self.avatarViewport = AvatarViewport(self.scope, {
 		model = avatarPreviewModel:getInstance(),
 		currentView = WardrobeGuiState.currentView,
@@ -53,43 +75,164 @@ function AvatarEditorController:_initialiseAvatarViewport()
 	}) 
 	
 	self.avatarViewport.Parent = self.parentFrame  
-
-	-- Store reference to the avatar preview model
 	self.avatarPreviewModel = avatarPreviewModel
 end
 
 function AvatarEditorController:_initialiseEquippedItemsPanel()
-	-- Pass the avatar preview model instead of trying to use self.model
 	self.EquippedItemsPanel = EquippedItemsPanel(self.scope, {
 		layoutOrder = 1
 	})
 	self.EquippedItemsPanel.Parent = self.parentFrame
 end
 
-function AvatarEditorController:RemoveEquippedItemTile(assetId: number)
-	for _, tile in self.EquippedItemsPanel do
-		if tile.Name == assetId or tile.Name == tostring(assetId) then
-			tile:Destroy() -- or whatever the fusion equivalent is...
+function AvatarEditorController:_watchForItemChanges()
+	-- Watch for HumanoidDescription changes
+	self.humanoid.ChildAdded:Connect(function(child)
+		if child:IsA("HumanoidDescription") then
+			self:_syncItemsFromDescription(child)
+		end
+	end)
+end
+
+function AvatarEditorController:_syncItemsFromDescription(humDesc: HumanoidDescription)
+	local currentAssetIds = {}
+	local currentClassicItems = {}
+	
+	-- Collect current asset IDs from descriptions
+	for _, desc in humDesc:GetChildren() do
+		if (desc:IsA("AccessoryDescription") or desc:IsA("BodyPartDescription")) and desc.AssetId ~= 0 then
+			currentAssetIds[desc.AssetId] = desc
+		end
+	end
+	
+	-- Collect classic items
+	for _, itemType in CLASSIC_ITEMS do
+		local assetId = humDesc[itemType]
+		if assetId and assetId ~= 0 then
+			currentClassicItems[itemType] = assetId
+		end
+	end
+	
+	-- Add new tiles that don't exist yet
+	for assetId, desc in currentAssetIds do
+		if not self.equippedTiles[assetId] then
+			warn("adding item tile")
+			self:_addEquippedItemTile(desc)
+		end
+	end
+	
+	-- Add new classic tiles
+	for itemType, assetId in currentClassicItems do
+		if not self.classicTiles[itemType] then
+			warn("adding classic item tile")
+			self:_addClassicItemTile(assetId, itemType)
+		end
+	end
+	
+	-- Remove tiles that no longer exist
+	for assetId, tile in self.equippedTiles do
+		if not currentAssetIds[assetId] then
+			tile:Destroy()
+			self.equippedTiles[assetId] = nil
+		end
+	end
+	
+	-- Remove classic tiles that no longer exist
+	for itemType, tile in self.classicTiles do
+		if not currentClassicItems[itemType] then
+			tile:Destroy()
+			self.classicTiles[itemType] = nil
 		end
 	end
 end
 
-function AvatarEditorController:AddEquippedItemTile(asset: number)
-	local itemButton = EquippedItemButton(self.scope, {
-		buttonSize = UDim2.fromScale(0.7, 0.7)
+function AvatarEditorController:_addEquippedItemTile(description: AccessoryDescription | BodyPartDescription)
+	local tile = EquippedItemButton(self.scope, {
+		buttonSize = UDim2.fromScale(0.7, 0.7),
+		visible = true,
+		itemDescription = description,
+		removeCb = function()
+			ClientCustomisationService.RemoveItem(description.AssetId)
+			self:RemoveEquippedItemTile(description.AssetId)
+		end
 	})
-
-	itemButton.Parent = self.EquippedItemsPanel
+	
+	tile.Parent = self.EquippedItemsPanel
+	self.equippedTiles[description.AssetId] = tile
 end
 
--- Simple cleanup
-function AvatarEditorController:Cleanup() 
+function AvatarEditorController:_addClassicItemTile(assetId: number, itemType: string)
+	local tile = EquippedClassicItemButton(self.scope, {
+		buttonSize = UDim2.fromScale(0.7, 0.7),
+		visible = true,
+		itemId = assetId,
+		itemType = itemType,
+		removeCb = function()
+			warn("Removing in CB!")
+			ClientCustomisationService.RemoveClassicItem(assetId, itemType)
+			self:RemoveClassicItemTile(itemType)
+		end
+	})
+	
+	tile.Parent = self.EquippedItemsPanel
+	self.classicTiles[itemType] = tile
+end
+
+-- Public API for external use
+function AvatarEditorController:RemoveEquippedItemTile(assetId: number)
+	local tile = self.equippedTiles[assetId]
+	if tile then
+		tile:Destroy()
+		self.equippedTiles[assetId] = nil
+	end
+end
+
+function AvatarEditorController:RemoveClassicItemTile(itemType: string)
+	warn("removing classic item tile")
+	warn(self.classicTiles)
+	warn(itemType)
+	local tile = self.classicTiles[itemType]
+	if tile then
+		tile:Destroy()
+		self.classicTiles[itemType] = nil
+		warn("Found a tile for destroyed classic")
+	else
+		warn("No tile for destroyed classic")
+	end
+end
+
+function AvatarEditorController:AddEquippedItemTile(description: AccessoryDescription | BodyPartDescription)
+	if not self.equippedTiles[description.AssetId] then
+		self:_addEquippedItemTile(description)
+	end
+end
+
+function AvatarEditorController:RefreshAllTiles()
+	local humDesc = self.humanoid:FindFirstChild("HumanoidDescription")
+	if humDesc then
+		self:_syncItemsFromDescription(humDesc)
+	end
+end
+
+function AvatarEditorController:Cleanup()
+	-- Destroy all tiles
+	for _, tile in self.equippedTiles do
+		tile:Destroy()
+	end
+	
+	for _, tile in self.classicTiles do
+		tile:Destroy()
+	end
+	
+	self.equippedTiles = {}
+	self.classicTiles = {}
+	
 	if self.scope then
 		self.scope:cleanup()
 	end
 	if self.avatarViewport then
 		self.avatarViewport:Destroy()
-	end 
+	end
 end
 
 return AvatarEditorController

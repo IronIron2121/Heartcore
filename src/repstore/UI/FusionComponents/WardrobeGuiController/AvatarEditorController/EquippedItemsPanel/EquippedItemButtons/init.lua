@@ -80,7 +80,6 @@ function EquippedItemButtons(
 				removeCb = function()
 					ClientCustomisationService.RemoveItem(description.AssetId)
 					-- TODO: Figure this thing here out...
-					props.equipItemButtonsVisible:set(false)
 				end
 			}) 
 		else
