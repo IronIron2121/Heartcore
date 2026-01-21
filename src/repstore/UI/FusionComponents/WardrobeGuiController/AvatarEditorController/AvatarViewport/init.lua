@@ -62,18 +62,6 @@ function AvatarViewport(
 		return currentModel and currentModel:GetPivot() or CFrame.new()
 	end)
 
-	scope:Observer(pitchAndYaw):onChange(function()
-		local currentModel = peek(props.model)
-		local basePos = peek(baseCFrame)
-		if not currentModel or not basePos then return end
-
-		local pitchRad = math.rad(peek(pitch))
-		local yawRad = math.rad(peek(yaw))
-		-- Get the original position and rotate around it
-		local rotatedCFrame = basePos * CFrame.Angles(-pitchRad, yawRad, 0)
-		currentModel:PivotTo(rotatedCFrame)
-	end)
-
 	local viewportCamera = scope:Value(nil)
 	local rotateButton = scope:Value(nil)
 	
@@ -233,7 +221,12 @@ function AvatarViewport(
 	local function updateCameraPosition()
 		local currentModel = peek(props.model)
 		local camera = peek(viewportCamera)
-		if not currentModel or not camera then return end
+		if not currentModel or not camera then 
+			warn("No current model or no camera!", currentModel, camera)
+			return
+		else
+			warn("Updating camera!")
+		end
 
 		local size = currentModel:GetExtentsSize()
 		local biggestSize = math.max(size.X, size.Y)
@@ -247,8 +240,25 @@ function AvatarViewport(
 		camera.CFrame = targetCFrame
 	end
 
+	local function updateModelRotation()
+		local currentModel = peek(props.model)
+		local basePos = peek(baseCFrame)
+		if not currentModel or not basePos then return end
+
+		local pitchRad = math.rad(peek(pitch))
+		local yawRad = math.rad(peek(yaw))
+		-- Get the original position and rotate around it
+		local rotatedCFrame = basePos * CFrame.Angles(-pitchRad, yawRad, 0)
+		currentModel:PivotTo(rotatedCFrame)
+	end
+
+	scope:Observer(pitchAndYaw):onChange(updateModelRotation)
+
 	-- Update camera when model changes
-	scope:Observer(props.model):onChange(updateCameraPosition)
+	scope:Observer(props.model):onChange(function()
+		updateCameraPosition()
+		updateModelRotation()
+	end)
 	-- Update camera when zoom changes
 	scope:Observer(zoomSpring):onChange(updateCameraPosition)
 	-- Set up initial camera position
