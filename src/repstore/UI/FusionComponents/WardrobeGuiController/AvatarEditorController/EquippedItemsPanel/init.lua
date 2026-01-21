@@ -26,6 +26,7 @@ function EquippedItemsPanel(
 		Size = UDim2.fromScale(0.3, 1),
 		Position = UDim2.fromScale(0, 0),
 		AnchorPoint = Vector2.new(0, 0),
+		CanvasSize = UDim2.fromScale(0, 0),
 		LayoutOrder = props.layoutOrder or 1,
 		BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 		BackgroundTransparency = UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
