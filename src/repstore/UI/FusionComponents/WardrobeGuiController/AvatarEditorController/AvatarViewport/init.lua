@@ -62,7 +62,10 @@ function AvatarViewport(
 		return currentModel and currentModel:GetPivot() or CFrame.new()
 	end)
 
-	local viewportCamera = scope:Value(nil)
+	local viewportCamera = scope:New "Camera" {
+		Name = "ViewportCamera",
+	} :: Camera
+
 	local rotateButton = scope:Value(nil)
 	
 	local viewportOut = scope:Value(nil)
@@ -174,11 +177,7 @@ function AvatarViewport(
 				end
 			}),
 
-			viewportCamera:set(
-				scope:New "Camera" {
-					Name = "ViewportCamera",
-				}
-			),
+			viewportCamera,
 
 			rotateButton:set(
 				RotateButton(scope, pitch, yaw, zoom) 
@@ -222,10 +221,7 @@ function AvatarViewport(
 		local currentModel = peek(props.model)
 		local camera = peek(viewportCamera)
 		if not currentModel or not camera then 
-			warn("No current model or no camera!", currentModel, camera)
 			return
-		else
-			warn("Updating camera!")
 		end
 
 		local size = currentModel:GetExtentsSize()
