@@ -34,6 +34,7 @@ function EquippedItemsPanel(
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 
+
 		[Children] = {
 			scope:New "UICorner" {
 				CornerRadius = UDim.new(0.1, 0)
@@ -44,7 +45,8 @@ function EquippedItemsPanel(
 				FillDirection = Enum.FillDirection.Vertical,
 				HorizontalAlignment = Enum.HorizontalAlignment.Center,
 				VerticalAlignment = Enum.VerticalAlignment.Top,
-				SortOrder = Enum.SortOrder.Name  -- Sort by tile name
+				SortOrder = Enum.SortOrder.Name,
+				ItemLineAlignment = Enum.ItemLineAlignment.End,
 			},
 
 			scope:New "UIPadding" {
