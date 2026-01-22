@@ -20,14 +20,19 @@ local TEXT_LABEL_SIZE = UDim2.fromScale(1, 0.5)
 
 local PlayerDisplayManager = {}
 
-function PlayerDisplayManager.AddRankDisplayToCharacter(player: Player, character: Model)
-    warn("Adding rank display!")
+function PlayerDisplayManager.RemoveRankDisplayFromCharacter(character: Player)
+
+end
+
+function PlayerDisplayManager.AddRankDisplayToCharacter(player: Player, character: Model?)
+    character = character or player.Character or player.CharacterAdded:Wait()
+
+    if not character then return end
+
     local Head = character:FindFirstChild("Head")
     if not Head then 
         return 
     end
-
-    warn("Adding billboardgui!") 
 
     local BillboardGui = Instance.new("BillboardGui", Head)
     BillboardGui.Name = "RankBillboard"
@@ -40,6 +45,7 @@ function PlayerDisplayManager.AddRankDisplayToCharacter(player: Player, characte
     uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     uiListLayout.FillDirection = Enum.FillDirection.Vertical
 
+    -- Add label to display player rank
     local playerRank = DataManager.GetRankName(player)
     local RankLabel = Instance.new("TextLabel", BillboardGui)
     RankLabel.Text = playerRank
@@ -52,6 +58,7 @@ function PlayerDisplayManager.AddRankDisplayToCharacter(player: Player, characte
     RankLabel.FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold)
     RankLabel.Size = TEXT_LABEL_SIZE
 
+    -- Add label to display player level and name
     local playerLevel = DataManager.GetLevel(player)
     local NameLabel = Instance.new("TextLabel", BillboardGui)
     NameLabel.Text = player.Name .. " (Lv. " .. playerLevel .. ")"
