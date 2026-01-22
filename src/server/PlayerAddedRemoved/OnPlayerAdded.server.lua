@@ -76,6 +76,12 @@ local function onPlayerAdded(player: Player)
 		onCharacterAdded(player, character)
 	end)
 
+	-- Listen for leaderstats changes
+	player:WaitForChild("leaderstats").Level.Changed:Connect(function()
+		warn("Levelled up!")
+		PlayerDisplayManager.UpdatePlayerDisplay(player)
+	end)
+
 	--[[
 	local playerDetails = PlayerDetails.new(player)
 	if playerDetails then

@@ -1,3 +1,5 @@
+--!strict
+
 local DataManager = {}
 DataManager.Profiles = {}
 
@@ -85,6 +87,7 @@ function DataManager.AddExp(player: Player, amount: number)
         if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level") then
             player.leaderstats.Level.Value = newLevel
         end
+
     end
     
     -- Handle rank up (separate from level up)
