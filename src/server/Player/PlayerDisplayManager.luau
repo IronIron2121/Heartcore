@@ -34,14 +34,14 @@ function PlayerDisplayManager.AddRankDisplayToCharacter(player: Player, characte
     character = character or player.Character or player.CharacterAdded:Wait()
     if not character then return end
 
-    local Head = character:FindFirstChild("Head")
-    if not Head then return end -- xD
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart then return end -- xD
 
-    local BillboardGui = Instance.new("BillboardGui", Head)
+    local BillboardGui = Instance.new("BillboardGui", character)
     BillboardGui.Name = BILLBOARD_GUI_NAME
-    BillboardGui.Adornee = Head
+    BillboardGui.Adornee = humanoidRootPart
     BillboardGui.Size = UDim2.fromScale(3, 1)
-    BillboardGui.SizeOffset = Vector2.new(0, 1.5)
+    BillboardGui.SizeOffset = Vector2.new(0, 3.5)
     BillboardGui.AlwaysOnTop = true
 
     local uiListLayout = Instance.new("UIListLayout", BillboardGui)
