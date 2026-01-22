@@ -18,6 +18,7 @@ local Remotes 			= ReplicatedStorage:WaitForChild("Remotes")
 ]]
 
 -- Module Scripts
+local PlayerDisplayManager = require(ServerScriptService.Player.PlayerDisplayManager)
 local PlayerVotedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
 local ChallengeManager 			= require(DailyChallenges:WaitForChild("ChallengeManager"))
 --[[
@@ -34,9 +35,12 @@ local DataManager 				= require(Data:WaitForChild("DataManager"))
 -- Remotes / Bindables
 --local UpdateLocalPlayerDetailsAsync = Remotes:WaitForChild("UpdateLocalPlayerDetails")
 
-local function onCharacterAdded(character: Model)
+local function onCharacterAdded(player: Player, character: Model)
+	warn("On character added!")
 	local humanoid 		= character:WaitForChild("Humanoid") :: Humanoid
 	humanoid.WalkSpeed 	= 32
+
+	PlayerDisplayManager.AddRankDisplayToCharacter(player, character)
 end
 
 --[[
@@ -66,7 +70,11 @@ end
 local function onPlayerAdded(player: Player)
     repeat task.wait(0.1) until DataManager.Profiles[player]
 
-	player.CharacterAdded:Connect(onCharacterAdded)
+	onCharacterAdded(player, player.Character or player.CharacterAdded:Wait())
+	player.CharacterAdded:Connect(function(character: Model)  
+		warn("Char added 1")
+		onCharacterAdded(player, character)
+	end)
 
 	--[[
 	local playerDetails = PlayerDetails.new(player)
