@@ -93,6 +93,7 @@ local function onPlayerAdded(player: Player)
 	initialiseOwnedItemsDatastore(player.UserId)
 	]]
 
+	PlayerClickManager.OnPlayerAdded(player)
 	PlayerVotedOutfitsTracker.OnPlayerAdded(player)
 	ChallengeManager.InitialiseChallenges(player)
 end
