@@ -78,7 +78,7 @@ local function InitialiseModals()
     local dailyChallengeFrame = DailyChallengeFrame(modalScope)
     local wardrobeContainer, avatarContainer, catalogContainer = WardrobeContainer(modalScope)
     local votingFrame, refreshOutfitVoteTiles = VotingFrame(modalScope)
-    local playerClickFrame = PlayerClickFrame(modalScope)
+    local playerClickFrame, onFrameOpened = PlayerClickFrame(modalScope)
 
     -- TODO: Find a more robust way of doing the below, this is vestigial code
 	local controllers = {}
@@ -92,7 +92,7 @@ local function InitialiseModals()
     GuiManager.RegisterModal(MODAL_NAMES.DAILY_CHALLENGE_GUI, dailyChallengeFrame)
     GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer) 
     GuiManager.RegisterModal(MODAL_NAMES.VOTING_GUI, votingFrame, refreshOutfitVoteTiles)
-    GuiManager.RegisterModal(MODAL_NAMES.PLAYER_INSPECT_GUI, playerClickFrame)
+    GuiManager.RegisterModal(MODAL_NAMES.PLAYER_INSPECT_GUI, playerClickFrame, onFrameOpened)
 end
 
 local function initialiseGuiManager()

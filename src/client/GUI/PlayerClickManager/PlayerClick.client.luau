@@ -44,7 +44,7 @@ local function addClickDetector(player: Player, character: Model?)
         MaxActivationDistance = activationDistanceComp,
 
         [OnEvent "MouseClick"] = function()
-            GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI)
+            GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI, player)
         end
 
     } :: ClickDetector

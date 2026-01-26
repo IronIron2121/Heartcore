@@ -43,20 +43,36 @@ type TileData = {
     views: number
 }
 
+-- Constants
+local DEFAULT_NAME = " "
+local DEFAULT_THUMBNAIL = Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+
 --
 
 local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     -- Variables
-    local function onFrameOpened(force: boolean?)
-        -- Get the new avatar
+    local inspectName = scope:Value(DEFAULT_NAME)
+    local inspectThumbnail = scope:Value(DEFAULT_THUMBNAIL)
+
+    -- Functions
+    local function onFrameOpened(player: Player)
         -- Update the name tag
+        inspectName:set(player.Name)
         -- Update the thumbnail
-    end
+        local success, newThumbnail = callWithRetry(function()  
+            return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
+        end)
+        inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
+        -- Get the new avatar
+    end 
 
     local function onFrameClosed()
-        -- Reset avatar viewport frame
         -- Reset name tag
+        inspectName:set(DEFAULT_NAME)
         -- Reset thumbnail
+        inspectThumbnail:set(DEFAULT_THUMBNAIL)
+
+        -- Reset avatar viewport frame
     end
 
     local playerClickFrame = scope:New "Frame" {
@@ -129,7 +145,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
 
                             scope:New "ImageLabel"{
                                 Name = "PlayerThumbnail",
-                                Image = ImageUris.StopwatchIcon,
+                                Image = inspectThumbnail,
                                 Size = UDim2.fromScale(1, 1),
                                 LayoutOrder = 1,
                                 BackgroundTransparency = 1,
@@ -148,7 +164,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
 
                             scope:New "TextLabel" {
                                 Name = "PlayerNameLabel",
-                                Text = "PLAYER_NAME_GOES_HERE",
+                                Text = inspectName,
                                 TextScaled = true,
                                 Size = UDim2.fromScale(0.3, 1),
                                 LayoutOrder = 2,
