@@ -18,6 +18,7 @@ local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 local localPlayer = Players.LocalPlayer
 
 -- GUI
+local PlayerInspectViewport = require(script.Parent.PlayerInspectViewport)
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 
 -- Modules
@@ -34,18 +35,18 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
 
--- Types
-type TileData = {
-    userId: number,
-    humanoidDescription: HumanoidDescription?,
-    playerName: string,
-    votes: number,
-    views: number
-}
 
 -- Constants
 local DEFAULT_NAME = " "
-local DEFAULT_THUMBNAIL = Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+local _success, DEFAULT_THUMBNAIL = callWithRetry(function()
+    return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+end)
+
+local DEFAULT_DESC = Instance.new("HumanoidDescription")
+
+local _success, DEFAULT_MODEL = callWithRetry(function()
+    return Players:CreateHumanoidModelFromDescription(DEFAULT_DESC, Enum.HumanoidRigType.R15)
+end)
 
 --
 
@@ -53,6 +54,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     -- Variables
     local inspectName = scope:Value(DEFAULT_NAME)
     local inspectThumbnail = scope:Value(DEFAULT_THUMBNAIL)
+    local inspectModel = scope:Value(DEFAULT_MODEL)
 
     -- Functions
     local function onFrameOpened(player: Player)
@@ -63,7 +65,12 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
             return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
         end)
         inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
-        -- Get the new avatar
+        -- Get and set the new avatar
+        local modelSuccess, newModel = pcall(function()  
+            return Players:CreateHumanoidModelFromUserIdAsync(player.UserId)
+        end)
+
+        inspectModel:set(modelSuccess and newModel or DEFAULT_MODEL)
     end 
 
     local function onFrameClosed()
@@ -71,8 +78,8 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
         inspectName:set(DEFAULT_NAME)
         -- Reset thumbnail
         inspectThumbnail:set(DEFAULT_THUMBNAIL)
-
         -- Reset avatar viewport frame
+        inspectModel:set(DEFAULT_MODEL)
     end
 
     local playerClickFrame = scope:New "Frame" {
@@ -197,22 +204,29 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                 Padding = UDim.new(0.01, 0),
                                 Wraps = false
                             },
-
+ 
                             scope:New "UICorner" {
                                 CornerRadius = UDim.new(0.05)
                             },
 
                             scope:New "Frame" {
                                 Name = "ClickedPlayerContainer",
-                                Size = UDim2.fromScale(0.5, 1),
-                                BackgroundTransparency = 1
+                                Size = UDim2.fromScale(0.4, 1),
+                                BackgroundTransparency = 1,
+                                [Children] = {
+                                    PlayerInspectViewport(scope, {
+                                        model = inspectModel
+                                    })
+                                }
                             },
 
                             scope:New "Frame" {
                                 Name = "OptionsContainer",
-                                Size = UDim2.fromScale(0.5, 1),
+                                Size = UDim2.fromScale(0.4, 1),
                                 BackgroundTransparency = 0
-                            }
+                            },
+
+
                         } 
                     },
                 }

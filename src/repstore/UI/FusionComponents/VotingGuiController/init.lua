@@ -18,6 +18,7 @@ local localPlayer = Players.LocalPlayer
 -- GUI
 local PlayerGui         = localPlayer.PlayerGui
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
+local OutfitVoteTile    = require(FusionComponents.VotingFrame.OutfitVoteTile)
 
 -- Modules
 local SerialisationService  = require(Utility:WaitForChild("SerialisationService"))
