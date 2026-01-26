@@ -7,7 +7,7 @@
 local PlayerClickManager = {}
 
 
-local function GetClickPrompt
+local function GetClickPrompt()
 
 
 end
