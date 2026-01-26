@@ -5,17 +5,28 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 -- Folders
-local Libraries = ReplicatedStorage:WaitForChild("Libraries")
-local GuiManagerFolder = Libraries.GuiManager
+local Libraries         = ReplicatedStorage:WaitForChild("Libraries")
+local GuiManagerFolder  = Libraries.GuiManager
+local Utility           = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local GuiManager = require(GuiManagerFolder.GuiManager) 
+local MODAL_NAMES   = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
+local ChallengeCard = require(ReplicatedStorage.UI.FusionComponents.Widgets.ChallengeCard)
+local GuiManager    = require(GuiManagerFolder.GuiManager) 
+
+-- Fusion
+local Fusion        = require(Utility.Fusion)
+local clickScope    = Fusion:scoped()
+local OnEvent       = Fusion.OnEvent
 
 -- Instances
 local localPlayer = Players.LocalPlayer
 
 -- Constants
 local CLICK_DETECTOR_NAME = "OD"
+
+-- Variables
+local CentreActive = GuiManager.GetCentreActiveValue()
 
 --
 
@@ -24,21 +35,25 @@ local function addClickDetector(player: Player, character: Model?)
     if character and character:FindFirstChild(CLICK_DETECTOR_NAME) then
         return
     end
-    
-    local clickDetector = Instance.new("ClickDetector")
-    
-    clickDetector.MaxActivationDistance = 20
-    clickDetector.Parent = character
-    
-    clickDetector.MouseClick:Connect(function()
-        -- Open modal with that player's info
-        warn("Clicking!")
-        GuiManager.PushCentreByName("PLAYER_INSPECT_MODAL")
+
+    local activationDistanceComp = clickScope:Computed(function(use)
+        return use(CentreActive) and 0 or 20
     end)
+    
+    local clickDetector = clickScope:New "ClickDetector" {
+        MaxActivationDistance = activationDistanceComp,
+
+        [OnEvent "MouseClick"] = function()
+            GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI)
+        end
+
+    } :: ClickDetector
+
+    clickDetector.Parent = character
 end
 
 -- Add click detectors to all players in game when local player joins
-local function onPlayerJoin()
+local function onPlayerJoin()   
     for _, player in Players:GetPlayers() do
         if player.UserId ~= localPlayer.UserId then
             addClickDetector(player)

@@ -336,6 +336,10 @@ function GuiManager.IsModalActive(modal: GuiObject): boolean
     return table.find(peek(modalStack), modal) ~= nil
 end
 
+function GuiManager.GetCentreActiveValue(): Fusion.Computed<boolean>
+    return CentreActive
+end
+
 function GuiManager.IsCentreActive(): boolean
     return peek(CentreActive)
 end
