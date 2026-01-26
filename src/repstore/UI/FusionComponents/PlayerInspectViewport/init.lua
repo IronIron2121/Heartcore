@@ -110,63 +110,6 @@ function PlayerInspectViewport(
 				PaddingRight = UDim.new(0.04,0),
 			},
 
-			Button(scope, {
-				name = "ResetButton",
-				text = "Reset Outfit",
-				size = UDim2.fromScale(0.4, 0.05),
-				position = UDim2.fromScale(1,0),
-				anchorPoint = Vector2.new(1,0),
-				zIndex = 3,
-				
-				onActivated = function()
-					ClientCustomisationService.ResetPlayerOutfit(localPlayer)
-				end, 
-			}),
-
-			Button(scope, {
-				name = "OutfitsButtonFrame",
-				text = "My Outfits",
-				size = UDim2.fromScale(0.4, 0.05), 
-				position = UDim2.fromScale(0,0),
-				anchorPoint = Vector2.new(0,0),
-				zIndex = 3,
-
-				onActivated = function()
-
-				end,
-			}),
-
-			Button(scope, {
-				text = "Buy outfit",
-				size = UDim2.fromScale(0.4, 0.05),
-				position = UDim2.fromScale(1,1),
-				anchorPoint = Vector2.new(1,1),
-				zIndex = 3,
-				visible = true,
-				
-				onActivated = function()
-					ClientOutfitService.PurchasePlayerOutfit(localPlayer)
-				end,
-			}),
-			
-			Button(scope, {
-				text = "Save Outfit",
-				visible = true,
-				size = UDim2.fromScale(0.4, 0.05),
-				position = UDim2.fromScale(0,1),
-				anchorPoint = Vector2.new(0,1),
-				zIndex = 3,
-				onActivated = function()
-					GuiManager.PushNotificationCentre(
-						"SaveOutfit", 
-						"Are you sure you want to save this outfit?", 
-						function()  
-
-						end
-					)
-				end
-			}),
-
 			viewportCamera,
 
 			rotateButton:set(
@@ -178,7 +121,7 @@ function PlayerInspectViewport(
 	local viewportBackground = scope:New "Frame" {
 		Name = "ViewportContainer",
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Size = UDim2.fromScale(0.7, 1),
+		Size = UDim2.fromScale(1, 1),
 		LayoutOrder = props.layoutOrder or 2,
 		Position = UDim2.fromScale(0.5, 0.5),
 		BackgroundTransparency = 1,
@@ -209,7 +152,8 @@ function PlayerInspectViewport(
 	-- Camera update function
 	local function updateCameraPosition()
 		local currentModel = peek(props.model)
-		warn(currentModel)
+		warn(type(currentModel))
+		warn(typeof(currentModel))
 		local camera = peek(viewportCamera)
 		if not currentModel or not camera then 
 			return

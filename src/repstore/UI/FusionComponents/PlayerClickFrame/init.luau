@@ -35,6 +35,40 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
 
+--[[
+
+			Button(scope, {
+				text = "Buy outfit",
+				size = UDim2.fromScale(0.4, 0.05),
+				position = UDim2.fromScale(1,1),
+				anchorPoint = Vector2.new(1,1),
+				zIndex = 3,
+				visible = true,
+				
+				onActivated = function()
+					ClientOutfitService.PurchasePlayerOutfit(localPlayer)
+				end,
+			}),
+			
+			Button(scope, {
+				text = "Save Outfit",
+				visible = true,
+				size = UDim2.fromScale(0.4, 0.05),
+				position = UDim2.fromScale(0,1),
+				anchorPoint = Vector2.new(0,1),
+				zIndex = 3,
+				onActivated = function()
+					GuiManager.PushNotificationCentre(
+						"SaveOutfit", 
+						"Are you sure you want to save this outfit?", 
+						function()  
+
+						end
+					)
+				end
+			}),
+
+]]
 
 -- Constants
 local DEFAULT_NAME = " "
