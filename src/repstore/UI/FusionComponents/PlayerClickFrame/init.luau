@@ -76,7 +76,7 @@ local buttonSize = UDim2.fromScale(0.8, 0.1)
 -- Constants
 local DEFAULT_NAME = " "
 local _success, DEFAULT_THUMBNAIL = callWithRetry(function()
-    return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+    return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
 end)
 
 local DEFAULT_DESC = Instance.new("HumanoidDescription")
@@ -105,8 +105,10 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
         inspectName:set(player.Name)
         -- Update the thumbnail
         local success, newThumbnail = callWithRetry(function()  
-            return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
+            return Players:GetUserThumbnailAsync(player.UserId >= 0 and player.UserId or Constants.DEFAULT_ID, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
         end)
+        warn(success)
+        warn(newThumbnail)
         inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
         -- Get and set the new avatar
         local modelSuccess, newModel = pcall(function()  
