@@ -55,6 +55,25 @@ function ServerOutfitService.DeleteOutfit(outfitId: number)
 	AvatarEditorService.PromptDeleteOutfitCompleted:Wait() 
 end
 
+function ServerOutfitService.playerSavedInspectedOutfit(player: Player, inspectedPlayer: Player)
+	local character = inspectedPlayer.Character or inspectedPlayer.CharacterAdded:Wait()
+	local humanoid = character:WaitForChild("Humanoid") :: Humanoid
+	local humanoidDescription = humanoid:GetAppliedDescription()
+	
+	local serialisedHumanoidDescription = SerialisationService.SerialiseHumanoidDescription(humanoidDescription)
+	
+	local success = pcall(function()
+		PlayerOutfitsDatastore:UpdateAsync(player.UserId, function(oldData)
+			local newData = oldData or {}
+			table.insert(newData, serialisedHumanoidDescription)
+			return newData
+		end)
+	end)
+	if not success then
+		warn("Failed to saved")
+	end
+end
+
 function ServerOutfitService.PlayerPurchasedCurrentOutfit(player: Player, shoppingCart: {Type: Enum.MarketplaceProductType, itemId: number})
 	local success = callWithRetry(
 		function()
