@@ -3,12 +3,10 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players           = game:GetService("Players")
-local StarterPlayer = game:GetService("StarterPlayer")
-
+local StarterPlayer     = game:GetService("StarterPlayer")
+local StarterGui        = game:GetService("StarterGui")
 -- Folders
-local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
 local Utility           = ReplicatedStorage:WaitForChild("Utility")
-local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
 local UI                = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents  = UI:WaitForChild("FusionComponents")
 local Widgets           = FusionComponents:WaitForChild("Widgets")
@@ -20,7 +18,6 @@ local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Cl
 local Constants = require(ReplicatedStorage.Constants)
 local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
 local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
-local ClientOutfitService = require(ReplicatedStorage.Utility.ClientOutfitService)
 local PlayerInspectViewport = require(script.Parent.PlayerInspectViewport)
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 
@@ -30,8 +27,6 @@ local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion                = require(Utility:WaitForChild("Fusion"))
 local GuiManager            = require(GuiManagerLibrary:WaitForChild("GuiManager"))
 
--- Remotes
-local PlayerEquippedInspectedOutfit = Remotes:WaitForChild("PlayerEquippedInspectedOutfit")
 
 -- Fusion Modules
 local peek = Fusion.peek
@@ -330,7 +325,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         layoutOrder = 4,
                                         size = buttonSize,
                                         onActivated = function()
-                                            
+                                            StarterGui:SetCore("PromptSendFriendRequest")
                                         end
                                     }),
 
