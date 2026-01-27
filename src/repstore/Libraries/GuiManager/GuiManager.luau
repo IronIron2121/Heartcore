@@ -64,7 +64,7 @@ local HudContainer = guiScope:New "ScreenGui" {
     ZIndexBehavior = Enum.ZIndexBehavior.Global,
 }
 
-local registeredModals: {[string]: {guiObject: GuiObject, callback: () -> ()?}} = {}
+local registeredModals: {[string]: {guiObject: GuiObject, callback: (any?) -> (any?)?}} = {}
 local modalStack: Value<{GuiObject}> = guiScope:Value({})
 
 local CentreActive = guiScope:Computed(function(use) 
@@ -336,6 +336,10 @@ function GuiManager.IsModalActive(modal: GuiObject): boolean
     return table.find(peek(modalStack), modal) ~= nil
 end
 
+function GuiManager.GetCentreActiveValue(): Fusion.Computed<boolean>
+    return CentreActive
+end
+
 function GuiManager.IsCentreActive(): boolean
     return peek(CentreActive)
 end
@@ -346,7 +350,7 @@ function GuiManager.RegisterConfiguration(config: Types.GuiConfiguration)
 end
 
 -- Registers a modal so that it can easily be referenced from within the GUI manager
-function GuiManager.RegisterModal(objectName: string, guiObject: GuiObject, onActivated: () -> ()?): ()
+function GuiManager.RegisterModal(objectName: string, guiObject: GuiObject, onActivated: (any?) -> ()?): ()
     assert(objectName and guiObject, "Inadequate information to register modal! Name = " .. objectName)
     registeredModals[objectName] = {
         ["guiObject"] = guiObject,
@@ -361,7 +365,7 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
     return registeredModals[modalName]
 end
 
-function GuiManager.PushCentreByName(modalName: string): ()
+function GuiManager.PushCentreByName(modalName: string, params: any?): ()
     if not isLoaded  then 
         warn("Still initialising GUI!", isLoaded)
         return
@@ -389,7 +393,7 @@ function GuiManager.PushCentreByName(modalName: string): ()
     modalToPush.guiObject.Visible = true
     
     if modalToPush.callback then
-        modalToPush.callback()
+        modalToPush.callback(params)
     end 
 
     modalStack:set(currentModals)

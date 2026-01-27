@@ -85,14 +85,14 @@ local function onPlayerAdded(player: Player)
 	--[[
 	local playerDetails = PlayerDetails.new(player)
 	if playerDetails then
-		PlayerTracker.startTrackingPlayer(playerDetails)
+		PlayerTracker.startTrackingPlayer(playerDetails) 
 		UpdateLocalPlayerDetailsAsync:FireClient(player, playerDetails)
 	else
 		assert(playerDetails, "Failed to create player details")
 	end
 	initialiseOwnedItemsDatastore(player.UserId)
 	]]
-
+ 
 	PlayerVotedOutfitsTracker.OnPlayerAdded(player)
 	ChallengeManager.InitialiseChallenges(player)
 end

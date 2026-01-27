@@ -59,7 +59,7 @@ function PlayerDisplayManager.AddRankDisplayToCharacter(player: Player, characte
     RankLabel.TextScaled = true
     RankLabel.BackgroundTransparency = 1
     RankLabel.LayoutOrder = 1
-    RankLabel.FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold)
+    RankLabel.FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold)
     RankLabel.Size = TEXT_LABEL_SIZE
 
     -- Add label to display player level and name

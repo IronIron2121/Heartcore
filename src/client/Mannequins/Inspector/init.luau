@@ -6,6 +6,7 @@
 --]]
 
 -- Services
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
@@ -20,6 +21,7 @@ local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
 -- Fusion
 local Fusion = require(ReplicatedStorage.Utility.Fusion)
+local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local scope = Fusion:scoped()
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
@@ -68,6 +70,62 @@ function Inspector.inspectMannequin(mannequin: Model)
 	GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
 
 	isLoading = false
+end
+
+function Inspector.inspectPlayer(player: Player)
+	warn("inspecting player")
+	if isLoading then 
+		warn("OOps") 
+		return 
+	end
+	isLoading = true
+	inspectingItems:set({})
+	
+	local success, humDesc = callWithRetry(function()  
+		local inspectId = player.UserId >= 0 and player.UserId or Constants.DEFAULT_ID
+		return Players:GetHumanoidDescriptionFromUserIdAsync(player.UserId)
+	end)
+
+	if not success then
+		success, humDesc = callWithRetry(function()  
+			return Players:GetHumanoidDescriptionFromUserIdAsync(Constants.DEFAULT_ID)
+		end)
+	end
+
+	if not success then
+		warn("Failed to load humanoid description: ", success, humDesc)
+		GuiManager.PopCentre()
+	end
+	
+	local newItems = {}
+
+	-- Collect current asset IDs from descriptions
+	for _, desc in humDesc:GetChildren() do
+		if (desc:IsA("AccessoryDescription") or desc:IsA("BodyPartDescription")) and desc.AssetId ~= 0 then
+			table.insert(newItems, {
+				id = desc.AssetId, 
+				type = Enum.MarketplaceProductType.AvatarAsset 
+			})		
+		end
+	end
+
+	-- Collect classic items
+	for _, itemType in Constants.CLASSIC_ITEMS do
+		local assetId = humDesc[itemType]
+		if assetId and assetId ~= 0 then
+			table.insert(newItems, {
+				id = assetId, 
+				type = Enum.MarketplaceProductType.AvatarAsset 
+			})	
+		end
+	end
+	
+	inspectingItems:set(newItems)
+
+	WardrobeGuiState.ChangeCurrentView(Constants.WARDROBE_GUI_STATES.InspectFrame)
+	GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
+	isLoading = false
+	warn("done player")
 end
 
 return Inspector

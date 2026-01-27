@@ -6,18 +6,16 @@ local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
-
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
-
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI.FusionComponents
 local DailyChallengeFolder = FusionComponents.DailyChallengeGui 
 local WardrobeGuiController = FusionComponents.WardrobeGuiController
 
-
 -- Modules
 local SubmissionThemeBar = require(StarterPlayer.StarterPlayerScripts.GUI.SubmissionThemeBar)
 local OpenWardrobeButton = require(ReplicatedStorage.UI.FusionComponents.OpenWardrobeButton)
+local PlayerClickFrame = require(ReplicatedStorage.UI.FusionComponents.PlayerClickFrame)
 local AvatarEditorController = require(WardrobeGuiController.AvatarEditorController)
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
 local OutfitViewController = require(WardrobeGuiController.OutfitViewController)
@@ -80,6 +78,7 @@ local function InitialiseModals()
     local dailyChallengeFrame = DailyChallengeFrame(modalScope)
     local wardrobeContainer, avatarContainer, catalogContainer = WardrobeContainer(modalScope)
     local votingFrame, refreshOutfitVoteTiles = VotingFrame(modalScope)
+    local playerClickFrame, onFrameOpened = PlayerClickFrame(modalScope)
 
     -- TODO: Find a more robust way of doing the below, this is vestigial code
 	local controllers = {}
@@ -93,7 +92,7 @@ local function InitialiseModals()
     GuiManager.RegisterModal(MODAL_NAMES.DAILY_CHALLENGE_GUI, dailyChallengeFrame)
     GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer) 
     GuiManager.RegisterModal(MODAL_NAMES.VOTING_GUI, votingFrame, refreshOutfitVoteTiles)
-    
+    GuiManager.RegisterModal(MODAL_NAMES.PLAYER_INSPECT_GUI, playerClickFrame, onFrameOpened)
 end
 
 local function initialiseGuiManager()

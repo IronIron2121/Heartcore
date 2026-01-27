@@ -16,7 +16,9 @@ local Emotes = Instance.new("Folder", ReplicatedStorage)
 Emotes.Name = "Emotes"
 
 -- Modules
+local getHumanoidDescriptionFromPlayer = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromPlayer)
 local PlayerHasMaxOfAccessoryTypeEquipped = require(Checkers:WaitForChild("PlayerHasMaxOfAccessoryTypeEquipped"))
+local IsAssetAlreadyEquipped = require(Checkers.IsAssetAlreadyEquipped)
 local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessoryTypeFromAssetType"))
 local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
@@ -99,6 +101,16 @@ function ServerCustomisationService.ResetPlayerOutfit(player: Player): boolean
 	humanoid:ApplyDescriptionReset(originalHumanoidDescription)	
 
 	return true
+end
+
+function ServerCustomisationService.ApplyInspectedOutfitToPlayer(player: Player, inspectedPlayer: Player)
+	local inspectedHumDesc = getHumanoidDescriptionFromPlayer(inspectedPlayer)
+	local humanoid = GetHumanoidFromPlayer(player)
+	local success = callWithRetry(function()  
+		return humanoid:ApplyDescriptionAsync(inspectedHumDesc)
+	end)
+
+	return success
 end
 
 function ServerCustomisationService.AddAccessoryToAvatar(player: Player, itemId: number, assetType: string)
@@ -412,6 +424,11 @@ end
 
 -- Public API
 function ServerCustomisationService.AddItemToAvatar(player: Player, itemId: number, assetOrBundleType: string, itemType: string)
+	if IsAssetAlreadyEquipped(player, itemId) then 
+		warn("Item already equipped")
+		return 
+	end
+
 	if itemType == "Asset" and table.find(Constants.CLASSIC_CLOTHING_ASSET_TYPES, assetOrBundleType) then
 		ServerCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Asset" and assetOrBundleType == Constants.EMOTE_ASSET_TYPE then

@@ -10,7 +10,7 @@ function getHumanoidDescriptionFromPlayer(player: Player): HumanoidDescription?
 	local humanoid  = character:FindFirstChildOfClass("Humanoid")
 	if not humanoid then return nil end
 	
-	local humanoidDescription = humanoid:GetAppliedDescription()
+	local humanoidDescription = humanoid:FindFirstChildOfClass("HumanoidDescription")
 	
 	return humanoidDescription
 end
