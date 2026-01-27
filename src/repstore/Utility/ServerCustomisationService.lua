@@ -17,6 +17,7 @@ Emotes.Name = "Emotes"
 
 -- Modules
 local PlayerHasMaxOfAccessoryTypeEquipped = require(Checkers:WaitForChild("PlayerHasMaxOfAccessoryTypeEquipped"))
+local IsAssetAlreadyEquipped = require(Checkers.IsAssetAlreadyEquipped)
 local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessoryTypeFromAssetType"))
 local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
@@ -412,6 +413,11 @@ end
 
 -- Public API
 function ServerCustomisationService.AddItemToAvatar(player: Player, itemId: number, assetOrBundleType: string, itemType: string)
+	if IsAssetAlreadyEquipped(player, itemId) then 
+		warn("Item already equipped")
+		return 
+	end
+
 	if itemType == "Asset" and table.find(Constants.CLASSIC_CLOTHING_ASSET_TYPES, assetOrBundleType) then
 		ServerCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Asset" and assetOrBundleType == Constants.EMOTE_ASSET_TYPE then

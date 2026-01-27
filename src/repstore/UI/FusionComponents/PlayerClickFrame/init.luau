@@ -3,6 +3,7 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players           = game:GetService("Players")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
@@ -18,6 +19,10 @@ local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 local localPlayer = Players.LocalPlayer
 
 -- GUI
+local Constants = require(ReplicatedStorage.Constants)
+local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
+local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
+local ClientOutfitService = require(ReplicatedStorage.Utility.ClientOutfitService)
 local PlayerInspectViewport = require(script.Parent.PlayerInspectViewport)
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 
@@ -34,6 +39,9 @@ local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
+
+-- Constants
+local buttonSize = UDim2.fromOffset(125, 80)
 
 --[[
 
@@ -82,6 +90,10 @@ local _success, DEFAULT_MODEL = callWithRetry(function()
     return Players:CreateHumanoidModelFromDescription(DEFAULT_DESC, Enum.HumanoidRigType.R15)
 end)
 
+local _success, DEFAULT_PLAYER = callWithRetry(function()  
+    return Players:GetPlayerByUserId(Constants.DEFAULT_ID)
+end)
+
 --
 
 local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
@@ -89,9 +101,11 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     local inspectName = scope:Value(DEFAULT_NAME)
     local inspectThumbnail = scope:Value(DEFAULT_THUMBNAIL)
     local inspectModel = scope:Value(DEFAULT_MODEL)
+    local inspectPlayer = scope:Value(DEFAULT_PLAYER)
 
     -- Functions
     local function onFrameOpened(player: Player)
+        inspectPlayer:set(player)
         -- Update the name tag
         inspectName:set(player.Name)
         -- Update the thumbnail
@@ -108,6 +122,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     end 
 
     local function onFrameClosed()
+        inspectPlayer:set()
         -- Reset name tag
         inspectName:set(DEFAULT_NAME)
         -- Reset thumbnail
@@ -189,11 +204,11 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                 Image = inspectThumbnail,
                                 Size = UDim2.fromScale(1, 1),
                                 LayoutOrder = 1,
-                                BackgroundTransparency = 1,
+                                BackgroundTransparency = 0,
                                 
                                 [Children] = {
                                     scope:New "UICorner" {
-                                        CornerRadius = UDim.new(0.1, 0)
+                                        CornerRadius = UDim.new(1, 0)
                                     },
 
                                     scope:New "UIAspectRatioConstraint" {
@@ -247,6 +262,8 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                 Name = "ClickedPlayerContainer",
                                 Size = UDim2.fromScale(0.4, 1),
                                 BackgroundTransparency = 1,
+                                LayoutOrder = 2,
+
                                 [Children] = {
                                     PlayerInspectViewport(scope, {
                                         model = inspectModel
@@ -254,13 +271,76 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                 }
                             },
 
-                            scope:New "Frame" {
-                                Name = "OptionsContainer",
-                                Size = UDim2.fromScale(0.4, 1),
-                                BackgroundTransparency = 0
-                            },
+                            scope:New "ScrollingFrame" {
+                                Name = "PlayerInspectOptionsPanel",
+                                Size = UDim2.fromScale(0.3, 1),
+                                Position = UDim2.fromScale(0, 0),
+                                AnchorPoint = Vector2.new(0, 0),
+                                CanvasSize = UDim2.fromScale(0, 0),
+                                LayoutOrder = 2,
+                                BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                                BackgroundTransparency = UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
+                                BorderSizePixel = 0,
+                                ScrollBarThickness = 6,
+                                ScrollingDirection = Enum.ScrollingDirection.Y,
+                                AutomaticCanvasSize = Enum.AutomaticSize.Y,
 
+                                [Children] = {
+                                    scope:New "UICorner" {
+                                        CornerRadius = UDim.new(0.1, 0)
+                                    },
+                                    
+                                    scope:New "UIListLayout" {
+                                        SortOrder = Enum.SortOrder.LayoutOrder,
+                                        FillDirection = Enum.FillDirection.Vertical,
+                                        ItemLineAlignment = Enum.ItemLineAlignment.Center,
+                                        VerticalAlignment = Enum.VerticalAlignment.Top,
+                                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                                        Padding = UDim.new(0, 10)
+                                    },
 
+                                    scope:New "Frame" {
+                                        Name = "StartBuffer",
+                                        Size = UDim2.fromOffset(200, 10),
+                                        BackgroundTransparency = 1,
+                                        LayoutOrder = 1
+                                    },
+
+                                    BaseButton(scope, {
+                                        text = "View Outfit",
+                                        layoutOrder = 2,
+                                        size = buttonSize,
+                                        onActivated = function()
+                                            Inspector.inspectPlayer(peek(inspectPlayer))
+                                        end
+                                    }),
+
+                                    BaseButton(scope, {
+                                        text = "Wear Outfit",
+                                        layoutOrder = 3,
+                                        size = buttonSize,
+                                        onActivated = function()
+
+                                        end
+                                    }),
+
+                                    BaseButton(scope, {
+                                        text = "Add Friend",
+                                        layoutOrder = 4,
+                                        size = buttonSize,
+                                        onActivated = function()
+                                            
+                                        end
+                                    }),
+
+                                    scope:New "Frame" {
+                                        Name = "EndBuffer",
+                                        Size = UDim2.fromOffset(200, 10),
+                                        BackgroundTransparency = 1,
+                                        LayoutOrder = 999
+                                    },
+                                }
+                            }
                         } 
                     },
                 }

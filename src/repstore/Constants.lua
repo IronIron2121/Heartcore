@@ -201,7 +201,12 @@ local Constants = {
 
 	WARDROBE_GUI_STATES = {
 		InspectFrame = "if",
-	}
+	},
+
+	DEFAULT_ID = 1640373,
+
+	CLASSIC_ITEMS = {"GraphicTShirt", "Shirt", "Pants", "Face"}
+
 
 }
 

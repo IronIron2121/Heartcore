@@ -23,7 +23,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- Config
 local CONFIG = {
-	MIN_CELL_SIZE = Vector2.new(320, 350), -- Minimum size for each item tile
+	MIN_CELL_SIZE = Vector2.new(160, 175), -- Minimum size for each item tile
 	CELL_PADDING_X = 10,
 	CELL_PADDING_Y = 10 -- Padding between cells
 }
@@ -46,10 +46,10 @@ function InspectFrame(
 	local gridLayout = scope:New "UIGridLayout" {
 		FillDirection = Enum.FillDirection.Horizontal,
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
-		VerticalAlignment = Enum.VerticalAlignment.Center,
+		VerticalAlignment = Enum.VerticalAlignment.Top,
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		CellSize = cellSize,
-		CellPadding = UDim2.fromOffset(CONFIG.CELL_PADDING_X, CONFIG.CELL_PADDING_Y)
+		CellPadding = UDim2.fromOffset(CONFIG.CELL_PADDING_X, CONFIG.CELL_PADDING_Y),
 	}
 
 	local inspectedItems = Inspector.getInspectingItems()
@@ -117,11 +117,11 @@ function InspectFrame(
 		-- Prevent division by zero
 		if canvasWidth <= 0 then return end
 
-		-- Calculate how many cells will fit per line at minimum size
 		local numCells = math.max(1, math.floor(canvasWidth / cellWidth))
 
-		-- Calculate the scaling ratio required to fit the cells into the canvas
-		local availableWidth = canvasWidth - (numCells * CONFIG.CELL_PADDING_X)
+		-- Padding appears BETWEEN cells only (n-1 gaps for n cells)
+		local totalPadding = (numCells - 1) * CONFIG.CELL_PADDING_X
+		local availableWidth = canvasWidth - totalPadding
 		local ratio = availableWidth / (numCells * CONFIG.MIN_CELL_SIZE.X)
 
 		-- Ensure ratio doesn't go below 1 (don't shrink below minimum size)
