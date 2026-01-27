@@ -203,7 +203,7 @@ local Constants = {
 		InspectFrame = "if",
 	},
 
-	DEFAULT_ID = 1640373,
+	DEFAULT_ID = 7356280958,
 
 	CLASSIC_ITEMS = {"GraphicTShirt", "Shirt", "Pants", "Face"}
 

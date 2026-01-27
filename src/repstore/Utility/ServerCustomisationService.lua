@@ -433,6 +433,8 @@ function ServerCustomisationService.AddItemToAvatar(player: Player, itemId: numb
 		ServerCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Asset" and assetOrBundleType == Constants.EMOTE_ASSET_TYPE then
 		ServerCustomisationService.TryEmote(player, itemId)
+	elseif itemType == "Asset" and Enum.BodyPart:FromName(assetOrBundleType) then
+		ServerCustomisationService.AddBodyPartToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Asset" then
 		ServerCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Bundle" then

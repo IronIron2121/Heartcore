@@ -73,9 +73,7 @@ function Inspector.inspectMannequin(mannequin: Model)
 end
 
 function Inspector.inspectPlayer(player: Player)
-	warn("inspecting player")
 	if isLoading then 
-		warn("OOps") 
 		return 
 	end
 	isLoading = true
@@ -83,7 +81,7 @@ function Inspector.inspectPlayer(player: Player)
 	
 	local success, humDesc = callWithRetry(function()  
 		local inspectId = player.UserId >= 0 and player.UserId or Constants.DEFAULT_ID
-		return Players:GetHumanoidDescriptionFromUserIdAsync(player.UserId)
+		return Players:GetHumanoidDescriptionFromUserIdAsync(inspectId)
 	end)
 
 	if not success then
