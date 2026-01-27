@@ -23,7 +23,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- Config
 local CONFIG = {
-	MIN_CELL_SIZE = Vector2.new(160, 175), -- Minimum size for each item tile
+	MIN_CELL_SIZE = Vector2.new(200, 218), -- Minimum size for each item tile
 	CELL_PADDING_X = 10,
 	CELL_PADDING_Y = 10 -- Padding between cells
 }
@@ -73,10 +73,10 @@ function InspectFrame(
 		[Children] = {
 			gridLayout,
 			scope:New "UIPadding" {
-				PaddingTop = UDim.new(0,10),
-				PaddingBottom = UDim.new(0,0),
-				PaddingRight = UDim.new(0,0),
-				PaddingLeft = UDim.new(0,0),
+				PaddingTop = UDim.new(0.2,0),
+				PaddingBottom = UDim.new(0.1,0),
+				PaddingRight = UDim.new(0.05,0),
+				PaddingLeft = UDim.new(0.05,0),
 			},
 
 			scope:New "UICorner" {
