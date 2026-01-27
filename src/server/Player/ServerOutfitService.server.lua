@@ -18,6 +18,7 @@ local ServerOutfitService = require(Utility:WaitForChild("ServerOutfitService"))
 local PlayerDeletedTastemakerOutfit = Remotes:WaitForChild("PlayerDeletedTastemakerOutfit")
 local PlayerPurchasedCurrentOutfit = Remotes:WaitForChild("PlayerPurchasedCurrentOutfit")
 local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
+local PlayerSavedInspectedOutfit = Remotes:WaitForChild("PlayerSavedInspectedOutfit")
 local GetPlayerTastemakerOutfits = Remotes:WaitForChild("GetPlayerTastemakerOutfits")
 local PlayerPurchasedOutfit = Remotes:WaitForChild("PlayerPurchasedOutfit")
 
@@ -64,9 +65,14 @@ local function getPlayerTastemakerOutfits(player: Player)
 	return playerTastemakerOutfits
 end
 
+local function playerSavedInspectedOutfit(player: Player, inspectedPlayer: Player)
+	ServerOutfitService.playerSavedInspectedOutfit(player, inspectedPlayer)
+end	
+
 PlayerDeletedTastemakerOutfit.OnServerInvoke = playerDeletedTastemakerOutfit
 PlayerPurchasedCurrentOutfit.OnServerInvoke = playerPurchasedCurrentOutfit
 GetPlayerTastemakerOutfits.OnServerInvoke = getPlayerTastemakerOutfits
 
+PlayerSavedInspectedOutfit.OnServerEvent:Connect(playerSavedInspectedOutfit)
 PlayerSavedTastemakerOutfit.OnServerEvent:Connect(playerSavedTastemakerOutfit)
 PlayerPurchasedOutfit.OnServerEvent:Connect(playerPurchasedOutfit)

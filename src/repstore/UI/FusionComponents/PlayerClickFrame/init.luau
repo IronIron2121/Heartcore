@@ -18,6 +18,7 @@ local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Cl
 local Constants = require(ReplicatedStorage.Constants)
 local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
 local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
+local ClientOutfitService = require(ReplicatedStorage.Utility.ClientOutfitService)
 local PlayerInspectViewport = require(script.Parent.PlayerInspectViewport)
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 
@@ -311,8 +312,24 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                     }),
 
                                     BaseButton(scope, {
-                                        text = "Wear Outfit",
+                                        text = "Save Outfit",
                                         layoutOrder = 3,
+                                        size = buttonSize,
+                                        onActivated = function()
+                                            GuiManager.PushNotificationCentre(
+                                                "SaveOutfit", 
+                                                "Are you sure you want to save this outfit?", 
+                                                function()  
+                                                    ClientOutfitService.SaveInspectedPlayerOutfit(peek(inspectPlayer))
+                                                    GuiManager.PopCentre()
+                                                end
+                                            )
+                                        end
+                                    }),
+
+                                    BaseButton(scope, {
+                                        text = "Wear Outfit",
+                                        layoutOrder = 4,
                                         size = buttonSize,
                                         onActivated = function()
                                             ClientCustomisationService.PlayerEquippedInspectedOutfit(peek(inspectPlayer))
@@ -320,9 +337,11 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         end
                                     }),
 
+
+
                                     BaseButton(scope, {
                                         text = "Add Friend",
-                                        layoutOrder = 4,
+                                        layoutOrder = 5,
                                         size = buttonSize,
                                         onActivated = function()
                                             StarterGui:SetCore("PromptSendFriendRequest")

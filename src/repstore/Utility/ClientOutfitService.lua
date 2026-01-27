@@ -16,6 +16,7 @@ local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local PlayerDeletedTastemakerOutfit = Remotes:WaitForChild("PlayerDeletedTastemakerOutfit")
 local PlayerPurchasedCurrentOutfit = Remotes:WaitForChild("PlayerPurchasedCurrentOutfit")
 local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
+local PlayerSavedInspectedOutfit = Remotes:WaitForChild("PlayerSavedInspectedOutfit")
 
 --
 
@@ -76,11 +77,11 @@ function ClientOutfitService.PurchasePlayerOutfit(player: Player): boolean
 	end
 end
 
-function ClientOutfitService.PlayerEquippedInspectedOutfit(player: Player)
-
+function ClientOutfitService.SaveInspectedPlayerOutfit(inspectedPlayer: Player)
+	PlayerSavedInspectedOutfit:FireServer(inspectedPlayer) 
 end
 
-function ClientOutfitService.SaveCurrentPlayerOutfit(player: Player)
+function ClientOutfitService.SaveCurrentPlayerOutfit()
 	PlayerSavedTastemakerOutfit:FireServer()
 
 	-- The below code is commented out until we need to implement saving outfits via Roblox official API
