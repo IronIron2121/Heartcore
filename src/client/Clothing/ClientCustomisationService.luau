@@ -14,6 +14,7 @@ local Constants = require(ReplicatedStorage.Constants)
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
 -- Remotes
+local PlayerEquippedInspectedOutfit = Remotes:WaitForChild("PlayerEquippedInspectedOutfit")
 local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
 local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
@@ -88,6 +89,10 @@ function ClientCustomisationService.RemoveItem(assetId: number): boolean
 
 	-- Remove the item tile
 	return success
+end
+
+function ClientCustomisationService.PlayerEquippedInspectedOutfit(inspectedPlayer: Player)
+	PlayerEquippedInspectedOutfit:FireServer(inspectedPlayer)
 end
 
 function ClientCustomisationService.RemoveClassicItem(assetId: number, itemType: string): boolean

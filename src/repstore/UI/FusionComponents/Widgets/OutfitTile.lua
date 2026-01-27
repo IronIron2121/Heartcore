@@ -113,12 +113,6 @@ function OutfitTile(
 				BackgroundTransparency = 1,
 				Image = ImageUris.TrashButton,
 				Active = true,
-
-				[OnEvent "Activated"] = function()
-					if props.onClick ~= nil then
-						props.onClick()
-					end
-				end,
 				
 				[OnEvent "MouseButton1Down"] = function()
 					isHeldDown:set(true)

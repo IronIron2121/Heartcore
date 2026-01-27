@@ -15,10 +15,8 @@ local Widgets           = FusionComponents:WaitForChild("Widgets")
 local Libraries         = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 
--- Instances
-local localPlayer = Players.LocalPlayer
-
 -- GUI
+local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Constants = require(ReplicatedStorage.Constants)
 local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
 local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
@@ -27,12 +25,13 @@ local PlayerInspectViewport = require(script.Parent.PlayerInspectViewport)
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 
 -- Modules
-local SerialisationService  = require(Utility:WaitForChild("SerialisationService"))
 local callWithRetry         = require(Utility:WaitForChild("callWithRetry"))
-local ImageUris             = require(DataTables:WaitForChild("ImageUris"))
 local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion                = require(Utility:WaitForChild("Fusion"))
 local GuiManager            = require(GuiManagerLibrary:WaitForChild("GuiManager"))
+
+-- Remotes
+local PlayerEquippedInspectedOutfit = Remotes:WaitForChild("PlayerEquippedInspectedOutfit")
 
 -- Fusion Modules
 local peek = Fusion.peek
@@ -115,7 +114,8 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
         inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
         -- Get and set the new avatar
         local modelSuccess, newModel = pcall(function()  
-            return Players:CreateHumanoidModelFromUserIdAsync(player.UserId)
+            local callId = player.UserId >= 0 and player.UserId or Constants.DEFAULT_ID
+            return Players:CreateHumanoidModelFromUserIdAsync(callId)
         end)
 
         inspectModel:set(modelSuccess and newModel or DEFAULT_MODEL)
@@ -320,7 +320,8 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         layoutOrder = 3,
                                         size = buttonSize,
                                         onActivated = function()
-
+                                            ClientCustomisationService.PlayerEquippedInspectedOutfit(peek(inspectPlayer))
+                                            GuiManager.PopCentre()
                                         end
                                     }),
 

@@ -82,6 +82,7 @@ function Inspector.inspectPlayer(player: Player)
 	inspectingItems:set({})
 	
 	local success, humDesc = callWithRetry(function()  
+		local inspectId = player.UserId >= 0 and player.UserId or Constants.DEFAULT_ID
 		return Players:GetHumanoidDescriptionFromUserIdAsync(player.UserId)
 	end)
 

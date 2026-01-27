@@ -76,7 +76,9 @@ function ClientOutfitService.PurchasePlayerOutfit(player: Player): boolean
 	end
 end
 
+function ClientOutfitService.PlayerEquippedInspectedOutfit(player: Player)
 
+end
 
 function ClientOutfitService.SaveCurrentPlayerOutfit(player: Player)
 	PlayerSavedTastemakerOutfit:FireServer()

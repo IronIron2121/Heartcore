@@ -14,6 +14,7 @@ local SerialisationService = require(Utility:WaitForChild("SerialisationService"
 
 -- Remotes
 local PlayerEquippedTastemakerOutfit = Remotes:WaitForChild("PlayerEquippedTastemakerOutfit")
+local PlayerEqippedInspectedOutfit = Remotes:WaitForChild("PlayerEquippedInspectedOutfit")
 local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
 local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
@@ -89,6 +90,13 @@ local function playerEquippedTastemakerOutfit(player: Player, tastemakerOutfit: 
 	setPlayerEquipping(player, false)
 end
 
+local function playerEquippedInspectedOutfit(player: Player, inspectedPlayer: Player)
+	if isPlayerEquipping(player) then return end
+	setPlayerEquipping(player, true) 
+	ServerCustomisationService.ApplyInspectedOutfitToPlayer(player, inspectedPlayer)
+	setPlayerEquipping(player, false)
+end
+
 local function playerResetOutfit(player: Player)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true)
@@ -100,6 +108,7 @@ end
 
 PlayerEquippedOutfit.OnServerEvent:Connect(playerEquippedOutfit)
 PlayerEquippedTastemakerOutfit.OnServerEvent:Connect(playerEquippedTastemakerOutfit)
+PlayerEqippedInspectedOutfit.OnServerEvent:Connect(playerEquippedInspectedOutfit)
 PlayerRemovedClassicItem.OnServerEvent:Connect(playerRemovedClassicItem)
 PlayerEquippedItem.OnServerEvent:Connect(playerEquippedItem)
 PlayerRemovedItem.OnServerInvoke = playerRemovedItem

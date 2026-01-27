@@ -16,6 +16,7 @@ local Emotes = Instance.new("Folder", ReplicatedStorage)
 Emotes.Name = "Emotes"
 
 -- Modules
+local getHumanoidDescriptionFromPlayer = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromPlayer)
 local PlayerHasMaxOfAccessoryTypeEquipped = require(Checkers:WaitForChild("PlayerHasMaxOfAccessoryTypeEquipped"))
 local IsAssetAlreadyEquipped = require(Checkers.IsAssetAlreadyEquipped)
 local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessoryTypeFromAssetType"))
@@ -100,6 +101,16 @@ function ServerCustomisationService.ResetPlayerOutfit(player: Player): boolean
 	humanoid:ApplyDescriptionReset(originalHumanoidDescription)	
 
 	return true
+end
+
+function ServerCustomisationService.ApplyInspectedOutfitToPlayer(player: Player, inspectedPlayer: Player)
+	local inspectedHumDesc = getHumanoidDescriptionFromPlayer(inspectedPlayer)
+	local humanoid = GetHumanoidFromPlayer(player)
+	local success = callWithRetry(function()  
+		return humanoid:ApplyDescriptionAsync(inspectedHumDesc)
+	end)
+
+	return success
 end
 
 function ServerCustomisationService.AddAccessoryToAvatar(player: Player, itemId: number, assetType: string)
