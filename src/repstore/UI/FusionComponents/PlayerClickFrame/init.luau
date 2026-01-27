@@ -105,7 +105,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
         inspectName:set(player.Name)
         -- Update the thumbnail
         local success, newThumbnail = callWithRetry(function()  
-            return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
+            return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
         end)
         inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
         -- Get and set the new avatar
