@@ -84,12 +84,6 @@ function PlayerInspectViewport(
 		ZIndex = 2,
 		
 		[Children] = {
-			scope:New "UIStroke" {
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Color = Color3.new(0.360784, 0.376471, 0.839216),
-				Thickness = 2,
-			},
-
 			scope:New "WorldModel" {
 				Name = "WorldModel",
 
@@ -132,6 +126,8 @@ function PlayerInspectViewport(
 				Size = UDim2.fromScale(1,1),
 				Position = UDim2.fromScale(0, 0),
 				AnchorPoint = Vector2.new(0, 0),
+				BackgroundTransparency = 1,
+				ImageTransparency = 1,
 				Image = "rbxassetid://118393578077171",
 
 				[Children] = {

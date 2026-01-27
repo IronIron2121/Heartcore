@@ -62,7 +62,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, mannequin: Model)
 	-- Prevent duplicates
 	if adornee:FindFirstChild("CustomInspectPrompt") then
 		return
-	end
+	end 
 
 	local billboard = Instance.new("BillboardGui", allPrompts)
 	billboard.Name = "CustomInspectPrompt"
