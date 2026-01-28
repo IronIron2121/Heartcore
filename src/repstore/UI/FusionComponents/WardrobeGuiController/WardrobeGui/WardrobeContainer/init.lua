@@ -46,11 +46,6 @@ return function(scope: Fusion.Scope)
 				end,
 			}),
 
-			LoadingScreen(scope, {
-				size = UDim2.fromScale(0.5, 0.5),
-				position = UDim2.fromScale(0.5,0.5)
-			}),
-
 			scope:New "Folder" {
 				Name = "ContainerFolder",
 
