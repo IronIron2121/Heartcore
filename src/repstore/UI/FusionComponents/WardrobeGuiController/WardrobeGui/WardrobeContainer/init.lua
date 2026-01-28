@@ -14,6 +14,8 @@ local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local AvatarContainer = require(script:WaitForChild("AvatarContainer"))
 local CatalogContainer = require(script:WaitForChild("CatalogContainer")) 
 local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
+local LoadingScreen = require(Widgets:WaitForChild("LoadingScreen"))
+
 
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -42,6 +44,11 @@ return function(scope: Fusion.Scope)
 				onClick = function()
 					GuiManager.PopCentre()
 				end,
+			}),
+
+			LoadingScreen(scope, {
+				size = UDim2.fromScale(0.5, 0.5),
+				position = UDim2.fromScale(0.5,0.5)
 			}),
 
 			scope:New "Folder" {

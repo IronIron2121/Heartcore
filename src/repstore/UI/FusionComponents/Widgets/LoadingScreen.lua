@@ -14,6 +14,9 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion
 local Children = Fusion.Children
+local peek = Fusion.peek
+local Value = Fusion.Value
+local Tween = Fusion.Tween
 type UsedAs<T> = Fusion.UsedAs<T>
 
 function Frame(
@@ -39,19 +42,22 @@ function Frame(
     }
 ): Frame
 
-    -- Create a Value to track rotation
-    local rotationValue = scope:Value(0)
-    
-    -- Create a spring animation for smooth rotation
-    local rotationSpring = scope:Spring(rotationValue:, 25, 1)
-    
-    -- Continuously update rotation
-    local rotationConnection = RunService.Heartbeat:Connect(function(deltaTime: number)
-        rotationValue:set((rotationValue:get(false) + deltaTime * 180) % 360)
-    end)
-    
-    -- Clean up connection when scope is destroyed
-    table.insert(scope, rotationConnection)
+
+-- Create a state value for rotation (AI told me to do this)
+local rotationValue = scope:Value(0)
+
+-- Rotation anim
+task.spawn(function()
+    while true do
+        task.wait(1)
+        rotationValue:set(peek(rotationValue) + 359)
+    end
+end)
+
+
+
+-- Rotation animation tween
+local rotationTween = scope:Tween(rotationValue, TweenInfo.new(1, Enum.EasingStyle.Cubic))
 
     local loadingScreen = scope:New "Frame" {
         Name = props.name or "LoadingFrame",
@@ -90,15 +96,33 @@ function Frame(
                 FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular)
             },
 
-            scope:New "ImageLabel" {
-                Name = "LoadingIcon",
+            scope:New "Frame" {
+                Name = "loadingIconContainer",
                 Size = UDim2.fromScale(0.2,0.2),
                 AnchorPoint = Vector2.new(0.5,0.5),
                 BackgroundTransparency = 1,
                 LayoutOrder = 1,
-                Image = "rbxassetid://96217797477627",
-                Rotation = rotationSpring
-            }
+
+                [Children] = {
+                    scope:New "ImageLabel" {
+                        Name = "LoadingIcon",
+                        Size = UDim2.fromScale(1,1),
+                        AnchorPoint = Vector2.new(0.5,0.5),
+                        Position = UDim2.fromScale(0.5,0.5),
+                        BackgroundTransparency = 1,
+                        ImageColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                        LayoutOrder = 1,
+                        Image = "rbxassetid://96217797477627",
+                        Rotation = rotationTween ,
+
+                        [Children] = {
+                            scope:New "UIAspectRatioConstraint" {
+                                AspectRatio = 1
+                            }
+                        }
+                    }
+                }
+            } 
         }
     } :: Frame
     
