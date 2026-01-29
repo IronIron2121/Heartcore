@@ -30,11 +30,16 @@ local Children = Fusion.Children
 local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 
+-- Constants
 -- Colors
 local COLOUR_WHITE = UI_CONSTANTS.COLOUR_WHITE
 local COLOUR_GREY = UI_CONSTANTS.COLOUR_GREY
 -- LERP
 local COLOUR_HOVER = COLOUR_WHITE:Lerp(COLOUR_GREY, 0.5)
+
+
+-- Text
+local OFF_SALE_TEXT = "Off-Sale"
 
 -- Config
 local CONFIG = {
@@ -100,9 +105,11 @@ props: {
 	local isActivated = scope:Value(false)
 
 	local priceVal
+	local isOffSale = scope:Value(false)
 
 	if props.itemDetails.IsOffSale and props.itemDetails.IsOffSale == true or props.itemDetails.IsPurchasable == false then
 		priceVal = "Off-Sale"
+		isOffSale:set(true)
 	elseif props.itemDetails.UnitsAvailableForConsumption and props.itemDetails.UnitsAvailableForConsumption <= 0 then
 		priceVal = tostring(props.itemDetails.LowestPrice or 0)
 	else
@@ -272,6 +279,7 @@ props: {
 								assetType = props.itemDetails.AssetType or nil,
 								bundleType = props.itemDetails.BundleType or nil,
 								layoutOrder = 2,  
+								isOffSale = isOffSale,
 								onPurchaseCallback = function()
 									deactivate()
 									ClientCustomisationService.PlayerPurchasedItem(props.itemDetails.Id)
