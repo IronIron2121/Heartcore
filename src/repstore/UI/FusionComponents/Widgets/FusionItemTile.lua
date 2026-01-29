@@ -16,6 +16,7 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
+local ItemDetailsCache = require(ReplicatedStorage.Libraries.ItemDetailsCache)
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -24,19 +25,21 @@ local TryButton = require(Widgets:WaitForChild("TryButton"))
 local NameLabel = require(Widgets:WaitForChild("NameLabel"))
 local PriceLabel = require(Widgets:WaitForChild("PriceLabel"))
 
--- Remotes
-local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
-
 -- Fusion
 local Children = Fusion.Children
 local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 
+-- Constants
 -- Colors
 local COLOUR_WHITE = UI_CONSTANTS.COLOUR_WHITE
 local COLOUR_GREY = UI_CONSTANTS.COLOUR_GREY
 -- LERP
 local COLOUR_HOVER = COLOUR_WHITE:Lerp(COLOUR_GREY, 0.5)
+
+
+-- Text
+local OFF_SALE_TEXT = "Off-Sale"
 
 -- Config
 local CONFIG = {
@@ -49,24 +52,69 @@ local CONFIG = {
 -- TODO: Turn "Try" button into a "Remove" button if the item is equipped
 function FusionItemTile( 
 	scope: Fusion.Scope,
-	props: {
-		itemDetails: {
-			Id: number,
-			Name: string,
-			ItemType: string,
-			AssetType: string?,
-			AssetTypeId: number?,
-			BundleType: string?,
-			Price: number,
-		},
-		
-		layoutOrder: number
-	}
-)
+props: {
+    itemDetails: {
+        -- Core identification
+        Id: number,
+        Name: string,
+        ItemType: string,
+        ProductId: number?,
+        
+        -- Type information
+        AssetType: string?,
+        AssetTypeId: number?,
+        BundleType: string?,
+        
+        -- Pricing
+        Price: number?,
+        LowestPrice: number?,
+        LowestResalePrice: number?,
+        
+        -- Purchase info
+        IsPurchasable: boolean?,
+        IsOffSale: boolean?,
+        Owned: boolean?,
+        HasResellers: boolean?,
+        
+        -- Creator info
+        CreatorName: string?,
+        CreatorType: string?,
+        CreatorTargetId: number?,
+        CreatorHasVerifiedBadge: boolean?,
+        ExpectedSellerId: number?,
+        
+        -- Collectible/Limited info
+        CollectibleItemId: string?,
+        TotalQuantity: number?,
+        QuantityLimitPerUser: number?,
+        UnitsAvailableForConsumption: number?,
+        
+        -- Metadata
+        Description: string?,
+        FavoriteCount: number?,
+        SaleLocationType: string?,
+        ItemRestrictions: {any}?,
+        ItemStatus: {any}?,
+    },
+    
+    layoutOrder: number
+})
 	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return end
 	
 	local isHovering = scope:Value(false)
 	local isActivated = scope:Value(false)
+
+	local priceVal
+	local isOffSale = scope:Value(false)
+
+	if props.itemDetails.IsOffSale and props.itemDetails.IsOffSale == true or props.itemDetails.IsPurchasable == false then
+		priceVal = "Off-Sale"
+		isOffSale:set(true)
+	elseif props.itemDetails.UnitsAvailableForConsumption and props.itemDetails.UnitsAvailableForConsumption <= 0 then
+		priceVal = tostring(props.itemDetails.LowestPrice or 0)
+	else
+		priceVal = tostring(props.itemDetails.Price)
+	end
 
 	local buttonsVisible = scope:Computed(function(use)
 		if use(isActivated) or use(isHovering) then
@@ -231,6 +279,7 @@ function FusionItemTile(
 								assetType = props.itemDetails.AssetType or nil,
 								bundleType = props.itemDetails.BundleType or nil,
 								layoutOrder = 2,  
+								isOffSale = isOffSale,
 								onPurchaseCallback = function()
 									deactivate()
 									ClientCustomisationService.PlayerPurchasedItem(props.itemDetails.Id)
@@ -244,7 +293,7 @@ function FusionItemTile(
 			-- PriceLabel
 			PriceLabel(scope, {
 				layoutOrder = 2,
-				text = tostring(props.itemDetails.Price),
+				text = priceVal,
 			}),
 		}
 	}
