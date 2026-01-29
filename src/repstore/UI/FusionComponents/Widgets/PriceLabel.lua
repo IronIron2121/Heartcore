@@ -33,7 +33,7 @@ function PriceLabel(
 		position: UsedAs<UDim2>?,
 		layoutOrder: UsedAs<number>?,
 		anchorPoint: UsedAs<Vector2>?,
-		text: UsedAs<string>?,
+		text: UsedAs<string | number>?,
 		onPurchaseCallback: (() -> ())?,
 	}
 )

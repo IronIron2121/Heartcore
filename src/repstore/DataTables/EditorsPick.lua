@@ -59,6 +59,11 @@ EditorsPick.ids = {
         itemType = Enum.AvatarItemType.Asset
     },
 
+    {
+        id = 18559874161, -- Glass Animals Green Eye Head (Limited)
+        itemType = Enum.AvatarItemType.Asset
+    }
+
 }
 
 EditorsPick.itemDetails = {}
