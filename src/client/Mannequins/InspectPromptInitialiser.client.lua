@@ -270,6 +270,7 @@ local function initialise()
         RequiresLineOfSight = false,
         ActionText = "Vote Here!",
         [OnEvent "Triggered"] = function()
+			warn("Just triggered vote boi")
             GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
         end
     } :: ProximityPrompt
