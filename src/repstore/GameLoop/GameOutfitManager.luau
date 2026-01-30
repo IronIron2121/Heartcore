@@ -32,6 +32,9 @@ local outfits: {[string]: Outfit} = {}
 -- Track which players have submitted this round
 local submittedPlayers: {[number]: boolean} = {}
 
+-- Track which outfits each player has seen: userId -> {outfitId -> true}
+local playerViews: {[number]: {[string]: boolean}} = {}
+
 --
 
 local function generateOutfitId(userId: number): string
@@ -91,14 +94,71 @@ function GameOutfitManager.addVote(outfitId: string, voterUserId: number): boole
 	return true
 end
 
-function GameOutfitManager.addView(outfitId: string): boolean
+function GameOutfitManager.showOutfitToPlayer(userId: number, outfitId: string): boolean
 	local outfit = outfits[outfitId]
 	if not outfit then
 		return false
 	end
 	
-	outfit.views += 1
+	if not playerViews[userId] then
+		playerViews[userId] = {}
+	end
+	
+	-- Only increment view if they haven't seen it before
+	if not playerViews[userId][outfitId] then
+		playerViews[userId][outfitId] = true
+		outfit.views += 1
+	end
+	
 	return true
+end
+
+function GameOutfitManager.hasSeen(userId: number, outfitId: string): boolean
+	if not playerViews[userId] then
+		return false
+	end
+	
+	return playerViews[userId][outfitId] == true
+end
+
+function GameOutfitManager.getUnseenOutfit(player: Player, excludeOutfitId: string?): Outfit?
+	local userId = player.UserId
+	local seen = playerViews[userId] or {}
+	
+	local unseen: {Outfit} = {}
+	for outfitId, outfit in pairs(outfits) do
+		local isOwnOutfit = outfit.userId == userId
+		local isExcluded = excludeOutfitId and outfitId == excludeOutfitId
+		local alreadySeen = seen[outfitId]
+		
+		if not isOwnOutfit and not isExcluded and not alreadySeen then
+			table.insert(unseen, outfit)
+		end
+	end
+	
+	if #unseen == 0 then
+		return nil
+	end
+	
+	table.sort(unseen, function(a, b)
+		return a.views < b.views
+	end)
+	
+	return unseen[1]
+end
+
+function GameOutfitManager.getUnseenCount(player: Player): number
+	local userId = player.UserId
+	local seen = playerViews[userId] or {}
+	
+	local count = 0
+	for outfitId, outfit in pairs(outfits) do
+		if outfit.userId ~= userId and not seen[outfitId] then
+			count += 1
+		end
+	end
+	
+	return count
 end
 
 function GameOutfitManager.getOutfitsByVotes(): {Outfit}
@@ -133,10 +193,10 @@ end
 function GameOutfitManager.reset()
 	outfits = {}
 	submittedPlayers = {}
+	playerViews = {}
 end
 
 function GameOutfitManager.initialize()
-    warn("Init")
 	CanSubmitRF.OnServerInvoke = function(player: Player): boolean
 		return GameOutfitManager.canSubmit(player.UserId)
 	end
