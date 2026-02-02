@@ -66,6 +66,7 @@ function GameStateManager._onStateEnter(stateName: string)
     elseif stateName == "Voting" then
         
     elseif stateName == "Intermission" then
+        print(GameOutfitManager.getOutfitsByVotes())
         
     end
 end

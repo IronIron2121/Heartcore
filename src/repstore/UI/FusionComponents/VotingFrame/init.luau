@@ -81,7 +81,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 
 	local function fetchNextOutfit(): { outfitId: string, humanoidDescription: HumanoidDescription }?
 		local success, result = pcall(function()
-			return GetNextOutfitRF:InvokeServer()
+			return GetNextOutfitRF:InvokeServer() 
 		end)
 
 		if success and result and result.humanoidDescription then
