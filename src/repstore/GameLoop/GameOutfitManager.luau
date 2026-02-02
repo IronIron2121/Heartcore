@@ -61,6 +61,9 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 		votes = 0,
 		views = 0,
 	}
+
+	warn("Ok..")
+	warn(outfits[outfitId].humanoidDescription:GetChildren())
 	
 	submittedPlayers[userId] = true
 	
@@ -143,6 +146,8 @@ function GameOutfitManager.getUnseenOutfit(player: Player, excludeOutfitId: stri
 	table.sort(unseen, function(a, b)
 		return a.views < b.views
 	end)
+
+	warn("Unseen outfits: ")
 	
 	return unseen[1]
 end

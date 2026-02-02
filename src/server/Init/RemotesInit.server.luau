@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 
+local SerialisationService = require(ReplicatedStorage.Utility.SerialisationService)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
 -- Create remotes
@@ -40,7 +41,7 @@ GetNextOutfitRF.OnServerInvoke = function(player: Player)
 	
 	return {
 		outfitId = outfit.outfitId,
-		humanoidDescription = outfit.humanoidDescription,
+		humanoidDescription = SerialisationService.SerialiseHumanoidDescription(outfit.humanoidDescription),
 	}
 end
 

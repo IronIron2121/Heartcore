@@ -458,7 +458,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 							-- Voting complete message
 							scope:New "TextLabel" {
 								Name = "VotingComplete",
-								Text = "You've seen all outfits! 🎉",
+								Text = "All outfits viewed",
 								TextScaled = true,
 								Size = UDim2.fromScale(0.6, 0.15),
 								Position = UDim2.fromScale(0.5, 0.5),
