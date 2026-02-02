@@ -2,11 +2,13 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Folders
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 
 -- Modules
+local WinnersManager = require(ServerScriptService.Voting.WinnersManager)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
 --
@@ -62,10 +64,12 @@ function GameStateManager._onStateEnter(stateName: string)
     print(`[GameStateManager] Entered {stateName}`)
     
     if stateName == "Dressing" then
+    	WinnersManager.reset()
         GameOutfitManager.reset()
     elseif stateName == "Voting" then
-        
+
     elseif stateName == "Intermission" then
+        WinnersManager.setNewWinners()
         print(GameOutfitManager.getOutfitsByVotes())
         
     end

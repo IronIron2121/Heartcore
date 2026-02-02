@@ -95,5 +95,4 @@ local function onPlayerAdded(player: Player)
 	ChallengeManager.InitialiseChallenges(player)
 end
 
-
 Players.PlayerAdded:Connect(onPlayerAdded)

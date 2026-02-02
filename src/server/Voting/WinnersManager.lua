@@ -1,0 +1,163 @@
+--!strict
+-- WinnersManager.lua
+
+-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Folders
+local dailyWinners = workspace:WaitForChild("dailyWinners")
+local descriptions = ReplicatedStorage:WaitForChild("Descriptions")
+local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
+
+-- Modules
+local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
+
+-- Instances
+local leaderboard = dailyWinners:WaitForChild("leaderboard")
+local leaderboardScreen = leaderboard:WaitForChild("leaderboardScreen")
+local defaultWinnerDescription = descriptions:WaitForChild("DefaultWinner")
+
+local leaderboardGui = leaderboardScreen:WaitForChild("LeaderboardGui")
+local leaderboardFrame = leaderboardGui:WaitForChild("LeaderboardFrame")
+
+-- Constants
+local winnersRigScale = 3.547
+
+-- Types
+type RigModel = Model & {
+	Humanoid: Humanoid
+}
+
+local podiumRigs = {
+	[1] = dailyWinners:WaitForChild("FirstPlace") :: RigModel,
+	[2] = dailyWinners:WaitForChild("SecondPlace") :: RigModel,
+	[3] = dailyWinners:WaitForChild("ThirdPlace") :: RigModel,
+}
+
+local defaultWinnerIds = {
+	156,
+	5226107848,
+	7356280958,
+}
+
+--
+
+local WinnersManager = {}
+
+local function resetRig(rig: RigModel, index: number?)
+	rig:ScaleTo(1)
+	local description
+	if index then
+		--[[
+		local success, desc = pcall(function()
+			return Players:GetHumanoidDescriptionFromUserIdAsync(defaultWinnerIds[index])
+		end)
+		]]
+		-- description = if success then desc else defaultWinnerDescription
+		description = defaultWinnerDescription
+	else
+		description = defaultWinnerDescription
+	end
+	rig.Humanoid:ApplyDescriptionResetAsync(description)
+	rig:ScaleTo(winnersRigScale)
+end
+
+local function resetPodiums()
+	for index, rig in ipairs(podiumRigs) do
+		resetRig(rig, index)
+	end
+end
+
+local function resetLeaderboard()
+	for _, child in ipairs(leaderboardFrame:GetChildren()) do
+		if child:IsA("TextLabel") then
+			child:Destroy()
+		end
+	end
+end
+
+function WinnersManager.reset()
+	resetPodiums()
+	resetLeaderboard()
+end
+
+function WinnersManager.updatePodiums(winners: { GameOutfitManager.Outfit })
+	for index, outfit in ipairs(winners) do
+		local rig = podiumRigs[index]
+		if not rig then continue end
+
+		local success = pcall(function()
+			rig:ScaleTo(1)
+			rig.Humanoid:ApplyDescriptionResetAsync(outfit.humanoidDescription)
+			rig:ScaleTo(winnersRigScale)
+		end)
+
+		if not success then
+			warn("Failed to apply description to rig at index:", index)
+			resetRig(rig)
+		end
+	end
+end
+
+function WinnersManager.updateLeaderboard(rankings: { GameOutfitManager.Outfit })
+	resetLeaderboard()
+
+	local count = math.min(20, #rankings)
+
+	for i = 1, count do
+		local outfit = rankings[i]
+
+		local success, playerName = pcall(function()
+			return Players:GetNameFromUserIdAsync(outfit.userId)
+		end)
+
+		local newLabel = Instance.new("TextLabel")
+		newLabel.Parent = leaderboardFrame
+		newLabel.LayoutOrder = i
+		newLabel.Text = i .. ". " .. (if success then playerName else "Player " .. tostring(i))
+		newLabel.Size = UDim2.new(1, 0, 0, 30)
+		newLabel.BackgroundTransparency = 1
+		newLabel.TextColor3 = Color3.fromRGB(92, 96, 214)
+		newLabel.TextSize = 75
+		newLabel.Font = Enum.Font.GothamBold
+	end
+end
+
+function WinnersManager.setNewWinners()
+	-- Get rankings from GameOutfitManager (this will eventually use RankingCalculator)
+	local rankings = GameOutfitManager.getOutfitsByVotes()
+
+	if #rankings == 0 then
+		warn("No outfits to rank")
+		return false
+	end
+
+	-- Top 3 for podiums
+	local top3 = {}
+	for i = 1, math.min(3, #rankings) do
+		table.insert(top3, rankings[i])
+	end
+
+	local podiumSuccess = pcall(function()
+		WinnersManager.updatePodiums(top3)
+	end)
+
+	local leaderboardSuccess = pcall(function()
+		WinnersManager.updateLeaderboard(rankings)
+	end)
+
+	if not podiumSuccess or not leaderboardSuccess then
+		warn("Failed to update winners displays — resetting")
+		WinnersManager.reset()
+		return false
+	end
+
+	return true
+end
+
+function WinnersManager.initialise()
+	WinnersManager.reset()
+end
+
+return WinnersManager
