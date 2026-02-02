@@ -366,14 +366,12 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
 end
 
 function GuiManager.PushCentreByName(modalName: string, params: any?): ()
-    warn("1 push")
     if not isLoaded  then 
         warn("Still initialising GUI!", isLoaded)
         return
     end 
 
     assert(registeredModals[modalName], "Attempt to push modal " .. modalName .. " but no such modal found in registered modals!")
-    warn("2 push")
     -- Clone to avoid mutating the original table
     local currentModals = table.clone(peek(modalStack))
     local modalToPush = GuiManager.GetRegisteredModal(modalName)
@@ -383,31 +381,23 @@ function GuiManager.PushCentreByName(modalName: string, params: any?): ()
         return
     end
 
-    warn("3 push")
 
     -- Hide previous top modal if exists
     if #currentModals >= 1 then
-        warn("Hiding previous modal")
         currentModals[#currentModals].Visible = false
     else
-        warn("hiding config + prompts")
         HideAllPromptsBindable:Fire()
         GuiManager.HideCurrentConfiguration()
     end
 
-    warn("4 push")
     table.insert(currentModals, modalToPush.guiObject)
     modalToPush.guiObject.Visible = true
     
     if modalToPush.callback then
-        warn("Callig back")
         modalToPush.callback(params)
     end 
 
-    warn("Push 5")
     modalStack:set(currentModals)
-    warn(peek(modalStack))
-    warn("Just pushed")
 end
 
 function GuiManager.PopCentre(guiObject: GuiObject?): ()

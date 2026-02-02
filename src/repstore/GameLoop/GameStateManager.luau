@@ -46,7 +46,7 @@ function GameStateManager.transitionTo(stateName: string)
     
     if timerThread then
         pcall(function()
-            return task.cancel(timerThread)
+            return task.defer(task.cancel, timerThread)
         end)
         timerThread = nil
     end
