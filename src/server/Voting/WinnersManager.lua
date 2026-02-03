@@ -9,13 +9,20 @@ local Players = game:GetService("Players")
 local dailyWinners = workspace:WaitForChild("dailyWinners")
 local descriptions = ReplicatedStorage:WaitForChild("Descriptions")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
+local Values = ReplicatedStorage.Values
 
 -- Modules
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
+-- Replicated Values
+local CurrentThemeName = Values:WaitForChild("CurrentThemeName") :: StringValue
+
 -- Instances
 local leaderboard = dailyWinners:WaitForChild("leaderboard")
 local leaderboardScreen = leaderboard:WaitForChild("leaderboardScreen")
+local WinnersThemeGui = leaderboardScreen:WaitForChild("WinnersThemeGui")
+local WinnersThemeFrame = WinnersThemeGui:WaitForChild("WinnersThemeFrame")
+local ThemeLabel = WinnersThemeFrame:WaitForChild("ThemeLabel")
 local defaultWinnerDescription = descriptions:WaitForChild("DefaultWinner")
 
 local leaderboardGui = leaderboardScreen:WaitForChild("LeaderboardGui")
@@ -49,12 +56,6 @@ local function resetRig(rig: RigModel, index: number?)
 	rig:ScaleTo(1)
 	local description
 	if index then
-		--[[
-		local success, desc = pcall(function()
-			return Players:GetHumanoidDescriptionFromUserIdAsync(defaultWinnerIds[index])
-		end)
-		]]
-		-- description = if success then desc else defaultWinnerDescription
 		description = defaultWinnerDescription
 	else
 		description = defaultWinnerDescription
@@ -77,9 +78,14 @@ local function resetLeaderboard()
 	end
 end
 
+local function resetThemeLabel()
+	ThemeLabel.Text = ""
+end
+
 function WinnersManager.reset()
 	resetPodiums()
 	resetLeaderboard()
+	resetThemeLabel()
 end
 
 function WinnersManager.updatePodiums(winners: { GameOutfitManager.Outfit })
@@ -123,10 +129,11 @@ function WinnersManager.updateLeaderboard(rankings: { GameOutfitManager.Outfit }
 		newLabel.TextSize = 75
 		newLabel.Font = Enum.Font.GothamBold
 	end
+
+	ThemeLabel.Text = CurrentThemeName.Value
 end
 
 function WinnersManager.setNewWinners()
-	-- Get rankings from GameOutfitManager (this will eventually use RankingCalculator)
 	local rankings = GameOutfitManager.getOutfitsByVotes()
 
 	if #rankings == 0 then
@@ -134,7 +141,6 @@ function WinnersManager.setNewWinners()
 		return false
 	end
 
-	-- Top 3 for podiums
 	local top3 = {}
 	for i = 1, math.min(3, #rankings) do
 		table.insert(top3, rankings[i])
@@ -145,7 +151,6 @@ function WinnersManager.setNewWinners()
 	end)
 
 	local leaderboardSuccess = pcall(function()
-		warn("Now", rankings)
 		WinnersManager.updateLeaderboard(rankings)
 	end)
 
