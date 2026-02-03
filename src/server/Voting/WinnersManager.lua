@@ -4,6 +4,7 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Folders
 local dailyWinners = workspace:WaitForChild("dailyWinners")
@@ -12,6 +13,8 @@ local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 local Values = ReplicatedStorage.Values
 
 -- Modules
+local DataManager = require(ServerScriptService.Data.DataManager)
+local EXP_REWARDS = require(ServerScriptService.Data.EXP_REWARDS)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
 -- Replicated Values
@@ -140,10 +143,14 @@ function WinnersManager.setNewWinners()
 		warn("No outfits to rank")
 		return false
 	end
+	warn("Rankings")
+	warn(rankings)
 
 	local top3 = {}
 	for i = 1, math.min(3, #rankings) do
+		local submission = rankings[i]
 		table.insert(top3, rankings[i])
+		DataManager.AddExp(Players:GetPlayerByUserId(submission.userId), EXP_REWARDS[i])
 	end
 
 	local podiumSuccess = pcall(function()

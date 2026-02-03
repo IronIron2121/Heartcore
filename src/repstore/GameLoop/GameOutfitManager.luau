@@ -2,6 +2,9 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+local DataManager = require(ServerScriptService.Data.DataManager)
+local EXP_REWARDS = require(ServerScriptService.Data.EXP_REWARDS)
 
 -- Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -62,15 +65,14 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 		views = 0,
 	}
 
-	warn("Ok..")
-	warn(outfits[outfitId].humanoidDescription:GetChildren())
-	
 	submittedPlayers[userId] = true
 	
 	SubmissionResultRE:FireClient(player, {
 		ok = true,
 		msg = "Outfit submitted successfully!"
 	})
+
+	DataManager.AddExp(player, EXP_REWARDS.OUTFIT_SUBMIT)
 	
 	return true
 end
