@@ -72,7 +72,7 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 		msg = "Outfit submitted successfully!"
 	})
 
-	DataManager.AddExp(player, EXP_REWARDS.OUTFIT_SUBMIT)
+	DataManager.AddExp(player, EXP_REWARDS.Actions.OUTFIT_SUBMIT)
 	
 	return true
 end

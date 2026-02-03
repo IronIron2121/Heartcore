@@ -150,7 +150,7 @@ function WinnersManager.setNewWinners()
 	for i = 1, math.min(3, #rankings) do
 		local submission = rankings[i]
 		table.insert(top3, rankings[i])
-		DataManager.AddExp(Players:GetPlayerByUserId(submission.userId), EXP_REWARDS[i])
+		DataManager.AddExp(Players:GetPlayerByUserId(submission.userId), EXP_REWARDS.Placements[i])
 	end
 
 	local podiumSuccess = pcall(function()
