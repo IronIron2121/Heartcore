@@ -30,6 +30,7 @@ secondsRemaining.Parent = ReplicatedStorage
 local GameStateManager = {}
 
 local function startCountdown(duration: number)
+    warn("Starting countdown for ", duration)
     secondsRemaining.Value = duration
     
     timerThread = task.spawn(function()
@@ -38,20 +39,24 @@ local function startCountdown(duration: number)
             secondsRemaining.Value -= 1
             print("Ticked to ", secondsRemaining.Value, currentState)
         end 
+        warn("Transitioning to ", STATES[currentState].next)
         GameStateManager.transitionTo(STATES[currentState].next)
+        
     end)
 end
 
 function GameStateManager.transitionTo(stateName: string)
     warn("transing...")
     local config = STATES[stateName]
-    
+    timerThread = nil
+
+    --[[
     if timerThread then
         pcall(function()
             return task.defer(task.cancel, timerThread)
         end)
-        timerThread = nil
     end
+    ]]
     
     currentState = stateName
     currentStateName.Value = stateName

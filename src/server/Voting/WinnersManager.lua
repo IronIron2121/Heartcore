@@ -101,6 +101,7 @@ function WinnersManager.updatePodiums(winners: { GameOutfitManager.Outfit })
 end
 
 function WinnersManager.updateLeaderboard(rankings: { GameOutfitManager.Outfit })
+	warn("Updating leaderboard")
 	resetLeaderboard()
 
 	local count = math.min(20, #rankings)
@@ -144,6 +145,7 @@ function WinnersManager.setNewWinners()
 	end)
 
 	local leaderboardSuccess = pcall(function()
+		warn("Now", rankings)
 		WinnersManager.updateLeaderboard(rankings)
 	end)
 
