@@ -303,7 +303,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 		Position = UDim2.fromScale(0.5, 0.5),
 		BackgroundTransparency = 1,
 		Visible = true,
-		ClipsDescendants = true,
+		ClipsDescendants = false,
 
 		[Children] = {
 			CloseButton(scope, {
