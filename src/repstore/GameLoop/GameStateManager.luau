@@ -49,7 +49,7 @@ local timerThread: thread? = nil
 local recentThemes: { string } = {}
 
 local currentStateName = ReplicatedStorage:FindFirstChild("CurrentStateName") or Instance.new("StringValue")
-currentStateName.Name = "CurrentStateName"f
+currentStateName.Name = "CurrentStateName"
 currentStateName.Parent = ReplicatedStorage
 
 local currentThemeName = Values:FindFirstChild("CurrentThemeName") or Instance.new("StringValue")
