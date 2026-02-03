@@ -2,10 +2,14 @@
 -- VotingRemotes.lua (Server)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 
+local DataManager = require(ServerScriptService.Data.DataManager)
+local EXP_REWARDS = require(ServerScriptService.Data.EXP_REWARDS)
+local GameStateManager = require(ReplicatedStorage.GameLoop.GameStateManager)
 local SerialisationService = require(ReplicatedStorage.Utility.SerialisationService)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
@@ -51,6 +55,7 @@ SubmitVoteRF.OnServerInvoke = function(player: Player, winnerOutfitId: string, l
 	end
 	
 	local success = GameOutfitManager.addVote(winnerOutfitId, player.UserId)
+	DataManager.AddExp(player, EXP_REWARDS.OUTFIT_VOTE)
 	return success
 end
 
@@ -59,5 +64,5 @@ GetUnseenCountRF.OnServerInvoke = function(player: Player)
 end
 
 GetVotingThemeRF.OnServerInvoke = function(player: Player)
-	return "ServerTest"
+	return GameStateManager.getCurrentTheme()
 end
