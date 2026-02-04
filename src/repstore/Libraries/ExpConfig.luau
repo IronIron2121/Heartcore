@@ -34,6 +34,7 @@ ExpConfig.Rewards = {
     OUTFIT_QUALITY_BONUS = 20,
 	VOTE_CAST = 6,
     VOTE_RECEIVED = 2,
+	TOP_20 = 20
 }
 
 -- XP rewards for placements

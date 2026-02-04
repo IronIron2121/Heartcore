@@ -6,6 +6,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")
 
 -- Modules
+local ChallengeManager = require(ServerScriptService.DailyChallenges.ChallengeManager)
 local ExpConfig = require(ReplicatedStorage.Libraries.ExpConfig)
 local ServerCustomisationService = require(ReplicatedStorage.Utility.ServerCustomisationService)
 local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
@@ -77,6 +78,7 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 		msg = "Outfit submitted successfully!"
 	})
  
+	ChallengeManager.OnOutfitSubmitted(player)
 	DataManager.AddExp(player, ExpConfig.Rewards.OUTFIT_SUBMIT)
 	if ServerCustomisationService.getNumberOfItemsEquipped(player) > 3 then
 		DataManager.AddExp(player, ExpConfig.Rewards.OUTFIT_QUALITY_BONUS)
@@ -112,7 +114,7 @@ function GameOutfitManager.addVote(outfitId: string, voterUserId: number): boole
 				return Players:GetPlayerByUserId(outfit.userId)
 			end
 		)
-		
+
 		if success and votedPlayer then
 			DataManager.AddExp(votedPlayer, ExpConfig.Rewards.VOTE_RECEIVED)
 		end

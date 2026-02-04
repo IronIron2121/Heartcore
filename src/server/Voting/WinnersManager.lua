@@ -14,6 +14,7 @@ local Values = ReplicatedStorage.Values
 
 -- Modules
 local ExpConfig = require(ReplicatedStorage.Libraries.ExpConfig)
+local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local DataManager = require(ServerScriptService.Data.DataManager)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
@@ -143,14 +144,22 @@ function WinnersManager.setNewWinners()
 		warn("No outfits to rank")
 		return false
 	end
-	warn("Rankings")
-	warn(rankings)
 
 	local top3 = {}
 	for i = 1, math.min(3, #rankings) do
 		local submission = rankings[i]
 		table.insert(top3, rankings[i])
-		DataManager.AddExp(Players:GetPlayerByUserId(submission.userId), ExpConfig.Placements[i])
+		task.spawn(function()
+			local success, player = callWithRetry(function()  
+				return Players:GetPlayerByUserId(submission.userId)
+			end)
+			if not success and player then return end
+			if i <= 3 then
+				DataManager.AddExp(player, ExpConfig.Placements[i])
+			elseif i <= 20 then
+				DataManager.AddExp(player, ExpConfig.Rewards.TOP_20) 
+			end
+		end)
 	end
 
 	local podiumSuccess = pcall(function()
