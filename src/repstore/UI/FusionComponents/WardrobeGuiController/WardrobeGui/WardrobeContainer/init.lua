@@ -14,6 +14,8 @@ local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local AvatarContainer = require(script:WaitForChild("AvatarContainer"))
 local CatalogContainer = require(script:WaitForChild("CatalogContainer")) 
 local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
+local LoadingScreen = require(Widgets:WaitForChild("LoadingScreen"))
+
 
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))

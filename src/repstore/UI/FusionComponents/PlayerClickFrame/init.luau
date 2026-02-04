@@ -19,7 +19,8 @@ local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Cl
 local Constants = require(ReplicatedStorage.Constants)
 local getHumanoidDescriptionFromPlayer = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromPlayer)
 local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
-local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
+local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButtonTransparent)
+local LoadingScreen = require(ReplicatedStorage.UI.FusionComponents.Widgets.LoadingScreen)
 local ClientOutfitService = require(ReplicatedStorage.Utility.ClientOutfitService)
 local PlayerInspectViewport = require(script.Parent.PlayerInspectViewport)
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
@@ -39,41 +40,6 @@ type Value<T> = Fusion.Value<T>
 
 -- Constants
 local buttonSize = UDim2.fromOffset(125, 80)
-
---[[
-
-			Button(scope, {
-				text = "Buy outfit",
-				size = UDim2.fromScale(0.4, 0.05),
-				position = UDim2.fromScale(1,1),
-				anchorPoint = Vector2.new(1,1),
-				zIndex = 3,
-				visible = true,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-				
-				onActivated = function()
-					ClientOutfitService.PurchasePlayerOutfit(localPlayer)
-				end,
-			}),
-			
-			Button(scope, {
-				text = "Save Outfit",
-				visible = true,
-				size = UDim2.fromScale(0.4, 0.05),
-				position = UDim2.fromScale(0,1),
-				anchorPoint = Vector2.new(0,1),
-				zIndex = 3,
-				onActivated = function()
-					GuiManager.PushNotificationCentre(
-						"SaveOutfit", 
-						"Are you sure you want to save this outfit?", 
-						function()  
-
-						end
-					)
-				end
-			}),
-
-]]
 
 -- Constants
 local DEFAULT_NAME = " "
@@ -102,29 +68,38 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     local inspectDescription = scope:Value(DEFAULT_DESC)
 
     -- Functions
+    local loadingScreenVis = scope:Value(false)
+
+    -- Functions
     local function onFrameOpened(player: Player)
-        inspectPlayer:set(player)
-        -- Update the name tag
-        inspectName:set(player.Name)
-        -- Update the thumbnail
-        local success, newThumbnail = callWithRetry(function()  
-            return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
-        end)
-        inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
-        -- Update the description
-        local descSuccess, humDesc = callWithRetry(function()
-            return getHumanoidDescriptionFromPlayer(Players:GetPlayerByUserId(player.UserId))
-        end)
-        if descSuccess then 
-            inspectDescription:set(humDesc) 
-        end
-        -- Get and set the new avatar
-        local modelSuccess, newModel = callWithRetry(
-            function()  
-                return Players:CreateHumanoidModelFromDescriptionAsync(peek(inspectDescription))
+        loadingScreenVis:set(true)
+
+        task.spawn(function()
+            inspectPlayer:set(player)
+            -- Update the name tag
+            inspectName:set(player.Name)
+            -- Update the thumbnail
+            local success, newThumbnail = callWithRetry(function()  
+                return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
+            end)
+            inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
+            -- Update the description
+            local descSuccess, humDesc = callWithRetry(function()
+                return getHumanoidDescriptionFromPlayer(Players:GetPlayerByUserId(player.UserId))
+            end)
+            if descSuccess then 
+                inspectDescription:set(humDesc) 
             end
-        )
-        inspectModel:set(modelSuccess and newModel or DEFAULT_MODEL)
+            -- Get and set the new avatar
+            local modelSuccess, newModel = callWithRetry(
+                function()  
+                    return Players:CreateHumanoidModelFromDescriptionAsync(peek(inspectDescription))
+                end
+            )
+            inspectModel:set(modelSuccess and newModel or DEFAULT_MODEL)
+
+            loadingScreenVis:set(nil)
+        end)
     end 
 
     local function onFrameClosed()
@@ -274,7 +249,16 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
 
                                 [Children] = {
                                     PlayerInspectViewport(scope, {
-                                        model = inspectModel
+                                        model = inspectModel,
+                                        zIndex = 1
+                                    }),
+
+                                    LoadingScreen(scope, {
+                                        size = UDim2.fromScale(1, 1),
+                                        backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
+                                        visible = loadingScreenVis,
+                                        zIndex = 2,
+                                        backgroundTransparency = 0.2,
                                     })
                                 }
                             },
