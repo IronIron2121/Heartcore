@@ -14,6 +14,7 @@ local Widgets           = FusionComponents:WaitForChild("Widgets")
 local Libraries         = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
+local Values 			= ReplicatedStorage:WaitForChild("Values")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -35,6 +36,9 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
 
+-- Values
+local secondsRemaining = Values:WaitForChild("SecondsRemaining") :: StringValue
+
 -- Remotes
 local GetNextOutfitRF = Remotes:WaitForChild("GetNextOutfitRF")
 local SubmitVoteRF = Remotes:WaitForChild("SubmitVoteRF")
@@ -55,13 +59,18 @@ local POSITION_TWEEN_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.Easin
 local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 	-- State
 	local votingTheme = scope:Value("Loading...")
+	local votingTime = scope:Value("3:00")
 	local votingComplete = scope:Value(false)
 	local tilesContainer = scope:Value({})
+
+	secondsRemaining:GetPropertyChangedSignal("Value"):Connect(function(...)  
+		votingTime:set(secondsRemaining.Value)
+	end)
 
 	-- Tile references (not reactive, just tracking)
 	local leftTile: Frame? = nil
 	local rightTile: Frame? = nil
-	local leftControls: OutfitVoteTile.OutfitVoteTileControls? = nil
+	local leftControls: OutfitVoteTile.OutfitVoteTileControls? = nil 
 	local rightControls: OutfitVoteTile.OutfitVoteTileControls? = nil
 	local leftOutfitId: string? = nil
 	local rightOutfitId: string? = nil
@@ -424,7 +433,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 
 									scope:New "TextLabel" {
 										Name = "Timer",
-										Text = "3:00", -- TODO: Wire to actual timer
+										Text = votingTime, -- TODO: Wire to actual timer
 										TextScaled = true,
 										Size = UDim2.fromScale(1, 1),
 										LayoutOrder = 2,

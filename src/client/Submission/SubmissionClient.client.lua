@@ -7,6 +7,7 @@ local StarterGui = game:GetService("StarterGui")
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local submissionZone = workspace:WaitForChild("submissionZone")
+local Values = ReplicatedStorage:WaitForChild("Values")
 
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
@@ -18,7 +19,7 @@ local PromptHolder = SubmissionPad:WaitForChild("PromptHolder")
 local prompt = PromptHolder:WaitForChild("SubmissionPrompt") :: ProximityPrompt
 
 -- State
-local CurrentStateName = ReplicatedStorage:WaitForChild("CurrentStateName") :: StringValue
+local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
 
 --
 

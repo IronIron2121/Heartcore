@@ -1,7 +1,7 @@
 local GameStates = {
     Dressing = { 
         name = "Dressing", 
-        duration = 1.5 * 60, 
+        duration = 0.1 * 60, 
         next = "Voting" 
     },
     Voting = { 
@@ -11,7 +11,7 @@ local GameStates = {
     },
     Intermission = { 
         name = "Intermission", 
-        duration = 0.5 * 60, 
+        duration = 0.1 * 60, 
         next = "Dressing" 
     },
 }

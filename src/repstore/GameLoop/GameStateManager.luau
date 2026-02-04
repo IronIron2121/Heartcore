@@ -48,17 +48,18 @@ local timerThread: thread? = nil
 
 local recentThemes: { string } = {}
 
-local currentStateName = ReplicatedStorage:FindFirstChild("CurrentStateName") or Instance.new("StringValue")
+local currentStateName = Values:FindFirstChild("CurrentStateName") or Instance.new("StringValue")
 currentStateName.Name = "CurrentStateName"
-currentStateName.Parent = ReplicatedStorage
+currentStateName.Parent = Values
 
 local currentThemeName = Values:FindFirstChild("CurrentThemeName") or Instance.new("StringValue")
 currentThemeName.Name = "CurrentThemeName"
 currentThemeName.Parent = Values
 
-local secondsRemaining = ReplicatedStorage:FindFirstChild("SecondsRemaining") or Instance.new("IntValue")
+local secondsRemaining = Values:FindFirstChild("SecondsRemaining") or Instance.new("IntValue")
 secondsRemaining.Name = "SecondsRemaining"
-secondsRemaining.Parent = ReplicatedStorage
+secondsRemaining.Parent = Values
+
 
 local GameStateManager = {}
 

@@ -125,7 +125,6 @@ function Inspector.inspectPlayer(player: Player)
 	WardrobeGuiState.ChangeCurrentView(Constants.WARDROBE_GUI_STATES.InspectFrame)
 	GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
 	isLoading = false
-	warn("done player")
 end
 
 return Inspector

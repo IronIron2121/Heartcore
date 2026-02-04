@@ -20,6 +20,7 @@ local Mannequins = StarterPlayerScripts:WaitForChild("Mannequins")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Libraries         = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
+local Values = ReplicatedStorage:WaitForChild("Values")
 
 -- Modules
 local UI_CONSTANTS = require(ReplicatedStorage.Utility:WaitForChild("UI_CONSTANTS"))
@@ -270,7 +271,7 @@ end
 CurrentStateName.Changed:Connect(onStateChanged)
 ]]
 
-local CurrentStateName = ReplicatedStorage:WaitForChild("CurrentStateName") :: StringValue
+local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
 local stateValue = scope:Value(CurrentStateName.Value)
 
 local isVoting = scope:Computed(function(use)  
