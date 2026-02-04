@@ -18,6 +18,7 @@ local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Cl
 local Constants = require(ReplicatedStorage.Constants)
 local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
 local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButtonTransparent)
+local LoadingScreen = require(ReplicatedStorage.UI.FusionComponents.Widgets.LoadingScreen)
 local ClientOutfitService = require(ReplicatedStorage.Utility.ClientOutfitService)
 local PlayerInspectViewport = require(script.Parent.PlayerInspectViewport)
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
@@ -97,24 +98,32 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     local inspectThumbnail = scope:Value(DEFAULT_THUMBNAIL)
     local inspectModel = scope:Value(DEFAULT_MODEL)
     local inspectPlayer = scope:Value(DEFAULT_PLAYER)
+    local loadingScreenVis = scope:Value(false)
 
     -- Functions
     local function onFrameOpened(player: Player)
-        inspectPlayer:set(player)
-        -- Update the name tag
-        inspectName:set(player.Name)
-        -- Update the thumbnail
-        local success, newThumbnail = callWithRetry(function()  
-            return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
-        end)
-        inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
-        -- Get and set the new avatar
-        local modelSuccess, newModel = pcall(function()  
-            local callId = player.UserId >= 0 and player.UserId or Constants.DEFAULT_ID
-            return Players:CreateHumanoidModelFromUserIdAsync(callId)
+        loadingScreenVis:set(true)
+
+        task.spawn(function()
+            inspectPlayer:set(player)
+            -- Update the name tag
+            inspectName:set(player.Name)
+            -- Update the thumbnail
+            local success, newThumbnail = callWithRetry(function()  
+                return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
+            end)
+            inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
+            -- Get and set the new avatar
+            local modelSuccess, newModel = pcall(function()  
+                local callId = player.UserId >= 0 and player.UserId or Constants.DEFAULT_ID
+                return Players:CreateHumanoidModelFromUserIdAsync(callId)
+            end)
+
+            inspectModel:set(modelSuccess and newModel or DEFAULT_MODEL)
+            loadingScreenVis:set(nil)
         end)
 
-        inspectModel:set(modelSuccess and newModel or DEFAULT_MODEL)
+
     end 
 
     local function onFrameClosed()
@@ -260,7 +269,16 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
 
                                 [Children] = {
                                     PlayerInspectViewport(scope, {
-                                        model = inspectModel
+                                        model = inspectModel,
+                                        zIndex = 1
+                                    }),
+
+                                    LoadingScreen(scope, {
+                                        size = UDim2.fromScale(1, 1),
+                                        backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
+                                        visible = loadingScreenVis,
+                                        zIndex = 2,
+                                        backgroundTransparency = 0.2,
                                     })
                                 }
                             },

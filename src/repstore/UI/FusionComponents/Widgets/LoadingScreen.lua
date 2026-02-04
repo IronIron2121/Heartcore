@@ -3,20 +3,19 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion
 local Children = Fusion.Children
 local peek = Fusion.peek
-local Value = Fusion.Value
-local Tween = Fusion.Tween
+
 type UsedAs<T> = Fusion.UsedAs<T>
 
 function Frame(
@@ -39,25 +38,27 @@ function Frame(
         cornerRadius: UsedAs<UDim>?,
         zIndex: UsedAs<number>?,
         onActivated: (() -> ())?,
+        parent: UsedAs<GuiObject>?
     }
 ): Frame
+    -- Create a state value for rotation
+    local rotationValue = scope:Value(0)
+
+    -- Rotation anim
 
 
--- Create a state value for rotation (AI told me to do this)
-local rotationValue = scope:Value(0)
+    scope:Observer(props.visible):onChange(function()
+        warn("spawned load!")
+        task.spawn(function()
+            while peek(props.visible) do
+                rotationValue:set(peek(rotationValue) + 359)
+                task.wait(1)
+            end
+        end)
+    end)
 
--- Rotation anim
-task.spawn(function()
-    while true do
-        task.wait(1)
-        rotationValue:set(peek(rotationValue) + 359)
-    end
-end)
-
-
-
--- Rotation animation tween
-local rotationTween = scope:Tween(rotationValue, TweenInfo.new(1, Enum.EasingStyle.Cubic))
+    -- Rotation animation tween
+    local rotationTween = scope:Tween(rotationValue, TweenInfo.new(1, Enum.EasingStyle.Cubic))
 
     local loadingScreen = scope:New "Frame" {
         Name = props.name or "LoadingFrame",
@@ -68,6 +69,7 @@ local rotationTween = scope:Tween(rotationValue, TweenInfo.new(1, Enum.EasingSty
         BackgroundTransparency = props.backgroundTransparency or 1,
         BackgroundColor3 = props.backgroundColor or UI_CONSTANTS.COLOUR_WHITE,
         ZIndex = props.zIndex or 3,
+        Parent = props.parent,
 
         [Children] = {
             scope:New "UICorner" {
@@ -93,7 +95,14 @@ local rotationTween = scope:Tween(rotationValue, TweenInfo.new(1, Enum.EasingSty
                 TextStrokeTransparency = 1,
                 BackgroundTransparency = 1,
                 TextScaled = true,
-                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular)
+                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
+
+                --[[
+                [Children] = scope:New "UIStroke" {
+                    Color = Color3.fromRGB(167,167,167),
+                    Thickness = 3.1
+                }
+                ]]
             },
 
             scope:New "Frame" {

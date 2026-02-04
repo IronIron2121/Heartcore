@@ -3,21 +3,14 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local StarterPlayer = game:GetService("StarterPlayer")
-
 
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local FusionComponents = UI:WaitForChild("FusionComponents")
-local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
-local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
-local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local ClientOutfitService = require(Utility:WaitForChild("ClientOutfitService"))
 
 -- Fusion
 local peek = Fusion.peek
@@ -26,10 +19,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- GUI Components
 local RotateButton = require(script:WaitForChild("RotateButton"))
-local Button = require(Widgets:WaitForChild("BaseButton"))
 
--- Local Player 
-local localPlayer = Players.LocalPlayer
 
 -- Config
 local CONFIG = {
@@ -42,6 +32,7 @@ function PlayerInspectViewport(
 	props: {
 		model: UsedAs<Model>,
 		layoutOrder: UsedAs<number>?,
+		zIndex: UsedAs<number>?,
 	}
 ): Frame
 	-- Avatar manipulation variables
@@ -81,7 +72,7 @@ function PlayerInspectViewport(
 		Ambient = Color3.new(1,1,1),
 		LightColor = Color3.fromRGB(255, 249, 228),
 		LightDirection = Vector3.new(1,1,1),
-		ZIndex = 2,
+		ZIndex = props.zIndex or 2,
 		
 		[Children] = {
 			scope:New "WorldModel" {
