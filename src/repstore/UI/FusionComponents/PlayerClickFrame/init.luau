@@ -77,7 +77,7 @@ local buttonSize = UDim2.fromScale(0.8, 0.1)
 -- Constants
 local DEFAULT_NAME = " "
 local _success, DEFAULT_THUMBNAIL = callWithRetry(function()
-    return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+    return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
 end)
 
 local DEFAULT_DESC = Instance.new("HumanoidDescription")

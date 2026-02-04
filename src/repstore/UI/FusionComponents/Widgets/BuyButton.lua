@@ -15,6 +15,7 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion
 local OnEvent = Fusion.OnEvent
+local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
@@ -30,13 +31,14 @@ function BuyButton(
 		assetType: UsedAs<string>?,
 		bundleType: UsedAs<string>?,
 		text: UsedAs<string>?,
+		isOffSale: UsedAs<boolean>?,
 		onPurchaseCallback: (() -> ())?,
 	}
 ): TextButton
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
 
-	local BACKGROUND_COLOUR = UI_CONSTANTS.TASTEMAKER_PURPLE
+	local BACKGROUND_COLOUR = peek(props.isOffSale) and UI_CONSTANTS.INVALID_RED or UI_CONSTANTS.TASTEMAKER_PURPLE
 	local backgroundColorSpring = scope:Spring(
 		scope:Computed(function(use)
 			if use(isHeldDown) then
@@ -53,7 +55,7 @@ function BuyButton(
 
 	local buyButton = scope:New "TextButton" {
 		Name = "BuyButton",
-		Visible = props.visible or true,
+		Visible = props.visible or not peek(props.isOffSale),
 		Active = true,
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		Position = props.position or UDim2.fromScale(0.5, 0.5),
