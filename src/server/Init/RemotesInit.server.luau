@@ -8,8 +8,8 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 
 local DataManager = require(ServerScriptService.Data.DataManager)
-local EXP_REWARDS = require(ServerScriptService.Data.EXP_REWARDS)
 local GameStateManager = require(ReplicatedStorage.GameLoop.GameStateManager)
+local ExpConfig = require(ReplicatedStorage.Libraries.ExpConfig)
 local SerialisationService = require(ReplicatedStorage.Utility.SerialisationService)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
@@ -55,7 +55,7 @@ SubmitVoteRF.OnServerInvoke = function(player: Player, winnerOutfitId: string, l
 	end
 	
 	local success = GameOutfitManager.addVote(winnerOutfitId, player.UserId)
-	DataManager.AddExp(player, EXP_REWARDS.Actions.OUTFIT_VOTE)
+	DataManager.AddExp(player, ExpConfig.Rewards.VOTE_CAST)
 	return success
 end
 

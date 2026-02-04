@@ -24,4 +24,4 @@ secondsRemaining:GetPropertyChangedSignal("Value"):Connect(function(...)
     else
         timerLabel.Text = "Waiting..."
     end
-end)
+end)                                        

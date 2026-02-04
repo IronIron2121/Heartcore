@@ -3,8 +3,13 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local Players = game:GetService("Players")
+
+-- Modules
+local ExpConfig = require(ReplicatedStorage.Libraries.ExpConfig)
+local ServerCustomisationService = require(ReplicatedStorage.Utility.ServerCustomisationService)
+local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local DataManager = require(ServerScriptService.Data.DataManager)
-local EXP_REWARDS = require(ServerScriptService.Data.EXP_REWARDS)
 
 -- Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -71,8 +76,11 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 		ok = true,
 		msg = "Outfit submitted successfully!"
 	})
-
-	DataManager.AddExp(player, EXP_REWARDS.Actions.OUTFIT_SUBMIT)
+ 
+	DataManager.AddExp(player, ExpConfig.Rewards.OUTFIT_SUBMIT)
+	if ServerCustomisationService.getNumberOfItemsEquipped(player) > 3 then
+		DataManager.AddExp(player, ExpConfig.Rewards.OUTFIT_QUALITY_BONUS)
+	end
 	
 	return true
 end
@@ -95,7 +103,21 @@ function GameOutfitManager.addVote(outfitId: string, voterUserId: number): boole
 		return false
 	end
 	
-	outfit.votes += 1
+
+	-- We don't need to wait for this
+	task.spawn(function()
+		outfit.votes += 1
+		local success, votedPlayer = callWithRetry(
+			function()
+				return Players:GetPlayerByUserId(outfit.userId)
+			end
+		)
+		
+		if success and votedPlayer then
+			DataManager.AddExp(votedPlayer, ExpConfig.Rewards.VOTE_RECEIVED)
+		end
+	end)
+
 	return true
 end
 
