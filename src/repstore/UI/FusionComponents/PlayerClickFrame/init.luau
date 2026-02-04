@@ -39,7 +39,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
 
 -- Constants
-local buttonSize = UDim2.fromOffset(125, 80)
+local buttonSize = UDim2.fromScale(0.8, 0.1)
 
 -- Constants
 local DEFAULT_NAME = " "
@@ -271,7 +271,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                 CanvasSize = UDim2.fromScale(0, 0),
                                 LayoutOrder = 2,
                                 BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                BackgroundTransparency = UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
+                                BackgroundTransparency = 1,
                                 BorderSizePixel = 0,
                                 ScrollBarThickness = 6,
                                 ScrollingDirection = Enum.ScrollingDirection.Y,
@@ -288,7 +288,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         ItemLineAlignment = Enum.ItemLineAlignment.Center,
                                         VerticalAlignment = Enum.VerticalAlignment.Top,
                                         HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                        Padding = UDim.new(0, 10)
+                                        Padding = UDim.new(0.05, 0)
                                     },
 
                                     scope:New "Frame" {
