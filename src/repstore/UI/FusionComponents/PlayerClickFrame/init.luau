@@ -1,11 +1,11 @@
 --!strict
 
 -- Services
-local EncodingService = game:GetService("EncodingService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players           = game:GetService("Players")
 local StarterPlayer     = game:GetService("StarterPlayer")
 local StarterGui        = game:GetService("StarterGui")
+
 -- Folders
 local Utility           = ReplicatedStorage:WaitForChild("Utility")
 local UI                = ReplicatedStorage:WaitForChild("UI")
@@ -30,7 +30,6 @@ local callWithRetry         = require(Utility:WaitForChild("callWithRetry"))
 local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion                = require(Utility:WaitForChild("Fusion"))
 local GuiManager            = require(GuiManagerLibrary:WaitForChild("GuiManager"))
-
 
 -- Fusion Modules
 local peek = Fusion.peek
