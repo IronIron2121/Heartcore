@@ -38,6 +38,7 @@ type Value<T> = Fusion.Value<T>
 
 -- Values
 local secondsRemaining = Values:WaitForChild("SecondsRemaining") :: StringValue
+local currentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
 
 -- Remotes
 local GetNextOutfitRF = Remotes:WaitForChild("GetNextOutfitRF")
@@ -59,7 +60,16 @@ local POSITION_TWEEN_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.Easin
 local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 	-- State
 	local votingTheme = scope:Value("Loading...")
+	local currentState = scope:Value("N/A")
 	local votingTime = scope:Value("3:00")
+	local votingTimeText = scope:Computed(function(use)
+		return 	use(currentState) == "Voting" and use(votingTime) or "Waiting..." 
+	end)
+
+	currentStateName:GetPropertyChangedSignal("Value"):Connect(function(...)  
+		currentState:set(currentStateName.Value)
+	end)
+
 	local votingComplete = scope:Value(false)
 	local tilesContainer = scope:Value({})
 
@@ -433,7 +443,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 
 									scope:New "TextLabel" {
 										Name = "Timer",
-										Text = votingTime, -- TODO: Wire to actual timer
+										Text = votingTimeText, 
 										TextScaled = true,
 										Size = UDim2.fromScale(1, 1),
 										LayoutOrder = 2,
