@@ -352,10 +352,12 @@ end
 -- Registers a modal so that it can easily be referenced from within the GUI manager
 function GuiManager.RegisterModal(objectName: string, guiObject: GuiObject, onActivated: (any?) -> ()?): ()
     assert(objectName and guiObject, "Inadequate information to register modal! Name = " .. objectName)
+
     registeredModals[objectName] = {
         ["guiObject"] = guiObject,
         ["callback"] = onActivated
     }
+    
     guiObject.Parent = modalContainer
     guiObject.AnchorPoint = Vector2.new(0.5, 0.5)
     guiObject.Visible = false
