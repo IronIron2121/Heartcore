@@ -1,6 +1,7 @@
 --!strict
 
 -- Services
+local EncodingService = game:GetService("EncodingService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players           = game:GetService("Players")
 local StarterPlayer     = game:GetService("StarterPlayer")
@@ -16,6 +17,7 @@ local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 -- GUI
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Constants = require(ReplicatedStorage.Constants)
+local getHumanoidDescriptionFromPlayer = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromPlayer)
 local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
 local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
 local ClientOutfitService = require(ReplicatedStorage.Utility.ClientOutfitService)
@@ -97,6 +99,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     local inspectThumbnail = scope:Value(DEFAULT_THUMBNAIL)
     local inspectModel = scope:Value(DEFAULT_MODEL)
     local inspectPlayer = scope:Value(DEFAULT_PLAYER)
+    local inspectDescription = scope:Value(DEFAULT_DESC)
 
     -- Functions
     local function onFrameOpened(player: Player)
@@ -108,12 +111,19 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
             return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
         end)
         inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
-        -- Get and set the new avatar
-        local modelSuccess, newModel = pcall(function()  
-            local callId = player.UserId >= 0 and player.UserId or Constants.DEFAULT_ID
-            return Players:CreateHumanoidModelFromUserIdAsync(callId)
+        -- Update the description
+        local descSuccess, humDesc = callWithRetry(function()
+            return getHumanoidDescriptionFromPlayer(Players:GetPlayerByUserId(player.UserId))
         end)
-
+        if descSuccess then 
+            inspectDescription:set(humDesc) 
+        end
+        -- Get and set the new avatar
+        local modelSuccess, newModel = callWithRetry(
+            function()  
+                return Players:CreateHumanoidModelFromDescriptionAsync(peek(inspectDescription))
+            end
+        )
         inspectModel:set(modelSuccess and newModel or DEFAULT_MODEL)
     end 
 
@@ -125,6 +135,8 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
         inspectThumbnail:set(DEFAULT_THUMBNAIL)
         -- Reset avatar viewport frame
         inspectModel:set(DEFAULT_MODEL)
+        -- Reset humanoid description
+        inspectDescription:set(DEFAULT_DESC)
     end
 
     local playerClickFrame = scope:New "Frame" {
@@ -336,8 +348,6 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                             GuiManager.PopCentre()
                                         end
                                     }),
-
-
 
                                     BaseButton(scope, {
                                         text = "Add Friend",
