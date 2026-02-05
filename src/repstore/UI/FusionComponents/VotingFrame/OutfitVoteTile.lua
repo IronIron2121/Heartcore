@@ -20,9 +20,9 @@ local peek = Fusion.peek
 
 -- Constants
 local DEFAULT_COLOR = Color3.fromRGB(218, 214, 231)
-local WIN_COLOR = Color3.fromRGB(255, 215, 0) -- Gold
+local WIN_COLOR = UI_CONSTANTS.TASTEMAKER_GREEN
 local LOSE_COLOR = Color3.fromRGB(100, 100, 100) -- Grey
-local HOVER_COLOR = Color3.fromRGB(89, 247, 128)
+local HOVER_COLOR = UI_CONSTANTS.TASTEMAKER_GREEN
 local COLOR_TWEEN_INFO = TweenInfo.new(0.3, Enum.EasingStyle.Quad)
 
 export type OutfitVoteTileControls = {
