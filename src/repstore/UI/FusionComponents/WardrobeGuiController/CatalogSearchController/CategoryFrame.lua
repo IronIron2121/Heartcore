@@ -25,9 +25,6 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local ExpandingOptionsButton = require(Widgets:WaitForChild("ExpandingOptionsButton"))
 local CategoryButton = require(Widgets:WaitForChild("CategoryButton"))
 
--- Button Categories
-local ANIMATIONS = {Enum.AvatarAssetType.EmoteAnimation, Enum.BundleType.Animations}
-
 --
 
 function CategoryFrame(
@@ -51,16 +48,65 @@ function CategoryFrame(
 	}
 ): Frame
 	local allSelected = scope:Computed(function(use)
-		if #use(props.searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes() and #use(props.searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes() then
-			return true
-		else
-			return false
-		end
+		return #use(props.searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes()
+			and #use(props.searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes()
 	end)
 
-	local function SelectAll()
+	local function selectAll()
 		props.searchAssetCategories:set(AssetFilterCategories.getAllAssetTypes())
 		props.searchBundleCategories:set(BundleFilterCategories.getAllRobloxBundleTypes())
+	end
+
+	local function toggleCategory(assetType: Enum.AvatarAssetType?, bundleType: Enum.BundleType?)
+		if peek(allSelected) then
+			if assetType then
+				props.searchAssetCategories:set({assetType})
+				props.searchBundleCategories:set({})
+			elseif bundleType then
+				props.searchBundleCategories:set({bundleType})
+				props.searchAssetCategories:set({})
+			end
+			props.searchCallback()
+			return
+		end
+
+		local isCurrentlySelected = false
+		if assetType then
+			isCurrentlySelected = table.find(peek(props.searchAssetCategories), assetType) ~= nil
+		elseif bundleType then
+			isCurrentlySelected = table.find(peek(props.searchBundleCategories), bundleType) ~= nil
+		end
+
+		if isCurrentlySelected then
+			selectAll()
+		else
+			if assetType then
+				props.searchAssetCategories:set({assetType})
+				props.searchBundleCategories:set({})
+			elseif bundleType then
+				props.searchBundleCategories:set({bundleType})
+				props.searchAssetCategories:set({})
+			end
+		end
+		props.searchCallback()
+	end
+
+	local function isAssetSelected(assetType: Enum.AvatarAssetType): Fusion.Computed<boolean>
+		return scope:Computed(function(use)
+			if use(allSelected) then
+				return false
+			end
+			return table.find(use(props.searchAssetCategories), assetType) ~= nil
+		end)
+	end
+
+	local function isBundleSelected(bundleType: Enum.BundleType): Fusion.Computed<boolean>
+		return scope:Computed(function(use)
+			if use(allSelected) then
+				return false
+			end
+			return table.find(use(props.searchBundleCategories), bundleType) ~= nil
+		end)
 	end
 
 	-- Outer container frame
@@ -92,7 +138,7 @@ function CategoryFrame(
 			-- Inner scrolling frame
 			scope:New "ScrollingFrame" {
 				Name = "CategoryScrollFrame",
-				AnchorPoint = Vector2.new(0.5,0),
+				AnchorPoint = Vector2.new(0.5, 0),
 				Size = UDim2.fromScale(0.95, 0.99),
 				Position = UDim2.fromScale(0, 0),
 				BackgroundTransparency = 1,
@@ -111,8 +157,8 @@ function CategoryFrame(
 					},
 
 					scope:New "UIPadding" {
-						PaddingTop = UDim.new(0.01,0),
-						PaddingLeft = UDim.new(0.01,0),
+						PaddingTop = UDim.new(0.01, 0),
+						PaddingLeft = UDim.new(0.01, 0),
 					},
 					
 					CategoryButton(scope, {
@@ -121,14 +167,13 @@ function CategoryFrame(
 						layoutOrder = 1,
 						isSelected = allSelected,
 						onActivated = function()
-							if not peek(allSelected) then
-								SelectAll()
-								props.searchCallback()
-							else
+							if peek(allSelected) then
 								props.searchAssetCategories:set({})
 								props.searchBundleCategories:set({})
-								props.searchCallback()
+							else
+								selectAll()
 							end
+							props.searchCallback()
 						end
 					}),
 					
@@ -138,31 +183,30 @@ function CategoryFrame(
 						layoutOrder = 2,
 						isSelected = props.editorsPickSelected,
 						onActivated = function()
-							if not peek(props.editorsPickSelected) then
-								props.editorsPickCallback()
-							else
-								SelectAll()
+							if peek(props.editorsPickSelected) then
+								selectAll()
 								props.searchCallback()
+							else
+								props.editorsPickCallback()
 							end
 						end
 					}),
 
 					ExpandingOptionsButton(scope, {
 						text = "Accessories",
-						layoutOrder = 2,
+						layoutOrder = 3,
 						textSize = 20,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false
-							else
-								local currentAssets = use(props.searchAssetCategories)  
-								for _, categoryInfo in AssetFilterCategories.getAllAssetSearchTypes() do
-									if table.find(currentAssets, categoryInfo.assetType) then
-										return true
-									end
-								end
-								return false
 							end
+							local currentAssets = use(props.searchAssetCategories)
+							for _, categoryInfo in AssetFilterCategories.getAllAssetSearchTypes() do
+								if table.find(currentAssets, categoryInfo.assetType) then
+									return true
+								end
+							end
+							return false
 						end),
 
 						children = {
@@ -171,33 +215,9 @@ function CategoryFrame(
 									text = categoryInfo.name,
 									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 									layoutOrder = index,
-									isSelected = scope:Computed(function(use)
-										if use(allSelected) then
-											return false
-										else
-											return table.find(use(props.searchAssetCategories), categoryInfo.assetType) ~= nil
-										end
-									end),
-
+									isSelected = isAssetSelected(categoryInfo.assetType),
 									onActivated = function()
-										if use(allSelected) then
-											props.searchAssetCategories:set({categoryInfo.assetType})
-											props.searchBundleCategories:set({})
-											props.searchCallback()
-											return
-										end 
-
-										local currentAssets = peek(props.searchAssetCategories)
-										local assetIndex = table.find(currentAssets, categoryInfo.assetType)
-
-										if assetIndex then
-											SelectAll()
-											props.searchCallback()
-										else
-											props.searchAssetCategories:set({categoryInfo.assetType})
-											props.searchBundleCategories:set({})
-											props.searchCallback()
-										end
+										toggleCategory(categoryInfo.assetType, nil)
 									end
 								})
 							end)
@@ -206,19 +226,18 @@ function CategoryFrame(
 
 					ExpandingOptionsButton(scope, {
 						text = "Classic Clothing",
-						layoutOrder = 3,
+						layoutOrder = 4,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false
-							else
-								local currentAssets = use(props.searchAssetCategories)  
-								for _, categoryInfo in AssetFilterCategories.getAllClassicAssetSearchTypes() do
-									if table.find(currentAssets, categoryInfo.assetType) then
-										return true
-									end
-								end
-								return false
 							end
+							local currentAssets = use(props.searchAssetCategories)
+							for _, categoryInfo in AssetFilterCategories.getAllClassicAssetSearchTypes() do
+								if table.find(currentAssets, categoryInfo.assetType) then
+									return true
+								end
+							end
+							return false
 						end),
 
 						children = {
@@ -227,33 +246,9 @@ function CategoryFrame(
 									text = categoryInfo.name,
 									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 									layoutOrder = index,
-									isSelected = scope:Computed(function(use)
-										if use(allSelected) then
-											return false
-										else
-											return table.find(use(props.searchAssetCategories), categoryInfo.assetType) ~= nil
-										end
-									end),
-
+									isSelected = isAssetSelected(categoryInfo.assetType),
 									onActivated = function()
-										if use(allSelected) then
-											props.searchAssetCategories:set({categoryInfo.assetType})
-											props.searchBundleCategories:set({})
-											props.searchCallback()
-											return
-										end 
-
-										local currentAssets = peek(props.searchAssetCategories)
-										local assetIndex = table.find(currentAssets, categoryInfo.assetType)
-
-										if assetIndex then
-											SelectAll()
-											props.searchCallback()
-										else
-											props.searchAssetCategories:set({categoryInfo.assetType})
-											props.searchBundleCategories:set({})
-											props.searchCallback()
-										end
+										toggleCategory(categoryInfo.assetType, nil)
 									end
 								})
 							end)
@@ -263,94 +258,124 @@ function CategoryFrame(
 					CategoryButton(scope, {
 						text = "Hair",
 						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
-						layoutOrder = 4,
-						isSelected = scope:Computed(function(use)
-							if use(allSelected) then
-								return false
-							else
-								local currentAssets = use(props.searchAssetCategories)
-								if table.find(currentAssets, Enum.AvatarAssetType.HairAccessory) then
-									return true
-								end
-								return false
-							end
-						end),
-
+						layoutOrder = 5,
+						isSelected = isAssetSelected(Enum.AvatarAssetType.HairAccessory),
 						onActivated = function()
-							if peek(allSelected) then
-								props.searchBundleCategories:set({})
-								props.searchAssetCategories:set({Enum.AvatarAssetType.HairAccessory})
-								props.searchCallback()
-								return
-							end 
-
-							local currentAssets = peek(props.searchAssetCategories)
-							local assetIndex = table.find(currentAssets, Enum.AvatarAssetType.HairAccessory)
-
-							if assetIndex then
-								SelectAll()
-								props.searchCallback()
-							else
-								props.searchBundleCategories:set({})
-								props.searchAssetCategories:set({Enum.AvatarAssetType.HairAccessory})
-								props.searchCallback()
-							end
+							toggleCategory(Enum.AvatarAssetType.HairAccessory, nil)
 						end
 					}),
 
 					CategoryButton(scope, {
 						text = "Hats",
 						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
-						layoutOrder = 5,
+						layoutOrder = 6,
+						isSelected = isAssetSelected(Enum.AvatarAssetType.Hat),
+						onActivated = function()
+							toggleCategory(Enum.AvatarAssetType.Hat, nil)
+						end
+					}),
+
+					CategoryButton(scope, {
+						text = "Shoes",
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 7,
 						isSelected = scope:Computed(function(use)
 							if use(allSelected) then
 								return false
-							else
-								local currentAssets = use(props.searchAssetCategories)
-								if table.find(currentAssets, Enum.AvatarAssetType.Hat) then
-									return true
-								end
-								return false
 							end
+							local currentAssets = use(props.searchAssetCategories)
+							return table.find(currentAssets, Enum.AvatarAssetType.RightShoeAccessory) ~= nil
+								or table.find(currentAssets, Enum.AvatarAssetType.LeftShoeAccessory) ~= nil
 						end),
-
 						onActivated = function()
-							if peek(allSelected) then
-								props.searchBundleCategories:set({})
-								props.searchAssetCategories:set({Enum.AvatarAssetType.Hat})
-								props.searchCallback()
-								return
-							end 
+							toggleCategory(nil, Enum.BundleType.Shoes)
+						end
+					}),
 
-							local currentAssets = peek(props.searchAssetCategories)
-							local assetIndex = table.find(currentAssets, Enum.AvatarAssetType.Hat)
+					CategoryButton(scope, {
+						text = "T-Shirts",
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 8,
+						isSelected = isAssetSelected(Enum.AvatarAssetType.TShirtAccessory),
+						onActivated = function()
+							toggleCategory(Enum.AvatarAssetType.TShirtAccessory, nil)
+						end
+					}),
 
-							if assetIndex then
-								SelectAll()
-								props.searchCallback()
-							else
-								props.searchBundleCategories:set({})
-								props.searchAssetCategories:set({Enum.AvatarAssetType.Hat})
-								props.searchCallback()
-							end
+					CategoryButton(scope, {
+						text = "Shirts",
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 9,
+						isSelected = isAssetSelected(Enum.AvatarAssetType.ShirtAccessory),
+						onActivated = function()
+							toggleCategory(Enum.AvatarAssetType.ShirtAccessory, nil)
+						end
+					}),
+
+					CategoryButton(scope, {
+						text = "Pants",
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 10,
+						isSelected = isAssetSelected(Enum.AvatarAssetType.PantsAccessory),
+						onActivated = function()
+							toggleCategory(Enum.AvatarAssetType.PantsAccessory, nil)
+						end
+					}),
+
+					CategoryButton(scope, {
+						text = "Jackets",
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 11,
+						isSelected = isAssetSelected(Enum.AvatarAssetType.JacketAccessory),
+						onActivated = function()
+							toggleCategory(Enum.AvatarAssetType.JacketAccessory, nil)
+						end
+					}),
+
+					CategoryButton(scope, {
+						text = "Sweaters",
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 12,
+						isSelected = isAssetSelected(Enum.AvatarAssetType.SweaterAccessory),
+						onActivated = function()
+							toggleCategory(Enum.AvatarAssetType.SweaterAccessory, nil)
+						end
+					}),
+
+					CategoryButton(scope, {
+						text = "Shorts",
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 13,
+						isSelected = isAssetSelected(Enum.AvatarAssetType.ShortsAccessory),
+						onActivated = function()
+							toggleCategory(Enum.AvatarAssetType.ShortsAccessory, nil)
+						end
+					}),
+
+					CategoryButton(scope, {
+						text = "Dresses & Skirts",
+						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						layoutOrder = 14,
+						isSelected = isAssetSelected(Enum.AvatarAssetType.DressSkirtAccessory),
+						onActivated = function()
+							toggleCategory(Enum.AvatarAssetType.DressSkirtAccessory, nil)
 						end
 					}),
 
 					ExpandingOptionsButton(scope, {
 						text = "Bundles",
-						layoutOrder = 6,
+						layoutOrder = 15,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false
-							else
-								local currentBundles = use(props.searchBundleCategories)  
-								for _, bundleType in BundleFilterCategories.getAllRobloxBundleSearchTypes() do
-									if table.find(currentBundles, bundleType) then
-										return true
-									end
-								end
-								return false
 							end
+							local currentBundles = use(props.searchBundleCategories)
+							for _, bundleTypeInfo in BundleFilterCategories.getAllRobloxBundleSearchTypes() do
+								if table.find(currentBundles, bundleTypeInfo.bundleType) then
+									return true
+								end
+							end
+							return false
 						end),
 
 						children = {
@@ -359,33 +384,9 @@ function CategoryFrame(
 									text = bundleTypeInfo.name,
 									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 									layoutOrder = index,
-									isSelected = scope:Computed(function(use)
-										if use(allSelected) then
-											return false
-										else
-											return table.find(use(props.searchBundleCategories), bundleTypeInfo.bundleType) ~= nil
-										end
-									end),
-
+									isSelected = isBundleSelected(bundleTypeInfo.bundleType),
 									onActivated = function()
-										if use(allSelected) then
-											props.searchBundleCategories:set({bundleTypeInfo.bundleType})
-											props.searchAssetCategories:set({})
-											props.searchCallback()
-											return
-										end 
-
-										local currentBundles = peek(props.searchBundleCategories)
-										local assetIndex = table.find(currentBundles, bundleTypeInfo.bundleType)
-
-										if assetIndex then
-											SelectAll()
-											props.searchCallback()
-										else
-											props.searchBundleCategories:set({bundleTypeInfo.bundleType})
-											props.searchAssetCategories:set({})
-											props.searchCallback()
-										end
+										toggleCategory(nil, bundleTypeInfo.bundleType)
 									end
 								})
 							end)
@@ -394,19 +395,15 @@ function CategoryFrame(
 
 					ExpandingOptionsButton(scope, {
 						text = "Animations",
-						layoutOrder = 7,
+						layoutOrder = 16,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false
-							else
-								local currentAssets = use(props.searchAssetCategories)  
-								for _, assetType in ANIMATIONS do
-									if table.find(currentAssets, assetType) then
-										return true
-									end
-								end
-								return false
 							end
+							local currentAssets = use(props.searchAssetCategories)
+							local currentBundles = use(props.searchBundleCategories)
+							return table.find(currentAssets, Enum.AvatarAssetType.EmoteAnimation) ~= nil
+								or table.find(currentBundles, Enum.BundleType.Animations) ~= nil
 						end),
 
 						children = {
@@ -414,68 +411,21 @@ function CategoryFrame(
 								text = "Emotes",
 								size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 								layoutOrder = 1,
-								isSelected = scope:Computed(function(use)
-									if use(allSelected) then
-										return false
-									else
-										return table.find(use(props.searchAssetCategories), Enum.AvatarAssetType.EmoteAnimation) ~= nil
-									end
-								end),
-
+								isSelected = isAssetSelected(Enum.AvatarAssetType.EmoteAnimation),
 								onActivated = function()
-									if peek(allSelected) then
-										props.searchBundleCategories:set({})
-										props.searchAssetCategories:set({Enum.AvatarAssetType.EmoteAnimation})
-										props.searchCallback()
-										return
-									end 
-
-									local currentAssets = peek(props.searchAssetCategories)
-									local assetIndex = table.find(currentAssets, Enum.AvatarAssetType.EmoteAnimation)
-
-									if assetIndex then
-										SelectAll()
-										props.searchCallback()
-									else
-										props.searchBundleCategories:set({})
-										props.searchAssetCategories:set({Enum.AvatarAssetType.EmoteAnimation})
-										props.searchCallback()
-									end
+									toggleCategory(Enum.AvatarAssetType.EmoteAnimation, nil)
 								end
 							}),
-								CategoryButton(scope, {
-									text = "Animations",
-									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
-									layoutOrder = 2,
-									isSelected = scope:Computed(function(use)
-										if use(allSelected) then
-											return false
-										else
-											return table.find(use(props.searchBundleCategories), Enum.BundleType.Animations) ~= nil
-										end
-									end),
 
-									onActivated = function()
-										if peek(allSelected) then
-											props.searchBundleCategories:set({Enum.BundleType.Animations})
-											props.searchAssetCategories:set({})
-											props.searchCallback()
-											return
-										end 
-
-										local currentBundles = peek(props.searchBundleCategories)
-										local assetIndex = table.find(currentBundles, Enum.BundleType.Animations)
-
-										if assetIndex then
-											SelectAll()
-											props.searchCallback()
-										else
-											props.searchBundleCategories:set({Enum.BundleType.Animations})
-											props.searchAssetCategories:set({})
-											props.searchCallback()
-										end
-									end
-								})
+							CategoryButton(scope, {
+								text = "Animation Bundles",
+								size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+								layoutOrder = 2,
+								isSelected = isBundleSelected(Enum.BundleType.Animations),
+								onActivated = function()
+									toggleCategory(nil, Enum.BundleType.Animations)
+								end
+							})
 						}
 					})
 				}

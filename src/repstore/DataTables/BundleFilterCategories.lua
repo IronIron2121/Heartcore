@@ -25,11 +25,6 @@ local BundleFilterCategories = {
 		description = "A bundle of just animations"
 	},
 	{
-		name = "Shoes",
-		bundleType = Enum.BundleType.Shoes,
-		description = "A bundle of left shoe and right shoe"
-	},
-	{
 		name = "Dynamic Heads",
 		bundleType = Enum.BundleType.DynamicHead,
 		description = "A bundle consisting of dynamicHead and moodAnimation assets, optionally with eyebrowAccessory and eyelashAccessory"
