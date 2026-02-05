@@ -483,7 +483,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 								backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
 								visible = loadingScreenVisible,
 								zIndex = 20,
-								backgroundTransparency = 0.2,
+								backgroundTransparency = 1,
 							}),
 						}
 					},
