@@ -9,6 +9,7 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 local submissionZone = workspace:WaitForChild("submissionZone")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local getHumanoidDescriptionFromPlayer = require(Getters:WaitForChild("getHumanoidDescriptionFromPlayer"))
@@ -23,6 +24,8 @@ local OnEvent = Fusion.OnEvent
 -- Instances
 local SubmissionPad = submissionZone:WaitForChild("SubmissionPad")
 local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
+
+-- Remotes 
 
 --
 

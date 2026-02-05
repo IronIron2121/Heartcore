@@ -332,6 +332,14 @@ function GuiManager.ShowCurrentConfiguration(): ()
     end
 end
 
+function GuiManager.LogCurrentConfigratuin(): string?
+    if currentConfiguration then
+        print(currentConfiguration.Name)
+        return currentConfiguration.Name
+    end
+    return nil
+end
+
 function GuiManager.IsModalActive(modal: GuiObject): boolean
     return table.find(peek(modalStack), modal) ~= nil
 end

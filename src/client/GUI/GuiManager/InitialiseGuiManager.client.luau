@@ -16,11 +16,14 @@ local WardrobeGuiController = FusionComponents.WardrobeGuiController
 local SubmissionThemeBar = require(StarterPlayer.StarterPlayerScripts.GUI.SubmissionThemeBar)
 local OpenWardrobeButton = require(ReplicatedStorage.UI.FusionComponents.OpenWardrobeButton)
 local PlayerClickFrame = require(ReplicatedStorage.UI.FusionComponents.PlayerClickFrame)
+local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
 local AvatarEditorController = require(WardrobeGuiController.AvatarEditorController)
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
 local OutfitViewController = require(WardrobeGuiController.OutfitViewController)
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
 local Fusion = require(ReplicatedStorage.Utility.Fusion)
+local Child = require(ReplicatedStorage.Utility.Fusion.Instances.Child)
+local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
 local GuiConfiguration = require(GuiManagerLibrary.GuiConfiguration)
 local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
 local CONFIGURATION_NAMES = require(GuiManagerLibrary.CONFIGURATION_NAMES)
@@ -41,6 +44,11 @@ local function InitialiseHuds()
     local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
     local openWardrobeButton = OpenWardrobeButton(hudScope)
     local submissionThemeBar = SubmissionThemeBar()
+    local SubmitOutfitButton = BaseButton(hudScope, {
+        onActivated = function()
+            
+        end
+    })
 
     local buttonsFrame = hudScope:New "Frame" {
         Size = UDim2.fromScale(1, 1),
@@ -62,19 +70,45 @@ local function InitialiseHuds()
         }
     } :: Frame
 
-    local gameLoopFrame = hudScope:New "Frame" {
-        
-    }
+    local GameOptionsFrame1 = hudScope:New "Frame" {
+        Name = "GameOptionsFrame1",
+        Size = UDim2.fromScale(1, 1),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.fromScale(0.5, 0.5),
+        BackgroundTransparency = 1,
 
-    local Configuration1 = GuiConfiguration.new({
-        ConfigurationName = CONFIGURATION_NAMES.Configuration1,
+        [Children] = {
+            hudScope:New "UIListLayout" {
+                Padding = UDim.new(0, 10),
+                FillDirection = Enum.FillDirection.Horizontal,
+                SortOrder = Enum.SortOrder.LayoutOrder,
+                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                VerticalAlignment = Enum.VerticalAlignment.Center
+            },
+        }
+    } :: Frame
+
+    local ShoppingConfig = GuiConfiguration.new({
+        ConfigurationName = CONFIGURATION_NAMES.ShoppingConfig,
         topMiddle = submissionThemeBar,
         topRight = expHud,
+        bottomLeft = nil,
         bottomMiddle = buttonsFrame,
+        bottomRight = nil
     })
 
-    GuiManager.RegisterConfiguration(Configuration1) 
-    GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.Configuration1)
+    local GameLoopConfig = GuiConfiguration.new({
+        ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
+        topMiddle = nil,
+        topRight = expHud,
+        bottomLeft = nil,
+        bottomMiddle = buttonsFrame,
+        bottomRight = GameOptionsFrame1
+    })
+
+    GuiManager.RegisterConfiguration(ShoppingConfig) 
+    GuiManager.RegisterConfiguration(GameLoopConfig)
+    GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
 end
 
 local function InitialiseModals()
