@@ -395,6 +395,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 								BackgroundTransparency = 1,
 								TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 								FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+								TextXAlignment = Enum.TextXAlignment.Left
 							},
 
 							scope:New "Frame" {
@@ -440,6 +441,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 										BackgroundTransparency = 1,
 										TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 										FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+										TextXAlignment = Enum.TextXAlignment.Left
 									}
 								}
 							}
