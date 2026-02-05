@@ -20,10 +20,12 @@ local Mannequins = StarterPlayerScripts:WaitForChild("Mannequins")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Libraries         = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
+local Values = ReplicatedStorage:WaitForChild("Values")
 
 -- Modules
 local UI_CONSTANTS = require(ReplicatedStorage.Utility:WaitForChild("UI_CONSTANTS"))
 local Constants = require(ReplicatedStorage.Constants)
+local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local Inspector = require(Mannequins.Inspector) 
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local votingZone = workspace:WaitForChild("votingZone")
@@ -254,6 +256,38 @@ local function onMannequinRemoved(mannequin: Instance)
 	end
 end
 
+
+
+--[[
+local function onStateChanged()
+    -- Reset submission tracking when Dressing starts
+    if CurrentStateName.Value == "Voting" then
+        isVoting:set() = false
+    end
+    
+    updateSubmitButton()
+end
+
+CurrentStateName.Changed:Connect(onStateChanged)
+]]
+
+local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
+local stateValue = scope:Value(CurrentStateName.Value)
+
+local isVoting = scope:Computed(function(use)  
+	return use(stateValue) == "Voting"
+end)
+
+local function onStateChanged()
+	stateValue:set(CurrentStateName.Value)
+	promptHolder.Material = peek(isVoting) and Enum.Material.Neon or Enum.Material.Asphalt
+	promptHolder.Color = peek(isVoting) and Color3.fromRGB(0,255,0) or Color3.fromRGB(150,150,150)
+end
+
+CurrentStateName.Changed:Connect(onStateChanged)
+
+onStateChanged()
+
 local function initialise()
 	-- Set up mannequin tracking
 	CollectionService:GetInstanceAddedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(onMannequinAdded)
@@ -265,10 +299,12 @@ local function initialise()
 	end
 
     local VotePrompt = scope:New "ProximityPrompt" {
+		Name = "VotePrompt",
         Parent = promptHolder,
         MaxActivationDistance = 20,
         RequiresLineOfSight = false,
         ActionText = "Vote Here!",
+		Enabled = isVoting,
         [OnEvent "Triggered"] = function()
             GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
         end

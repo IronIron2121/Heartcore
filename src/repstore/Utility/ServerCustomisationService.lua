@@ -65,6 +65,8 @@ function ServerCustomisationService.applyDescription(player: Player, description
 	return true
 end
 
+
+
 local function getUserOutfitIdFromBundleItems(bundleItems: {}): number?
 	for _, item in ipairs(bundleItems) do
 		if item.Type == "UserOutfit" then
@@ -73,6 +75,26 @@ local function getUserOutfitIdFromBundleItems(bundleItems: {}): number?
 	end
 
 	return nil
+end
+
+function ServerCustomisationService.getNumberOfItemsEquipped(player: Player)
+	local num = 0
+	local desc = getHumanoidDescriptionFromPlayer(player)
+	if not desc then return 0 end
+
+	for _, description in desc:GetChildren() do
+		if (description:IsA("AccessoryDescription") or description:IsA("BodyPartDescription") and description.AssetId ~= 0) then
+			num += 1
+		end
+	end
+	
+	for _, clothingType in Constants.CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES do
+		if desc[clothingType] and desc[clothingType] ~= 0 and desc[clothingType] ~= Constants.DEFAULT_CLASSIC_CLOTHING_IDS[clothingType] then
+			num += 1
+		end
+	end
+
+	return num
 end
 
 -- Core functionality

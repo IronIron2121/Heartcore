@@ -70,6 +70,7 @@ function Frame(
         BackgroundColor3 = props.backgroundColor or UI_CONSTANTS.COLOUR_WHITE,
         ZIndex = props.zIndex or 3,
         Parent = props.parent,
+        Active = props.active or true,
 
         [Children] = {
             scope:New "UICorner" {

@@ -4,7 +4,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Utility       = ReplicatedStorage:WaitForChild("Utility")
+local Utility   = ReplicatedStorage:WaitForChild("Utility")
+local Values    = ReplicatedStorage:WaitForChild("Values")   
 
 -- Modules
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -15,8 +16,9 @@ local pondModel                 = centralPond:WaitForChild("centralPond")
 local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
 local BillboardGui              = SubmissionBillboardHolder:WaitForChild("BillboardGui")
 local Frame                     = BillboardGui:WaitForChild("Frame")
-local TimeLabel                 = Frame:WaitForChild("TimeLabel")
-local ThemeLabel                = Frame:WaitForChild("ThemeLabel") 
+
+-- Values
+local CurrentThemeName = Values.CurrentThemeName
 
 -- Fusion 
 local Fusion   = require(Utility:WaitForChild("Fusion"))
@@ -24,24 +26,14 @@ local scope    = Fusion:scoped()
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
+-- State Variables
 local ThemeText = scope:Value("Loading...")
-ThemeLabel:GetPropertyChangedSignal("Text"):Connect(function()
-    ThemeText:set("Today's Fit Check theme: <font color=\"rgb(89, 247, 128)\">" .. ThemeLabel.Text .. "</font>")
+CurrentThemeName:GetPropertyChangedSignal("Value"):Connect(function(...) 
+    ThemeText:set("Current Fit Check theme: <font color=\"rgb(89, 247, 128)\">" .. CurrentThemeName.Value .. "</font>")
 end)
+ThemeText:set("Current Fit Check theme: <font color=\"rgb(89, 247, 128)\">" .. CurrentThemeName.Value .. "</font>")
+
 	
-local TimeText = scope:Value("Loading...")
-
-local function updateTimeText(newText: string)
-    TimeText:set(newText)
-end
-
-task.spawn(function()
-    while true do
-        task.wait(1)
-        updateTimeText(TimeLabel.Text)
-    end
-end)
-
 local function SubmissionThemeBar()
 	local submissionThemeBar = scope:New "Frame" {
         Name = "Container",
@@ -67,7 +59,7 @@ local function SubmissionThemeBar()
                 FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
                 RichText = true,
                 Text = ThemeText,
-                Size = UDim2.fromScale(1,0.2),
+                Size = UDim2.fromScale(1, 0.2),
                 TextScaled = true,
                 LayoutOrder = 0,
                 BackgroundTransparency = 1,

@@ -374,14 +374,15 @@ function GuiManager.PushCentreByName(modalName: string, params: any?): ()
     end 
 
     assert(registeredModals[modalName], "Attempt to push modal " .. modalName .. " but no such modal found in registered modals!")
-
     -- Clone to avoid mutating the original table
     local currentModals = table.clone(peek(modalStack))
     local modalToPush = GuiManager.GetRegisteredModal(modalName)
 
     if table.find(currentModals, modalToPush.guiObject) then
+        warn("Modal already pushed!")
         return
     end
+
 
     -- Hide previous top modal if exists
     if #currentModals >= 1 then

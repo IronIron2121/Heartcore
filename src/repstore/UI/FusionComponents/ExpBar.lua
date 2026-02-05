@@ -8,27 +8,29 @@ local Players = game:GetService("Players")
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
+local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 
 -- Modules
 local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
+local ExpConfig = require(Libraries:WaitForChild("ExpConfig"))
 
 -- Fusion
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
-
 -- Instances
 local localPlayer = Players.LocalPlayer
 
 local leaderstats = localPlayer:WaitForChild("leaderstats")
-local exp = leaderstats:WaitForChild("Exp")
+local expValue = leaderstats:WaitForChild("Exp")
+local levelValue = leaderstats:WaitForChild("Level")
 
 function ExpBar(
-    scope: Fusion.Scope,
-    props: {
-        name: UsedAs<string>?,
+	scope: Fusion.Scope,
+	props: {
+		name: UsedAs<string>?,
 		active: UsedAs<boolean>?,
 		visible: UsedAs<boolean>?,
 		size: UsedAs<UDim2>?,
@@ -47,99 +49,93 @@ function ExpBar(
 	}
 ): Frame
 
-    local scale = (exp.Value % 10) * 0.075
-    local expBarSize = Fusion.Value(scope, UDim2.fromScale(scale, 0.16))
+	local MAX_BAR_SCALE = 0.75
+	local initialProgress = ExpConfig.getProgress(expValue.Value, levelValue.Value)
+	local expBarSize = Fusion.Value(scope, UDim2.fromScale(initialProgress * MAX_BAR_SCALE, 0.16))
 
-    -- Tween settings
-    local tweenInfo = TweenInfo.new(
-        0.5,                          -- Duration (seconds)
-        Enum.EasingStyle.Quad,        -- Easing style
-        Enum.EasingDirection.Out      -- Easing direction
-    )
+	local tweenInfo = TweenInfo.new(
+		0.5,
+		Enum.EasingStyle.Quad,
+		Enum.EasingDirection.Out
+	)
 
-    local function updateExpBar()
-        local newScale = (exp.Value % 10) * 0.075
-        
-        -- Create a temporary value to tween
-        local currentScale = peek(expBarSize).X.Scale
-        local tweenValue = Instance.new("NumberValue")
-        tweenValue.Value = currentScale
-        
-        local tween = TweenService:Create(tweenValue, tweenInfo, {
-            Value = newScale
-        })
-        
-        -- Update the Fusion value as the tween progresses
-        tweenValue:GetPropertyChangedSignal("Value"):Connect(function()
-            expBarSize:set(UDim2.fromScale(tweenValue.Value, 0.15))
-        end)
-        
-        -- Clean up when done
-        tween.Completed:Connect(function()
-            tweenValue:Destroy()
-        end)
-        
-        tween:Play()
-    end 
+	local function updateExpBar()
+		local progress = ExpConfig.getProgress(expValue.Value, levelValue.Value)
+		local newScale = progress * MAX_BAR_SCALE
 
-    exp:GetPropertyChangedSignal("Value"):Connect(updateExpBar)
+		local currentScale = peek(expBarSize).X.Scale
+		local tweenValue = Instance.new("NumberValue")
+		tweenValue.Value = currentScale
 
-    local frame = scope:New "Frame" {
-        Name = "ExpBarContainer",
-        BackgroundColor3 = Color3.new(1,1,1),
-        BackgroundTransparency = 1,
-        AnchorPoint = Vector2.new(0,0),
-        Size = UDim2.fromScale(0.5,0.5),
-        Position = UDim2.fromScale(0.35,0),
+		local tween = TweenService:Create(tweenValue, tweenInfo, {
+			Value = newScale
+		})
 
-        [Children] = {
-            scope:New "ImageLabel" {
-            Name = props.name or "ExpBar",
-            Image = ImageUris.ExpBar,
-            Visible = true,
-            AnchorPoint = props.anchorPoint or Vector2.new(0,0.5),
-            Position = props.position or UDim2.fromScale(0,0.5),
-            Size = props.size or UDim2.fromScale(1,1),
-            BackgroundTransparency = 1,
-            ZIndex = 2,
+		tweenValue:GetPropertyChangedSignal("Value"):Connect(function()
+			expBarSize:set(UDim2.fromScale(tweenValue.Value, 0.15))
+		end)
 
-                [Children] = {
-                    scope:New "UIAspectRatioConstraint" {
-                        AspectRatio = 3,
-                    },
-                    
-                    scope:New "Frame" {
-                        Name = "ProgressFill",
-                        AnchorPoint = Vector2.new(0,0.5),
-                        Size = expBarSize,
-                        Position = UDim2.fromScale(0.2,0.47),
-                        BackgroundColor3 = Color3.new(1,1,1),
-                        ZIndex = 1,
+		tween.Completed:Connect(function()
+			tweenValue:Destroy()
+		end)
 
-                        [Children] = {
-                            scope:New "UIGradient"{
-                                Color = ColorSequence.new(Color3.fromRGB(24, 107, 79), Color3.fromRGB(130, 194, 144)),
-                            },
+		tween:Play()
+	end
 
-                            scope:New "UICorner" {
-                                CornerRadius = UDim.new(0.5,0)
-                            },
+	expValue:GetPropertyChangedSignal("Value"):Connect(updateExpBar)
+	levelValue:GetPropertyChangedSignal("Value"):Connect(updateExpBar)
 
-                            --[[
-                            scope:New "UIAspectRatioConstraint" {
-                                AspectRatio = 10,
-                            }
-                            ]]
-                        }
-                    }
-                }
-            },
-            
+	local frame = scope:New "Frame" {
+		Name = "ExpBarContainer",
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0, 0),
+		Size = UDim2.fromScale(0.5, 0.5),
+		Position = UDim2.fromScale(0.35, 0),
 
-        }
-    } :: Frame
+		[Children] = {
+			scope:New "ImageLabel" {
+				Name = props.name or "ExpBar",
+				Image = ImageUris.ExpBar,
+				Visible = true,
+				AnchorPoint = props.anchorPoint or Vector2.new(0, 0.5),
+				Position = props.position or UDim2.fromScale(0, 0.5),
+				Size = props.size or UDim2.fromScale(1, 1),
+				BackgroundTransparency = 1,
+				ZIndex = 2,
 
-    return frame
+				[Children] = {
+					scope:New "UIAspectRatioConstraint" {
+						AspectRatio = 3,
+					},
+
+					scope:New "Frame" {
+						Name = "ProgressFill",
+						AnchorPoint = Vector2.new(0, 0.5),
+						Size = expBarSize,
+						Position = UDim2.fromScale(0.2, 0.47),
+						BackgroundColor3 = Color3.new(1, 1, 1),
+						ZIndex = 1,
+
+						[Children] = {
+							scope:New "UIGradient" {
+								Color = ColorSequence.new(
+									Color3.fromRGB(24, 107, 79),
+									Color3.fromRGB(130, 194, 144)
+								),
+							},
+
+							scope:New "UICorner" {
+								CornerRadius = UDim.new(0.5, 0)
+							},
+						}
+					}
+				}
+			},
+		}
+	} :: Frame
+
+	return frame
 end
 
 return ExpBar
