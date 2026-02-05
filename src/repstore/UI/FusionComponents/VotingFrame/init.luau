@@ -466,10 +466,10 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 
 							scope:New "TextLabel" {
 								Name = "VotingComplete",
-								Text = "All outfits viewed",
+								Text = "Out of fits to vote for! You've picked your fave fit!",
 								TextScaled = true,
-								Size = UDim2.fromScale(0.6, 0.15),
-								Position = UDim2.fromScale(0.5, 0.5),
+								Size = UDim2.fromScale(0.3, 0.8),
+								Position = UDim2.fromScale(0.75, 0.5),
 								AnchorPoint = Vector2.new(0.5, 0.5),
 								BackgroundTransparency = 1,
 								TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
