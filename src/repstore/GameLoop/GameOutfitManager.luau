@@ -33,6 +33,7 @@ export type Outfit = {
 	humanoidDescription: HumanoidDescription,
 	votes: number,
 	views: number,
+	score: number,
 }
 
 -- Outfit storage: outfitId -> Outfit
@@ -69,6 +70,7 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 		humanoidDescription = humanoidDescription,
 		votes = 0,
 		views = 0,
+		score = 0,
 	}
 
 	submittedPlayers[userId] = true
@@ -104,11 +106,16 @@ function GameOutfitManager.addVote(outfitId: string, voterUserId: number): boole
 	if outfit.userId == voterUserId then
 		return false
 	end
-	
 
-	-- We don't need to wait for this
+	outfit.votes += 1
+	
+	-- Calculate score: wins / views (safe since views must be > 0 to vote)
+	if outfit.views > 0 then
+		outfit.score = outfit.votes / outfit.views
+	end
+
+	-- Award XP asynchronously
 	task.spawn(function()
-		outfit.votes += 1
 		local success, votedPlayer = callWithRetry(
 			function()
 				return Players:GetPlayerByUserId(outfit.userId)
@@ -137,6 +144,11 @@ function GameOutfitManager.showOutfitToPlayer(userId: number, outfitId: string):
 	if not playerViews[userId][outfitId] then
 		playerViews[userId][outfitId] = true
 		outfit.views += 1
+		
+		-- Recalculate score when views change
+		if outfit.views > 0 then
+			outfit.score = outfit.votes / outfit.views
+		end
 	end
 	
 	return true
@@ -192,17 +204,27 @@ function GameOutfitManager.getUnseenCount(player: Player): number
 	return count
 end
 
-function GameOutfitManager.getOutfitsByVotes(): {Outfit}
+function GameOutfitManager.getOutfitsByScore(): {Outfit}
 	local sorted = {}
 	for _, outfit in pairs(outfits) do
 		table.insert(sorted, outfit)
 	end
 	
 	table.sort(sorted, function(a, b)
+		-- Primary: score (descending)
+		-- Tiebreaker: votes (descending)
+		if a.score ~= b.score then
+			return a.score > b.score
+		end
 		return a.votes > b.votes
 	end)
 	
 	return sorted
+end
+
+-- Keep for backwards compatibility if needed
+function GameOutfitManager.getOutfitsByVotes(): {Outfit}
+	return GameOutfitManager.getOutfitsByScore()
 end
 
 function GameOutfitManager.hasSubmitted(userId: number): boolean

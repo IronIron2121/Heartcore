@@ -116,6 +116,8 @@ function WinnersManager.updateLeaderboard(rankings: { GameOutfitManager.Outfit }
 
 	local count = math.min(20, #rankings)
 
+	warn("Rankings: ", rankings)
+
 	for i = 1, count do
 		local outfit = rankings[i]
 
@@ -123,10 +125,14 @@ function WinnersManager.updateLeaderboard(rankings: { GameOutfitManager.Outfit }
 			return Players:GetNameFromUserIdAsync(outfit.userId)
 		end)
 
+		-- Format score as percentage
+		local scorePercent = math.floor(outfit.score * 100 + 0.5)
+		local displayName = if success then playerName else "Player " .. tostring(i)
+		
 		local newLabel = Instance.new("TextLabel")
 		newLabel.Parent = leaderboardFrame
 		newLabel.LayoutOrder = i
-		newLabel.Text = i .. ". " .. (if success then playerName else "Player " .. tostring(i))
+		newLabel.Text = string.format("%d. %s (%d%%)", i, displayName, scorePercent)
 		newLabel.Size = UDim2.new(1, 0, 0, 30)
 		newLabel.BackgroundTransparency = 1
 		newLabel.TextColor3 = Color3.fromRGB(92, 96, 214)
@@ -138,7 +144,7 @@ function WinnersManager.updateLeaderboard(rankings: { GameOutfitManager.Outfit }
 end
 
 function WinnersManager.setNewWinners()
-	local rankings = GameOutfitManager.getOutfitsByVotes()
+	local rankings = GameOutfitManager.getOutfitsByScore()
 
 	if #rankings == 0 then
 		warn("No outfits to rank")
@@ -148,12 +154,12 @@ function WinnersManager.setNewWinners()
 	local top3 = {}
 	for i = 1, math.min(3, #rankings) do
 		local submission = rankings[i]
-		table.insert(top3, rankings[i])
+		table.insert(top3, submission)
 		task.spawn(function()
 			local success, player = callWithRetry(function()  
 				return Players:GetPlayerByUserId(submission.userId)
 			end)
-			if not success and player then return end
+			if not success or not player then return end
 			if i <= 3 then
 				DataManager.AddExp(player, ExpConfig.Placements[i])
 			elseif i <= 20 then
