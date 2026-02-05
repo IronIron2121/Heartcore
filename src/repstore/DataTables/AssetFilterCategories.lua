@@ -101,43 +101,6 @@ local AssetFilterCategories = {
 		assetType = Enum.AvatarAssetType.WaistAccessory,
 		description = "Waist accessories"
 	},
-
-	-- Layered Clothing
-	{
-		name = "T-Shirts",
-		assetType = Enum.AvatarAssetType.TShirtAccessory,
-		description = "Layered clothing T-Shirts"
-	},
-	{
-		name = "Shirts",
-		assetType = Enum.AvatarAssetType.ShirtAccessory,
-		description = "Layered clothing shirts"
-	},
-	{
-		name = "Pants",
-		assetType = Enum.AvatarAssetType.PantsAccessory,
-		description = "Layered clothing pants"
-	},
-	{
-		name = "Jackets",
-		assetType = Enum.AvatarAssetType.JacketAccessory,
-		description = "Layered clothing jackets"
-	},
-	{
-		name = "Sweaters",
-		assetType = Enum.AvatarAssetType.SweaterAccessory,
-		description = "Layered clothing sweaters"
-	},
-	{
-		name = "Shorts",
-		assetType = Enum.AvatarAssetType.ShortsAccessory,
-		description = "Layered clothing shorts"
-	},
-	{
-		name = "Dresses & Skirts",
-		assetType = Enum.AvatarAssetType.DressSkirtAccessory,
-		description = "Layered clothing dresses and skirts"
-	}
 }
 
 -- Helper function to get category names for dropdown
