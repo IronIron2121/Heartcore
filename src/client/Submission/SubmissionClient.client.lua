@@ -31,7 +31,7 @@ local function updateSubmitButton()
     
     prompt.Enabled = canSubmit
     PromptHolder.Color = if canSubmit 
-        then Color3.fromRGB(190, 190, 192) 
+        then Color3.fromRGB(0, 255, 110) 
         else Color3.fromRGB(100, 100, 100)
 end
 

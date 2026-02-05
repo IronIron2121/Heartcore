@@ -62,6 +62,10 @@ local function InitialiseHuds()
         }
     } :: Frame
 
+    local gameLoopFrame = hudScope:New "Frame" {
+        
+    }
+
     local Configuration1 = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.Configuration1,
         topMiddle = submissionThemeBar,

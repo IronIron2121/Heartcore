@@ -5,7 +5,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")

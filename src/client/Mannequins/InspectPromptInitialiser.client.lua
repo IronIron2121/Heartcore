@@ -278,8 +278,11 @@ local isVoting = scope:Computed(function(use)
 	return use(stateValue) == "Voting"
 end)
 
+
+
 local function onStateChanged()
 	stateValue:set(CurrentStateName.Value)
+	warn("State changed! stateValue: ", peek(stateValue), "State == ", CurrentStateName.Value)
 	promptHolder.Material = peek(isVoting) and Enum.Material.Neon or Enum.Material.Asphalt
 	promptHolder.Color = peek(isVoting) and Color3.fromRGB(0,255,0) or Color3.fromRGB(150,150,150)
 end
