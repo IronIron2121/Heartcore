@@ -123,7 +123,7 @@ function GuiConfiguration.new(props: {
     } :: Frame
     
     self.TopMiddlePosition = self.scope:Computed(function(use)  
-        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].OutPosition  
+        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].InPosition  
     end)
     self.TopMiddle = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS.TopMiddle.Name,
@@ -142,7 +142,7 @@ function GuiConfiguration.new(props: {
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopMiddle] = self.TopMiddlePosition
 
     self.TopRightPosition = self.scope:Computed(function(use)  
-        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].OutPosition  
+        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].InPosition  
     end)
     self.TopRight = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].Name,
@@ -161,7 +161,7 @@ function GuiConfiguration.new(props: {
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopRight] = self.TopRightPosition
 
     self.BottomLeftPosition = self.scope:Computed(function(use)  
-        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].OutPosition  
+        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].InPosition  
     end)    
     self.BottomLeft = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS.BottomLeft.Name,

@@ -22,6 +22,7 @@ local localPlayer = Players.LocalPlayer
 -- GUI
 local OutfitVoteTile    = require(script:WaitForChild("OutfitVoteTile"))
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
+local LoadingScreen     = require(Widgets:WaitForChild("LoadingScreen"))
 
 -- Modules
 local SerialisationService  = require(Utility:WaitForChild("SerialisationService"))
@@ -62,18 +63,20 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 	local votingTheme = scope:Value("Loading...")
 	local currentState = scope:Value("N/A")
 	local votingTime = scope:Value("3:00")
+	local loadingScreenVisible = scope:Value(false)
+	
 	local votingTimeText = scope:Computed(function(use)
-		return 	use(currentState) == "Voting" and use(votingTime) or "Waiting..." 
+		return use(currentState) == "Voting" and use(votingTime) or "Waiting..." 
 	end)
 
-	currentStateName:GetPropertyChangedSignal("Value"):Connect(function(...)  
+	currentStateName:GetPropertyChangedSignal("Value"):Connect(function()  
 		currentState:set(currentStateName.Value)
 	end)
 
 	local votingComplete = scope:Value(false)
 	local tilesContainer = scope:Value({})
 
-	secondsRemaining:GetPropertyChangedSignal("Value"):Connect(function(...)  
+	secondsRemaining:GetPropertyChangedSignal("Value"):Connect(function()  
 		votingTime:set(secondsRemaining.Value)
 	end)
 
@@ -130,18 +133,14 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 	end
 
 	local function fetchVotingTheme()
-        warn("In fetch")
 		local success, result = pcall(function()
 			return GetVotingThemeRF:InvokeServer()
 		end)
 
-        warn("Got dat ", success, result)
-
 		if success and result then
 			votingTheme:set(result)
-        else
-            warn("Failed to get theme!")
-            votingTheme:set("Test Theme")
+		else
+			votingTheme:set("Unknown Theme")
 		end
 	end
 
@@ -167,7 +166,6 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 			onActivated = onActivated,
 		})
 
-		-- Slide to final position
 		task.defer(function()
 			positionValue:set(finalPos)
 		end)
@@ -179,7 +177,6 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 		local unseenCount = getUnseenCount()
 		if unseenCount == 0 then
 			votingComplete:set(true)
-			-- Final winner stays on screen
 			if leftControls then
 				leftControls.triggerWin()
 			end
@@ -208,13 +205,11 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 		if not leftControls or not rightControls then return end
 		if not rightPositionValue then return end
 
-		-- Left wins
 		submitVote(leftOutfitId, rightOutfitId)
 
 		leftControls.triggerWin()
 		rightControls.triggerLoss()
 
-		-- Slide loser down
 		rightPositionValue:set(OFFSCREEN_DOWN)
 		cleanupTile(rightTile)
 		rightTile = nil
@@ -222,7 +217,6 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 		rightOutfitId = nil
 		rightPositionValue = nil
 
-		-- Spawn new challenger after animation
 		task.delay(0.3, spawnNewChallenger)
 	end
 
@@ -231,87 +225,83 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 		if not leftControls or not rightControls then return end
 		if not leftPositionValue or not rightPositionValue then return end
 
-		-- Right wins
 		submitVote(rightOutfitId, leftOutfitId)
 
 		rightControls.triggerWin()
 		leftControls.triggerLoss()
 
-		-- Slide loser down
 		leftPositionValue:set(OFFSCREEN_DOWN)
 		cleanupTile(leftTile)
 
-		-- Slide winner to left
 		rightPositionValue:set(LEFT_SLOT_POS)
 
-		-- Transfer right to left
 		leftTile = rightTile
 		leftControls = rightControls
 		leftPositionValue = rightPositionValue
 		leftOutfitId = rightOutfitId
 
-		-- Clear right references
 		rightTile = nil
 		rightControls = nil
 		rightOutfitId = nil
 		rightPositionValue = nil
 
-		-- Spawn new challenger after animation
 		task.delay(0.3, spawnNewChallenger)
 	end
 
 	local function initialiseVoting()
-        warn("Initialising voting")
-		votingComplete:set(false)
+		loadingScreenVisible:set(true)
 
-        warn("Cleaning up")
-		-- Cleanup existing tiles
-		if leftTile then leftTile:Destroy() end
-		if rightTile then rightTile:Destroy() end
-		leftTile = nil
-		rightTile = nil
-		leftControls = nil
-		rightControls = nil
-		leftOutfitId = nil
-		rightOutfitId = nil
-		leftPositionValue = nil
-		rightPositionValue = nil
-		tilesContainer:set({})
+		task.spawn(function()
+			votingComplete:set(false)
 
-        warn("Fetching theme")
-		-- Fetch theme
-		fetchVotingTheme()
+			-- Cleanup existing tiles
+			if leftTile then leftTile:Destroy() end
+			if rightTile then rightTile:Destroy() end
+			leftTile = nil
+			rightTile = nil
+			leftControls = nil
+			rightControls = nil
+			leftOutfitId = nil
+			rightOutfitId = nil
+			leftPositionValue = nil
+			rightPositionValue = nil
+			tilesContainer:set({})
 
-        warn("Getting outfits")
-		-- Fetch first two outfits
-		local firstOutfit = fetchNextOutfit()
-		local secondOutfit = fetchNextOutfit()
+			-- Fetch theme
+			fetchVotingTheme()
 
-		if not firstOutfit or not secondOutfit then
-			votingComplete:set(true)
-			warn("Not enough outfits to vote on")
-			return
-		end
+			-- Fetch first two outfits
+			local firstOutfit = fetchNextOutfit()
+			local secondOutfit = fetchNextOutfit()
 
-		-- Spawn left tile
-		leftTile, leftControls, leftPositionValue = spawnTile(
-			firstOutfit,
-			OFFSCREEN_LEFT,
-			LEFT_SLOT_POS,
-			function() onLeftSelected() end
-		)
-		leftOutfitId = firstOutfit.outfitId
+			if not firstOutfit or not secondOutfit then
+				votingComplete:set(true)
+				loadingScreenVisible:set(false)
+				return
+			end
 
-		-- Spawn right tile
-		rightTile, rightControls, rightPositionValue = spawnTile(
-			secondOutfit,
-			OFFSCREEN_RIGHT,
-			RIGHT_SLOT_POS,
-			function() onRightSelected() end
-		)
-		rightOutfitId = secondOutfit.outfitId
+			-- Spawn left tile
+			leftTile, leftControls, leftPositionValue = spawnTile(
+				firstOutfit,
+				OFFSCREEN_LEFT,
+				LEFT_SLOT_POS,
+				function() onLeftSelected() end
+			)
+			leftOutfitId = firstOutfit.outfitId
 
-		tilesContainer:set({ leftTile, rightTile })
+			-- Spawn right tile
+			rightTile, rightControls, rightPositionValue = spawnTile(
+				secondOutfit,
+				OFFSCREEN_RIGHT,
+				RIGHT_SLOT_POS,
+				function() onRightSelected() end
+			)
+			rightOutfitId = secondOutfit.outfitId
+
+			tilesContainer:set({ leftTile, rightTile })
+
+			loadingScreenVisible:set(false)
+		end)
 	end
 
 	-- Build the frame
@@ -474,7 +464,6 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 								return use(tilesContainer)
 							end),
 
-							-- Voting complete message
 							scope:New "TextLabel" {
 								Name = "VotingComplete",
 								Text = "All outfits viewed",
@@ -487,7 +476,15 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 								FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
 								Visible = votingComplete,
 								ZIndex = 10,
-							} :: TextLabel ,
+							},
+
+							LoadingScreen(scope, {
+								size = UDim2.fromScale(1, 1),
+								backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
+								visible = loadingScreenVisible,
+								zIndex = 20,
+								backgroundTransparency = 0.2,
+							}),
 						}
 					},
 				}

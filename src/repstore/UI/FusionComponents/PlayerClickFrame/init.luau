@@ -72,6 +72,8 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     -- Functions
     local function onFrameOpened(player: Player)
         loadingScreenVis:set(true)
+        warn(player)
+        warn(player.UserId)
 
         task.spawn(function()
             inspectPlayer:set(player)
@@ -79,30 +81,38 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
             inspectName:set(player.Name)
             -- Update the thumbnail
             local success, newThumbnail = callWithRetry(function()  
-                return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
+                return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
             end)
             inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
             -- Update the description
             local descSuccess, humDesc = callWithRetry(function()
-                return getHumanoidDescriptionFromPlayer(Players:GetPlayerByUserId(player.UserId))
+                warn("Getting hum desc")
+                return getHumanoidDescriptionFromPlayer(player)
             end)
+            warn(descSuccess, humDesc)
             if descSuccess then 
                 inspectDescription:set(humDesc) 
             end
             -- Get and set the new avatar
             local modelSuccess, newModel = callWithRetry(
                 function()  
-                    return Players:CreateHumanoidModelFromDescriptionAsync(peek(inspectDescription))
+                    warn("creating model", peek(inspectDescription), inspectDescription, peek(inspectDescription):GetChildren())
+                    return Players:CreateHumanoidModelFromDescriptionAsync(peek(inspectDescription), Enum.HumanoidRigType.R15)
                 end
             )
-            inspectModel:set(modelSuccess and newModel or DEFAULT_MODEL)
+            if modelSuccess then
+                inspectModel:set(newModel)
+            else
+                inspectModel:set(DEFAULT_MODEL)
+                warn("Failed to get humanoid model!", modelSuccess, newModel)
+            end
 
-            loadingScreenVis:set(nil)
+            loadingScreenVis:set(false)
         end)
     end 
 
     local function onFrameClosed()
-        inspectPlayer:set()
+        inspectPlayer:set(nil)
         -- Reset name tag
         inspectName:set(DEFAULT_NAME)
         -- Reset thumbnail
@@ -337,7 +347,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         layoutOrder = 5,
                                         size = buttonSize,
                                         onActivated = function()
-                                            StarterGui:SetCore("PromptSendFriendRequest")
+                                            StarterGui:SetCore("PromptSendFriendRequest", peek(inspectPlayer))
                                         end
                                     }),
 

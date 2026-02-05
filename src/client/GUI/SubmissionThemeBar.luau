@@ -8,6 +8,7 @@ local Utility   = ReplicatedStorage:WaitForChild("Utility")
 local Values    = ReplicatedStorage:WaitForChild("Values")   
 
 -- Modules
+local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Instances
@@ -19,6 +20,8 @@ local Frame                     = BillboardGui:WaitForChild("Frame")
 
 -- Values
 local CurrentThemeName = Values.CurrentThemeName
+local CurrentStateName = Values.CurrentStateName
+local SecondsRemaining = Values.SecondsRemaining
 
 -- Fusion 
 local Fusion   = require(Utility:WaitForChild("Fusion"))
@@ -28,10 +31,31 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- State Variables
 local ThemeText = scope:Value("Loading...")
-CurrentThemeName:GetPropertyChangedSignal("Value"):Connect(function(...) 
-    ThemeText:set("Current Fit Check theme: <font color=\"rgb(89, 247, 128)\">" .. CurrentThemeName.Value .. "</font>")
+local TimeLeft = scope:Value(SecondsRemaining.Value)
+local timeBound = 30
+
+
+local highlightColor = scope:Value("<font color=\"rgb(92, 95, 212)\">")
+local strokeColor = scope:Value("<stroke color=\"#FFFFFF\">")
+local closeStroke = scope:Value("</stroke>")
+local TimeColor = scope:Computed(function(use)
+    return use(TimeLeft) > timeBound and "<font color=\"rgb(89, 247, 128)\">" or "<font color=\"rgb(255, 50, 50)\">"
 end)
-ThemeText:set("Current Fit Check theme: <font color=\"rgb(89, 247, 128)\">" .. CurrentThemeName.Value .. "</font>")
+
+SecondsRemaining:GetPropertyChangedSignal("Value"):Connect(function(...)
+    TimeLeft:set(SecondsRemaining.Value)
+    if CurrentStateName.Value == "Dressing" then
+        ThemeText:set("Current Fit Check theme: " .. peek(highlightColor) .. peek(strokeColor) .. CurrentThemeName.Value .. peek(closeStroke) .. "</font>" .. ". You have " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font> seconds to submit!")
+    elseif CurrentStateName.Value == "Voting" then
+        ThemeText:set("Voting time! You have " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font> seconds to vote.")
+    elseif CurrentStateName.Value == "Intermission" then
+        ThemeText:set("Intermission: " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font>")
+    else
+        warn("This shouldn't be possible", CurrentStateName.Value)
+    end
+end)
+
+ThemeText:set("Fit Check theme is: <font color=\"rgb(89, 247, 128)\">" .. CurrentThemeName.Value .. "</font>")
 
 	
 local function SubmissionThemeBar()

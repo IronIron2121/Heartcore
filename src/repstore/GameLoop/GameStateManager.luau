@@ -127,11 +127,11 @@ function GameStateManager._onStateEnter(stateName: string)
 		currentThemeName.Value = currentTheme
 		print(`[GameStateManager] Theme: {currentTheme}`)
 		
-		WinnersManager.reset()
 		GameOutfitManager.reset()
 	elseif stateName == "Voting" then
 
 	elseif stateName == "Intermission" then
+		WinnersManager.reset()
 		WinnersManager.setNewWinners()
 	end
 end

@@ -14,19 +14,19 @@ local SerialisationService = require(ReplicatedStorage.Utility.SerialisationServ
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
 -- Create remotes
-local GetNextOutfitRF = Instance.new("RemoteFunction")
+local GetNextOutfitRF = Remotes:WaitForChild("GetNextOutfitRF") or Instance.new("RemoteFunction")
 GetNextOutfitRF.Name = "GetNextOutfitRF"
 GetNextOutfitRF.Parent = Remotes
 
-local SubmitVoteRF = Instance.new("RemoteFunction")
+local SubmitVoteRF = Remotes:WaitForChild("SubmitVoteRF") or Instance.new("RemoteFunction")
 SubmitVoteRF.Name = "SubmitVoteRF"
 SubmitVoteRF.Parent = Remotes
 
-local GetUnseenCountRF = Instance.new("RemoteFunction")
+local GetUnseenCountRF = Remotes:WaitForChild("GetUnseenCountRF") or Instance.new("RemoteFunction")
 GetUnseenCountRF.Name = "GetUnseenCountRF"
 GetUnseenCountRF.Parent = Remotes
 
-local GetVotingThemeRF = Instance.new("RemoteFunction")
+local GetVotingThemeRF = Remotes:WaitForChild("GetVotingThemeRF") or Instance.new("RemoteFunction")
 GetVotingThemeRF.Name = "GetVotingThemeRF"
 GetVotingThemeRF.Parent = Remotes
 

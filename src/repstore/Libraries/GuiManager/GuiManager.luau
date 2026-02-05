@@ -383,7 +383,6 @@ function GuiManager.PushCentreByName(modalName: string, params: any?): ()
         return
     end
 
-
     -- Hide previous top modal if exists
     if #currentModals >= 1 then
         currentModals[#currentModals].Visible = false
