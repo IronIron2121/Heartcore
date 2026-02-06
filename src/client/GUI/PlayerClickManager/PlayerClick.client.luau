@@ -11,7 +11,6 @@ local Utility           = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
 local MODAL_NAMES   = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
-local ChallengeCard = require(ReplicatedStorage.UI.FusionComponents.Widgets.ChallengeCard)
 local GuiManager    = require(GuiManagerFolder.GuiManager) 
 
 -- Fusion

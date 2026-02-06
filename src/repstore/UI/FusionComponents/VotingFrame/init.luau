@@ -1,11 +1,11 @@
 --!strict
+-- VotingFrame.lua
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players           = game:GetService("Players")
 
 -- Folders
-local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
 local Utility           = ReplicatedStorage:WaitForChild("Utility")
 local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
 local UI                = ReplicatedStorage:WaitForChild("UI")
@@ -13,366 +13,488 @@ local FusionComponents  = UI:WaitForChild("FusionComponents")
 local Widgets           = FusionComponents:WaitForChild("Widgets")
 local Libraries         = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
+local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
+local Values 			= ReplicatedStorage:WaitForChild("Values")
 
 -- Instances
 local localPlayer = Players.LocalPlayer
-local centralPond               = workspace:WaitForChild("centralPond")
-local pondModel                 = centralPond:WaitForChild("centralPond")
-local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
-local BillboardGui              = SubmissionBillboardHolder:WaitForChild("BillboardGui")
-local Frame                     = BillboardGui:WaitForChild("Frame")
-local TimeLabel                 = Frame:WaitForChild("TimeLabel")
 
 -- GUI
 local OutfitVoteTile    = require(script:WaitForChild("OutfitVoteTile"))
-local EmptyVoteTile     = require(script:WaitForChild("EmptyVoteTile"))
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
+local LoadingScreen     = require(Widgets:WaitForChild("LoadingScreen"))
 
 -- Modules
 local SerialisationService  = require(Utility:WaitForChild("SerialisationService"))
-local callWithRetry         = require(Utility:WaitForChild("callWithRetry"))
 local ImageUris             = require(DataTables:WaitForChild("ImageUris"))
 local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion                = require(Utility:WaitForChild("Fusion"))
 local GuiManager            = require(GuiManagerLibrary:WaitForChild("GuiManager"))
 
--- Fusion Modules
+-- Fusion
 local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
 
+-- Values
+local secondsRemaining = Values:WaitForChild("SecondsRemaining") :: StringValue
+local currentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
+
+-- Remotes
+local GetNextOutfitRF = Remotes:WaitForChild("GetNextOutfitRF")
+local SubmitVoteRF = Remotes:WaitForChild("SubmitVoteRF")
+local GetUnseenCountRF = Remotes:WaitForChild("GetUnseenCountRF")
+local GetVotingThemeRF = Remotes:WaitForChild("GetVotingThemeRF")
+
 -- Constants
-local maxDisplayedOutfits = 3
-local VOTE_TILE_SIZE = UDim2.fromScale(0.3, 0.9)
-local MIN_SECS_BETWEEN_REFRESH = 1
+local LEFT_SLOT_POS = UDim2.fromScale(0.25, 0.5)
+local RIGHT_SLOT_POS = UDim2.fromScale(0.75, 0.5)
+local OFFSCREEN_LEFT = UDim2.fromScale(-0.5, 0.5)
+local OFFSCREEN_RIGHT = UDim2.fromScale(1.5, 0.5)
+local OFFSCREEN_DOWN = UDim2.fromScale(0.5, 1.8)
+local TILE_SIZE = UDim2.fromScale(0.35, 0.85)
+local POSITION_TWEEN_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
--- Remotes / Bindables
-local PlayerRequestedVotingTheme = Remotes:WaitForChild("PlayerRequestedVotingTheme")
-local PlayerSubmittedVote = Remotes:WaitForChild("PlayerSubmittedVote")
-local GetBalancedOutfit = Remotes:WaitForChild("GetBalancedOutfit")
-
--- Types
-type TileData = {
-    userId: number,
-    humanoidDescription: HumanoidDescription?,
-    playerName: string,
-    votes: number,
-    views: number
-}
+--
 
 local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
-    -- Variables
-    local timeToNextRotation = scope:Value("LOADING...")
-    local outfitVoteTiles = scope:Value({})
-    local isRefreshing = false
-    local lastRefresh = scope:Value(DateTime.now().UnixTimestamp)
-    local selectedTileId = scope:Value(0)
-    local votingTheme = scope:Value("")
+	-- State
+	local votingTheme = scope:Value("Loading...")
+	local currentState = scope:Value("N/A")
+	local votingTime = scope:Value("3:00")
+	local loadingScreenVisible = scope:Value(false)
+	
+	local votingTimeText = scope:Computed(function(use)
+		return use(currentState) == "Voting" and use(votingTime) or "Waiting..." 
+	end)
 
-    local function refreshOutfitVoteTiles(force: boolean?)
-        if isRefreshing then
-            warn("Already refreshing outfit tiles, skipping...")
-            return
-        end
+	currentStateName:GetPropertyChangedSignal("Value"):Connect(function()  
+		currentState:set(currentStateName.Value)
+	end)
 
-        local currentRefresh = DateTime.now().UnixTimestamp
-        local refreshInterval = currentRefresh - peek(lastRefresh)
+	local votingComplete = scope:Value(false)
+	local tilesContainer = scope:Value({})
 
-        if not force and (refreshInterval < MIN_SECS_BETWEEN_REFRESH) then
-            warn("Refresh triggered too soon since last refresh")
-            return
-        end
+	secondsRemaining:GetPropertyChangedSignal("Value"):Connect(function()  
+		votingTime:set(secondsRemaining.Value)
+	end)
 
-        isRefreshing = true
-        lastRefresh:set(DateTime.now().UnixTimestamp)
-        
-        -- Clear selection and existing tiles
-        outfitVoteTiles:set({})
-        
-        -- Fetch new outfits
-        local newTiles = {}
-        local successCount = 0
-        local usedIds = {}
+	-- Tile references (not reactive, just tracking)
+	local leftTile: Frame? = nil
+	local rightTile: Frame? = nil
+	local leftControls: OutfitVoteTile.OutfitVoteTileControls? = nil 
+	local rightControls: OutfitVoteTile.OutfitVoteTileControls? = nil
+	local leftOutfitId: string? = nil
+	local rightOutfitId: string? = nil
+	local leftPositionValue: Value<UDim2>? = nil
+	local rightPositionValue: Value<UDim2>? = nil
 
-        for i = 1, maxDisplayedOutfits do
-            local success, outfitData = callWithRetry(
-                function()
-                    return GetBalancedOutfit:InvokeServer()
-                end,
-                5
-            )
-            
-            if success and outfitData and not table.find(usedIds, outfitData.userId) then
-                if not outfitData.humanoidDescription then 
-                    continue
-                end
-                newTiles[i] = {
-                    userId = outfitData.userId,
-                    humanoidDescription = SerialisationService.UnserialiseHumanoidDescription(outfitData.humanoidDescription),
-                    playerName = outfitData.playerName,
-                    votes = outfitData.votes or "FAILURE_NO_VOTES",
-                    views = outfitData.views or "FAILURE_NO_VIEWS"
-                } :: TileData
-                
-                table.insert(usedIds, outfitData.userId)
-                successCount = successCount + 1
-            else
-                newTiles[i] = {
-                    userId = 0,
-                    humanoidDescription = nil,
-                    playerName = "NO_MORE_OUTFITS_AVAILABLE",
-                    votes = 0,
-                    views = 0
-                } :: TileData
-            end
-        end
-        
-        outfitVoteTiles:set(newTiles)
-        isRefreshing = false
-    end
+	-- Helper functions
+	local function cleanupTile(tile: Frame?)
+		if tile then
+			task.delay(0.6, function()
+				if tile then
+					tile:Destroy()
+				end
+			end)
+		end
+	end
 
-    -- Load voting theme and outfits initially
-    task.spawn(function()
-        task.wait(1)
-        votingTheme:set(PlayerRequestedVotingTheme:InvokeServer())
-        refreshOutfitVoteTiles(true)
-    end)
+	local function fetchNextOutfit(): { outfitId: string, humanoidDescription: HumanoidDescription }?
+		local success, result = pcall(function()
+			return GetNextOutfitRF:InvokeServer() 
+		end)
 
-    -- Initialize rotation timer
-    task.spawn(function()
-        while true do
-            task.wait(1) 
-            timeToNextRotation:set(TimeLabel.Text)   
-        end
-    end)
+		if success and result and result.humanoidDescription then
+			return {
+				outfitId = result.outfitId,
+				humanoidDescription = SerialisationService.UnserialiseHumanoidDescription(result.humanoidDescription),
+			}
+		end
+		return nil
+	end
 
-    local VotingFrame = scope:New "Frame" {
-        Name = "VotingFrame",
-        Size = UDim2.fromScale(0.8, 0.8),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.fromScale(0.5, 0.5),
-        BackgroundColor3 = Color3.new(1,1,1),
-        BackgroundTransparency = 1,
-        Visible = true,
+	local function getUnseenCount(): number
+		local success, result = pcall(function()
+			return GetUnseenCountRF:InvokeServer()
+		end)
 
-        [Children] = {
-            CloseButton(scope, {
-                size = UDim2.fromScale(0.1, 0.1),
-                anchorPoint = Vector2.new(0.5, 0.5),
-                position = UDim2.fromScale(1, 0),
+		if success and result then
+			return result
+		end
+		return 0
+	end
 
-                onClick = function()
-                    GuiManager.PopCentre()
-                    refreshOutfitVoteTiles()
-                end
-            }),
+	local function submitVote(winnerOutfitId: string, loserOutfitId: string)
+		pcall(function()
+			SubmitVoteRF:InvokeServer(winnerOutfitId, loserOutfitId)
+		end)
+	end
 
-            scope:New "Frame" {
-                Name = "Background",
-                Size = UDim2.fromScale(1,1),
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                Position = UDim2.fromScale(0.5, 0.5),
-                BackgroundColor3 = Color3.new(1,1,1),
-                BackgroundTransparency = 0.2,
+	local function fetchVotingTheme()
+		local success, result = pcall(function()
+			return GetVotingThemeRF:InvokeServer()
+		end)
 
-                [Children] = {    
-                    scope:New "UIListLayout" {
-                        FillDirection = Enum.FillDirection.Vertical,
-                        SortOrder = Enum.SortOrder.LayoutOrder
-                    },
+		if success and result then
+			votingTheme:set(result)
+		else
+			votingTheme:set("Unknown Theme")
+		end
+	end
 
-                    scope:New "UICorner" {
-                        CornerRadius = UDim.new(0.05)
-                    },
-                }
-            },
+	-- Forward declarations for callbacks
+	local onLeftSelected: () -> ()
+	local onRightSelected: () -> ()
 
-            scope:New "Frame" {
-                Name = "Body",
-                LayoutOrder = 2,
-                Size = UDim2.fromScale(1, 1),
-                BackgroundTransparency = 1,
+	local function spawnTile(
+		outfitData: { outfitId: string, humanoidDescription: HumanoidDescription },
+		initialPos: UDim2,
+		finalPos: UDim2,
+		onActivated: () -> ()
+	): (Frame, OutfitVoteTile.OutfitVoteTileControls, Value<UDim2>)
+		local positionValue = scope:Value(initialPos)
+		local positionTween = scope:Tween(positionValue, POSITION_TWEEN_INFO)
 
-                [Children] = { 
-                    scope:New "UIListLayout" {
-                        FillDirection = Enum.FillDirection.Vertical,
-                        SortOrder = Enum.SortOrder.LayoutOrder,
-                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                    },
+		local tile, controls = OutfitVoteTile(scope, {
+			name = "VoteTile_" .. outfitData.outfitId,
+			position = positionTween,
+			size = TILE_SIZE,
+			anchorPoint = Vector2.new(0.5, 0.5),
+			humanoidDescription = outfitData.humanoidDescription,
+			onActivated = onActivated,
+		})
 
-                    scope:New "Frame" {
-                        Name = "Buffer",
-                        Size = UDim2.fromScale(1, 0.03),
-                        LayoutOrder = 0,
-                        BackgroundTransparency = 1
-                    },
+		task.defer(function()
+			positionValue:set(finalPos)
+		end)
 
-                    scope:New "Frame" {
-                        Name = "TopBar",
-                        Size = UDim2.fromScale(1, 0.1),
-                        LayoutOrder = 1,
-                        BackgroundTransparency = 1,
+		return tile, controls, positionValue
+	end
 
-                        [Children] = {
-                            scope:New "UIListLayout" {
-                                FillDirection = Enum.FillDirection.Horizontal,
-                                SortOrder = Enum.SortOrder.LayoutOrder,
-                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                Padding = UDim.new(0.02,0),
-                            },
+	local function spawnNewChallenger()
+		local unseenCount = getUnseenCount()
+		if unseenCount == 0 then
+			votingComplete:set(true)
+			if leftControls then
+				leftControls.triggerWin()
+			end
+			return
+		end
 
-                            scope:New "TextLabel" {
-                                Name = "VoteFor",
-                                Text = "Vote for best fit:",
-                                TextScaled = true,
-                                Size = UDim2.fromScale(0.3, 1),
-                                LayoutOrder = 0,
-                                BackgroundTransparency = 1,
-                                TextColor3 = Color3.fromRGB(92, 96, 214),
-                                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
-                            },
+		local newOutfit = fetchNextOutfit()
+		if not newOutfit then
+			votingComplete:set(true)
+			return
+		end
 
-                            scope:New "TextLabel" {
-                                Name = "TodaysTheme",
-                                Text = votingTheme,
-                                TextScaled = true,
-                                Size = UDim2.fromScale(0.3, 1),
-                                LayoutOrder = 1,
-                                BackgroundTransparency = 1,
-                                TextColor3 = Color3.fromRGB(92, 96, 214),
-                                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
-                            },
+		rightTile, rightControls, rightPositionValue = spawnTile(
+			newOutfit,
+			OFFSCREEN_RIGHT,
+			RIGHT_SLOT_POS,
+			function() onRightSelected() end
+		)
+		rightOutfitId = newOutfit.outfitId
 
-                            scope:New "Frame"{
-                                Name = "Buffer",
-                                Size = UDim2.fromScale(0.03, 1),
-                                LayoutOrder = 2,
-                                BackgroundTransparency = 1,
-                            },
+		tilesContainer:set({ leftTile, rightTile })
+	end
 
-                            scope:New "Frame"{
-                                Name = "TimerContainer",
-                                Size = UDim2.fromScale(0.2, 1),
-                                LayoutOrder = 3,
-                                BackgroundTransparency = 1,
-                                
-                                [Children] = {
-                                    scope:New "UIListLayout" {
-                                        FillDirection = Enum.FillDirection.Horizontal,
-                                        SortOrder = Enum.SortOrder.LayoutOrder,
-                                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                    },
+	onLeftSelected = function()
+		if not leftOutfitId or not rightOutfitId then return end
+		if not leftControls or not rightControls then return end
+		if not rightPositionValue then return end
 
-                                    scope:New "ImageLabel"{
-                                        Image = ImageUris.StopwatchIcon,
-                                        Size = UDim2.fromScale(1, 1),
-                                        LayoutOrder = 1,
-                                        BackgroundTransparency = 1,
-                                        
-                                        [Children] = {
-                                            scope:New "UIAspectRatioConstraint" {
-                                                AspectRatio = 1,
-                                                DominantAxis = Enum.DominantAxis.Width,
-                                            }
-                                        }
-                                    },
+		submitVote(leftOutfitId, rightOutfitId)
 
-                                    scope:New "TextLabel" {
-                                        Name = "Timer",
-                                        Text = timeToNextRotation,
-                                        TextScaled = true,
-                                        Size = UDim2.fromScale(1, 1),
-                                        LayoutOrder = 2,
-                                        BackgroundTransparency = 1,
-                                        TextColor3 = Color3.fromRGB(92, 96, 214),
-                                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    
-                    scope:New "Frame" {
-                        Name = "Buffer",
-                        Size = UDim2.fromScale(1, 0.01),
-                        LayoutOrder = 1,
-                        BackgroundTransparency = 1
-                    },
+		leftControls.triggerWin()
+		rightControls.triggerLoss()
 
-                    scope:New "Frame" {
-                        Name = "OutfitsContainer",
-                        BackgroundTransparency = 1,
-                        Size = UDim2.fromScale(1, 0.8),
-                        LayoutOrder = 2,
+		rightPositionValue:set(OFFSCREEN_DOWN)
+		cleanupTile(rightTile)
+		rightTile = nil
+		rightControls = nil
+		rightOutfitId = nil
+		rightPositionValue = nil
 
-                        [Children] = {
-                            scope:New "UIListLayout" {
-                                FillDirection = Enum.FillDirection.Horizontal,
-                                SortOrder = Enum.SortOrder.LayoutOrder,
-                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                                VerticalAlignment = Enum.VerticalAlignment.Center,
-                                Padding = UDim.new(0.01, 0),
-                                Wraps = false
-                            },
+		task.delay(0.3, spawnNewChallenger)
+	end
 
-                            scope:New "UICorner" {
-                                CornerRadius = UDim.new(0.05)
-                            },
+	onRightSelected = function()
+		if not leftOutfitId or not rightOutfitId then return end
+		if not leftControls or not rightControls then return end
+		if not leftPositionValue or not rightPositionValue then return end
 
-                            scope:ForPairs(outfitVoteTiles, function(use, scope, index, outfitData)
-                                local randomId = math.random(1, 99999)
-                                local tileName = "OutfitTile_" .. randomId
-                                local userId = outfitData.userId
+		submitVote(rightOutfitId, leftOutfitId)
 
-                                if outfitData.humanoidDescription then
-                                    return index, OutfitVoteTile(scope, {
-                                        Name = tileName,
-                                        layoutOrder = index,
-                                        userId = outfitData.userId,
-                                        humanoidDescription = outfitData.humanoidDescription,
-                                        playerName = outfitData.playerName,
-                                        votes = outfitData.votes,
-                                        views = outfitData.views,
-                                        size = VOTE_TILE_SIZE,
-                                        IsSelected = scope:Computed(function(use)
-                                            return use(selectedTileId) == userId
-                                        end), 
+		rightControls.triggerWin()
+		leftControls.triggerLoss()
 
-                                        OnSelected = function()
-                                            if outfitData.userId ~= 0 then
-                                                local viewIds = {}
-                                                for _, tile in ipairs(peek(outfitVoteTiles)) do
-                                                    if tile.userId ~= 0 then
-                                                        table.insert(viewIds, tile.userId)
-                                                    end
-                                                end
+		leftPositionValue:set(OFFSCREEN_DOWN)
+		cleanupTile(leftTile)
 
-                                                PlayerSubmittedVote:InvokeServer(outfitData.userId, viewIds)
-                                                refreshOutfitVoteTiles(true)
-                                            else
-                                                warn("No outfitData user id!")
-                                                refreshOutfitVoteTiles(true)
-                                            end
-                                        end
-                                    })
-                                else
-                                    return index, EmptyVoteTile(scope, {
-                                        name = tileName,
-                                        layoutOrder = index,
-                                        size = VOTE_TILE_SIZE,
-                                        timeToNextRotation = "Out of outfits to load! Please wait for next voting phase."
-                                    })
-                                end
-                            end)
-                        } 
-                    },
-                }
-            },
-        }
-    } :: Frame
+		rightPositionValue:set(LEFT_SLOT_POS)
 
-    return VotingFrame, refreshOutfitVoteTiles
+		leftTile = rightTile
+		leftControls = rightControls
+		leftPositionValue = rightPositionValue
+		leftOutfitId = rightOutfitId
+
+		rightTile = nil
+		rightControls = nil
+		rightOutfitId = nil
+		rightPositionValue = nil
+
+		task.delay(0.3, spawnNewChallenger)
+	end
+
+	local function initialiseVoting()
+		loadingScreenVisible:set(true)
+
+		task.spawn(function()
+			votingComplete:set(false)
+
+			-- Cleanup existing tiles
+			if leftTile then leftTile:Destroy() end
+			if rightTile then rightTile:Destroy() end
+			leftTile = nil
+			rightTile = nil
+			leftControls = nil
+			rightControls = nil
+			leftOutfitId = nil
+			rightOutfitId = nil
+			leftPositionValue = nil
+			rightPositionValue = nil
+			tilesContainer:set({})
+
+			-- Fetch theme
+			fetchVotingTheme()
+
+			-- Fetch first two outfits
+			local firstOutfit = fetchNextOutfit()
+			local secondOutfit = fetchNextOutfit()
+
+			if not firstOutfit or not secondOutfit then
+				votingComplete:set(true)
+				loadingScreenVisible:set(false)
+				return
+			end
+
+			-- Spawn left tile
+			leftTile, leftControls, leftPositionValue = spawnTile(
+				firstOutfit,
+				OFFSCREEN_LEFT,
+				LEFT_SLOT_POS,
+				function() onLeftSelected() end
+			)
+			leftOutfitId = firstOutfit.outfitId
+
+			-- Spawn right tile
+			rightTile, rightControls, rightPositionValue = spawnTile(
+				secondOutfit,
+				OFFSCREEN_RIGHT,
+				RIGHT_SLOT_POS,
+				function() onRightSelected() end
+			)
+			rightOutfitId = secondOutfit.outfitId
+
+			tilesContainer:set({ leftTile, rightTile })
+
+			loadingScreenVisible:set(false)
+		end)
+	end
+
+	-- Build the frame
+	local VotingFrameGui = scope:New "Frame" {
+		Name = "VotingFrame",
+		Size = UDim2.fromScale(0.8, 0.8),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		BackgroundTransparency = 1,
+		Visible = true,
+		ClipsDescendants = false,
+
+		[Children] = {
+			CloseButton(scope, {
+				size = UDim2.fromScale(0.08, 0.1),
+				anchorPoint = Vector2.new(0.5, 0.5),
+				position = UDim2.fromScale(1, 0),
+
+				onClick = function()
+					GuiManager.PopCentre()
+				end
+			}),
+
+			scope:New "Frame" {
+				Name = "Background",
+				Size = UDim2.fromScale(1, 1),
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromScale(0.5, 0.5),
+				BackgroundColor3 = Color3.new(1, 1, 1),
+				BackgroundTransparency = 0.2,
+				ZIndex = 0,
+
+				[Children] = {
+					scope:New "UICorner" {
+						CornerRadius = UDim.new(0.05)
+					},
+				}
+			},
+
+			scope:New "Frame" {
+				Name = "Body",
+				Size = UDim2.fromScale(1, 1),
+				BackgroundTransparency = 1,
+				ZIndex = 1,
+
+				[Children] = {
+					scope:New "UIListLayout" {
+						FillDirection = Enum.FillDirection.Vertical,
+						SortOrder = Enum.SortOrder.LayoutOrder,
+						HorizontalAlignment = Enum.HorizontalAlignment.Center,
+					},
+
+					scope:New "Frame" {
+						Name = "Buffer",
+						Size = UDim2.fromScale(1, 0.03),
+						LayoutOrder = 0,
+						BackgroundTransparency = 1
+					},
+
+					scope:New "Frame" {
+						Name = "TopBar",
+						Size = UDim2.fromScale(1, 0.1),
+						LayoutOrder = 1,
+						BackgroundTransparency = 1,
+
+						[Children] = {
+							scope:New "UIListLayout" {
+								FillDirection = Enum.FillDirection.Horizontal,
+								SortOrder = Enum.SortOrder.LayoutOrder,
+								HorizontalAlignment = Enum.HorizontalAlignment.Center,
+								Padding = UDim.new(0.02, 0),
+							},
+
+							scope:New "TextLabel" {
+								Name = "VoteFor",
+								Text = "Vote for best fit:",
+								TextScaled = true,
+								Size = UDim2.fromScale(0.3, 1),
+								LayoutOrder = 0,
+								BackgroundTransparency = 1,
+								TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+								FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+							},
+
+							scope:New "TextLabel" {
+								Name = "TodaysTheme",
+								Text = votingTheme,
+								TextScaled = true,
+								Size = UDim2.fromScale(0.3, 1),
+								LayoutOrder = 1,
+								BackgroundTransparency = 1,
+								TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+								FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+								TextXAlignment = Enum.TextXAlignment.Left
+							},
+
+							scope:New "Frame" {
+								Name = "Buffer",
+								Size = UDim2.fromScale(0.03, 1),
+								LayoutOrder = 2,
+								BackgroundTransparency = 1,
+							},
+
+							scope:New "Frame" {
+								Name = "TimerContainer",
+								Size = UDim2.fromScale(0.2, 1),
+								LayoutOrder = 3,
+								BackgroundTransparency = 1,
+
+								[Children] = {
+									scope:New "UIListLayout" {
+										FillDirection = Enum.FillDirection.Horizontal,
+										SortOrder = Enum.SortOrder.LayoutOrder,
+										HorizontalAlignment = Enum.HorizontalAlignment.Center,
+									},
+
+									scope:New "ImageLabel" {
+										Image = ImageUris.StopwatchIcon,
+										Size = UDim2.fromScale(1, 1),
+										LayoutOrder = 1,
+										BackgroundTransparency = 1,
+
+										[Children] = {
+											scope:New "UIAspectRatioConstraint" {
+												AspectRatio = 1,
+												DominantAxis = Enum.DominantAxis.Width,
+											}
+										}
+									},
+
+									scope:New "TextLabel" {
+										Name = "Timer",
+										Text = votingTimeText, 
+										TextScaled = true,
+										Size = UDim2.fromScale(1, 1),
+										LayoutOrder = 2,
+										BackgroundTransparency = 1,
+										TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+										FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+										TextXAlignment = Enum.TextXAlignment.Left
+									}
+								}
+							}
+						}
+					},
+
+					scope:New "Frame" {
+						Name = "Buffer",
+						Size = UDim2.fromScale(1, 0.01),
+						LayoutOrder = 2,
+						BackgroundTransparency = 1
+					},
+
+					scope:New "Frame" {
+						Name = "TilesContainer",
+						Size = UDim2.fromScale(1, 0.8),
+						LayoutOrder = 3,
+						BackgroundTransparency = 1,
+
+						[Children] = {
+							scope:Computed(function(use)
+								return use(tilesContainer)
+							end),
+
+							scope:New "TextLabel" {
+								Name = "VotingComplete",
+								Text = "Out of fits to vote for! You've picked your fave fit!",
+								TextScaled = true,
+								Size = UDim2.fromScale(0.3, 0.8),
+								Position = UDim2.fromScale(0.75, 0.5),
+								AnchorPoint = Vector2.new(0.5, 0.5),
+								BackgroundTransparency = 1,
+								TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+								FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+								Visible = votingComplete,
+								ZIndex = 10,
+							},
+
+							LoadingScreen(scope, {
+								size = UDim2.fromScale(1, 1),
+								backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
+								visible = loadingScreenVisible,
+								zIndex = 20,
+								backgroundTransparency = 1,
+							}),
+						}
+					},
+				}
+			},
+		}
+	} :: Frame
+
+	return VotingFrameGui, initialiseVoting
 end
 
 return VotingFrame

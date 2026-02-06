@@ -13,20 +13,6 @@ local Constants = {
 	DEFAULT_NUDGE = 1,
 	DEFAULT_ROTATE = 45,	
 
-	-- Voting Constants
-	SUBMISSION_MEMORYSTORE_NAME = "CSMS",
-	CONTEST_MEMORYSTORE_NAME = "CCMS",
-	WINNERS_MEMORYSTORE_NAME = "CWMS",
-	THEME_MEMORYSTORE_NAME = "ThemesMemoryStore",
-	CURRENT_WINNERS_KEY = "CurrentWinners",
-	CURRENT_TOP_TWENTY_KEY = "TopTwenty",
-	FIRST_PLACE_KEY = "FirstPlace",
-	SECOND_PLACE_KEY = "SecondPlace",
-	THIRD_PLACE_KEY = "ThirdPlace",
-
-	CURRENT_THEME_KEY = "CurrentTheme",
-	GAME_TIMER_MEMORYSTORE_NAME = "GameTimer",
-	
 	-- Datastore names
 	PLAYER_SHOPS_DATA_STORE_NAME = "PlayerShops",
 	OWNEDITEMS_DATASTORE = "PlayerOwnedItems",

@@ -1,301 +1,248 @@
 --!strict
 
+-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Folders
+local Libraries = ReplicatedStorage:WaitForChild("Libraries")
+
+-- Modules
+local ExpConfig = require(Libraries.ExpConfig)
+
+--
+
 local DataManager = {}
 DataManager.Profiles = {}
 
--- Rank system configuration (ranks change every 10 levels)
-local RANK_NAMES = {
-    [1] = "Aura Farmer",    -- Levels 1-10
-    [2] = "Wardobe Walker",  -- Levels 11-20
-    [3] = "Style Apprentice",      -- Levels 21-30
-    [4] = "Trend Thrifter",    -- Levels 31-40
-    [5] = "Style Icon",        -- Levels 41-50
-    [6] = "Looksmaxxer",    -- Levels 51-60
-    [7] = "Drip Master",    -- Levels 61-70
-    [8] = "Runway Rizzer",      -- Levels 71-80
-    [9] = "Fit Checker",  -- Levels 81-90
-    [10] = "Fashion GOAT", -- Levels 91-99
-    [11] = "Taste Maker",        -- Level 100   
-}
-
 -- Helper function to get the start of a day (midnight UTC) for a given timestamp
 local function getDayStart(timestamp: number): number
-    return math.floor(timestamp / 86400) * 86400 -- 86400 seconds in a day
+	return math.floor(timestamp / 86400) * 86400
 end
 
--- Helper function to get current day start
 local function getCurrentDayStart(): number
-    return getDayStart(DateTime.now().UnixTimestamp)
+	return getDayStart(DateTime.now().UnixTimestamp)
 end
 
--- Helper function to get yesterday's day start
 local function getYesterdayStart(): number
-    return getCurrentDayStart() - 86400
-end
-
--- Calculate what level a player should be based on their XP
-local function calculateLevel(exp: number): number
-    -- Each level requires 10 XP (level 1 = 10 XP, level 2 = 20 XP, etc.)
-    local level = math.floor(exp / 10)
-    return math.max(1, level) -- Minimum level 1
-end
-
--- Calculate what rank tier a player is in based on their level (1-10)
-local function calculateRank(level: number): number
-    -- Rank changes every 10 levels
-    -- Level 1-9 = Rank 1, Level 10-19 = Rank 2, Level 20-29 = Rank 3, etc.
-    local rank = math.floor(level / 10) + 1
-    return math.max(1, math.min(rank, 10)) -- Clamp between 1-10
-end
-
-
--- Get the XP required for a specific level
-local function getExpRequiredForLevel(level: number): number
-    return level * 10
-end
-
--- Get rank name
-function DataManager.GetRank(rank: number): string
-    return RANK_NAMES[rank] or "Unknown Rank"
+	return getCurrentDayStart() - 86400
 end
 
 function DataManager.AddExp(player: Player, amount: number)
-    local profile = DataManager.Profiles[player]
+	local profile = DataManager.Profiles[player]
 
-    if not profile then
-        return
-    end
+	if not profile then
+		return
+	end
 
-    local oldLevel = profile.Data.Level
-    local oldRankName = profile.Data.Rank or RANK_NAMES[1] -- Rank is stored as string
-    
-    profile.Data.Exp += amount
-    
-    -- Check for level up
-    local newLevel = calculateLevel(profile.Data.Exp)
-    local newRankTier = calculateRank(newLevel)
-    local newRankName = DataManager.GetRank(newRankTier)
+	local oldLevel = profile.Data.Level
+	local oldRankName = profile.Data.Rank or ExpConfig.RankNames[1]
 
-    -- Handle level up
-    if newLevel > oldLevel then
-        profile.Data.Level = newLevel
-        profile.Data.LevelUpTime = DateTime.now().UnixTimestamp
-        
-        print(player.Name, "leveled up to level", newLevel)
-        
-        -- Update level leaderstat
-        if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level") then
-            player.leaderstats.Level.Value = newLevel
-        end
+	profile.Data.Exp += amount
 
-    end
-    
-    -- Handle rank up (separate from level up)
-    if newRankName ~= oldRankName then
-        profile.Data.Rank = newRankName -- Store as string
-        
-        print(player.Name, "ranked up to", newRankName, "(Rank", newRankTier .. ")!")
-        
-        -- Update rank leaderstat
-        if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Rank") then
-            player.leaderstats.Rank.Value = newRankName
-        end
-    end
-    
-    -- Update exp leaderstats
-    if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Exp") then
-        player.leaderstats.Exp.Value = profile.Data.Exp
-    end
+	local newLevel = ExpConfig.getLevelFromExp(profile.Data.Exp)
+	local newRankTier = ExpConfig.getRankTier(newLevel)
+	local newRankName = ExpConfig.RankNames[newRankTier]
+
+	if newLevel > oldLevel then
+		profile.Data.Level = newLevel
+		profile.Data.LevelUpTime = DateTime.now().UnixTimestamp
+
+		print(player.Name, "leveled up to level", newLevel)
+
+		if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level") then
+			player.leaderstats.Level.Value = newLevel
+		end
+	end
+
+	if newRankName ~= oldRankName then
+		profile.Data.Rank = newRankName
+
+		print(player.Name, "ranked up to", newRankName, "(Rank", newRankTier .. ")!")
+
+		if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Rank") then
+			player.leaderstats.Rank.Value = newRankName
+		end
+	end
+
+	if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Exp") then
+		player.leaderstats.Exp.Value = profile.Data.Exp
+	end
 end
 
 function DataManager.ResetPlayerLevel(player: Player)
-    local profile = DataManager.Profiles[player]
+	local profile = DataManager.Profiles[player]
 
-    if not profile then
-        return
-    end
+	if not profile then
+		return
+	end
 
-    profile.Data.Exp = 0
-    profile.Data.Level = 1
-    profile.Data.Rank = RANK_NAMES[1] -- Store as string
-    
-    -- Update leaderstats
-    if player:FindFirstChild("leaderstats") then
-        if player.leaderstats:FindFirstChild("Level") then
-            player.leaderstats.Level.Value = 1
-        end
-        if player.leaderstats:FindFirstChild("Rank") then
-            player.leaderstats.Rank.Value = RANK_NAMES[1]
-        end
-        if player.leaderstats:FindFirstChild("Exp") then
-            player.leaderstats.Exp.Value = 0
-        end
-    end
+	profile.Data.Exp = 0
+	profile.Data.Level = 1
+	profile.Data.Rank = ExpConfig.RankNames[1]
+
+	if player:FindFirstChild("leaderstats") then
+		if player.leaderstats:FindFirstChild("Level") then
+			player.leaderstats.Level.Value = 1
+		end
+		if player.leaderstats:FindFirstChild("Rank") then
+			player.leaderstats.Rank.Value = ExpConfig.RankNames[1]
+		end
+		if player.leaderstats:FindFirstChild("Exp") then
+			player.leaderstats.Exp.Value = 0
+		end
+	end
 end
 
 function DataManager.ProcessLogin(player: Player)
-    local profile = DataManager.Profiles[player]
-    
-    if not profile then
-        warn("No profile found for player:", player.Name)
-        return
-    end
-    
-    local currentTime = DateTime.now().UnixTimestamp
-    local currentDayStart = getCurrentDayStart()
-    local lastLoginDayStart = getDayStart(profile.Data.LastLoginTime or 0)
-    local yesterdayStart = getYesterdayStart()
-    
-    -- Check if they've already logged in today
-    if lastLoginDayStart == currentDayStart then
-        return
-    end
-    
-    -- Update login time
-    profile.Data.LastLoginTime = currentTime
-    
-    -- Check if they logged in yesterday (consecutive day)
-    if lastLoginDayStart == yesterdayStart then
-        -- Consecutive login - maintain/increase streak
-        profile.Data.LoginStreak += 1
-        
-        -- Calculate bonus: 1 base + 0.5 per streak day
-        local expBonus = 1 + (profile.Data.LoginStreak * 0.5)
-        DataManager.AddExp(player, expBonus)
-        
-        print("Consecutive login! Day", profile.Data.LoginStreak, "- Bonus:", expBonus, "exp")
-        
-    elseif lastLoginDayStart < yesterdayStart then
-        -- Missed a day - reset streak but still give 1 exp for logging in
-        profile.Data.LoginStreak = 1
-        DataManager.AddExp(player, 1)
-        
-        print("Streak reset. New streak day 1 - Bonus: 1 exp")
-        
-    else
-        -- First time login or same day login
-        profile.Data.LoginStreak = 1
-        DataManager.AddExp(player, 1)
-        
-        print("First login or same day - Streak: 1 - Bonus: 1 exp")
-    end
-    
-    -- Update leaderstats to reflect changes
-    if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Exp") then
-        player.leaderstats.Exp.Value = profile.Data.Exp
-    end
-    
-    print("Total exp:", profile.Data.Exp, "Login streak:", profile.Data.LoginStreak)
+	local profile = DataManager.Profiles[player]
+
+	if not profile then
+		warn("No profile found for player:", player.Name)
+		return
+	end
+
+	local currentTime = DateTime.now().UnixTimestamp
+	local currentDayStart = getCurrentDayStart()
+	local lastLoginDayStart = getDayStart(profile.Data.LastLoginTime or 0)
+	local yesterdayStart = getYesterdayStart()
+
+	if lastLoginDayStart == currentDayStart then
+		return
+	end
+
+	profile.Data.LastLoginTime = currentTime
+
+	if lastLoginDayStart == yesterdayStart then
+		profile.Data.LoginStreak += 1
+		local expBonus = 1 + (profile.Data.LoginStreak * 0.5)
+		DataManager.AddExp(player, expBonus)
+		print("Consecutive login! Day", profile.Data.LoginStreak, "- Bonus:", expBonus, "exp")
+	elseif lastLoginDayStart < yesterdayStart then
+		profile.Data.LoginStreak = 1
+		DataManager.AddExp(player, 1)
+		print("Streak reset. New streak day 1 - Bonus: 1 exp")
+	else
+		profile.Data.LoginStreak = 1
+		DataManager.AddExp(player, 1)
+		print("First login or same day - Streak: 1 - Bonus: 1 exp")
+	end
+
+	if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Exp") then
+		player.leaderstats.Exp.Value = profile.Data.Exp
+	end
+
+	print("Total exp:", profile.Data.Exp, "Login streak:", profile.Data.LoginStreak)
 end
 
 function DataManager.GetLoginStreak(player: Player): number
-    local profile = DataManager.Profiles[player]
-    if not profile then
-        return 0
-    end
-    return profile.Data.LoginStreak or 0
+	local profile = DataManager.Profiles[player]
+	if not profile then
+		return 0
+	end
+	return profile.Data.LoginStreak or 0
 end
 
 function DataManager.GetLastLoginTime(player: Player): number
-    local profile = DataManager.Profiles[player]
-    if not profile then
-        return 0
-    end
-    return profile.Data.LastLoginTime or 0
+	local profile = DataManager.Profiles[player]
+	if not profile then
+		return 0
+	end
+	return profile.Data.LastLoginTime or 0
 end
 
 function DataManager.GetTimeSinceLastLogin(player: Player): number
-    local lastLogin = DataManager.GetLastLoginTime(player)
-    if lastLogin == 0 then
-        return 0
-    end
-    return DateTime.now().UnixTimestamp - lastLogin
+	local lastLogin = DataManager.GetLastLoginTime(player)
+	if lastLogin == 0 then
+		return 0
+	end
+	return DateTime.now().UnixTimestamp - lastLogin
 end
 
 function DataManager.onOutfitSubmitted(player: Player)
-    local profile = DataManager.Profiles[player]
-    if not profile then
-        return
-    end
-    profile.Data.LastOutfitSubmittedTime = DateTime.now().UnixTimestamp
+	local profile = DataManager.Profiles[player]
+	if not profile then
+		return
+	end
+	profile.Data.LastOutfitSubmittedTime = DateTime.now().UnixTimestamp
 end
 
 function DataManager.GetLastOutfitSubmittedTime(player: Player): number
-    local profile = DataManager.Profiles[player]
-    if not profile then
-        return 0
-    end
-    return profile.Data.LastOutfitSubmittedTime
-end 
-
--- Debug function to manually test login streaks
-function DataManager.DebugSetLastLogin(player: Player, daysAgo: number)
-    local profile = DataManager.Profiles[player]
-    if not profile then
-        return
-    end
-    
-    -- Set last login to X days ago at midnight
-    local targetDay = getCurrentDayStart() - (daysAgo * 86400)
-    profile.Data.LastLoginTime = targetDay
-    print("Debug: Set", player.Name, "last login to", daysAgo, "days ago")
+	local profile = DataManager.Profiles[player]
+	if not profile then
+		return 0
+	end
+	return profile.Data.LastOutfitSubmittedTime
 end
 
--- Get current level info
+function DataManager.DebugSetLastLogin(player: Player, daysAgo: number)
+	local profile = DataManager.Profiles[player]
+	if not profile then
+		return
+	end
+
+	local targetDay = getCurrentDayStart() - (daysAgo * 86400)
+	profile.Data.LastLoginTime = targetDay
+	print("Debug: Set", player.Name, "last login to", daysAgo, "days ago")
+end
+
 function DataManager.GetLevel(player: Player): number
-    local profile = DataManager.Profiles[player]
-    if not profile then
-        return 1
-    end
-    return profile.Data.Level or 1
+	local profile = DataManager.Profiles[player]
+	if not profile then
+		return 1
+	end
+	return profile.Data.Level or 1
 end
 
 function DataManager.GetRankTier(player: Player): number
-    local level = DataManager.GetLevel(player)
-    return calculateRank(level)
+	local level = DataManager.GetLevel(player)
+	return ExpConfig.getRankTier(level)
 end
 
 function DataManager.GetRankName(player: Player): string
-    local profile = DataManager.Profiles[player]
-    if not profile then
-        return RANK_NAMES[1] -- Default to first rank
-    end
-    return profile.Data.Rank or RANK_NAMES[1]
+	local profile = DataManager.Profiles[player]
+	if not profile then
+		return ExpConfig.RankNames[1]
+	end
+	return profile.Data.Rank or ExpConfig.RankNames[1]
 end
 
 function DataManager.GetLevelUpTime(player: Player): number
-    local profile = DataManager.Profiles[player]
-    if not profile then
-        return 0
-    end
-    return profile.Data.LevelUpTime or 0
+	local profile = DataManager.Profiles[player]
+	if not profile then
+		return 0
+	end
+	return profile.Data.LevelUpTime or 0
 end
 
 function DataManager.GetExpForNextLevel(player: Player): number
-    local currentLevel = DataManager.GetLevel(player)
-    return getExpRequiredForLevel(currentLevel + 1)
+	local currentLevel = DataManager.GetLevel(player)
+	return ExpConfig.getExpForLevel(currentLevel + 1)
 end
 
-function DataManager.GetExpProgress(player: Player): {current: number, required: number, percentage: number}
-    local profile = DataManager.Profiles[player]
-    if not profile then
-        return {current = 0, required = 10, percentage = 0}
-    end
-    
-    local currentExp = profile.Data.Exp
-    local currentLevel = profile.Data.Level
-    local nextLevel = currentLevel + 1
-    
-    local requiredForNext = getExpRequiredForLevel(nextLevel)
-    local requiredForCurrent = getExpRequiredForLevel(currentLevel)
-    local progressExp = currentExp - requiredForCurrent
-    local levelExpRange = requiredForNext - requiredForCurrent
-    
-    return {
-        current = currentExp,
-        required = requiredForNext,
-        percentage = math.floor((progressExp / levelExpRange) * 100)
-    }
+function DataManager.GetExpProgress(player: Player): { current: number, required: number, percentage: number }
+	local profile = DataManager.Profiles[player]
+	if not profile then
+		return { current = 0, required = 250, percentage = 0 }
+	end
+
+	local currentExp = profile.Data.Exp
+	local currentLevel = profile.Data.Level
+	local progress = ExpConfig.getProgress(currentExp, currentLevel)
+	local nextLevel = math.min(currentLevel + 1, 101)
+
+	return {
+		current = currentExp,
+		required = ExpConfig.getExpForLevel(nextLevel),
+		percentage = math.floor(progress * 100)
+	}
+end
+
+function DataManager.DebugPrintXpThresholds()
+	for level = 1, 100 do
+		local xpNeeded = ExpConfig.getXpPerLevelAt(level)
+		print("Level", level, "| Cumulative:", ExpConfig.LevelThresholds[level], "| XP to next:", xpNeeded)
+	end
+	print("Total XP to 100:", ExpConfig.TotalExpToMax)
 end
 
 return DataManager

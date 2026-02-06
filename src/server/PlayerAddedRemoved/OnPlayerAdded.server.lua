@@ -8,7 +8,6 @@ local Players 					= game:GetService("Players")
 
 -- Folders
 local DailyChallenges 	= ServerScriptService:WaitForChild("DailyChallenges")
-local Voting 			= ServerScriptService:WaitForChild("Voting")
 local Data 				= ServerScriptService:WaitForChild("Data")
 --[[
 local DataTables		= ReplicatedStorage:WaitForChild("DataTables")
@@ -19,8 +18,8 @@ local Remotes 			= ReplicatedStorage:WaitForChild("Remotes")
 
 -- Module Scripts
 local PlayerDisplayManager = require(ServerScriptService.Player.PlayerDisplayManager)
-local PlayerVotedOutfitsTracker = require(Voting:WaitForChild("PlayerVotedOutfitsTracker"))
 local ChallengeManager 			= require(DailyChallenges:WaitForChild("ChallengeManager"))
+
 --[[
 local Constants 				= require(ReplicatedStorage:WaitForChild("Constants")) 
 local BuyableShopItems			= require(DataTables:WaitForChild("BuyableShopItems"))
@@ -93,9 +92,7 @@ local function onPlayerAdded(player: Player)
 	initialiseOwnedItemsDatastore(player.UserId)
 	]]
  
-	PlayerVotedOutfitsTracker.OnPlayerAdded(player)
 	ChallengeManager.InitialiseChallenges(player)
 end
-
 
 Players.PlayerAdded:Connect(onPlayerAdded)

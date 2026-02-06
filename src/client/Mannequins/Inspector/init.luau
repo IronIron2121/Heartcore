@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UtiltyFolder = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local getHumanoidDescriptionFromPlayer = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromPlayer)
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local MODAL_NAMES = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
 local WardrobeGuiState = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.WardrobeGuiState)
@@ -79,10 +80,11 @@ function Inspector.inspectPlayer(player: Player)
 	isLoading = true
 	inspectingItems:set({})
 	
-	local success, humDesc = callWithRetry(function()  
-		local inspectId = player.UserId >= 0 and player.UserId or Constants.DEFAULT_ID
-		return Players:GetHumanoidDescriptionFromUserIdAsync(inspectId)
-	end)
+	local success, humDesc = callWithRetry(
+		function()  
+			return getHumanoidDescriptionFromPlayer(player)
+		end
+	)
 
 	if not success then
 		success, humDesc = callWithRetry(function()  
@@ -123,7 +125,6 @@ function Inspector.inspectPlayer(player: Player)
 	WardrobeGuiState.ChangeCurrentView(Constants.WARDROBE_GUI_STATES.InspectFrame)
 	GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
 	isLoading = false
-	warn("done player")
 end
 
 return Inspector

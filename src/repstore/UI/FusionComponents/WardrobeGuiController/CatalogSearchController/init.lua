@@ -96,7 +96,10 @@ function CatalogSearchController:_initialiseSearchFrame()
     self.isLoadingMore = false
     
     self.loadMoreCallback = function()
-        if self.isLoadingMore or peek(self.editorsPickSelected) or self.SearchResultsFrame or peek(self.searchResults).isFinished then return end
+        if self.isLoadingMore or peek(self.editorsPickSelected) or not self.SearchResultsFrame or peek(self.searchResults).isFinished then 
+			warn("Returning before loadmore...", self.isLoadingMore, peek(self.editorsPickSelected), self.SearchResultsFrame, peek(self.searchResults).isFinished)
+			return 
+		end
 		warn("Loading more!") 
         self.isLoadingMore = true
         
