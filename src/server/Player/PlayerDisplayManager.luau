@@ -54,7 +54,7 @@ function PlayerDisplayManager.AddRankDisplayToCharacter(player: Player, characte
     RankLabel.Name = RANK_LABEL_NAME
     RankLabel.Text = playerRank
     RankLabel.TextColor3 = Color3.new(1,1,1)
-    RankLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+    RankLabel.TextStrokeColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE
     RankLabel.TextStrokeTransparency = 0    
     RankLabel.TextScaled = true
     RankLabel.BackgroundTransparency = 1
@@ -68,7 +68,7 @@ function PlayerDisplayManager.AddRankDisplayToCharacter(player: Player, characte
     NameLabel.Name = NAME_LABEL_NAME
     NameLabel.Text = player.Name .. " (Lv. " .. playerLevel .. ")"
     NameLabel.TextColor3 = Color3.new(1, 1, 1)
-    NameLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+    NameLabel.TextStrokeColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE
     NameLabel.TextStrokeTransparency = 0
     NameLabel.TextScaled = true
     NameLabel.BackgroundTransparency = 1
