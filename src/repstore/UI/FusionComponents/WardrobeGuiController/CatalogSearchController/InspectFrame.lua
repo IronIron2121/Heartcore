@@ -16,6 +16,8 @@ local FusionItemTile = require(ReplicatedStorage.UI.FusionComponents.Widgets.Fus
 local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local LoadingScreen = require(ReplicatedStorage.UI.FusionComponents.Widgets.LoadingScreen)
 
 -- Fusion
 local Children = Fusion.Children
@@ -53,6 +55,7 @@ function InspectFrame(
 	}
 
 	local inspectedItems = Inspector.getInspectingItems()
+	local isLoadingVisible = Inspector.getIsLoadingVisible()
 
 	local inspectFrame = scope:New "ScrollingFrame" {
 		Name = "InspectFrame",
@@ -82,6 +85,14 @@ function InspectFrame(
 			scope:New "UICorner" {
 				CornerRadius = UDim.new(0.03,0)
 			},
+
+			LoadingScreen(scope, {
+				size = UDim2.fromScale(1, 1),
+				backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
+				visible = isLoadingVisible,
+				zIndex = 2,
+				backgroundTransparency = 0.2,
+			}),
 
 			scope:ForValues(inspectedItems, function(use, scope, item)
 				local success

@@ -222,7 +222,7 @@ function GuiConfiguration:Disable()
 end
 
 function GuiConfiguration:Enable()
-    task.delay(Constants.DEFAULT_TWEEN.Time * 0.4, function()
+    task.spawn(function()
         if self._elements.topMiddle then self._elements.topMiddle.Parent = self.TopMiddle end
         if self._elements.topRight then self._elements.topRight.Parent = self.TopRight end
         if self._elements.bottomLeft then self._elements.bottomLeft.Parent = self.BottomLeft end
