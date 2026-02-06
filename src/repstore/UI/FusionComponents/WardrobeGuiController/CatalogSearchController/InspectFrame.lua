@@ -16,8 +16,7 @@ local FusionItemTile = require(ReplicatedStorage.UI.FusionComponents.Widgets.Fus
 local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
-local LoadingScreen = require(ReplicatedStorage.UI.FusionComponents.Widgets.LoadingScreen)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 
 -- Fusion
 local Children = Fusion.Children
@@ -42,7 +41,7 @@ function InspectFrame(
 		backgroundTransparency: UsedAs<number>?,
 		currentView: UsedAs<string>,
 	}
-): ScrollingFrame
+): Frame
 	-- Reactive values for responsive grid
 	local cellSize = scope:Value(UDim2.fromOffset(CONFIG.MIN_CELL_SIZE.X, CONFIG.MIN_CELL_SIZE.Y))
 	local gridLayout = scope:New "UIGridLayout" {
@@ -57,17 +56,10 @@ function InspectFrame(
 	local inspectedItems = Inspector.getInspectingItems()
 	local isLoadingVisible = Inspector.getIsLoadingVisible()
 
-	local inspectFrame = scope:New "ScrollingFrame" {
-		Name = "InspectFrame",
-		Visible = scope:Computed(function(use)
-			return use(props.currentView) == Constants.WARDROBE_GUI_STATES.InspectFrame
-		end),
-		AnchorPoint = Vector2.new(0.5, 0.5),
+	local itemsScrollFrame = scope:New "ScrollingFrame" {
+		Name = "ItemsScrollFrame",
 		Size = UDim2.fromScale(1, 1),
-		Position = UDim2.fromScale(0.5, 0.5),
-		BackgroundColor3 = Color3.new(1, 1, 1),
-		BackgroundTransparency = 0.3,
-		LayoutOrder = 2,
+		BackgroundTransparency = 1,
 		CanvasSize = UDim2.fromScale(0, 0),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
@@ -82,18 +74,6 @@ function InspectFrame(
 				PaddingLeft = UDim.new(0.05,0),
 			},
 
-			scope:New "UICorner" {
-				CornerRadius = UDim.new(0.03,0)
-			},
-
-			LoadingScreen(scope, {
-				size = UDim2.fromScale(1, 1),
-				backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
-				visible = isLoadingVisible,
-				zIndex = 2,
-				backgroundTransparency = 0.2,
-			}),
-
 			scope:ForValues(inspectedItems, function(use, scope, item)
 				local success
 				local itemDetails = detailsCache[item.id]
@@ -104,7 +84,7 @@ function InspectFrame(
 							return AvatarEditorService:GetItemDetailsAsync(item.id, (item.type == Enum.MarketplaceProductType.AvatarAsset and Enum.AvatarItemType.Asset or Enum.AvatarItemType.Bundle))
 						end
 					)
-					if not success then 
+					if not success then
 						return
 					else
 						detailsCache[item.id] = itemDetails
@@ -112,9 +92,39 @@ function InspectFrame(
 				end
 
 				return FusionItemTile(scope, {itemDetails = itemDetails, layoutOrder = 1})
-			end) 
+			end)
 		}
 	} :: ScrollingFrame
+
+	local inspectFrame = scope:New "Frame" {
+		Name = "InspectFrame",
+		Visible = scope:Computed(function(use)
+			return use(props.currentView) == Constants.WARDROBE_GUI_STATES.InspectFrame
+		end),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromScale(0.5, 0.5),
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		BackgroundTransparency = 0.3,
+		LayoutOrder = 2,
+
+		[Children] = {
+			scope:New "UICorner" {
+				CornerRadius = UDim.new(0.03,0)
+			},
+
+			itemsScrollFrame,
+		}
+	} :: Frame
+
+	-- Show/hide loading screen via manager
+	scope:Observer(isLoadingVisible):onChange(function()
+		if peek(isLoadingVisible) then
+			LoadingScreenManager.show(inspectFrame)
+		else
+			LoadingScreenManager.hide(inspectFrame)
+		end
+	end)
 
 	-- Responsive grid update function
 	local function updateResponsiveGrid()
@@ -123,7 +133,7 @@ function InspectFrame(
 
 		-- Calculate the total cell width including padding
 		local cellWidth = CONFIG.MIN_CELL_SIZE.X + CONFIG.CELL_PADDING_X
-		local canvasWidth = inspectFrame.AbsoluteSize.X - inspectFrame.ScrollBarThickness
+		local canvasWidth = itemsScrollFrame.AbsoluteSize.X - itemsScrollFrame.ScrollBarThickness
 
 		-- Prevent division by zero
 		if canvasWidth <= 0 then return end
@@ -147,7 +157,7 @@ function InspectFrame(
 	end
 
 	-- Connect to size changes for responsive behavior
-	inspectFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateResponsiveGrid)
+	itemsScrollFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateResponsiveGrid)
 
 	-- Initial update
 	task.defer(updateResponsiveGrid)

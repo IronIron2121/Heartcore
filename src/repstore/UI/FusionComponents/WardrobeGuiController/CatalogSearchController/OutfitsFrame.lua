@@ -26,7 +26,7 @@ local BaseButton = require(Widgets:WaitForChild("BaseButton"))
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 
 -- Widgets
-local LoadingScreen = require(ReplicatedStorage.UI.FusionComponents.Widgets.LoadingScreen)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 
 -- Remotes
 local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
@@ -179,21 +179,6 @@ function OutfitsFrame(
 						PaddingRight = UDim.new(0.02,0),			
 					},
 
-					-- Loading indicator
-					 scope:New "TextLabel" {
-					 	Name = "LoadingLabel",
-					 	Size = UDim2.fromScale(1, 0.1),
-					 	BackgroundTransparency = 1,
-					 	Text = "Loading outfits...",
-					 	TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-					 	TextScaled = true,
-					 	FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
-					 	LayoutOrder = 1,
-					 	Visible = scope:Computed(function(use)
-					 		return use(isLoading)
-					 	end)
-					 },
-
 					-- Empty state message
 					scope:New "TextLabel" {
 						Name = "EmptyStateLabel",
@@ -299,6 +284,15 @@ function OutfitsFrame(
 			}
 		}
 	} :: Frame
+
+	-- Show/hide loading screen via manager
+	scope:Observer(isLoading):onChange(function()
+		if peek(isLoading) then
+			LoadingScreenManager.show(outfitsFrame)
+		else
+			LoadingScreenManager.hide(outfitsFrame)
+		end
+	end)
 
 	return outfitsFrame, updatePlayerOutfits
 end

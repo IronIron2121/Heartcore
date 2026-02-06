@@ -20,7 +20,7 @@ local Constants = require(ReplicatedStorage.Constants)
 local getHumanoidDescriptionFromPlayer = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromPlayer)
 local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
 local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButtonTransparent)
-local LoadingScreen = require(ReplicatedStorage.UI.FusionComponents.Widgets.LoadingScreen)
+local LoadingScreenManager = require(Libraries:WaitForChild("LoadingScreenManager"))
 local ClientOutfitService = require(ReplicatedStorage.Utility.ClientOutfitService)
 local PlayerInspectViewport = require(script.Parent.PlayerInspectViewport)
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
@@ -66,12 +66,23 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     local inspectPlayer = scope:Value(DEFAULT_PLAYER)
     local inspectDescription = scope:Value(DEFAULT_DESC)
 
-    -- Functions
-    local loadingScreenVis = scope:Value(false)
+    local clickedPlayerContainer = scope:New "Frame" {
+        Name = "ClickedPlayerContainer",
+        Size = UDim2.fromScale(0.4, 1),
+        BackgroundTransparency = 1,
+        LayoutOrder = 2,
+
+        [Children] = {
+            PlayerInspectViewport(scope, {
+                model = inspectModel,
+                zIndex = 1
+            }),
+        }
+    } :: Frame
 
     -- Functions
     local function onFrameOpened(player: Player)
-        loadingScreenVis:set(true)
+        LoadingScreenManager.show(clickedPlayerContainer)
         warn(player)
         warn(player.UserId)
 
@@ -107,7 +118,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                 warn("Failed to get humanoid model!", modelSuccess, newModel)
             end
 
-            loadingScreenVis:set(false)
+            LoadingScreenManager.hide(clickedPlayerContainer)
         end)
     end 
 
@@ -250,27 +261,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                 CornerRadius = UDim.new(0.05)
                             },
 
-                            scope:New "Frame" {
-                                Name = "ClickedPlayerContainer",
-                                Size = UDim2.fromScale(0.4, 1),
-                                BackgroundTransparency = 1,
-                                LayoutOrder = 2,
-
-                                [Children] = {
-                                    PlayerInspectViewport(scope, {
-                                        model = inspectModel,
-                                        zIndex = 1
-                                    }),
-
-                                    LoadingScreen(scope, {
-                                        size = UDim2.fromScale(1, 1),
-                                        backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
-                                        visible = loadingScreenVis,
-                                        zIndex = 2,
-                                        backgroundTransparency = 0.2,
-                                    })
-                                }
-                            },
+                            clickedPlayerContainer,
 
                             scope:New "ScrollingFrame" {
                                 Name = "PlayerInspectOptionsPanel",
