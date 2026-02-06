@@ -3,7 +3,6 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players           = game:GetService("Players")
 
 -- Folders
 local Utility           = ReplicatedStorage:WaitForChild("Utility")
@@ -29,7 +28,6 @@ local GuiManager            = require(GuiManagerLibrary:WaitForChild("GuiManager
 local GameStateValues       = require(Libraries:WaitForChild("GameStateValues"))
 
 -- Fusion
-local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
