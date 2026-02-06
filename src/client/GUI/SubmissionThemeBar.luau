@@ -33,6 +33,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local ThemeText = scope:Value("Loading...")
 local TimeLeft = scope:Value(SecondsRemaining.Value)
 local timeBound = 30
+local labelSize = scope:Value(UDim2.fromScale(1, 0.4))
 
 
 local highlightColor = scope:Value("<font color=\"rgb(92, 95, 212)\">")
@@ -45,11 +46,14 @@ end)
 SecondsRemaining:GetPropertyChangedSignal("Value"):Connect(function(...)
     TimeLeft:set(SecondsRemaining.Value)
     if CurrentStateName.Value == "Dressing" then
-        ThemeText:set("Current Fit Check theme: " .. peek(highlightColor) .. peek(strokeColor) .. CurrentThemeName.Value .. peek(closeStroke) .. "</font>" .. ". You have " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font> seconds to submit!")
+        ThemeText:set("Current Fit Check theme: " .. peek(highlightColor) .. peek(strokeColor) .. CurrentThemeName.Value .. peek(closeStroke) .. "</font>" .. ". <br> You have " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font> seconds to submit! </br>")
+        labelSize:set(UDim2.fromScale(1, 0.4))
     elseif CurrentStateName.Value == "Voting" then
         ThemeText:set("Voting time! You have " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font> seconds to vote.")
+        labelSize:set(UDim2.fromScale(1, 0.2))
     elseif CurrentStateName.Value == "Intermission" then
         ThemeText:set("Intermission: " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font>")
+        labelSize:set(UDim2.fromScale(1, 0.2))
     else
         warn("This shouldn't be possible", CurrentStateName.Value)
     end
@@ -67,15 +71,8 @@ local function SubmissionThemeBar()
         BackgroundColor3 = Color3.fromRGB(218, 35, 35),
 
         [Children] = {
-            scope:New "UIListLayout"{
-                FillDirection = Enum.FillDirection.Vertical,
-                SortOrder = Enum.SortOrder.LayoutOrder,
-                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                VerticalAlignment = Enum.VerticalAlignment.Top,
-            },
-
             scope:New "UIPadding" {
-                PaddingTop = UDim.new(0.07, 0),
+                PaddingTop = UDim.new(0.1, 0),
             },
             
             scope:New "TextLabel" {
@@ -83,7 +80,7 @@ local function SubmissionThemeBar()
                 FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
                 RichText = true,
                 Text = ThemeText,
-                Size = UDim2.fromScale(1, 0.2),
+                Size = labelSize,
                 TextScaled = true,
                 LayoutOrder = 0,
                 BackgroundTransparency = 1,
@@ -91,24 +88,6 @@ local function SubmissionThemeBar()
 
                 [Children] = {
                     scope:New "UIStroke"{
-                        Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                        Thickness = 2,
-                    }
-                }
-            },
-
-             scope:New "TextLabel" {
-                Name = "SubmitText",
-                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
-                Text = "Submit your fit in the submission hut!",
-                Size = UDim2.fromScale(1, 0.2),
-                TextScaled = true,
-                LayoutOrder = 1,
-                BackgroundTransparency = 1,
-                TextColor3 = Color3.fromRGB(255, 255, 255),
-
-                [Children] = {
-                    scope:New "UIStroke" {
                         Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
                         Thickness = 2,
                     }
