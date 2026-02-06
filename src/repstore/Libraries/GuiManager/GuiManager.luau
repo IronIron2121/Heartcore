@@ -334,13 +334,6 @@ function GuiManager.ShowCurrentConfiguration(): ()
     end
 end
 
-function GuiManager.GetCurrentConfigrationName(): string?
-    if currentConfiguration then
-        return currentConfiguration.Name
-    end
-    return nil
-end
-
 function GuiManager.GetCurrentConfigurationNameValue(): Value<string?>
     return currentConfigurationName
 end

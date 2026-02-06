@@ -74,7 +74,7 @@ local function InitialiseHuds()
         end),
 
         onActivated = function()
-            local currentConfig = GuiManager.GetCurrentConfigrationName()
+            local currentConfig = peek(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
                 GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.ShoppingConfig)
             elseif currentConfig == CONFIGURATION_NAMES.ShoppingConfig then
@@ -105,7 +105,7 @@ local function InitialiseHuds()
         end),
 
         onActivated = function()
-            local currentConfig = GuiManager.GetCurrentConfigrationName()
+            local currentConfig = peek(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
                 GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.ShoppingConfig)
             elseif currentConfig == CONFIGURATION_NAMES.ShoppingConfig then
@@ -233,7 +233,7 @@ local function InitialiseHuds()
 
     local GameLoopConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
-        topMiddle = nil,
+        topMiddle = submissionThemeBar,
         topRight = expHud,
         bottomLeft = nil,
         bottomMiddle = buttonsFrame,
@@ -242,7 +242,7 @@ local function InitialiseHuds()
 
     local ShoppingConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.ShoppingConfig,
-        topMiddle = submissionThemeBar,
+        topMiddle = nil,
         topRight = expHud,
         bottomLeft = nil,
         bottomMiddle = buttonsFrame,
