@@ -54,6 +54,7 @@ local NOTIFICATION_OFF_SCREEN_POSITION = UDim2.fromScale(0.5, -5)
 --
 
 local currentConfiguration: Types.GuiConfiguration? = nil
+local currentConfigurationName: Value<string?> = guiScope:Value(nil)
 local registeredConfigurations: {[string]: Types.GuiConfiguration} = {}
 
 local HudContainer = guiScope:New "ScreenGui" {
@@ -314,6 +315,7 @@ function GuiManager.DisplayConfiguration(configurationName: string): ()
 
     local newConfiguration = registeredConfigurations[configurationName]
     currentConfiguration = newConfiguration
+    currentConfigurationName:set(configurationName)
     assert(currentConfiguration, "Configuration should not be nil") -- type checker unfortunately redlines if we don't put this here
     if not peek(CentreActive) then
         currentConfiguration:Enable()
@@ -332,12 +334,15 @@ function GuiManager.ShowCurrentConfiguration(): ()
     end
 end
 
-function GuiManager.LogCurrentConfigratuin(): string?
+function GuiManager.GetCurrentConfigrationName(): string?
     if currentConfiguration then
-        print(currentConfiguration.Name)
         return currentConfiguration.Name
     end
     return nil
+end
+
+function GuiManager.GetCurrentConfigurationNameValue(): Value<string?>
+    return currentConfigurationName
 end
 
 function GuiManager.IsModalActive(modal: GuiObject): boolean

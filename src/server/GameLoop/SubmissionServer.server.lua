@@ -21,6 +21,9 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local scope = Fusion:scoped()
 local OnEvent = Fusion.OnEvent
 
+-- Remotes
+local PlayerSubmittedOutfitRF = Remotes:WaitForChild("PlayerSubmittedOutfit") :: RemoteFunction
+
 -- Instances
 local SubmissionPad = submissionZone:WaitForChild("SubmissionPad")
 local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
@@ -62,3 +65,8 @@ local prompt = scope:New "ProximityPrompt" {
         onOutfitSubmitted(player)
     end
 }
+
+-- Handle RemoteFunction calls from GUI
+PlayerSubmittedOutfitRF.OnServerInvoke = function(player: Player)
+    onOutfitSubmitted(player)
+end

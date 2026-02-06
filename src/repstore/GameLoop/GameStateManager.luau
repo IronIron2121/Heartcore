@@ -44,7 +44,6 @@ local MAX_RECENT_THEMES = 5
 
 local currentState: string = nil
 local currentTheme: string = nil
-local timerThread: thread? = nil
 
 local recentThemes: { string } = {}
 

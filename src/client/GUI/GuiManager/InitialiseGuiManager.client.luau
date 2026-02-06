@@ -8,32 +8,43 @@ local StarterPlayer = game:GetService("StarterPlayer")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 local UI = ReplicatedStorage:WaitForChild("UI")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+
 local FusionComponents = UI.FusionComponents
-local DailyChallengeFolder = FusionComponents.DailyChallengeGui 
+local FusionWidgets = FusionComponents.Widgets
+local DailyChallengeFolder = FusionComponents.DailyChallengeGui
 local WardrobeGuiController = FusionComponents.WardrobeGuiController
+local FusionUtility = ReplicatedStorage.Utility.Fusion
+local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
+local ClientGUI = StarterPlayerScripts.GUI
+local GameState = StarterPlayerScripts.GameState
 
 -- Modules
-local GameStateValues = require(ReplicatedStorage.Libraries.GameStateValues)
-local SubmissionThemeBar = require(StarterPlayer.StarterPlayerScripts.GUI.SubmissionThemeBar)
-local OpenWardrobeButton = require(ReplicatedStorage.UI.FusionComponents.OpenWardrobeButton)
-local PlayerClickFrame = require(ReplicatedStorage.UI.FusionComponents.PlayerClickFrame)
-local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
+local PlayerSubmissionState = require(GameState.PlayerSubmissionState)
+local Fusion = require(FusionUtility)
+local peek = require(FusionUtility.State.peek)
+local BaseButton = require(FusionWidgets.BaseButton)
+local GuiManager = require(GuiManagerLibrary.GuiManager)
+local UI_CONSTANTS = require(ReplicatedStorage.Utility.UI_CONSTANTS)
+local disconnectAndClear = require(ReplicatedStorage.Utility.disconnectAndClear)
+local VotingFrame = require(FusionComponents.VotingFrame)
+local GameStateValues = require(Libraries.GameStateValues)
+local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
+local ExpHud = require(FusionComponents:WaitForChild("ExpHud"))
+local SubmissionThemeBar = require(ClientGUI.SubmissionThemeBar)
+local PlayerClickFrame = require(FusionComponents.PlayerClickFrame)
+local GuiConfiguration = require(GuiManagerLibrary.GuiConfiguration)
+local OpenWardrobeButton = require(FusionComponents.OpenWardrobeButton)
+local CONFIGURATION_NAMES = require(GuiManagerLibrary.CONFIGURATION_NAMES)
+local DailyChallengeFrame = require(DailyChallengeFolder.DailyChallengeFrame)
+local OutfitViewController = require(WardrobeGuiController.OutfitViewController)
 local AvatarEditorController = require(WardrobeGuiController.AvatarEditorController)
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
-local OutfitViewController = require(WardrobeGuiController.OutfitViewController)
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
-local Fusion = require(ReplicatedStorage.Utility.Fusion)
-local Child = require(ReplicatedStorage.Utility.Fusion.Instances.Child)
-local Computed = require(ReplicatedStorage.Utility.Fusion.State.Computed)
-local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
-local GuiConfiguration = require(GuiManagerLibrary.GuiConfiguration)
-local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
-local CONFIGURATION_NAMES = require(GuiManagerLibrary.CONFIGURATION_NAMES)
-local GuiManager = require(GuiManagerLibrary.GuiManager)
-local ExpHud = require(FusionComponents:WaitForChild("ExpHud"))
-local DailyChallengeFrame = require(DailyChallengeFolder.DailyChallengeFrame)
 local OpenDailyChallengeGuiButton = require(FusionComponents:WaitForChild("OpenDailyChallengeGuiButton"))
-local VotingFrame = require(FusionComponents.VotingFrame)
+
+-- Remotes
+local PlayerSubmittedOutfitRF = Remotes:WaitForChild("PlayerSubmittedOutfit") :: RemoteFunction
 
 -- Fusion
 local Children = Fusion.Children
@@ -46,6 +57,70 @@ local function InitialiseHuds()
     local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
     local openWardrobeButton = OpenWardrobeButton(hudScope)
     local submissionThemeBar = SubmissionThemeBar()
+
+    local currentConfigurationName = GuiManager.GetCurrentConfigurationNameValue()
+
+    local GameModeButton = BaseButton(hudScope, {
+        name = "ChangeModeButton",
+        layoutOrder = 2,
+        size = UDim2.fromScale(0.3, 0.3),
+        text = hudScope:Computed(function(use)
+            local currentConfig = use(currentConfigurationName)
+            if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
+                return "Exit Game"
+            else
+                return "Enter Game"
+            end
+        end),
+
+        onActivated = function()
+            local currentConfig = GuiManager.GetCurrentConfigrationName()
+            if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
+                GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.ShoppingConfig)
+            elseif currentConfig == CONFIGURATION_NAMES.ShoppingConfig then
+                GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+            end
+        end,
+
+        [Children] = {
+            hudScope:New "UIAspectRatioConstraint" {
+                AspectRatio = 1,
+                AspectType = Enum.AspectType.FitWithinMaxSize,
+                DominantAxis = Enum.DominantAxis.Width
+            }
+        }
+    })
+
+    local GameModeButton2 = BaseButton(hudScope, {
+        name = "ChangeModeButton2",
+        layoutOrder = 2,
+        size = UDim2.fromScale(0.3, 0.3),
+        text = hudScope:Computed(function(use)
+            local currentConfig = use(currentConfigurationName)
+            if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
+                return "Exit Game"
+            else
+                return "Enter Game"
+            end
+        end),
+
+        onActivated = function()
+            local currentConfig = GuiManager.GetCurrentConfigrationName()
+            if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
+                GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.ShoppingConfig)
+            elseif currentConfig == CONFIGURATION_NAMES.ShoppingConfig then
+                GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+            end
+        end,
+
+        [Children] = {
+            hudScope:New "UIAspectRatioConstraint" {
+                AspectRatio = 1,
+                AspectType = Enum.AspectType.FitWithinMaxSize,
+                DominantAxis = Enum.DominantAxis.Width
+            }
+        }
+    })
 
     local buttonsFrame = hudScope:New "Frame" {
         Size = UDim2.fromScale(1, 1),
@@ -84,15 +159,38 @@ local function InitialiseHuds()
             },
 
             BaseButton(hudScope, {
-                name = "GameStateButton", 
+                name = "GameStateButton",
                 size = UDim2.fromScale(0.3, 0.3),
                 layoutOrder = 1,
-                text = hudScope:Computed(function(use)  
-                    return (use(GameStateValues.isDressing) and "SUBMIT OUTFIT") or (use(GameStateValues.isVoting) and "VOTE") or ""                
+                text = hudScope:Computed(function(use)
+                    if use(GameStateValues.isDressing) then
+                        if use(PlayerSubmissionState.playerHasSubmitted) then
+                            return "OUTFIT SUBMITTED"
+                        else
+                            return "SUBMIT OUTFIT"
+                        end
+                    elseif use(GameStateValues.isVoting) then
+                        return "VOTE"
+                    else
+                        return ""
+                    end
+                end),
+                backgroundColor = hudScope:Computed(function(use)
+                    if use(GameStateValues.isIntermission) then
+                        return UI_CONSTANTS.COLOUR_GREY
+                    elseif use(GameStateValues.isDressing) and use(PlayerSubmissionState.playerHasSubmitted) then
+                        return UI_CONSTANTS.COLOUR_GREY
+                    else
+                        return UI_CONSTANTS.COLOUR_WHITE
+                    end
                 end),
                 onActivated = function()
                     if (peek(GameStateValues.isDressing)) then
-                        -- submit outfit CB
+                        if not peek(PlayerSubmissionState.playerHasSubmitted) then
+                            PlayerSubmittedOutfitRF:InvokeServer()
+                        else
+                            warn("Already submitted this round")
+                        end
                     elseif (peek(GameStateValues.isVoting)) then
                         GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
                     else
@@ -109,38 +207,29 @@ local function InitialiseHuds()
                 }
             }),
 
-            BaseButton(hudScope, {
-                name = "ChangeModeButton",
-                layoutOrder = 2,
-                size = UDim2.fromScale(0.3, 0.3),
-                text = hudScope:Computed(function() 
-                    return "Change Mode"
-                end),
-
-                onActivated = function()
-
-                end,
-                
-
-                [Children] = {
-                    hudScope:New "UIAspectRatioConstraint" {
-                        AspectRatio = 1,
-                        AspectType = Enum.AspectType.FitWithinMaxSize,
-                        DominantAxis = Enum.DominantAxis.Width
-                    }
-                }
-            })
+            GameModeButton
         }
     } :: Frame
 
-    local ShoppingConfig = GuiConfiguration.new({
-        ConfigurationName = CONFIGURATION_NAMES.ShoppingConfig,
-        topMiddle = submissionThemeBar,
-        topRight = expHud,
-        bottomLeft = nil,
-        bottomMiddle = buttonsFrame,
-        bottomRight = nil
-    })
+    local GameOptionsFrame2 = hudScope:New "Frame" {
+        Name = "GameOptionsFrame2",
+        Size = UDim2.fromScale(1, 1),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.fromScale(0.5, 0.5),
+        BackgroundTransparency = 1,
+
+        [Children] = {
+            hudScope:New "UIListLayout" {
+                Padding = UDim.new(0, 10),
+                FillDirection = Enum.FillDirection.Horizontal,
+                SortOrder = Enum.SortOrder.LayoutOrder,
+                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                VerticalAlignment = Enum.VerticalAlignment.Center
+            },
+
+            GameModeButton2
+        }
+    } :: Frame
 
     local GameLoopConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
@@ -151,8 +240,17 @@ local function InitialiseHuds()
         bottomRight = GameOptionsFrame1
     })
 
-    GuiManager.RegisterConfiguration(ShoppingConfig) 
+    local ShoppingConfig = GuiConfiguration.new({
+        ConfigurationName = CONFIGURATION_NAMES.ShoppingConfig,
+        topMiddle = submissionThemeBar,
+        topRight = expHud,
+        bottomLeft = nil,
+        bottomMiddle = buttonsFrame,
+        bottomRight = GameOptionsFrame2
+    })
+
     GuiManager.RegisterConfiguration(GameLoopConfig)
+    GuiManager.RegisterConfiguration(ShoppingConfig) 
     GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
 end
 

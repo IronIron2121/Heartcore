@@ -11,13 +11,6 @@ local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local GameStateValues = require(Libraries:WaitForChild("GameStateValues"))
 
--- Instances
-local centralPond               = workspace:WaitForChild("centralPond")
-local pondModel                 = centralPond:WaitForChild("centralPond")
-local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
-local BillboardGui              = SubmissionBillboardHolder:WaitForChild("BillboardGui")
-local Frame                     = BillboardGui:WaitForChild("Frame")
-
 -- Fusion 
 local Fusion   = require(Utility:WaitForChild("Fusion"))
 local scope    = Fusion:scoped()
@@ -79,7 +72,7 @@ local function SubmissionThemeBar()
             
             scope:New "TextLabel" {
                 Name = "ThemeText",
-                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
+                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
                 RichText = true,
                 Text = ThemeText,
                 Size = UDim2.fromScale(1, 0.2),

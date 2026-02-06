@@ -45,7 +45,6 @@ function Frame(
 
     -- Rotation anim
 
-
     scope:Observer(props.visible):onChange(function()
         warn("spawned load!")
         task.spawn(function()

@@ -3,11 +3,17 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local submissionZone = workspace:WaitForChild("submissionZone")
 local Values = ReplicatedStorage:WaitForChild("Values")
+local StarterPlayerScripts = StarterPlayer:WaitForChild("StarterPlayerScripts")
+local GameState = StarterPlayerScripts:WaitForChild("GameState")
+
+-- Modules
+local PlayerSubmissionState = require(GameState:WaitForChild("PlayerSubmissionState"))
 
 -- Remotes
 local SubmissionResultRE = Remotes:WaitForChild("SubmissionResultRE")
@@ -38,6 +44,7 @@ end
 local function onSubmissionResult(result: { ok: boolean, msg: string })
     if result.ok then
         hasSubmittedThisRound = true
+        PlayerSubmissionState.playerHasSubmitted:set(true)
         StarterGui:SetCore("SendNotification", {
             Title = "Outfit Submitted Successfully!",
             Text = "",
@@ -48,7 +55,7 @@ local function onSubmissionResult(result: { ok: boolean, msg: string })
             Text = result.msg,
         })
     end
-    
+
     updateSubmitButton()
 end
 
@@ -56,8 +63,9 @@ local function onStateChanged()
     -- Reset submission tracking when Dressing starts
     if CurrentStateName.Value == "Dressing" then
         hasSubmittedThisRound = false
+        PlayerSubmissionState.playerHasSubmitted:set(false)
     end
-    
+
     updateSubmitButton()
 end
 
@@ -69,6 +77,7 @@ CurrentStateName.Changed:Connect(onStateChanged)
 local function initialize()
     -- Check with server if we've already submitted (handles rejoins mid-round)
     hasSubmittedThisRound = CanSubmitRF:InvokeServer() == false
+    PlayerSubmissionState.playerHasSubmitted:set(hasSubmittedThisRound)
     updateSubmitButton()
 end
 
