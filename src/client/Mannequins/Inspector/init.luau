@@ -8,11 +8,13 @@
 -- Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AvatarEditorService = game:GetService("AvatarEditorService")
 
 -- Folders
 local UtiltyFolder = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local ItemFilters = require(ReplicatedStorage.Client.EquipFrame.ItemFilters)
 local getHumanoidDescriptionFromPlayer = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromPlayer)
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local MODAL_NAMES = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
@@ -27,15 +29,22 @@ local scope = Fusion:scoped()
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
 -- State
-local inspectingItems: Value<{{id: number, type: Enum.MarketplaceProductType}}> = scope:Value({})
+local inspectingItems: Value<{{id: number, type: Enum.MarketplaceProductType, itemDetails: {}}}> = scope:Value({})
 local isLoading = false
 local isLoadingVisible: Value<boolean> = scope:Value(false)
+
+local detailsCache = {}
 
 --
 
 local Inspector = {}
 
-function Inspector.getInspectingItems(): Fusion.Value<{{id: number, type: Enum.MarketplaceProductType}}>
+local function addOrGetFromCache()
+
+
+end
+
+function Inspector.getInspectingItems(): Fusion.Value<{{id: number, type: Enum.MarketplaceProductType, itemDetails: {}}}>
 	return inspectingItems
 end
 
@@ -62,16 +71,44 @@ function Inspector.inspectMannequin(mannequin: Model)
 
 		local newItems = {}
 		for _, accessoryId in accessoryIds do
+			local success, itemDetails = nil, detailsCache[accessoryId]
+			if not itemDetails then
+				success, itemDetails = callWithRetry(
+					function()
+						return AvatarEditorService:GetItemDetailsAsync(accessoryId, Enum.AvatarItemType.Asset)
+					end
+				)
+				if not success then
+					return
+				else
+					detailsCache[accessoryId] = itemDetails
+				end
+			end
 			table.insert(newItems, {
 				id = accessoryId,
-				type = Enum.MarketplaceProductType.AvatarAsset
+				type = Enum.MarketplaceProductType.AvatarAsset,
+				itemDetails = itemDetails
 			})
 		end
 
 		for _, bundleId in bundleIds do
+			local success, itemDetails = nil, detailsCache[bundleId]
+			if not itemDetails then
+				success, itemDetails = callWithRetry(
+					function()
+						return AvatarEditorService:GetItemDetailsAsync(bundleId, Enum.AvatarItemType.Bundle)
+					end
+				)
+				if not success then
+					return
+				else
+					detailsCache[bundleId] = itemDetails
+				end
+			end
 			table.insert(newItems, {
 				id = bundleId,
-				type = Enum.MarketplaceProductType.AvatarBundle
+				type = Enum.MarketplaceProductType.AvatarBundle,
+				itemDetails = nil
 			})
 		end
 
@@ -120,9 +157,23 @@ function Inspector.inspectPlayer(player: Player)
 		-- Collect current asset IDs from descriptions
 		for _, desc in humDesc:GetChildren() do
 			if (desc:IsA("AccessoryDescription") or desc:IsA("BodyPartDescription")) and desc.AssetId ~= 0 then
+				local accSuccess, itemDetails = nil, detailsCache[desc.AssetId]
+				if not itemDetails then
+					accSuccess, itemDetails = callWithRetry(
+						function()
+							return AvatarEditorService:GetItemDetailsAsync(desc.AssetId, Enum.AvatarItemType.Asset)
+						end
+					)
+					if not accSuccess then
+						return
+					else
+						detailsCache[desc.AssetId] = itemDetails
+					end
+				end
 				table.insert(newItems, {
 					id = desc.AssetId,
-					type = Enum.MarketplaceProductType.AvatarAsset
+					type = Enum.MarketplaceProductType.AvatarAsset,
+					itemDetails = itemDetails
 				})
 			end
 		end
@@ -131,6 +182,19 @@ function Inspector.inspectPlayer(player: Player)
 		for _, itemType in Constants.CLASSIC_ITEMS do
 			local assetId = humDesc[itemType]
 			if assetId and assetId ~= 0 then
+				local accSuccess, itemDetails = nil, detailsCache[assetId]
+				if not itemDetails then
+					accSuccess, itemDetails = callWithRetry(
+						function()
+							return AvatarEditorService:GetItemDetailsAsync(assetId, Enum.AvatarItemType.Asset)
+						end
+					)
+					if not accSuccess then
+						return
+					else
+						detailsCache[assetId] = itemDetails
+					end
+				end
 				table.insert(newItems, {
 					id = assetId,
 					type = Enum.MarketplaceProductType.AvatarAsset

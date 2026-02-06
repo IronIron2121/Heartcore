@@ -14,7 +14,8 @@ local SerialisationService = require(Utility:WaitForChild("SerialisationService"
 
 -- Remotes
 local PlayerEquippedTastemakerOutfit = Remotes:WaitForChild("PlayerEquippedTastemakerOutfit")
-local PlayerEqippedInspectedOutfit = Remotes:WaitForChild("PlayerEquippedInspectedOutfit")
+local PlayerEquippedInspectedOutfit = Remotes:WaitForChild("PlayerEquippedInspectedPlayer")
+local PlayerEquippedInspectedItemsRF = Remotes:WaitForChild("PlayerEquippedInspectedItemsRF")
 local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
 local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
@@ -90,7 +91,18 @@ local function playerEquippedTastemakerOutfit(player: Player, tastemakerOutfit: 
 	setPlayerEquipping(player, false)
 end
 
-local function playerEquippedInspectedOutfit(player: Player, inspectedPlayer: Player)
+local function playerEquippedInspectedItemsRF(player: Player, items: {{assetId: number, type: Enum.MarketplaceProductType}})
+	if isPlayerEquipping(player) then return end
+	setPlayerEquipping(player, true)
+	for _, item in pairs(items) do
+		ServerCustomisationService.AddItemToAvatar(player, item.assetId, "Asset", itemType)
+	end
+	setPlayerEquipping(player, false)
+end
+
+
+
+local function playerEquippedInspectedPlayer(player: Player, inspectedPlayer: Player)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true) 
 	ServerCustomisationService.ApplyInspectedOutfitToPlayer(player, inspectedPlayer)
@@ -108,7 +120,7 @@ end
 
 PlayerEquippedOutfit.OnServerEvent:Connect(playerEquippedOutfit)
 PlayerEquippedTastemakerOutfit.OnServerEvent:Connect(playerEquippedTastemakerOutfit)
-PlayerEqippedInspectedOutfit.OnServerEvent:Connect(playerEquippedInspectedOutfit)
+PlayerEquippedInspectedOutfit.OnServerEvent:Connect(playerEquippedInspectedPlayer)
 PlayerRemovedClassicItem.OnServerEvent:Connect(playerRemovedClassicItem)
 PlayerEquippedItem.OnServerEvent:Connect(playerEquippedItem)
 PlayerRemovedItem.OnServerInvoke = playerRemovedItem

@@ -10,6 +10,7 @@ local StarterPlayer = game:GetService("StarterPlayer")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
 local Constants = require(ReplicatedStorage.Constants)
 local FusionItemTile = require(ReplicatedStorage.UI.FusionComponents.Widgets.FusionItemTile)
@@ -17,6 +18,7 @@ local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
+local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
 
 -- Fusion
 local Children = Fusion.Children
@@ -28,8 +30,6 @@ local CONFIG = {
 	CELL_PADDING_X = 10,
 	CELL_PADDING_Y = 10 -- Padding between cells
 }
-
-local detailsCache = {}
 
 function InspectFrame(
 	scope: Fusion.Scope,
@@ -56,6 +56,10 @@ function InspectFrame(
 	local inspectedItems = Inspector.getInspectingItems()
 	local isLoadingVisible = Inspector.getIsLoadingVisible()
 
+	local visible = scope:Computed(function(use)
+		return use(props.currentView) == Constants.WARDROBE_GUI_STATES.InspectFrame
+	end)
+
 	local itemsScrollFrame = scope:New "ScrollingFrame" {
 		Name = "ItemsScrollFrame",
 		Size = UDim2.fromScale(1, 1),
@@ -75,32 +79,37 @@ function InspectFrame(
 			},
 
 			scope:ForValues(inspectedItems, function(use, scope, item)
-				local success
-				local itemDetails = detailsCache[item.id]
+				local itemDetails = item.itemDetails
 
-				if not itemDetails then
-					success, itemDetails = callWithRetry(
-						function()
-							return AvatarEditorService:GetItemDetailsAsync(item.id, (item.type == Enum.MarketplaceProductType.AvatarAsset and Enum.AvatarItemType.Asset or Enum.AvatarItemType.Bundle))
-						end
-					)
-					if not success then
-						return
-					else
-						detailsCache[item.id] = itemDetails
-					end
-				end
 
 				return FusionItemTile(scope, {itemDetails = itemDetails, layoutOrder = 1})
 			end)
 		}
 	} :: ScrollingFrame
 
+	local bottomFrame = scope:New "Frame" {
+		Name = "bottomFrame",
+		Visible = visible,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Size = UDim2.fromScale(1, 0.1),
+		Position = UDim2.fromScale(0.5, 1),
+		BackgroundColor3 = Color3.new(0.5, 1, 1),
+		BackgroundTransparency = 0,
+		LayoutOrder = 3,
+		[Children] = {
+			BaseButton(scope, {
+				name = "WearAllButton",
+				text = "Wear All",
+				onActivated = function()
+					ClientCustomisationService.PlayerEquippedInspectedItems()
+				end
+			})
+		}
+	}
+
 	local inspectFrame = scope:New "Frame" {
 		Name = "InspectFrame",
-		Visible = scope:Computed(function(use)
-			return use(props.currentView) == Constants.WARDROBE_GUI_STATES.InspectFrame
-		end),
+		Visible = visible,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Size = UDim2.fromScale(1, 1),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -114,6 +123,7 @@ function InspectFrame(
 			},
 
 			itemsScrollFrame,
+			bottomFrame
 		}
 	} :: Frame
 
