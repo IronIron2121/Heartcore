@@ -14,10 +14,6 @@ local Widgets           = FusionComponents:WaitForChild("Widgets")
 local Libraries         = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
-local Values 			= ReplicatedStorage:WaitForChild("Values")
-
--- Instances
-local localPlayer = Players.LocalPlayer
 
 -- GUI
 local OutfitVoteTile    = require(script:WaitForChild("OutfitVoteTile"))
@@ -30,16 +26,13 @@ local ImageUris             = require(DataTables:WaitForChild("ImageUris"))
 local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion                = require(Utility:WaitForChild("Fusion"))
 local GuiManager            = require(GuiManagerLibrary:WaitForChild("GuiManager"))
+local GameStateValues       = require(Libraries:WaitForChild("GameStateValues"))
 
 -- Fusion
 local peek = Fusion.peek
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 type Value<T> = Fusion.Value<T>
-
--- Values
-local secondsRemaining = Values:WaitForChild("SecondsRemaining") :: StringValue
-local currentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
 
 -- Remotes
 local GetNextOutfitRF = Remotes:WaitForChild("GetNextOutfitRF")
@@ -61,24 +54,14 @@ local POSITION_TWEEN_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.Easin
 local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 	-- State
 	local votingTheme = scope:Value("Loading...")
-	local currentState = scope:Value("N/A")
-	local votingTime = scope:Value("3:00")
 	local loadingScreenVisible = scope:Value(false)
-	
-	local votingTimeText = scope:Computed(function(use)
-		return use(currentState) == "Voting" and use(votingTime) or "Waiting..." 
-	end)
 
-	currentStateName:GetPropertyChangedSignal("Value"):Connect(function()  
-		currentState:set(currentStateName.Value)
+	local votingTimeText = scope:Computed(function(use)
+		return use(GameStateValues.isVoting) and use(GameStateValues.formattedTime) or "Waiting..."
 	end)
 
 	local votingComplete = scope:Value(false)
 	local tilesContainer = scope:Value({})
-
-	secondsRemaining:GetPropertyChangedSignal("Value"):Connect(function()  
-		votingTime:set(secondsRemaining.Value)
-	end)
 
 	-- Tile references (not reactive, just tracking)
 	local leftTile: Frame? = nil
