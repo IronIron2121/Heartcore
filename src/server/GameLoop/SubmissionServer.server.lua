@@ -25,8 +25,6 @@ local OnEvent = Fusion.OnEvent
 local SubmissionPad = submissionZone:WaitForChild("SubmissionPad")
 local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
 
--- Remotes 
-
 --
 
 local function onOutfitSubmitted(player: Player)

@@ -13,6 +13,7 @@ local DailyChallengeFolder = FusionComponents.DailyChallengeGui
 local WardrobeGuiController = FusionComponents.WardrobeGuiController
 
 -- Modules
+local GameStateValues = require(ReplicatedStorage.Libraries.GameStateValues)
 local SubmissionThemeBar = require(StarterPlayer.StarterPlayerScripts.GUI.SubmissionThemeBar)
 local OpenWardrobeButton = require(ReplicatedStorage.UI.FusionComponents.OpenWardrobeButton)
 local PlayerClickFrame = require(ReplicatedStorage.UI.FusionComponents.PlayerClickFrame)
@@ -23,7 +24,8 @@ local OutfitViewController = require(WardrobeGuiController.OutfitViewController)
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
 local Fusion = require(ReplicatedStorage.Utility.Fusion)
 local Child = require(ReplicatedStorage.Utility.Fusion.Instances.Child)
-local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
+local Computed = require(ReplicatedStorage.Utility.Fusion.State.Computed)
+local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local GuiConfiguration = require(GuiManagerLibrary.GuiConfiguration)
 local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
 local CONFIGURATION_NAMES = require(GuiManagerLibrary.CONFIGURATION_NAMES)
@@ -44,11 +46,6 @@ local function InitialiseHuds()
     local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
     local openWardrobeButton = OpenWardrobeButton(hudScope)
     local submissionThemeBar = SubmissionThemeBar()
-    local SubmitOutfitButton = BaseButton(hudScope, {
-        onActivated = function()
-            
-        end
-    })
 
     local buttonsFrame = hudScope:New "Frame" {
         Size = UDim2.fromScale(1, 1),
@@ -85,6 +82,54 @@ local function InitialiseHuds()
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
                 VerticalAlignment = Enum.VerticalAlignment.Center
             },
+
+            BaseButton(hudScope, {
+                name = "GameStateButton", 
+                size = UDim2.fromScale(0.3, 0.3),
+                layoutOrder = 1,
+                text = hudScope:Computed(function(use)  
+                    return (use(GameStateValues.isDressing) and "SUBMIT OUTFIT") or (use(GameStateValues.isVoting) and "VOTE") or ""                
+                end),
+                onActivated = function()
+                    if (peek(GameStateValues.isDressing)) then
+                        -- submit outfit CB
+                    elseif (peek(GameStateValues.isVoting)) then
+                        GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
+                    else
+                        warn("Nothing to do")
+                    end
+                end,
+
+                [Children] = {
+                    hudScope:New "UIAspectRatioConstraint" {
+                        AspectRatio = 1,
+                        AspectType = Enum.AspectType.FitWithinMaxSize,
+                        DominantAxis = Enum.DominantAxis.Width
+                    }
+                }
+            }),
+
+            BaseButton(hudScope, {
+                name = "ChangeModeButton",
+                layoutOrder = 2,
+                size = UDim2.fromScale(0.3, 0.3),
+                text = hudScope:Computed(function() 
+                    return "Change Mode"
+                end),
+
+                onActivated = function()
+
+                end,
+                
+
+                [Children] = {
+                    hudScope:New "UIAspectRatioConstraint" {
+                        AspectRatio = 1,
+                        AspectType = Enum.AspectType.FitWithinMaxSize,
+                        DominantAxis = Enum.DominantAxis.Width
+                    }
+                }
+            })
         }
     } :: Frame
 
