@@ -44,7 +44,6 @@ local MAX_RECENT_THEMES = 5
 
 local currentState: string = nil
 local currentTheme: string = nil
-local timerThread: thread? = nil
 
 local recentThemes: { string } = {}
 
@@ -91,6 +90,16 @@ local function selectNewTheme(): string
 	return selectedTheme
 end
 
+function GameStateManager.onAllPlayersFinishedVoting()
+	task.defer(
+		function()
+			if secondsRemaining.Value >= 10 then
+				secondsRemaining.Value = 10
+			end	
+		end
+	)
+end
+
 local function startCountdown(duration: number)
 	warn("Starting countdown for ", duration)
 	secondsRemaining.Value = duration
@@ -98,10 +107,11 @@ local function startCountdown(duration: number)
 	timerThread = task.spawn(function()
 		while secondsRemaining.Value > 0 do
 			task.wait(1)
-			secondsRemaining.Value -= 1
-			print("Ticked to ", secondsRemaining.Value, currentState)
+			task.defer(function()
+				secondsRemaining.Value -= 1
+				print("Ticked to ", secondsRemaining.Value, currentState)
+			end)
 		end
-		warn("Transitioning to ", STATES[currentState].next)
 		GameStateManager.transitionTo(STATES[currentState].next)
 	end)
 end

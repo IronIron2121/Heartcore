@@ -11,7 +11,6 @@ local Constants = require(ReplicatedStorage.Constants)
 
 -- Fusion
 local Fusion        = require(Utility.Fusion)
-local Children      = Fusion.Children
 type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
 type Computed<T>    = Fusion.Computed<T>
@@ -73,14 +72,24 @@ export type GuiConfiguration = {
     ConfigurationContainer: Frame,
     TopMiddle: Frame,
     TopMiddlePosition: Value<UDim2>,
+    TopRight: Frame,
+    TopRightPosition: Value<UDim2>,
     BottomLeft: Frame,
     BottomLeftPosition: Value<UDim2>,
     BottomMiddle: Frame,
     BottomMiddlePosition: Value<UDim2>,
     BottomRight: Frame,
     BottomRightPosition: Value<UDim2>,
+    Enabled: Value<boolean>,
     GuiSlotPositions: {[string]: Value<UDim2>},
     scope: Fusion.Scope,
+    _elements: {
+        topMiddle: GuiObject?,
+        topRight: GuiObject?,
+        bottomLeft: GuiObject?,
+        bottomMiddle: GuiObject?,
+        bottomRight: GuiObject?,
+    },
 
     -- Methods
     Disable: (self: GuiConfiguration) -> (),
@@ -109,6 +118,14 @@ function GuiConfiguration.new(props: {
 
     self.Enabled = self.scope:Value(false)
 
+    -- Store element references for reparenting on Enable()
+    self._elements = {
+        topMiddle = props.topMiddle,
+        topRight = props.topRight,
+        bottomLeft = props.bottomLeft,
+        bottomMiddle = props.bottomMiddle,
+        bottomRight = props.bottomRight,
+    }
 
     -- Empty list that will contain the screen positions for each slot
     self.GuiSlotPositions = {}
@@ -123,7 +140,7 @@ function GuiConfiguration.new(props: {
     } :: Frame
     
     self.TopMiddlePosition = self.scope:Computed(function(use)  
-        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].InPosition  
+        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].OutPosition  
     end)
     self.TopMiddle = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS.TopMiddle.Name,
@@ -134,15 +151,11 @@ function GuiConfiguration.new(props: {
         Visible     = SLOT_CONSTANTS.Visible,
         Parent      = self.ConfigurationContainer,
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
-
-        [Children] = {
-            props.topMiddle
-        }
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopMiddle] = self.TopMiddlePosition
 
     self.TopRightPosition = self.scope:Computed(function(use)  
-        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].InPosition  
+        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].OutPosition  
     end)
     self.TopRight = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].Name,
@@ -153,15 +166,11 @@ function GuiConfiguration.new(props: {
         Visible     = SLOT_CONSTANTS.Visible,
         Parent      = self.ConfigurationContainer,
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
-
-        [Children] = {
-            props.topRight
-        }
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopRight] = self.TopRightPosition
 
     self.BottomLeftPosition = self.scope:Computed(function(use)  
-        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].InPosition  
+        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].OutPosition  
     end)    
     self.BottomLeft = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS.BottomLeft.Name,
@@ -172,10 +181,6 @@ function GuiConfiguration.new(props: {
         Visible     = SLOT_CONSTANTS.Visible,
         Parent      = self.ConfigurationContainer,
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
-
-        [Children] = {
-            props.bottomLeft
-        }
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.BottomLeft] = self.BottomLeftPosition
 
@@ -191,10 +196,6 @@ function GuiConfiguration.new(props: {
         Visible     = SLOT_CONSTANTS.Visible,
         Parent      = self.ConfigurationContainer,
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
-
-        [Children] = {
-            props.bottomMiddle
-        }
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.BottomMiddle] = self.BottomMiddlePosition
 
@@ -210,14 +211,10 @@ function GuiConfiguration.new(props: {
         Visible     = SLOT_CONSTANTS.Visible,
         Parent      = self.ConfigurationContainer,
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
-
-        [Children] = {
-            props.bottomRight
-        }
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.BottomRight] = self.BottomRightPosition
 
-    return self
+    return (self :: any) :: GuiConfiguration
 end
 
 function GuiConfiguration:Disable()
@@ -225,7 +222,14 @@ function GuiConfiguration:Disable()
 end
 
 function GuiConfiguration:Enable()
-    self.Enabled:set(true)
+    task.delay(Constants.DEFAULT_TWEEN.Time, function()
+        if self._elements.topMiddle then self._elements.topMiddle.Parent = self.TopMiddle end
+        if self._elements.topRight then self._elements.topRight.Parent = self.TopRight end
+        if self._elements.bottomLeft then self._elements.bottomLeft.Parent = self.BottomLeft end
+        if self._elements.bottomMiddle then self._elements.bottomMiddle.Parent = self.BottomMiddle end
+        if self._elements.bottomRight then self._elements.bottomRight.Parent = self.BottomRight end
+        self.Enabled:set(true)
+    end)
 end
 
 return GuiConfiguration

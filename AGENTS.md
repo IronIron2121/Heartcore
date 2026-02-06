@@ -1,6 +1,6 @@
-# Gemini.md
+# AGENTS.md
 
-This file provides guidance to Gemini Code (Gemini.ai) when working with code in this repository.
+This file provides guidance to AI agents when working with code in this repository.
 
 ## Build & Development Commands
 

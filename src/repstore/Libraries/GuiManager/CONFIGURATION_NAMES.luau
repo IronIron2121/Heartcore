@@ -1,8 +1,8 @@
 --!strict
 
 local CONFIGURATION_NAMES = {
-    Configuration1 = "Configuration1",
-    Configuration2 = "Configuration2"
+    ShoppingConfig = "ShoppingConfig",
+    GameLoopConfig = "GameLoopConfig"
 }
 
 return CONFIGURATION_NAMES
