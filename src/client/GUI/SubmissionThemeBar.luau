@@ -96,24 +96,6 @@ local function SubmissionThemeBar()
                     }
                 }
             },
-
-             scope:New "TextLabel" {
-                Name = "SubmitText",
-                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
-                Text = "Submit your fit in the submission hut!",
-                Size = UDim2.fromScale(1, 0.2),
-                TextScaled = true,
-                LayoutOrder = 1,
-                BackgroundTransparency = 1,
-                TextColor3 = Color3.fromRGB(255, 255, 255),
-
-                [Children] = {
-                    scope:New "UIStroke" {
-                        Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                        Thickness = 2,
-                    }
-                }
-            },
         }   
     } :: Frame
 
