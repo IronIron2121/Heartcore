@@ -21,7 +21,8 @@ local assets = {
 	VoteButton = "137550678558366",
 	TrashButton = "72654613290117",
 	ViewportBackground = "75117962948738",
-	ViewportBG = "118393578077171"
+	ViewportBG = "118393578077171",
+	TopBarBG = "78848001203719"
 }
 
 setmetatable(ImageUris, {
