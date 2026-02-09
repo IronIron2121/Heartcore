@@ -19,7 +19,7 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
 -- Constants
-local COLOUR_ORANGE = Color3.new(0.901961, 0.380392, 0.078431)
+local COLOUR_ORANGE = Color3.new(0.447059, 0.447059, 0.447059)
 local COLOUR_GREY 	= Color3.new(1, 1, 1)
 local BG_FADE_SPEED = 20
 
@@ -37,7 +37,7 @@ function ImageButton(
 		text: UsedAs<string>?,
 		textScaled: UsedAs<boolean>?,
 		backgroundColor: UsedAs<Color3>?,
-        imageColor: UsedAs<Color3>?,
+        imageColor3: UsedAs<Color3>?,
 		textColor: UsedAs<Color3>?,
 		strokeColor: UsedAs<Color3>?,
 		strokeThickness: UsedAs<number>?,
@@ -49,7 +49,7 @@ function ImageButton(
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
 
-	local imageColor = props.imageColor or UI_CONSTANTS.COLOUR_WHITE
+	local imageColor = props.imageColor3 or UI_CONSTANTS.COLOUR_WHITE
 
 	local imageColorSpring = scope:Spring(
 		scope:Computed(function(use)
@@ -74,8 +74,8 @@ function ImageButton(
 		Visible = props.visible or true,
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		Position = props.position or UDim2.fromScale(0.5, 0.5),
-		Size = props.size or UDim2.fromScale(0.2, 0.2),
-		ImageColor = props.imageColor or imageColorSpring,
+		Size = props.size or UDim2.fromScale(0.5, 0.5),
+		ImageColor3 = props.imageColor3 or imageColorSpring,
 		BackgroundTransparency = 1,
 		LayoutOrder = props.layoutOrder or 1,
 		ZIndex = props.zIndex or 1,
@@ -102,6 +102,12 @@ function ImageButton(
 			isHovering:set(false)
 			isHeldDown:set(false)
 		end,
+
+		[Children] = {
+			scope:New "UIAspectRatioConstraint" {
+				AspectRatio = 1
+			}
+		}
 
 	} :: ImageButton
 

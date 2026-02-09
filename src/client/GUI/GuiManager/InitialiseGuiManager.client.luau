@@ -64,7 +64,7 @@ local function InitialiseHuds()
     local GameModeButton = BaseImageButton(hudScope, {
         name = "ChangeModeButton",
         layoutOrder = 2,
-        size = UDim2.fromScale(0.3, 0.3),
+        size = UDim2.fromScale(0.5, 0.5),
         image = hudScope:Computed(function(use)
             local currentConfig = use(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
@@ -95,7 +95,7 @@ local function InitialiseHuds()
     local GameModeButton2 = BaseImageButton(hudScope, {
         name = "ChangeModeButton2",
         layoutOrder = 2,
-        size = UDim2.fromScale(0.3, 0.3),
+        size = UDim2.fromScale(0.6,0.6),
         image = hudScope:Computed(function(use)
             local currentConfig = use(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
@@ -131,7 +131,7 @@ local function InitialiseHuds()
 
         [Children] = {
             hudScope:New "UIListLayout" {
-                Padding = UDim.new(0, 10),
+                Padding = UDim.new(0.15, 0),
                 FillDirection = Enum.FillDirection.Horizontal,
                 SortOrder = Enum.SortOrder.LayoutOrder,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
@@ -152,7 +152,7 @@ local function InitialiseHuds()
 
         [Children] = {
             hudScope:New "UIListLayout" {
-                Padding = UDim.new(0, 10),
+                Padding = UDim.new(0.15, 0),
                 FillDirection = Enum.FillDirection.Horizontal,
                 SortOrder = Enum.SortOrder.LayoutOrder,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
@@ -161,7 +161,7 @@ local function InitialiseHuds()
 
             BaseImageButton(hudScope, {
                 name = "GameStateButton",
-                size = UDim2.fromScale(0.3, 0.3),
+                size = UDim2.fromScale(0.7,0.7),
                 layoutOrder = 1,
                 image = hudScope:Computed(function(use)
                     if use(GameStateValues.isDressing) then
@@ -221,7 +221,7 @@ local function InitialiseHuds()
 
         [Children] = {
             hudScope:New "UIListLayout" {
-                Padding = UDim.new(0, 10),
+                Padding = UDim.new(0.15, 0),
                 FillDirection = Enum.FillDirection.Horizontal,
                 SortOrder = Enum.SortOrder.LayoutOrder,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
