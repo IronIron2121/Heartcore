@@ -29,13 +29,13 @@ local surfaceGui = scope:New "SurfaceGui" {
             Name = "fitCheckInfo",
             Size = UDim2.fromScale(1,1),
             BackgroundTransparency = 1,
-            TextScaled = true,
+            TextScaled = false,
             TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-            FontFace = UI_CONSTANTS.DEFAULT_FONT,
+            FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
             RichText = true,
-            Text = "<b>Create a fit</b><br>Build and submit a look that matches the theme.</br><br><b>Vote for fits</b></br><br>Vote for your fave fit.</br><br><b>Become a Tastemaker</b></br><br>Get votes, rank up, earn status.</br>"
+            Text = "<b><font size='60'>Create a fit</font></b><br></br><br><font size='40'>Build and submit a look that matches the theme.</font></br><br></br><br></br><br><b><font size='60'>Vote for fits</font></b><br></br></br><br><font size='40'>Vote for your fave fit.</font></br><br></br><br></br><br><b><font size='60'>Become a Tastemaker</font></b></br><br></br><br><font size='40'>Get votes, rank up, earn status.</font></br>"
         }
     }
 }
 
-surfaceGui.parent = signHolder
+surfaceGui.Parent = signHolder
