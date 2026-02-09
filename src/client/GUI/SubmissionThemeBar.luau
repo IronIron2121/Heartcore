@@ -8,6 +8,8 @@ local Utility   = ReplicatedStorage:WaitForChild("Utility")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 
 -- Modules
+local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
+local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local GameStateValues = require(Libraries:WaitForChild("GameStateValues"))
 
@@ -29,6 +31,30 @@ local TimeColor = scope:Computed(function(use)
     return use(GameStateValues.secondsRemaining) > timeBound
         and "<font color=\"rgb(89, 247, 128)\">"
         or "<font color=\"rgb(255, 50, 50)\">"
+end)
+
+local labelSize = scope:Computed(function(use)
+    local state = use(GameStateValues.stateName)
+    
+    if state == "Dressing" then
+        return UDim2.fromScale(1, 0.5)
+    elseif state == "Voting" or state == "Intermission" then
+        return UDim2.fromScale(1, 0.3)
+    else
+        return UDim2.fromScale(1, 0.5) -- default
+    end
+end)
+
+local labelPosition = scope:Computed(function(use)
+    local state = use(GameStateValues.stateName)
+    
+    if state == "Dressing" then
+        return UDim2.fromScale(0, 0.1)
+    elseif state == "Voting" or state == "Intermission" then
+        return UDim2.fromScale(0, 0.2)
+    else
+        return UDim2.fromScale(0, 0.1) -- default
+    end
 end)
 
 local ThemeText = scope:Computed(function(use)
@@ -53,33 +79,27 @@ end)
 local function SubmissionThemeBar()
 	local submissionThemeBar = scope:New "Frame" {
         Name = "Container",
-        Size = UDim2.fromScale(1, 1),
+        Size = UDim2.fromScale(1, 0.7),
         Position = UDim2.fromScale(0,0),
         BackgroundTransparency = 1,
         BackgroundColor3 = Color3.fromRGB(218, 35, 35),
 
         [Children] = {
-            scope:New "UIListLayout"{
-                FillDirection = Enum.FillDirection.Vertical,
-                SortOrder = Enum.SortOrder.LayoutOrder,
-                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                VerticalAlignment = Enum.VerticalAlignment.Top,
-            },
-
             scope:New "UIPadding" {
                 PaddingTop = UDim.new(0.07, 0),
             },
             
             scope:New "TextLabel" {
                 Name = "ThemeText",
-                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
                 RichText = true,
                 Text = ThemeText,
-                Size = UDim2.fromScale(1, 0.2),
+                Size = labelSize,
+                Position = labelPosition,
                 TextScaled = true,
-                LayoutOrder = 0,
                 BackgroundTransparency = 1,
                 TextColor3 = Color3.fromRGB(255, 255, 255),
+                ZIndex = 2,
 
                 [Children] = {
                     scope:New "UIStroke"{
@@ -88,6 +108,15 @@ local function SubmissionThemeBar()
                     }
                 }
             },
+            
+            scope:New "ImageLabel" {
+                Name = "topBarBG",
+                Image = ImageUris.TopBarBG,
+                Size = UDim2.fromScale(0.8,0.6),
+                Position = UDim2.fromScale(0.1,0.05),
+                BackgroundTransparency = 1,
+                ZIndex = 0
+            }
         }   
     } :: Frame
 
