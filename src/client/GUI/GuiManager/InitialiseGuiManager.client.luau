@@ -20,10 +20,11 @@ local ClientGUI = StarterPlayerScripts.GUI
 local GameState = StarterPlayerScripts.GameState
 
 -- Modules
+local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
 local PlayerSubmissionState = require(GameState.PlayerSubmissionState)
 local Fusion = require(FusionUtility)
 local peek = require(FusionUtility.State.peek)
-local BaseButton = require(FusionWidgets.BaseButton)
+local BaseImageButton = require(FusionWidgets.BaseImageButton)
 local GuiManager = require(GuiManagerLibrary.GuiManager)
 local UI_CONSTANTS = require(ReplicatedStorage.Utility.UI_CONSTANTS)
 local disconnectAndClear = require(ReplicatedStorage.Utility.disconnectAndClear)
@@ -60,16 +61,16 @@ local function InitialiseHuds()
 
     local currentConfigurationName = GuiManager.GetCurrentConfigurationNameValue()
 
-    local GameModeButton = BaseButton(hudScope, {
+    local GameModeButton = BaseImageButton(hudScope, {
         name = "ChangeModeButton",
         layoutOrder = 2,
-        size = UDim2.fromScale(0.3, 0.3),
-        text = hudScope:Computed(function(use)
+        size = UDim2.fromScale(0.5, 0.5),
+        image = hudScope:Computed(function(use)
             local currentConfig = use(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
-                return "Exit Game"
+                return ImageUris.ExitFitCheck
             else
-                return "Enter Game"
+                return ImageUris.PlayFitCheck
             end
         end),
 
@@ -91,16 +92,16 @@ local function InitialiseHuds()
         }
     })
 
-    local GameModeButton2 = BaseButton(hudScope, {
+    local GameModeButton2 = BaseImageButton(hudScope, {
         name = "ChangeModeButton2",
         layoutOrder = 2,
-        size = UDim2.fromScale(0.3, 0.3),
-        text = hudScope:Computed(function(use)
+        size = UDim2.fromScale(0.6,0.6),
+        image = hudScope:Computed(function(use)
             local currentConfig = use(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
-                return "Exit Game"
+                return ImageUris.ExitFitCheck
             else
-                return "Enter Game"
+                return ImageUris.PlayFitCheck
             end
         end),
 
@@ -130,7 +131,7 @@ local function InitialiseHuds()
 
         [Children] = {
             hudScope:New "UIListLayout" {
-                Padding = UDim.new(0, 10),
+                Padding = UDim.new(0.15, 0),
                 FillDirection = Enum.FillDirection.Horizontal,
                 SortOrder = Enum.SortOrder.LayoutOrder,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
@@ -151,26 +152,26 @@ local function InitialiseHuds()
 
         [Children] = {
             hudScope:New "UIListLayout" {
-                Padding = UDim.new(0, 10),
+                Padding = UDim.new(0.15, 0),
                 FillDirection = Enum.FillDirection.Horizontal,
                 SortOrder = Enum.SortOrder.LayoutOrder,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
                 VerticalAlignment = Enum.VerticalAlignment.Center
             },
 
-            BaseButton(hudScope, {
+            BaseImageButton(hudScope, {
                 name = "GameStateButton",
-                size = UDim2.fromScale(0.3, 0.3),
+                size = UDim2.fromScale(0.7,0.7),
                 layoutOrder = 1,
-                text = hudScope:Computed(function(use)
+                image = hudScope:Computed(function(use)
                     if use(GameStateValues.isDressing) then
                         if use(PlayerSubmissionState.playerHasSubmitted) then
-                            return "OUTFIT SUBMITTED"
+                            return ImageUris.Submit
                         else
-                            return "SUBMIT OUTFIT"
+                            return ImageUris.Submit
                         end
                     elseif use(GameStateValues.isVoting) then
-                        return "VOTE"
+                        return ImageUris.Vote
                     else
                         return ""
                     end
@@ -220,7 +221,7 @@ local function InitialiseHuds()
 
         [Children] = {
             hudScope:New "UIListLayout" {
-                Padding = UDim.new(0, 10),
+                Padding = UDim.new(0.15, 0),
                 FillDirection = Enum.FillDirection.Horizontal,
                 SortOrder = Enum.SortOrder.LayoutOrder,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
