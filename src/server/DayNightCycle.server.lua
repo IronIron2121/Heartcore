@@ -1,16 +1,7 @@
---[[
-Day/Night Cycle Script with Dynamic Lighting
---------------------------------------------
-Full day length: 1 hour real-time
-Changes sun/moon position and adjusts lighting colors.
-Place in ServerScriptService.
---]]
-
--- SETTINGS
-local fullDayLength = 10 * 10 -- seconds (1 hour real-time)
 local lighting = game:GetService("Lighting")
 
 -- Initial settings
+local fullDayLength = 7 * 60 -- number of minutes wanted x 60 seconds
 lighting.ClockTime = 6 -- Start at 6:00 AM
 lighting.GeographicLatitude = 45
 lighting.Brightness = 1
