@@ -22,10 +22,6 @@ local RANK_LABEL_NAME = "PlayerRankLabel"
 
 local PlayerDisplayManager = {}
 
-local function getHeadFromCharacter(character: Model)
-    return character:FindFirstChild("Head")
-end
-
 function PlayerDisplayManager.RemoveRankDisplayFromCharacter(character: Player)
 
 end

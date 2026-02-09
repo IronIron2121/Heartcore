@@ -142,16 +142,23 @@ function CatalogSearchController:_initialiseSearchFrame()
 		local catalogParams = CatalogSearchParams.new()
 		catalogParams.SearchKeyword = keyword or peek(self.searchText)
 		catalogParams.SortType = sortTextToSortType[peek(self.searchSort)]
+		--catalogParams.MinPrice = 0
+		--catalogParams.MaxPrice = math.huge
+		--catalogParams.SortAggregation = Enum.CatalogSortAggregation.AllTime
+		--catalogParams.SalesTypeFilter = Enum.SalesTypeFilter.All
+		--catalogParams.CategoryFilter = Enum.CatalogCategoryFilter.None
 		catalogParams.Limit = 60
 		catalogParams.AssetTypes = peek(self.searchAssetCategories)
 		catalogParams.BundleTypes = peek(self.searchBundleCategories)
 
 		local success, results = pcall(function()
-			return AvatarEditorService:SearchCatalog(catalogParams)
+			return AvatarEditorService:SearchCatalogAsync(catalogParams)
 		end)
 
 		if success then
 			self.searchResults:set(results)
+			warn(results:GetCurrentPage())
+			warn(results.IsFinished)
 			for index, itemDetails in ipairs(results:GetCurrentPage()) do
 				local newTile = FusionItemTile(self.scope, {
 					itemDetails = itemDetails,
@@ -160,7 +167,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 				newTile.Parent = self.SearchResultsFrame
 			end
 		else
-			warn("Failed to search catalog for keyword:", peek(self.searchText))
+			warn("Failed to search catalog for keyword:", peek(self.searchText), success, results)
 		end
 	end
 

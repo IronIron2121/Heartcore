@@ -5,11 +5,11 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 local submissionZone = workspace:WaitForChild("submissionZone")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local getHumanoidDescriptionFromPlayer = require(Getters:WaitForChild("getHumanoidDescriptionFromPlayer"))
@@ -20,6 +20,9 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 -- Fusion
 local scope = Fusion:scoped()
 local OnEvent = Fusion.OnEvent
+
+-- Remotes
+local PlayerSubmittedOutfitRF = Remotes:WaitForChild("PlayerSubmittedOutfit") :: RemoteFunction
 
 -- Instances
 local SubmissionPad = submissionZone:WaitForChild("SubmissionPad")
@@ -62,3 +65,8 @@ local prompt = scope:New "ProximityPrompt" {
         onOutfitSubmitted(player)
     end
 }
+
+-- Handle RemoteFunction calls from GUI
+PlayerSubmittedOutfitRF.OnServerInvoke = function(player: Player)
+    onOutfitSubmitted(player)
+end

@@ -5,24 +5,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility   = ReplicatedStorage:WaitForChild("Utility")
-local Values    = ReplicatedStorage:WaitForChild("Values")   
+local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 
 -- Modules
 local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
 local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
-
--- Instances
-local centralPond               = workspace:WaitForChild("centralPond")
-local pondModel                 = centralPond:WaitForChild("centralPond")
-local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
-local BillboardGui              = SubmissionBillboardHolder:WaitForChild("BillboardGui")
-local Frame                     = BillboardGui:WaitForChild("Frame")
-
--- Values
-local CurrentThemeName = Values.CurrentThemeName
-local CurrentStateName = Values.CurrentStateName
-local SecondsRemaining = Values.SecondsRemaining
+local GameStateValues = require(Libraries:WaitForChild("GameStateValues"))
 
 -- Fusion 
 local Fusion   = require(Utility:WaitForChild("Fusion"))
@@ -31,18 +20,19 @@ local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
 -- State Variables
-local ThemeText = scope:Value("Loading...")
-local TimeLeft = scope:Value(SecondsRemaining.Value)
 local timeBound = 30
 local labelSize = scope:Value(UDim2.fromScale(1, 0.5))
 local labelPosition = scope:Value(UDim2.fromScale(0,0))
 
+local highlightColor = "<font color=\"rgb(92, 95, 212)\">"
+local strokeColor = "<stroke color=\"#FFFFFF\">"
+local closeStroke = "</stroke>"
+local closeFont = "</font>"
 
-local highlightColor = scope:Value("<font color=\"rgb(92, 95, 212)\">")
-local strokeColor = scope:Value("<stroke color=\"#FFFFFF\">")
-local closeStroke = scope:Value("</stroke>")
 local TimeColor = scope:Computed(function(use)
-    return use(TimeLeft) > timeBound and "<font color=\"rgb(89, 247, 128)\">" or "<font color=\"rgb(255, 50, 50)\">"
+    return use(GameStateValues.secondsRemaining) > timeBound
+        and "<font color=\"rgb(89, 247, 128)\">"
+        or "<font color=\"rgb(255, 50, 50)\">"
 end)
 
 SecondsRemaining:GetPropertyChangedSignal("Value"):Connect(function(...)
@@ -60,11 +50,10 @@ SecondsRemaining:GetPropertyChangedSignal("Value"):Connect(function(...)
         labelSize:set(UDim2.fromScale(1, 0.3))
         labelPosition:set(UDim2.fromScale(0,0.1))
     else
-        warn("This shouldn't be possible", CurrentStateName.Value)
+        warn("Unexpected state:", state)
+        return "Loading..."
     end
 end)
-
-ThemeText:set("Fit Check theme is: <font color=\"rgb(89, 247, 128)\">" .. CurrentThemeName.Value .. "</font>")
 
 	
 local function SubmissionThemeBar()
@@ -76,10 +65,25 @@ local function SubmissionThemeBar()
         BackgroundColor3 = Color3.fromRGB(218, 35, 35),
 
         [Children] = {
-            scope:New "Frame" {
-                Name = "TextContainer",
-                Size = UDim2.fromScale(1,1),
-                Position = UDim2.fromScale(0,0.1),
+            scope:New "UIListLayout"{
+                FillDirection = Enum.FillDirection.Vertical,
+                SortOrder = Enum.SortOrder.LayoutOrder,
+                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                VerticalAlignment = Enum.VerticalAlignment.Top,
+            },
+
+            scope:New "UIPadding" {
+                PaddingTop = UDim.new(0.07, 0),
+            },
+            
+            scope:New "TextLabel" {
+                Name = "ThemeText",
+                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+                RichText = true,
+                Text = ThemeText,
+                Size = UDim2.fromScale(1, 0.2),
+                TextScaled = true,
+                LayoutOrder = 0,
                 BackgroundTransparency = 1,
 
                 [Children] = {

@@ -8,7 +8,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
@@ -45,7 +44,6 @@ function Frame(
     local rotationValue = scope:Value(0)
 
     -- Rotation anim
-
 
     scope:Observer(props.visible):onChange(function()
         warn("spawned load!")

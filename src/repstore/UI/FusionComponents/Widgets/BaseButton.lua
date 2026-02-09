@@ -44,7 +44,7 @@ function Button(
 
 	local backgroundColorSpring = scope:Spring(
 		scope:Computed(function(use)
-			local baseColor = backgroundColor
+			local baseColor = use(backgroundColor)
 
 			if use(isHeldDown) then
 				return baseColor:Lerp(UI_CONSTANTS.TASTEMAKER_PURPLE, 1)
