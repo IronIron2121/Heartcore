@@ -1,5 +1,5 @@
 --!strict
-local TweenService = game:GetService("TweenService")
+local TweenService =    game:GetService("TweenService")
 
 local arrowController = workspace:WaitForChild("submissionZone").ArrowController
 
