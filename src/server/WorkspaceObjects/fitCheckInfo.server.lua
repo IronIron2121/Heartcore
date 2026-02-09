@@ -33,7 +33,7 @@ local surfaceGui = scope:New "SurfaceGui" {
             TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
             FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
             RichText = true,
-            Text = "<b><font size='60'>Create a fit</font></b><br></br><br><font size='40'>Build and submit a look that matches the theme.</font></br><br></br><br></br><br><b><font size='60'>Vote for fits</font></b><br></br></br><br><font size='40'>Vote for your fave fit.</font></br><br></br><br></br><br><b><font size='60'>Become a Tastemaker</font></b></br><br></br><br><font size='40'>Get votes, rank up, earn status.</font></br>"
+            Text = "<b><font size='60'>1. Create a fit</font></b><br></br><br><font size='40'>Submit a look that matches the theme.</font></br><br></br><br></br><br><b><font size='60'>2. Vote for fits</font></b><br></br></br><br><font size='40'>Vote for your fave fit.</font></br><br></br><br></br><br><b><font size='60'>3. Become a Tastemaker</font></b></br><br></br><br><font size='40'>Get votes, rank up, earn status.</font></br>"
         }
     }
 }
