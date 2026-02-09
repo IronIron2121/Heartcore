@@ -35,25 +35,43 @@ local TimeColor = scope:Computed(function(use)
         or "<font color=\"rgb(255, 50, 50)\">"
 end)
 
-SecondsRemaining:GetPropertyChangedSignal("Value"):Connect(function(...)
-    TimeLeft:set(SecondsRemaining.Value)
-    if CurrentStateName.Value == "Dressing" then
-        ThemeText:set("Fit Check theme: " .. peek(highlightColor) .. peek(strokeColor) .. CurrentThemeName.Value .. peek(closeStroke) .. "</font>" .. ". <br> You have " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font> seconds to submit! </br>")
-        labelSize:set(UDim2.fromScale(1, 0.5))
-        labelPosition:set(UDim2.fromScale(0,0))
-    elseif CurrentStateName.Value == "Voting" then
-        ThemeText:set("Voting time! You have " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font> seconds to vote.")
-        labelSize:set(UDim2.fromScale(1, 0.3))
-        labelPosition:set(UDim2.fromScale(0,0.1))
-    elseif CurrentStateName.Value == "Intermission" then
-        ThemeText:set("Intermission: " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font>")
-        labelSize:set(UDim2.fromScale(1, 0.3))
-        labelPosition:set(UDim2.fromScale(0,0.1))
+local ThemeText = scope:Computed(function(use)
+    local state = use(GameStateValues.stateName)
+    local theme = use(GameStateValues.themeName)
+    local seconds = use(GameStateValues.secondsRemaining)
+    local timeColorStr = use(TimeColor)
+
+    if state == "Dressing" then
+        return "Current Fit Check theme: " .. highlightColor .. strokeColor .. theme .. closeStroke .. closeFont .. ". You have " .. timeColorStr .. seconds .. closeFont .. " seconds to submit!"
+    elseif state == "Voting" then
+        return "Voting time! You have " .. timeColorStr .. seconds .. closeFont .. " seconds to vote."
+    elseif state == "Intermission" then
+        return "Intermission: " .. timeColorStr .. seconds .. closeFont
     else
         warn("Unexpected state:", state)
         return "Loading..."
     end
 end)
+
+-- SecondsRemaining:GetPropertyChangedSignal("Value"):Connect(function(...)
+--     TimeLeft:set(SecondsRemaining.Value)
+--     if CurrentStateName.Value == "Dressing" then
+--         ThemeText:set("Fit Check theme: " .. peek(highlightColor) .. peek(strokeColor) .. CurrentThemeName.Value .. peek(closeStroke) .. "</font>" .. ". <br> You have " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font> seconds to submit! </br>")
+--         labelSize:set(UDim2.fromScale(1, 0.5))
+--         labelPosition:set(UDim2.fromScale(0,0))
+--     elseif CurrentStateName.Value == "Voting" then
+--         ThemeText:set("Voting time! You have " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font> seconds to vote.")
+--         labelSize:set(UDim2.fromScale(1, 0.3))
+--         labelPosition:set(UDim2.fromScale(0,0.1))
+--     elseif CurrentStateName.Value == "Intermission" then
+--         ThemeText:set("Intermission: " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font>")
+--         labelSize:set(UDim2.fromScale(1, 0.3))
+--         labelPosition:set(UDim2.fromScale(0,0.1))
+--     else
+--         warn("Unexpected state:", state)
+--         return "Loading..."
+--     end
+-- end)
 
 	
 local function SubmissionThemeBar()
