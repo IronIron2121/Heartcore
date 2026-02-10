@@ -91,8 +91,13 @@ local function playerEquippedTastemakerOutfit(player: Player, tastemakerOutfit: 
 	setPlayerEquipping(player, false)
 end
 
-local function playerEquippedInspectedItemsRF(player: Player, items: {{assetId: number, type: Enum.MarketplaceProductType}})
-	if isPlayerEquipping(player) then return end
+local function playerEquippedInspectedItems(player: Player, items: {{assetId: number, type: Enum.MarketplaceProductType}})
+	if isPlayerEquipping(player) then 
+		return
+	else
+		warn("Player equipped inspected items", items)
+		return
+	end
 	setPlayerEquipping(player, true)
 	for _, item in pairs(items) do
 		ServerCustomisationService.AddItemToAvatar(player, item.assetId, "Asset", itemType)
@@ -125,5 +130,6 @@ PlayerRemovedClassicItem.OnServerEvent:Connect(playerRemovedClassicItem)
 PlayerEquippedItem.OnServerEvent:Connect(playerEquippedItem)
 PlayerRemovedItem.OnServerInvoke = playerRemovedItem
 PlayerResetOutfit.OnServerInvoke = playerResetOutfit
+PlayerEquippedInspectedItemsRF.OnServerInvoke = playerEquippedInspectedItems
 Plrs.PlayerRemoving:Connect(onPlayerRemoving)
 Plrs.PlayerAdded:Connect(onPlayerAdded)

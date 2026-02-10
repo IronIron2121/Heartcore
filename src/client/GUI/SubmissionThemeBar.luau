@@ -6,14 +6,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Folders
 local Utility   = ReplicatedStorage:WaitForChild("Utility")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
-
 -- Modules
 local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
-local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local GameStateValues = require(Libraries:WaitForChild("GameStateValues"))
 
--- Fusion 
+-- Fusion
 local Fusion   = require(Utility:WaitForChild("Fusion"))
 local scope    = Fusion:scoped()
 local Children = Fusion.Children
@@ -21,8 +19,6 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- State Variables
 local timeBound = 30
-local labelSize = scope:Value(UDim2.fromScale(1, 0.5))
-local labelPosition = scope:Value(UDim2.fromScale(0,0))
 
 local highlightColor = "<font color=\"rgb(92, 95, 212)\">"
 local strokeColor = "<stroke color=\"#FFFFFF\">"
@@ -35,24 +31,32 @@ local TimeColor = scope:Computed(function(use)
         or "<font color=\"rgb(255, 50, 50)\">"
 end)
 
-SecondsRemaining:GetPropertyChangedSignal("Value"):Connect(function(...)
-    TimeLeft:set(SecondsRemaining.Value)
-    if CurrentStateName.Value == "Dressing" then
-        ThemeText:set("Fit Check theme: " .. peek(highlightColor) .. peek(strokeColor) .. CurrentThemeName.Value .. peek(closeStroke) .. "</font>" .. ". <br> You have " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font> seconds to submit! </br>")
-        labelSize:set(UDim2.fromScale(1, 0.5))
-        labelPosition:set(UDim2.fromScale(0,0))
-    elseif CurrentStateName.Value == "Voting" then
-        ThemeText:set("Voting time! You have " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font> seconds to vote.")
-        labelSize:set(UDim2.fromScale(1, 0.3))
-        labelPosition:set(UDim2.fromScale(0,0.1))
-    elseif CurrentStateName.Value == "Intermission" then
-        ThemeText:set("Intermission: " .. peek(TimeColor) .. SecondsRemaining.Value .. "</font>")
-        labelSize:set(UDim2.fromScale(1, 0.3))
-        labelPosition:set(UDim2.fromScale(0,0.1))
+local ThemeText = scope:Computed(function(use)
+    local state = use(GameStateValues.stateName)
+    local theme = use(GameStateValues.themeName)
+    local seconds = use(GameStateValues.secondsRemaining)
+    local timeColorStr = use(TimeColor)
+
+    if state == "Dressing" then
+        return "Current Fit Check theme: " .. highlightColor .. strokeColor .. theme .. closeStroke .. closeFont .. ". You have " .. timeColorStr .. seconds .. closeFont .. " seconds to submit!"
+    elseif state == "Voting" then
+        return "Voting time! You have " .. timeColorStr .. seconds .. closeFont .. " seconds to vote."
+    elseif state == "Intermission" then
+        return "Intermission: " .. timeColorStr .. seconds .. closeFont
     else
         warn("Unexpected state:", state)
         return "Loading..."
     end
+end)
+
+local labelSize = scope:Computed(function(use)
+    local state = use(GameStateValues.stateName)
+    return if state == "Dressing" then UDim2.fromScale(1, 0.5) else UDim2.fromScale(1, 0.3)
+end)
+
+local labelPosition = scope:Computed(function(use)
+    local state = use(GameStateValues.stateName)
+    return if state == "Dressing" then UDim2.fromScale(0, 0) else UDim2.fromScale(0, 0.1)
 end)
 
 	
