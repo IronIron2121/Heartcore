@@ -31,6 +31,30 @@ local TimeColor = scope:Computed(function(use)
         or "<font color=\"rgb(255, 50, 50)\">"
 end)
 
+local labelSize = scope:Computed(function(use)
+    local state = use(GameStateValues.stateName)
+    
+    if state == "Dressing" then
+        return UDim2.fromScale(1, 0.5)
+    elseif state == "Voting" or state == "Intermission" then
+        return UDim2.fromScale(1, 0.3)
+    else
+        return UDim2.fromScale(1, 0.5) -- default
+    end
+end)
+
+local labelPosition = scope:Computed(function(use)
+    local state = use(GameStateValues.stateName)
+    
+    if state == "Dressing" then
+        return UDim2.fromScale(0, 0.1)
+    elseif state == "Voting" or state == "Intermission" then
+        return UDim2.fromScale(0, 0.2)
+    else
+        return UDim2.fromScale(0, 0.1) -- default
+    end
+end)
+
 local ThemeText = scope:Computed(function(use)
     local state = use(GameStateValues.stateName)
     local theme = use(GameStateValues.themeName)
@@ -69,46 +93,26 @@ local function SubmissionThemeBar()
         BackgroundColor3 = Color3.fromRGB(218, 35, 35),
 
         [Children] = {
-            scope:New "UIListLayout"{
-                FillDirection = Enum.FillDirection.Vertical,
-                SortOrder = Enum.SortOrder.LayoutOrder,
-                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                VerticalAlignment = Enum.VerticalAlignment.Top,
-            },
-
             scope:New "UIPadding" {
                 PaddingTop = UDim.new(0.07, 0),
             },
             
             scope:New "TextLabel" {
                 Name = "ThemeText",
-                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
                 RichText = true,
                 Text = ThemeText,
-                Size = UDim2.fromScale(1, 0.2),
+                Size = labelSize,
+                Position = labelPosition,
                 TextScaled = true,
-                LayoutOrder = 0,
                 BackgroundTransparency = 1,
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                ZIndex = 2,
 
                 [Children] = {
-                    scope:New "TextLabel" {
-                        Name = "ThemeText",
-                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
-                        RichText = true,
-                        Text = ThemeText,
-                        Size = labelSize,
-                        Position = labelPosition,
-                        TextScaled = true,
-                        BackgroundTransparency = 1,
-                        TextColor3 = Color3.fromRGB(255, 255, 255),
-                        ZIndex = 2,
-
-                        [Children] = {
-                            scope:New "UIStroke"{
-                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                Thickness = 2,
-                            }
-                        }
+                    scope:New "UIStroke"{
+                        Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                        Thickness = 2,
                     }
                 }
             },
