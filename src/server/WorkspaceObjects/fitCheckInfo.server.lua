@@ -1,5 +1,7 @@
 -- !strict
 
+
+--[[
 -- Services
 local ReplicatedStorage =   game:GetService("ReplicatedStorage")
 
@@ -39,3 +41,4 @@ local surfaceGui = scope:New "SurfaceGui" {
 }
 
 surfaceGui.Parent = signHolder
+]]

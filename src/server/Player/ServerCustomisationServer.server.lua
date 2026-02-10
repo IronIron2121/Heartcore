@@ -3,12 +3,14 @@
 -- Services
 local RepStore = game:GetService("ReplicatedStorage")
 local Plrs = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = RepStore:WaitForChild("Utility")
 local Remotes = RepStore:WaitForChild("Remotes")
 
 -- Modules
+local Types = require(ReplicatedStorage.Utility.Types)
 local ServerCustomisationService = require(Utility:WaitForChild("ServerCustomisationService"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 
@@ -91,21 +93,17 @@ local function playerEquippedTastemakerOutfit(player: Player, tastemakerOutfit: 
 	setPlayerEquipping(player, false)
 end
 
-local function playerEquippedInspectedItems(player: Player, items: {{assetId: number, type: Enum.MarketplaceProductType}})
+local function playerEquippedInspectedItems(player: Player, items: {id: number, itemDetails: Types.ItemDetails, type: string})
 	if isPlayerEquipping(player) then 
-		return
-	else
-		warn("Player equipped inspected items", items)
 		return
 	end
 	setPlayerEquipping(player, true)
-	for _, item in pairs(items) do
-		ServerCustomisationService.AddItemToAvatar(player, item.assetId, "Asset", itemType)
+	for _, item in pairs(items) do 
+		warn(item)
+		ServerCustomisationService.AddItemToAvatar(player, item.id, item.itemDetails.AssetType, item.itemDetails.ItemType)
 	end
 	setPlayerEquipping(player, false)
 end
-
-
 
 local function playerEquippedInspectedPlayer(player: Player, inspectedPlayer: Player)
 	if isPlayerEquipping(player) then return end

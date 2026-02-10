@@ -1,4 +1,6 @@
 --!strict
+
+--[[
 local TweenService =    game:GetService("TweenService")
 
 local arrowController = workspace:WaitForChild("submissionZone").ArrowController
@@ -20,3 +22,4 @@ task.spawn(function()
         downTween.Completed:Wait()
     end
 end) 
+]]

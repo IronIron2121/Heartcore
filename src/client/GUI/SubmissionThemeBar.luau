@@ -72,17 +72,6 @@ local ThemeText = scope:Computed(function(use)
         return "Loading..."
     end
 end)
-
-local labelSize = scope:Computed(function(use)
-    local state = use(GameStateValues.stateName)
-    return if state == "Dressing" then UDim2.fromScale(1, 0.5) else UDim2.fromScale(1, 0.3)
-end)
-
-local labelPosition = scope:Computed(function(use)
-    local state = use(GameStateValues.stateName)
-    return if state == "Dressing" then UDim2.fromScale(0, 0) else UDim2.fromScale(0, 0.1)
-end)
-
 	
 local function SubmissionThemeBar()
 	local submissionThemeBar = scope:New "Frame" {
