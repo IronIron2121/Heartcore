@@ -94,14 +94,21 @@ local function playerEquippedTastemakerOutfit(player: Player, tastemakerOutfit: 
 end
 
 local function playerEquippedInspectedItems(player: Player, items: {id: number, itemDetails: Types.ItemDetails, type: string})
-	if isPlayerEquipping(player) then 
+	if isPlayerEquipping(player) then
 		return
 	end
 	setPlayerEquipping(player, true)
-	for _, item in pairs(items) do 
-		warn(item)
-		ServerCustomisationService.AddItemToAvatar(player, item.id, item.itemDetails.AssetType, item.itemDetails.ItemType)
+
+	local mappedItems = {}
+	for _, item in pairs(items) do
+		table.insert(mappedItems, {
+			itemId = item.id,
+			assetOrBundleType = item.itemDetails.AssetType,
+			itemType = item.itemDetails.ItemType,
+		})
 	end
+
+	ServerCustomisationService.AddItemsToAvatar(player, mappedItems)
 	setPlayerEquipping(player, false)
 end
 
