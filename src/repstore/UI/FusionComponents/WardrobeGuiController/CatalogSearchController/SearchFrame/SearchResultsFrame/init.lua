@@ -15,7 +15,7 @@ local peek = Fusion.peek
 
 -- Config
 local CONFIG = {
-	MIN_CELL_SIZE = Vector2.new(120, 150), -- Minimum size for each item tile
+	MIN_CELL_SIZE = Vector2.new(180, 225), -- Minimum size for each item tile
 	CELL_PADDING_X = 10,
 	CELL_PADDING_Y = 10 -- Padding between cells
 }
@@ -31,6 +31,7 @@ function SearchResultsFrame(
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
 		VerticalAlignment = Enum.VerticalAlignment.Top,
 		SortOrder = Enum.SortOrder.LayoutOrder,
+		FillDirectionMaxCells = 5,
 		CellSize = cellSize,
 		CellPadding = UDim2.fromOffset(CONFIG.CELL_PADDING_X, CONFIG.CELL_PADDING_Y)
 	}
