@@ -24,9 +24,24 @@ type UsedAs<T> = Fusion.UsedAs<T>
 -- GUI
 local ExpBar = require(FusionComponents:WaitForChild("ExpBar"))
 
-local leaderstats = localPlayer:WaitForChild("leaderstats")
-local Level = leaderstats:WaitForChild("Level")
-local Rank = leaderstats:WaitForChild("Rank")
+-- Bridge leaderstats to Fusion Values so require() never blocks
+local moduleScope = Fusion:scoped()
+local levelFusion = Fusion.Value(moduleScope, 1)
+local rankFusion  = Fusion.Value(moduleScope, "")
+
+local levelInst: NumberValue = nil :: any
+
+task.spawn(function()
+    local ls = localPlayer:WaitForChild("leaderstats")
+    levelInst        = ls:WaitForChild("Level") :: NumberValue
+    local rankInst   = ls:WaitForChild("Rank") :: StringValue
+
+    levelFusion:set(levelInst.Value)
+    rankFusion:set(rankInst.Value)
+
+    levelInst.Changed:Connect(function(v) levelFusion:set(v) end)
+    rankInst.Changed:Connect(function(v)  rankFusion:set(v) end)
+end)
 
 
 --Anim function
@@ -86,7 +101,9 @@ local function animateRank(label)
 end
 
 local function ExpHud(scope: Fusion.Scope)
-	local rankText = scope:Value("(Lv. " .. Level.Value .. ") " .. Rank.Value)
+	local rankText = scope:Computed(function(use)
+		return "(Lv. " .. use(levelFusion) .. ") " .. use(rankFusion)
+	end)
 
 	local playerRankLabel = scope:New "TextLabel" {
 		Name = "playerRankDisplay",
@@ -141,16 +158,14 @@ local function ExpHud(scope: Fusion.Scope)
 		}
 	} :: Frame 
 	
-	Level:GetPropertyChangedSignal("Value"):Connect(function() 
-		if Level.Value % 10 == 0 then
-			rankText:set("(Lv. " .. Level.Value .. ") " .. Rank.Value)
-			task.spawn(function()
-				animateRank(playerRankLabel)
-			end)
-		else
-			rankText:set("(Lv. " .. Level.Value .. ") " .. Rank.Value)
-		end
-
+	-- Animation trigger: wait for levelInst to be populated by the bridge
+	task.spawn(function()
+		while levelInst == nil do task.wait(0.1) end
+		levelInst:GetPropertyChangedSignal("Value"):Connect(function()
+			if levelInst.Value % 10 == 0 then
+				task.spawn(animateRank, playerRankLabel)
+			end
+		end)
 	end)
 
 	return hudTopBar
