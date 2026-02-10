@@ -10,12 +10,15 @@ local StarterPlayer = game:GetService("StarterPlayer")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
 local Constants = require(ReplicatedStorage.Constants)
 local FusionItemTile = require(ReplicatedStorage.UI.FusionComponents.Widgets.FusionItemTile)
 local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
+local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
 
 -- Fusion
 local Children = Fusion.Children
@@ -28,8 +31,6 @@ local CONFIG = {
 	CELL_PADDING_Y = 10 -- Padding between cells
 }
 
-local detailsCache = {}
-
 function InspectFrame(
 	scope: Fusion.Scope,
 	props: {
@@ -40,7 +41,7 @@ function InspectFrame(
 		backgroundTransparency: UsedAs<number>?,
 		currentView: UsedAs<string>,
 	}
-): ScrollingFrame
+): Frame
 	-- Reactive values for responsive grid
 	local cellSize = scope:Value(UDim2.fromOffset(CONFIG.MIN_CELL_SIZE.X, CONFIG.MIN_CELL_SIZE.Y))
 	local gridLayout = scope:New "UIGridLayout" {
@@ -53,18 +54,16 @@ function InspectFrame(
 	}
 
 	local inspectedItems = Inspector.getInspectingItems()
+	local isLoadingVisible = Inspector.getIsLoadingVisible()
 
-	local inspectFrame = scope:New "ScrollingFrame" {
-		Name = "InspectFrame",
-		Visible = scope:Computed(function(use)
-			return use(props.currentView) == Constants.WARDROBE_GUI_STATES.InspectFrame
-		end),
-		AnchorPoint = Vector2.new(0.5, 0.5),
+	local visible = scope:Computed(function(use)
+		return use(props.currentView) == Constants.WARDROBE_GUI_STATES.InspectFrame
+	end)
+
+	local itemsScrollFrame = scope:New "ScrollingFrame" {
+		Name = "ItemsScrollFrame",
 		Size = UDim2.fromScale(1, 1),
-		Position = UDim2.fromScale(0.5, 0.5),
-		BackgroundColor3 = Color3.new(1, 1, 1),
-		BackgroundTransparency = 0.3,
-		LayoutOrder = 2,
+		BackgroundTransparency = 1,
 		CanvasSize = UDim2.fromScale(0, 0),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
@@ -79,31 +78,63 @@ function InspectFrame(
 				PaddingLeft = UDim.new(0.05,0),
 			},
 
+			scope:ForValues(inspectedItems, function(use, scope, item)
+				local itemDetails = item.itemDetails
+
+
+				return FusionItemTile(scope, {itemDetails = itemDetails, layoutOrder = 1})
+			end)
+		}
+	} :: ScrollingFrame
+
+	local bottomFrame = scope:New "Frame" {
+		Name = "bottomFrame",
+		Visible = visible,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Size = UDim2.fromScale(1, 0.1),
+		Position = UDim2.fromScale(0.5, 1),
+		BackgroundColor3 = Color3.new(0.5, 1, 1),
+		BackgroundTransparency = 0,
+		LayoutOrder = 3,
+		[Children] = {
+			BaseButton(scope, {
+				name = "WearAllButton",
+				text = "Wear All",
+				onActivated = function()
+					ClientCustomisationService.PlayerEquippedInspectedItems()
+				end
+			})
+		}
+	}
+
+	local inspectFrame = scope:New "Frame" {
+		Name = "InspectFrame",
+		Visible = visible,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromScale(0.5, 0.5),
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		BackgroundTransparency = 0.3,
+		LayoutOrder = 2,
+
+		[Children] = {
 			scope:New "UICorner" {
 				CornerRadius = UDim.new(0.03,0)
 			},
 
-			scope:ForValues(inspectedItems, function(use, scope, item)
-				local success
-				local itemDetails = detailsCache[item.id]
-
-				if not itemDetails then
-					success, itemDetails = callWithRetry(
-						function()
-							return AvatarEditorService:GetItemDetailsAsync(item.id, (item.type == Enum.MarketplaceProductType.AvatarAsset and Enum.AvatarItemType.Asset or Enum.AvatarItemType.Bundle))
-						end
-					)
-					if not success then 
-						return
-					else
-						detailsCache[item.id] = itemDetails
-					end
-				end
-
-				return FusionItemTile(scope, {itemDetails = itemDetails, layoutOrder = 1})
-			end) 
+			itemsScrollFrame,
+			bottomFrame
 		}
-	} :: ScrollingFrame
+	} :: Frame
+
+	-- Show/hide loading screen via manager
+	scope:Observer(isLoadingVisible):onChange(function()
+		if peek(isLoadingVisible) then
+			LoadingScreenManager.show(inspectFrame)
+		else
+			LoadingScreenManager.hide(inspectFrame)
+		end
+	end)
 
 	-- Responsive grid update function
 	local function updateResponsiveGrid()
@@ -112,7 +143,7 @@ function InspectFrame(
 
 		-- Calculate the total cell width including padding
 		local cellWidth = CONFIG.MIN_CELL_SIZE.X + CONFIG.CELL_PADDING_X
-		local canvasWidth = inspectFrame.AbsoluteSize.X - inspectFrame.ScrollBarThickness
+		local canvasWidth = itemsScrollFrame.AbsoluteSize.X - itemsScrollFrame.ScrollBarThickness
 
 		-- Prevent division by zero
 		if canvasWidth <= 0 then return end
@@ -136,7 +167,7 @@ function InspectFrame(
 	end
 
 	-- Connect to size changes for responsive behavior
-	inspectFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateResponsiveGrid)
+	itemsScrollFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateResponsiveGrid)
 
 	-- Initial update
 	task.defer(updateResponsiveGrid)

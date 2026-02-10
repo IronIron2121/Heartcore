@@ -6,14 +6,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Folders
 local Utility   = ReplicatedStorage:WaitForChild("Utility")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
-
 -- Modules
 local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
-local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local GameStateValues = require(Libraries:WaitForChild("GameStateValues"))
 
--- Fusion 
+-- Fusion
 local Fusion   = require(Utility:WaitForChild("Fusion"))
 local scope    = Fusion:scoped()
 local Children = Fusion.Children
@@ -74,7 +72,6 @@ local ThemeText = scope:Computed(function(use)
         return "Loading..."
     end
 end)
-
 	
 local function SubmissionThemeBar()
 	local submissionThemeBar = scope:New "Frame" {

@@ -17,7 +17,7 @@ local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
 -- GUI
 local OutfitVoteTile    = require(script:WaitForChild("OutfitVoteTile"))
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
-local LoadingScreen     = require(Widgets:WaitForChild("LoadingScreen"))
+local LoadingScreenManager = require(Libraries:WaitForChild("LoadingScreenManager"))
 
 -- Modules
 local SerialisationService  = require(Utility:WaitForChild("SerialisationService"))
@@ -52,7 +52,6 @@ local POSITION_TWEEN_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.Easin
 local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 	-- State
 	local votingTheme = scope:Value("Loading...")
-	local loadingScreenVisible = scope:Value(false)
 
 	local votingTimeText = scope:Computed(function(use)
 		return use(GameStateValues.isVoting) and use(GameStateValues.formattedTime) or "Waiting..."
@@ -229,8 +228,35 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 		task.delay(0.3, spawnNewChallenger)
 	end
 
+	local tilesContainerFrame = scope:New "Frame" {
+		Name = "TilesContainer",
+		Size = UDim2.fromScale(1, 0.8),
+		LayoutOrder = 3,
+		BackgroundTransparency = 1,
+
+		[Children] = {
+			scope:Computed(function(use)
+				return use(tilesContainer)
+			end),
+
+			scope:New "TextLabel" {
+				Name = "VotingComplete",
+				Text = "Out of fits to vote for! You've picked your fave fit!",
+				TextScaled = true,
+				Size = UDim2.fromScale(0.3, 0.8),
+				Position = UDim2.fromScale(0.75, 0.5),
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				BackgroundTransparency = 1,
+				TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+				Visible = votingComplete,
+				ZIndex = 10,
+			},
+		}
+	} :: Frame
+
 	local function initialiseVoting()
-		loadingScreenVisible:set(true)
+		LoadingScreenManager.show(tilesContainerFrame)
 
 		task.spawn(function()
 			votingComplete:set(false)
@@ -257,7 +283,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 
 			if not firstOutfit or not secondOutfit then
 				votingComplete:set(true)
-				loadingScreenVisible:set(false)
+				LoadingScreenManager.hide(tilesContainerFrame)
 				return
 			end
 
@@ -281,7 +307,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 
 			tilesContainer:set({ leftTile, rightTile })
 
-			loadingScreenVisible:set(false)
+			LoadingScreenManager.hide(tilesContainerFrame)
 		end)
 	end
 
@@ -436,40 +462,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 						BackgroundTransparency = 1
 					},
 
-					scope:New "Frame" {
-						Name = "TilesContainer",
-						Size = UDim2.fromScale(1, 0.8),
-						LayoutOrder = 3,
-						BackgroundTransparency = 1,
-
-						[Children] = {
-							scope:Computed(function(use)
-								return use(tilesContainer)
-							end),
-
-							scope:New "TextLabel" {
-								Name = "VotingComplete",
-								Text = "Out of fits to vote for! You've picked your fave fit!",
-								TextScaled = true,
-								Size = UDim2.fromScale(0.3, 0.8),
-								Position = UDim2.fromScale(0.75, 0.5),
-								AnchorPoint = Vector2.new(0.5, 0.5),
-								BackgroundTransparency = 1,
-								TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-								FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
-								Visible = votingComplete,
-								ZIndex = 10,
-							},
-
-							LoadingScreen(scope, {
-								size = UDim2.fromScale(1, 1),
-								backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
-								visible = loadingScreenVisible,
-								zIndex = 20,
-								backgroundTransparency = 1,
-							}),
-						}
-					},
+					tilesContainerFrame,
 				}
 			},
 		}

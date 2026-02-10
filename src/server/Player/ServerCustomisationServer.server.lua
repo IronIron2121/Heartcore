@@ -3,18 +3,21 @@
 -- Services
 local RepStore = game:GetService("ReplicatedStorage")
 local Plrs = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = RepStore:WaitForChild("Utility")
 local Remotes = RepStore:WaitForChild("Remotes")
 
 -- Modules
+local Types = require(ReplicatedStorage.Utility.Types)
 local ServerCustomisationService = require(Utility:WaitForChild("ServerCustomisationService"))
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 
 -- Remotes
 local PlayerEquippedTastemakerOutfit = Remotes:WaitForChild("PlayerEquippedTastemakerOutfit")
-local PlayerEqippedInspectedOutfit = Remotes:WaitForChild("PlayerEquippedInspectedOutfit")
+local PlayerEquippedInspectedOutfit = Remotes:WaitForChild("PlayerEquippedInspectedPlayer")
+local PlayerEquippedInspectedItemsRF = Remotes:WaitForChild("PlayerEquippedInspectedItemsRF")
 local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
 local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
@@ -90,7 +93,26 @@ local function playerEquippedTastemakerOutfit(player: Player, tastemakerOutfit: 
 	setPlayerEquipping(player, false)
 end
 
-local function playerEquippedInspectedOutfit(player: Player, inspectedPlayer: Player)
+local function playerEquippedInspectedItems(player: Player, items: {id: number, itemDetails: Types.ItemDetails, type: string})
+	if isPlayerEquipping(player) then
+		return
+	end
+	setPlayerEquipping(player, true)
+
+	local mappedItems = {}
+	for _, item in pairs(items) do
+		table.insert(mappedItems, {
+			itemId = item.id,
+			assetOrBundleType = item.itemDetails.AssetType,
+			itemType = item.itemDetails.ItemType,
+		})
+	end
+
+	ServerCustomisationService.AddItemsToAvatar(player, mappedItems)
+	setPlayerEquipping(player, false)
+end
+
+local function playerEquippedInspectedPlayer(player: Player, inspectedPlayer: Player)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true) 
 	ServerCustomisationService.ApplyInspectedOutfitToPlayer(player, inspectedPlayer)
@@ -108,10 +130,11 @@ end
 
 PlayerEquippedOutfit.OnServerEvent:Connect(playerEquippedOutfit)
 PlayerEquippedTastemakerOutfit.OnServerEvent:Connect(playerEquippedTastemakerOutfit)
-PlayerEqippedInspectedOutfit.OnServerEvent:Connect(playerEquippedInspectedOutfit)
+PlayerEquippedInspectedOutfit.OnServerEvent:Connect(playerEquippedInspectedPlayer)
 PlayerRemovedClassicItem.OnServerEvent:Connect(playerRemovedClassicItem)
 PlayerEquippedItem.OnServerEvent:Connect(playerEquippedItem)
 PlayerRemovedItem.OnServerInvoke = playerRemovedItem
 PlayerResetOutfit.OnServerInvoke = playerResetOutfit
+PlayerEquippedInspectedItemsRF.OnServerInvoke = playerEquippedInspectedItems
 Plrs.PlayerRemoving:Connect(onPlayerRemoving)
 Plrs.PlayerAdded:Connect(onPlayerAdded)

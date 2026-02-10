@@ -10,15 +10,18 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local StarterPlayer = game:GetService("StarterPlayer")
+local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
 local Constants = require(ReplicatedStorage.Constants)
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
 -- Remotes
-local PlayerEquippedInspectedOutfit = Remotes:WaitForChild("PlayerEquippedInspectedOutfit")
+local PlayerEquippedInspectedPlayer = Remotes:WaitForChild("PlayerEquippedInspectedPlayer")
 local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
 local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
+local PlayerEquippedInspectedItemsRF = Remotes:WaitForChild("PlayerEquippedInspectedItemsRF")
 
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -91,8 +94,8 @@ function ClientCustomisationService.RemoveItem(assetId: number): boolean
 	return success
 end
 
-function ClientCustomisationService.PlayerEquippedInspectedOutfit(inspectedPlayer: Player)
-	PlayerEquippedInspectedOutfit:FireServer(inspectedPlayer)
+function ClientCustomisationService.PlayerEquippedInspectedPlayer(inspectedPlayer: Player)
+	PlayerEquippedInspectedPlayer:FireServer(inspectedPlayer)
 end
 
 function ClientCustomisationService.RemoveClassicItem(assetId: number, itemType: string): boolean
@@ -105,6 +108,11 @@ function ClientCustomisationService.RemoveClassicItem(assetId: number, itemType:
 	end)
 
 	return success
+end
+
+function ClientCustomisationService.PlayerEquippedInspectedItems()
+	local items = peek(Inspector.getInspectingItems())
+	PlayerEquippedInspectedItemsRF:InvokeServer(items)
 end
 
 function ClientCustomisationService.GetCurrentEquippedItems(): {any}

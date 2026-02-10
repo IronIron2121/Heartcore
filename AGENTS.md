@@ -43,6 +43,10 @@ aftman install
 - `GameOutfitManager` (`src/repstore/GameLoop/`) — Outfit submissions, vote/view tracking
 - `WinnersManager` (`src/server/Voting/`) — Podium models, leaderboard
 - `DataManager` (`src/server/Data/`) — Player XP, levels, ranks via ProfileService
+- `Inspector` (`src/client/Mannequins/Inspector/`) — Mannequin/player inspection with loading state
+- `LoadingScreenManager` (`src/repstore/Libraries/`) — Centralized loading screen management
+- `ClientOutfitService` (`src/repstore/Utility/`) — Client-side outfit save/delete operations
+- `SerialisationService` (`src/repstore/Utility/`) — HumanoidDescription serialization/deserialization
 
 **Cross-Script Communication:**
 - Replicated ValueObjects in ReplicatedStorage:
@@ -56,8 +60,24 @@ aftman install
 **GuiManager** (`src/repstore/Libraries/GuiManager/`) provides modal stack system:
 - Register modals with `GuiManager.RegisterModal(MODAL_NAMES.X, frame, initCallback)`
 - Open/close with `GuiManager.OpenModal()` / `GuiManager.CloseModal()`
+- Push notification modals with `GuiManager.PushNotificationCentre(name, message, onConfirm)`
+- Pop with `GuiManager.PopCentre()`
 - Automatic blur effect on modal open
 - Modal names defined in `MODAL_NAMES.luau`
+
+**GuiConfiguration** (`src/repstore/Libraries/GuiManager/GuiConfiguration.luau`):
+- Manages HUD layouts with 5 slots: TopMiddle, TopRight, BottomLeft, BottomMiddle, BottomRight
+- Each slot is a Frame with position animated via Fusion Tweens (slides in/out)
+- Elements are reparented into slots on `Enable()` — Roblox instances can only have one parent, so shared elements (e.g. buttons HUD) are reparented between configurations rather than duplicated
+- `GuiConfiguration.new(scope, props)` accepts slot elements and position overrides
+- `Enable()` / `Disable()` toggle visibility via an `Enabled` Fusion Value
+
+**LoadingScreenManager** (`src/repstore/Libraries/LoadingScreenManager.luau`):
+- Centralized loading screen management — avoids repeating LoadingScreen boilerplate across components
+- Parent-based API: `LoadingScreenManager.show(parent)` / `LoadingScreenManager.hide(parent)`
+- Internally caches LoadingScreen instances keyed by parent GuiObject
+- First `show()` creates a LoadingScreen with `parent = parent`; subsequent calls toggle visibility
+- Uses the `LoadingScreen` widget from `src/repstore/UI/FusionComponents/Widgets/LoadingScreen.lua`
 
 **Fusion 0.3 Component Pattern:**
 ```lua
@@ -118,6 +138,15 @@ end
 - Use `CreateHumanoidModelFromDescription` (NOT `...Async`)
 - Requires `HumanoidRigType` parameter
 
+**Roblox Instance single-parent constraint:**
+- An Instance can only have one `Parent` at a time
+- To share a UI element across multiple containers, reparent it (set `.Parent`) when switching — do not duplicate
+- When reparenting during animated transitions, delay the reparent until the old container has animated off-screen
+
+**UIGridLayout constrains all sibling GuiObjects:**
+- If you need a child (e.g. LoadingScreen overlay) that shouldn't be constrained by a UIGridLayout, place the grid content in a separate child Frame/ScrollingFrame
+- The overlay can then be a sibling of that container Frame, outside the grid's influence
+
 **Fusion + Roblox ValueObjects:**
 ```lua
 -- ❌ WRONG: Cannot use Roblox ValueObjects directly in Fusion
@@ -158,3 +187,12 @@ Position = scope:Tween(
 **Avoid hardcoded values:**
 - Use `player.UserId` not hardcoded IDs in thumbnail fetches
 - Use ReplicatedStorage Values for shared state instead of cross-requiring managers
+
+**Luau strict-mode type casting for OOP:**
+- When returning `self` from a method and strict mode complains about types, use the double-cast pattern: `(self :: any) :: MyType`
+- Single cast `self :: MyType` may fail with "types are unrelated"
+
+**Async loading pattern:**
+- To make GUI feel responsive, show the frame immediately (e.g. via GuiManager modal push), then `task.spawn` the heavy async work (API calls, model creation)
+- Show a loading screen via `LoadingScreenManager.show(container)` while loading, hide when done
+- This prevents the GUI from appearing to hang while data loads

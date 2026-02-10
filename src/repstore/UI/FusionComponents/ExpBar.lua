@@ -2,7 +2,6 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 
 -- Folders
@@ -11,7 +10,6 @@ local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 
 -- Modules
-local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local ImageUris = require(DataTables:WaitForChild("ImageUris"))
 local ExpConfig = require(Libraries:WaitForChild("ExpConfig"))
@@ -23,9 +21,22 @@ type UsedAs<T> = Fusion.UsedAs<T>
 -- Instances
 local localPlayer = Players.LocalPlayer
 
-local leaderstats = localPlayer:WaitForChild("leaderstats")
-local expValue = leaderstats:WaitForChild("Exp")
-local levelValue = leaderstats:WaitForChild("Level")
+-- Bridge leaderstats to Fusion Values so require() never blocks
+local moduleScope = Fusion:scoped()
+local expFusion   = Fusion.Value(moduleScope, 0)
+local levelFusion = Fusion.Value(moduleScope, 1)
+
+task.spawn(function()
+    local ls        = localPlayer:WaitForChild("leaderstats")
+    local expInst   = ls:WaitForChild("Exp")
+    local levelInst = ls:WaitForChild("Level")
+
+    expFusion:set(expInst.Value)
+    levelFusion:set(levelInst.Value)
+
+    expInst.Changed:Connect(function(v)   expFusion:set(v)   end)
+    levelInst.Changed:Connect(function(v) levelFusion:set(v) end)
+end)
 
 function ExpBar(
 	scope: Fusion.Scope,
@@ -50,40 +61,14 @@ function ExpBar(
 ): Frame
 
 	local MAX_BAR_SCALE = 0.75
-	local initialProgress = ExpConfig.getProgress(expValue.Value, levelValue.Value)
-	local expBarSize = Fusion.Value(scope, UDim2.fromScale(initialProgress * MAX_BAR_SCALE, 0.16))
 
-	local tweenInfo = TweenInfo.new(
-		0.5,
-		Enum.EasingStyle.Quad,
-		Enum.EasingDirection.Out
+	local expBarSize = scope:Tween(
+		scope:Computed(function(use)
+			local progress = ExpConfig.getProgress(use(expFusion), use(levelFusion))
+			return UDim2.fromScale(progress * MAX_BAR_SCALE, 0.16)
+		end),
+		TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	)
-
-	local function updateExpBar()
-		local progress = ExpConfig.getProgress(expValue.Value, levelValue.Value)
-		local newScale = progress * MAX_BAR_SCALE
-
-		local currentScale = peek(expBarSize).X.Scale
-		local tweenValue = Instance.new("NumberValue")
-		tweenValue.Value = currentScale
-
-		local tween = TweenService:Create(tweenValue, tweenInfo, {
-			Value = newScale
-		})
-
-		tweenValue:GetPropertyChangedSignal("Value"):Connect(function()
-			expBarSize:set(UDim2.fromScale(tweenValue.Value, 0.15))
-		end)
-
-		tween.Completed:Connect(function()
-			tweenValue:Destroy()
-		end)
-
-		tween:Play()
-	end
-
-	expValue:GetPropertyChangedSignal("Value"):Connect(updateExpBar)
-	levelValue:GetPropertyChangedSignal("Value"):Connect(updateExpBar)
 
 	local frame = scope:New "Frame" {
 		Name = "ExpBarContainer",
