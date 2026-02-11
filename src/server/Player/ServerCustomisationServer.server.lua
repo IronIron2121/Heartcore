@@ -69,7 +69,6 @@ end
 local function playerEquippedItem(player: Player, itemId: number, assetType: string, itemType: string)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true)
-	print(player, itemId, assetType, itemType)
 	ServerCustomisationService.AddItemToAvatar(player, itemId, assetType, itemType)
 	setPlayerEquipping(player, false)
 end

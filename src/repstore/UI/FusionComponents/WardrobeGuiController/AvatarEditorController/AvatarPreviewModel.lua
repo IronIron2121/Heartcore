@@ -9,10 +9,11 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 
 -- Modules
-local GetAccessoryTypeFromAssetTypeId = require(Getters:WaitForChild("GetAccessoryTypeFromAssetTypeId"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local peek = Fusion.peek
+
+-- Variables
 
 -- Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -24,31 +25,6 @@ local Emotes = ReplicatedStorage:WaitForChild("Emotes")
 local AvatarPreviewModel = {}
 AvatarPreviewModel.__index = AvatarPreviewModel
  
--- Simple helper to fix AccessoryTypes
-local function fixAccessoryTypes(humanoidDescription: HumanoidDescription)
-	for _, description in ipairs(humanoidDescription:GetChildren()) do
-		if description:IsA("AccessoryDescription") and description.AccessoryType == Enum.AccessoryType.Unknown then
-			warn("Attempting to fix accessory type!")
-			local success, productInfo = callWithRetry(function()
-				return MarketplaceService:GetProductInfo(description.AssetId, Enum.InfoType.Asset)
-			end, 5)
-
-			if success then
-				local accessoryType = GetAccessoryTypeFromAssetTypeId(productInfo.AssetTypeId)
-				if accessoryType then
-					description.AccessoryType = accessoryType
-				else
-					warn("Could not determine AccessoryType for asset:", description.AssetId)
-					description:Destroy() -- Remove if we can't determine type
-				end
-			else
-				warn("Failed to get product info for asset:", description.AssetId)
-				description:Destroy() -- Remove if we can't get info
-			end
-		end
-	end
-end
-
 function AvatarPreviewModel.new(scope: Fusion.Scope, props: {
 	showLoading: (() -> ())?,
 	hideLoading: (() -> ())?,
@@ -70,6 +46,9 @@ function AvatarPreviewModel.new(scope: Fusion.Scope, props: {
 		local description = use(self.currentHumanoidDescription)
 		return Players:CreateHumanoidModelFromDescription(description, Enum.HumanoidRigType.R15)
 	end)
+
+	self.currentTrack = scope:Value(nil)
+	self.currentTrackSignal = scope:Value(nil)
 
 	-- Watch for HumanoidDescription changes
 	humanoid.ChildAdded:Connect(function(child)
@@ -111,7 +90,7 @@ function AvatarPreviewModel:PlayAnimation(animationId: number)
 
 	local animator: Animator = humanoid:FindFirstChild("Animator") :: Animator
 	if not animator then
-		animator = Instance.new("Animator")
+		animator = Instance.new("Animator") :: Animator
 		animator.Parent = humanoid
 	end
 
@@ -136,9 +115,15 @@ function AvatarPreviewModel:PlayAnimation(animationId: number)
 		return
 	end
 
-	local track = (animator :: Animator):LoadAnimation(animation)
-	track.Looped = false
-	track:Play()
+	if peek(self.currentTrack) ~= nil then
+		peek(self.currentTrack):Stop()
+		self.currentTrack:set(nil)
+	end
+
+	self.currentTrack:set((animator :: Animator):LoadAnimation(animation))
+	peek(self.currentTrack).Looped = false
+	peek(self.currentTrack):Play()
+
 end
 
 return AvatarPreviewModel
