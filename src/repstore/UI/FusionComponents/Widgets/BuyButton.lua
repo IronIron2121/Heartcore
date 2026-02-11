@@ -104,10 +104,19 @@ function BuyButton(
 
 			if props.popLoad then
 				local test = MarketplaceService.PromptPurchaseFinished
+				local test2 = MarketplaceService.PromptBundlePurchaseFinished
 				test:Connect(function(a0: Player, a1: number, a2: boolean)  
-					warn("fin")
 					props.popLoad()
+					test = nil
+					test2 = nil
 				end)
+
+				test2:Connect(function(a0: Instance, a1: number, a2: boolean)  
+					props.popLoad()
+					test = nil
+					test2 = nil
+				end)
+
 			else
 				warn("No pop load")
 			end

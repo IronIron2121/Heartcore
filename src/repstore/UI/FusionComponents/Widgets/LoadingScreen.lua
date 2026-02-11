@@ -47,7 +47,6 @@ function Frame(
 
     scope:Observer(props.visible):onChange(function()
         task.spawn(function()
-            warn("LOAD SCREEN ONBSERVER TICKED!!")
             while peek(props.visible) do
                 rotationValue:set(peek(rotationValue) + 359)
                 task.wait(1)
