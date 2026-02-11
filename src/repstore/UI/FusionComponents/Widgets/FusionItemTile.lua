@@ -34,10 +34,6 @@ local COLOUR_GREY = UI_CONSTANTS.COLOUR_GREY
 -- LERP
 local COLOUR_HOVER = COLOUR_WHITE:Lerp(COLOUR_GREY, 0.5)
 
-
--- Text
-local OFF_SALE_TEXT = "Off-Sale"
-
 -- Config
 local CONFIG = {
 	SIZE = UDim2.fromOffset(300, 300),
@@ -95,6 +91,9 @@ props: {
     },
     
     layoutOrder: number,
+	onPurchaseCb: () -> (),
+	pushLoad: () -> ()?,
+	popLoad: () -> ()?,
 	onTryCb: () -> ()
 })
 	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return end
@@ -287,7 +286,9 @@ props: {
 									if props.onPurchaseCb then
 										props.onPurchaseCb()
 									end
-								end
+								end,
+								pushLoad = props.pushLoad,
+								popLoad = props.popLoad
 							})
 						}
 					}
