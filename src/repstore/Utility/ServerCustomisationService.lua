@@ -23,6 +23,21 @@ local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlaye
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
+-- Accessory layering order by type (tops above bottoms)
+local ACCESSORY_TYPE_ORDER = {
+	[Enum.AccessoryType.LeftShoe] = 8,
+	[Enum.AccessoryType.RightShoe] = 8,
+	[Enum.AccessoryType.TShirt] = 7,
+	[Enum.AccessoryType.Shirt] = 6,
+	[Enum.AccessoryType.Sweater] = 5,
+	[Enum.AccessoryType.Jacket] = 4,
+	[Enum.AccessoryType.DressSkirt] = 3,
+	[Enum.AccessoryType.Shorts] = 2,
+	[Enum.AccessoryType.Pants] = 1,
+}
+
+local DEFAULT_ACCESSORY_ORDER = 1
+
 --
 
 local ServerCustomisationService = {}
@@ -159,7 +174,7 @@ function ServerCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 	end
 	
 	accessoryDescription.IsLayered = true
-	accessoryDescription.Order = 1
+	accessoryDescription.Order = ACCESSORY_TYPE_ORDER[accessoryDescription.AccessoryType] or DEFAULT_ACCESSORY_ORDER
 	accessoryDescription.Parent = clonedDescription
 
 	ServerCustomisationService.applyDescription(player, clonedDescription)
@@ -191,7 +206,7 @@ function ServerCustomisationService.AddAccessoriesToAvatar(player: Player, acces
 		end
 
 		accessoryDescription.IsLayered = true
-		accessoryDescription.Order = 1
+		accessoryDescription.Order = ACCESSORY_TYPE_ORDER[accessoryDescription.AccessoryType] or DEFAULT_ACCESSORY_ORDER
 		accessoryDescription.Parent = clonedDescription
 	end
 
@@ -510,7 +525,7 @@ function ServerCustomisationService.ApplyInspectedItemsToPlayer(
 			accessoryDescription.AssetId = item.itemId
 			accessoryDescription.AccessoryType = Enum.AccessoryType[GetAccessoryTypeFromAssetType(item.assetOrBundleType)]
 			accessoryDescription.IsLayered = true
-			accessoryDescription.Order = 1
+			accessoryDescription.Order = ACCESSORY_TYPE_ORDER[accessoryDescription.AccessoryType] or DEFAULT_ACCESSORY_ORDER
 			accessoryDescription.Parent = clonedDescription
 
 		elseif item.itemType == "Bundle" then
@@ -586,7 +601,7 @@ function ServerCustomisationService.AddItemsToAvatar(
 			end
 
 			accessoryDescription.IsLayered = true
-			accessoryDescription.Order = 1
+			accessoryDescription.Order = ACCESSORY_TYPE_ORDER[accessoryDescription.AccessoryType] or DEFAULT_ACCESSORY_ORDER
 			accessoryDescription.Parent = clonedDescription
 
 		elseif item.itemType == "Bundle" then
