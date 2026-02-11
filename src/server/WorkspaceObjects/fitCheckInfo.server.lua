@@ -20,6 +20,13 @@ type UsedAs<T> =    Fusion.UsedAs<T>
 -- Instances
 local signHolder =  workspace:WaitForChild("fitCheckInfo").signHolder
 
+local BR = "<br></br>"
+local DOUBLE_BR = BR .. BR
+local BOLD_OPEN = "<b><font size='60'>"
+local BOLD_CLOSE = "</font></b>"
+local BODY_OPEN = "<font size='40'>"
+local BODY_CLOSE = "</font>"
+
 local surfaceGui = scope:New "SurfaceGui" {
     Face = Enum.NormalId.Left,
     LightInfluence = 0,
@@ -34,7 +41,17 @@ local surfaceGui = scope:New "SurfaceGui" {
             TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
             FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
             RichText = true,
-            Text = "<b><font size='60'>1. Create a fit</font></b><br></br><br><font size='40'>Submit a look that matches the theme.</font></br><br></br><br></br><br><b><font size='60'>2. Vote for fits</font></b><br></br></br><br><font size='40'>Vote for your fave fit.</font></br><br></br><br></br><br><b><font size='60'>3. Become a Tastemaker</font></b></br><br></br><br><font size='40'>Get votes, rank up, earn status.</font></br>"
+            Text = BOLD_OPEN .. "1. Create a fit" .. BOLD_CLOSE
+                .. BR
+                .. BODY_OPEN .. "Submit a look that matches the theme." .. BODY_CLOSE
+                .. DOUBLE_BR
+                .. BOLD_OPEN .. "2. Vote for fits" .. BOLD_CLOSE
+                .. BR
+                .. BODY_OPEN .. "Vote for your fave fit." .. BODY_CLOSE
+                .. DOUBLE_BR
+                .. BOLD_OPEN .. "3. Become a Tastemaker" .. BOLD_CLOSE
+                .. BR
+                .. BODY_OPEN .. "Get votes, rank up, earn status." .. BODY_CLOSE
         }
     }
 }
