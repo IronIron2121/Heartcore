@@ -129,6 +129,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 	self.editorsPickSelected = self.scope:Value(false)
 
 	self.searchCallback = function(keyword: string?)
+		keyword = keyword or "   "
 		if not self.SearchResultsFrame then
 			warn("SearchResultsFrame not ready yet")
 			return
@@ -238,6 +239,7 @@ function CatalogSearchController:_initialiseInspectFrame()
 	local inspectFrame = InspectFrame(self.scope, {
 		currentView = self.currentView
 	})
+
 	inspectFrame.Parent = self.parentFrame
 end
 
