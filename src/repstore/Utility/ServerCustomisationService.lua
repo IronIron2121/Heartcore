@@ -439,8 +439,15 @@ function ServerCustomisationService.TryEmote(player: Player, itemId: number)
 	end
 
 	if track then
-		track.Looped = false
+		track.Looped = true
 		track:Play()
+		task.spawn(function()
+			local detector = humanoid:GetPropertyChangedSignal("MoveDirection")
+			detector:Connect(function()  
+				track:Stop()
+				detector = nil
+			end)
+		end)
 	end
 end
 
