@@ -12,6 +12,14 @@ local Getters = ReplicatedStorage:WaitForChild("Getters")
 local GetAccessoryTypeFromAssetTypeId = require(Getters:WaitForChild("GetAccessoryTypeFromAssetTypeId"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local peek = Fusion.peek
+
+-- Remotes
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local LoadEmoteRF = Remotes:WaitForChild("LoadEmoteRF")
+
+-- Folders
+local Emotes = ReplicatedStorage:WaitForChild("Emotes")
 
 local AvatarPreviewModel = {}
 AvatarPreviewModel.__index = AvatarPreviewModel
@@ -82,6 +90,45 @@ end
 
 function AvatarPreviewModel:getDescription()
 	return self.currentHumanoidDescription
+end
+
+function AvatarPreviewModel:PlayAnimation(animationId: number)
+	local model = peek(self.instance)
+	if not model then 
+		warn("No model at play animation!")
+		return  end
+
+	local humanoid = model:FindFirstChildWhichIsA("Humanoid")
+	if not humanoid then 
+		warn("No humanoid at play animation!") 
+		return 
+	end
+
+	local animator: Animator = humanoid:FindFirstChild("Animator") :: Animator
+	if not animator then
+		animator = Instance.new("Animator")
+		animator.Parent = humanoid
+	end
+
+	local success, emoteLoaded = callWithRetry(function()
+		return LoadEmoteRF:InvokeServer(animationId)
+	end)
+
+	if not success or not emoteLoaded then 
+		return 
+	end
+
+	local emoteSuccess, animation = callWithRetry(function()
+		return Emotes:FindFirstChild(tostring(animationId))
+	end)
+
+	if not emoteSuccess or not animation then 
+		return
+	end
+
+	local track = (animator :: Animator):LoadAnimation(animation)
+	track.Looped = false
+	track:Play()
 end
 
 return AvatarPreviewModel

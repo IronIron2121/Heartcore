@@ -97,7 +97,8 @@ props: {
         ItemStatus: {any}?,
     },
     
-    layoutOrder: number
+    layoutOrder: number,
+	onTryCb: () -> ()
 })
 	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return end
 	
@@ -270,7 +271,11 @@ props: {
 								layoutOrder = 1,
 								onTryonCallback = function()
 									deactivate()
-									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType, props.itemDetails.ItemType)
+									if props.onTryCb then
+										props.onTryCb()
+									end
+									-- Loop animation on the thingy
+									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType or "", props.itemDetails.ItemType)
 								end
 							}), 
 

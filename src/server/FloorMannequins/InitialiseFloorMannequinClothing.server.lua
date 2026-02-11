@@ -55,9 +55,11 @@ local function setupMannequinAsync(mannequin: Instance)
 	assert(humanoid, "No humanoid found for " .. mannequin.Name .. "!")
 
 	for _, accessoryId in accessoryIds do
-		local success, asset = pcall(function()
-			return InsertService:LoadAsset(accessoryId)
-		end)
+		local success, asset = callWithRetry(
+			function()
+				return InsertService:LoadAsset(accessoryId)
+			end
+		)
 		
 		if success and asset then
 			local accessory = asset:FindFirstChildOfClass("Accessory")
