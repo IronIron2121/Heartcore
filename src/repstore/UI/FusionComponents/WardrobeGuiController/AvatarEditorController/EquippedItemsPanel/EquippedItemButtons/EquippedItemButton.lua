@@ -33,6 +33,7 @@ function EquippedItemButton(
 		buttonSize: UsedAs<UDim2>,
 		itemDescription: AccessoryDescription | BodyPartDescription?,
 		visible: UsedAs<boolean>,
+		addCb: () -> ()?,
 		removeCb: () -> ()?,
 	}
 ): Frame
@@ -160,7 +161,9 @@ function EquippedItemButton(
 				BorderSizePixel = 0,
 
 				[OnEvent "Activated"] = function()
-					MarketplaceService:PromptPurchase(Players.LocalPlayer, props.itemDescription.AssetId)
+					if props.addCb then
+						props.addCb()
+					end
 				end,
 
 				[Children] = {

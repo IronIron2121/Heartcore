@@ -4,8 +4,6 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local MarketplaceService = game:GetService("MarketplaceService")
-local Players = game:GetService("Players")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
@@ -13,10 +11,9 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
-local ItemDetailsCache = require(ReplicatedStorage.Libraries.ItemDetailsCache)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -96,10 +93,12 @@ props: {
         ItemRestrictions: {any}?,
         ItemStatus: {any}?,
     },
+
+	onPurchaseCb: () -> ()?,
     
     layoutOrder: number
-})
-	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return end
+}): Frame
+	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return assert(props.itemDetails.AssetType or props.itemDetails.BundleType) end
 	
 	local isHovering = scope:Value(false)
 	local isActivated = scope:Value(false)
@@ -282,7 +281,9 @@ props: {
 								isOffSale = isOffSale,
 								onPurchaseCallback = function()
 									deactivate()
-									ClientCustomisationService.PlayerPurchasedItem(props.itemDetails.Id)
+									if props.onPurchaseCb then
+										props.onPurchaseCb()
+									end
 								end
 							})
 						}

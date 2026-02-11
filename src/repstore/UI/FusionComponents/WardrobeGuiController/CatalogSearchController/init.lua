@@ -5,6 +5,7 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AvatarEditorService = game:GetService("AvatarEditorService")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -15,6 +16,8 @@ local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiControll
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
+local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
@@ -48,9 +51,10 @@ local sortTextToSortType = {
 local CatalogSearchController = {}
 CatalogSearchController.__index = CatalogSearchController
 
-function CatalogSearchController.new(parentFrame: Frame, controllers: {any})
+function CatalogSearchController.new(parentFrame: Frame, controllers: {any}, wardrobeContainer: Frame)
 	local self = setmetatable({}, CatalogSearchController)
 	self.parentFrame = parentFrame
+	self.wardrobeContainer = wardrobeContainer
 	self.scope = Fusion:scoped()
 	self.searchAssetCategories = self.scope:Value(AssetFilterCategories.getAllAssetTypes())
 	self.searchBundleCategories = self.scope:Value(BundleFilterCategories.getAllRobloxBundleTypes())
@@ -114,7 +118,20 @@ function CatalogSearchController:_initialiseSearchFrame()
 			for index, itemDetails in ipairs(peek(self.searchResults):GetCurrentPage()) do
 				local newTile = FusionItemTile(self.scope, {
 					itemDetails = itemDetails,
-					layoutOrder = numChildren + index
+					layoutOrder = numChildren + index,
+					onPurchaseCb = function()
+						warn("Purchasing")
+						LoadingScreenManager.show(self.wardrobeContainer)
+						task.defer(function()
+							local success = ClientCustomisationService.PlayerPurchasedItem(itemDetails.Id)
+							task.wait(5)
+							warn("Hiding...")
+							LoadingScreenManager.hide(self.wardrobeContainer)
+							if not success then 
+								warn("Failed to purchase item")	
+							end		
+						end)
+					end
 				})
 
 				newTile.Parent = self.SearchResultsFrame
@@ -162,7 +179,18 @@ function CatalogSearchController:_initialiseSearchFrame()
 			for index, itemDetails in ipairs(results:GetCurrentPage()) do
 				local newTile = FusionItemTile(self.scope, {
 					itemDetails = itemDetails,
-					layoutOrder = index
+					layoutOrder = index,
+					onPurchaseCb = function()
+						warn("Purchasing")
+						LoadingScreenManager.show(self.wardrobeContainer)
+						task.defer(function()
+							local success = ClientCustomisationService.PlayerPurchasedItem(itemDetails.Id)
+							LoadingScreenManager.hide(self.wardrobeContainer)
+							if not success then 
+								warn("Failed to purchase item")	
+							end		
+						end)
+					end
 				})
 				newTile.Parent = self.SearchResultsFrame
 			end
@@ -182,7 +210,22 @@ function CatalogSearchController:_initialiseSearchFrame()
 		for index, itemDetails in ipairs(EditorsPick.itemDetails) do
 			local newTile = FusionItemTile(self.scope, {
 				itemDetails = itemDetails,
-				layoutOrder = index 
+				layoutOrder = index,
+				onPurchaseCb = function()
+					warn("Purchasing")
+					LoadingScreenManager.show(self.wardrobeContainer)
+					task.defer(function()
+						warn("Pre-p")
+						local success = ClientCustomisationService.PlayerPurchasedItem(itemDetails.Id)
+						warn("Post-p")
+						task.wait(5)
+						warn("Hiding...")
+						LoadingScreenManager.hide(self.wardrobeContainer)
+						if not success then 
+							warn("Failed to purchase item")	
+						end		
+					end)
+				end
 			})
 			newTile.Parent = self.SearchResultsFrame
 		end

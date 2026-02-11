@@ -2,6 +2,7 @@
 -- AvatarEditorController.lua
 
 -- Services
+local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
@@ -20,6 +21,8 @@ local AvatarPreviewModel = require(script:WaitForChild("AvatarPreviewModel"))
 local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGuiState"))
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Constants = require(ReplicatedStorage.Constants)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
+local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 
 -- Gui Components
 local AvatarViewport = require(script:WaitForChild("AvatarViewport"))
@@ -152,6 +155,19 @@ function AvatarEditorController:_addEquippedItemTile(description: AccessoryDescr
 		buttonSize = UDim2.fromScale(0.7, 0.7),
 		visible = true,
 		itemDescription = description,
+		addCb = function()
+			warn("add cb")
+			LoadingScreenManager.show(self.parentFrame)
+			task.defer(function()
+				local success = callWithRetry(function()  
+					return MarketplaceService:PromptPurchase(Players.LocalPlayer, description.AssetId)
+				end)
+				LoadingScreenManager.hide(self.parentFrame)
+				if not success then 
+					warn("Failed to purchase item")	
+				end		
+			end)
+		end,
 		removeCb = function()
 			ClientCustomisationService.RemoveItem(description.AssetId)
 			self:RemoveEquippedItemTile(description.AssetId)

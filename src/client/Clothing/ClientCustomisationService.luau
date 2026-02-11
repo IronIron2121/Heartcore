@@ -67,7 +67,13 @@ function ClientCustomisationService.ResetPlayerOutfit(player: Player): boolean
 end
 
 function ClientCustomisationService.PlayerPurchasedItem(itemId: number)
-	MarketplaceService:PromptPurchase(Players.LocalPlayer, itemId)
+	local success, err = callWithRetry(function()  
+		return MarketplaceService:PromptPurchase(Players.LocalPlayer, itemId)
+	end)
+
+	if not success then warn(err) end
+
+	return success
 end
 
 function ClientCustomisationService.AddItem(assetId: number, assetTypeOrBundleType: string, itemType: string): boolean
@@ -76,7 +82,6 @@ function ClientCustomisationService.AddItem(assetId: number, assetTypeOrBundleTy
 			return PlayerEquippedItem:FireServer(assetId, assetTypeOrBundleType, itemType)
 		end
 	)
-
 	-- Add the item tile here
 
 	return success
