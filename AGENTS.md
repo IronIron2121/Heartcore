@@ -143,9 +143,9 @@ end
 - To share a UI element across multiple containers, reparent it (set `.Parent`) when switching — do not duplicate
 - When reparenting during animated transitions, delay the reparent until the old container has animated off-screen
 
-**UIGridLayout constrains all sibling GuiObjects:**
-- If you need a child (e.g. LoadingScreen overlay) that shouldn't be constrained by a UIGridLayout, place the grid content in a separate child Frame/ScrollingFrame
-- The overlay can then be a sibling of that container Frame, outside the grid's influence
+**UIGridLayout / UIListLayout constrains all sibling GuiObjects:**
+- If you need a child (e.g. LoadingScreen overlay) that shouldn't be constrained by a layout, parent it to a frame *above* the layout container
+- Example: `LoadingScreenManager.show(wardrobeContainer)` instead of `show(catalogContainer)` when catalogContainer has a UIListLayout
 
 **Fusion + Roblox ValueObjects:**
 ```lua
@@ -188,9 +188,20 @@ Position = scope:Tween(
 - Use `player.UserId` not hardcoded IDs in thumbnail fetches
 - Use ReplicatedStorage Values for shared state instead of cross-requiring managers
 
+**Wrap RemoteEvent/RemoteFunction calls in `callWithRetry`:**
+- Remote invocations (e.g. `RemoteFunction:InvokeServer()`) can fail due to network issues
+- Always wrap them in `callWithRetry` — the key benefit is the `pcall` it uses internally, which prevents the caller from erroring out; the retry is a bonus
+- Example: `callWithRetry(function() return MyRemoteRF:InvokeServer(args) end)`
+
 **Luau strict-mode type casting for OOP:**
 - When returning `self` from a method and strict mode complains about types, use the double-cast pattern: `(self :: any) :: MyType`
 - Single cast `self :: MyType` may fail with "types are unrelated"
+
+**Server-side asset caching for client use:**
+- `InsertService:LoadAsset` is server-only — clients cannot call it
+- Pattern: server loads the asset, caches it to a ReplicatedStorage folder (e.g. `ReplicatedStorage.Emotes`), client reads from that folder
+- Expose a RemoteFunction so the client can request the server to load+cache on demand
+- Example: `ServerCustomisationService.LoadEmote(itemId)` caches to `Emotes` folder, client invokes `LoadEmoteRF` then reads from `Emotes:FindFirstChild(tostring(id))`
 
 **Async loading pattern:**
 - To make GUI feel responsive, show the frame immediately (e.g. via GuiManager modal push), then `task.spawn` the heavy async work (API calls, model creation)

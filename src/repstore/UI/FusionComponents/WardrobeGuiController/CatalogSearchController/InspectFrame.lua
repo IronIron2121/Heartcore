@@ -15,7 +15,6 @@ local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspecto
 local Constants = require(ReplicatedStorage.Constants)
 local FusionItemTile = require(ReplicatedStorage.UI.FusionComponents.Widgets.FusionItemTile)
 local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
-local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)

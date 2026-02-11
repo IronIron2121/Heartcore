@@ -12,8 +12,7 @@ local Players = game:GetService("Players")
 local Checkers = ReplicatedStorage:WaitForChild("Checkers")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Emotes = Instance.new("Folder", ReplicatedStorage)
-Emotes.Name = "Emotes"
+local Emotes = ReplicatedStorage:WaitForChild("Emotes")
 
 -- Modules
 local getHumanoidDescriptionFromPlayer = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromPlayer)
@@ -414,33 +413,46 @@ function ServerCustomisationService.AddClassicClothingToAvatar(player: Player, i
 	ServerCustomisationService.applyDescription(player, clonedDescription)
 end
 
-function ServerCustomisationService.TryEmote(player: Player, itemId: number)
-	local humanoid = GetHumanoidFromPlayer(player)
-
-	local asset = InsertService:LoadAsset(itemId)
-	local emote = Emotes:FindFirstChild(tostring(itemId)) :: Animation
-
-	if not emote then
-		emote = asset:FindFirstChildWhichIsA("Animation", true)
-		if emote then
-			emote:ClearAllChildren()
-			emote.Name = tostring(itemId)
-			emote.Parent = Emotes
-		end
+function ServerCustomisationService.LoadEmote(itemId: number): Animation?
+	local emote = Emotes:FindFirstChild(tostring(itemId)) :: Animation?
+	if emote then
+		return emote
 	end
 
+	local asset = InsertService:LoadAsset(itemId)
+	emote = asset:FindFirstChildWhichIsA("Animation", true)
+	if emote then
+		emote:ClearAllChildren()
+		emote.Name = tostring(itemId)
+		emote.Parent = Emotes
+	end
 	asset:Destroy()
+
+	return emote
+end
+
+function ServerCustomisationService.TryEmote(player: Player, itemId: number)
+	local humanoid = GetHumanoidFromPlayer(player)
+	local emote = ServerCustomisationService.LoadEmote(itemId)
+	if not emote then return end
 
 	local animator = humanoid:FindFirstChild("Animator") :: Animator?
 
 	local track : AnimationTrack
-	if animator then 
+	if animator then
 		track = animator:LoadAnimation(emote)
 	end
 
 	if track then
-		track.Looped = false
+		track.Looped = true
 		track:Play()
+		task.spawn(function()
+			local detector = humanoid:GetPropertyChangedSignal("MoveDirection")
+			detector:Connect(function()
+				track:Stop()
+				detector = nil
+			end)
+		end)
 	end
 end
 

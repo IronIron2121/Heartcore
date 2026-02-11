@@ -5,6 +5,7 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AvatarEditorService = game:GetService("AvatarEditorService")
+local ScriptCommitService = game:GetService("ScriptCommitService")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -15,6 +16,8 @@ local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiControll
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
+local AvatarPreviewModel = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.AvatarEditorController.AvatarPreviewModel)
+local AvatarEditorController = require(script.Parent.AvatarEditorController)
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
@@ -58,6 +61,7 @@ function CatalogSearchController.new(parentFrame: Frame, controllers: {any})
 	self.searchResults = self.scope:Value("")
 	self.searchText = self.scope:Value("")
 	self.currentView = WardrobeGuiState.currentView
+	self.controllers = controllers
 
 	return self
 end
@@ -114,7 +118,12 @@ function CatalogSearchController:_initialiseSearchFrame()
 			for index, itemDetails in ipairs(peek(self.searchResults):GetCurrentPage()) do
 				local newTile = FusionItemTile(self.scope, {
 					itemDetails = itemDetails,
-					layoutOrder = numChildren + index
+					layoutOrder = numChildren + index,
+					onTryCb = function()
+						if itemDetails.AssetType == Enum.AssetType.EmoteAnimation.Name then
+							self.controllers.AvatarEditorController.avatarPreviewModel:PlayAnimation(itemDetails.Id)
+						end
+					end
 				})
 
 				newTile.Parent = self.SearchResultsFrame
@@ -158,12 +167,15 @@ function CatalogSearchController:_initialiseSearchFrame()
 
 		if success then
 			self.searchResults:set(results)
-			warn(results:GetCurrentPage())
-			warn(results.IsFinished)
 			for index, itemDetails in ipairs(results:GetCurrentPage()) do
 				local newTile = FusionItemTile(self.scope, {
 					itemDetails = itemDetails,
-					layoutOrder = index
+					layoutOrder = index,
+					onTryCb = function()
+						if itemDetails.AssetType == Enum.AssetType.EmoteAnimation.Name then
+							self.controllers.AvatarEditorController.avatarPreviewModel:PlayAnimation(itemDetails.Id)
+						end
+					end
 				})
 				newTile.Parent = self.SearchResultsFrame
 			end
@@ -183,7 +195,12 @@ function CatalogSearchController:_initialiseSearchFrame()
 		for index, itemDetails in ipairs(EditorsPick.itemDetails) do
 			local newTile = FusionItemTile(self.scope, {
 				itemDetails = itemDetails,
-				layoutOrder = index 
+				layoutOrder = index,
+				onTryCb = function()
+					if itemDetails.AssetType == Enum.AssetType.EmoteAnimation.Name then
+						self.controllers.AvatarEditorController.avatarPreviewModel:PlayAnimation(itemDetails.Id)
+					end
+				end
 			})
 			newTile.Parent = self.SearchResultsFrame
 		end

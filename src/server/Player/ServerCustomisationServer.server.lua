@@ -23,6 +23,7 @@ local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
 local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
+local LoadEmoteRF = Remotes:WaitForChild("LoadEmoteRF")
 
 -- Variables
 local equippingCache = {}
@@ -68,7 +69,6 @@ end
 local function playerEquippedItem(player: Player, itemId: number, assetType: string, itemType: string)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true)
-	print(player, itemId, assetType, itemType)
 	ServerCustomisationService.AddItemToAvatar(player, itemId, assetType, itemType)
 	setPlayerEquipping(player, false)
 end
@@ -137,5 +137,8 @@ PlayerEquippedItem.OnServerEvent:Connect(playerEquippedItem)
 PlayerRemovedItem.OnServerInvoke = playerRemovedItem
 PlayerResetOutfit.OnServerInvoke = playerResetOutfit
 PlayerEquippedInspectedItemsRF.OnServerInvoke = playerEquippedInspectedItems
+LoadEmoteRF.OnServerInvoke = function(_player: Player, itemId: number)
+	return ServerCustomisationService.LoadEmote(itemId) ~= nil
+end
 Plrs.PlayerRemoving:Connect(onPlayerRemoving)
 Plrs.PlayerAdded:Connect(onPlayerAdded)
