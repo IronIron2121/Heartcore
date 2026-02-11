@@ -39,11 +39,6 @@ local detailsCache = {}
 
 local Inspector = {}
 
-local function addOrGetFromCache()
-
-
-end
-
 function Inspector.getInspectingItems(): Fusion.Value<{{id: number, type: Enum.MarketplaceProductType, itemDetails: {}}}>
 	return inspectingItems
 end

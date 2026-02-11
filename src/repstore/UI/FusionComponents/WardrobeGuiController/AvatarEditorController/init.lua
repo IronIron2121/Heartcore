@@ -22,7 +22,6 @@ local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGui
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Constants = require(ReplicatedStorage.Constants)
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
-local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 
 -- Gui Components
 local AvatarViewport = require(script:WaitForChild("AvatarViewport"))
@@ -69,16 +68,22 @@ function AvatarEditorController:Initialise()
 end
 
 function AvatarEditorController:_initialiseAvatarViewport()
-	local avatarPreviewModel = AvatarPreviewModel.new(self.scope)
-
+	local avatarPreviewModel = AvatarPreviewModel.new(self.scope, {
+		showLoading = function()
+			if self.avatarViewport then LoadingScreenManager.show(self.avatarViewport) end
+		end,
+		hideLoading = function()
+			if self.avatarViewport then LoadingScreenManager.hide(self.avatarViewport) end
+		end,
+	})
 	self.avatarViewport = AvatarViewport(self.scope, {
 		model = avatarPreviewModel:getInstance(),
 		currentView = WardrobeGuiState.currentView,
 		layoutOrder = 2,
 		controllers = self.controllers
-	}) 
+	})
 	
-	self.avatarViewport.Parent = self.parentFrame  
+	self.avatarViewport.Parent = self.parentFrame
 	self.avatarPreviewModel = avatarPreviewModel
 end
 

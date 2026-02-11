@@ -82,7 +82,6 @@ function ClientCustomisationService.AddItem(assetId: number, assetTypeOrBundleTy
 			return PlayerEquippedItem:FireServer(assetId, assetTypeOrBundleType, itemType)
 		end
 	)
-	-- Add the item tile here
 
 	return success
 end
@@ -90,12 +89,10 @@ end
 function ClientCustomisationService.RemoveItem(assetId: number): boolean
 	local success = callWithRetry(
 		function()
-			warn("Removing item!")
 			return PlayerRemovedItem:InvokeServer(assetId)
 		end
 	)
 
-	-- Remove the item tile
 	return success
 end
 

@@ -12,8 +12,7 @@ local Players = game:GetService("Players")
 local Checkers = ReplicatedStorage:WaitForChild("Checkers")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Emotes = Instance.new("Folder", ReplicatedStorage)
-Emotes.Name = "Emotes"
+local Emotes = ReplicatedStorage:WaitForChild("Emotes")
 
 -- Modules
 local getHumanoidDescriptionFromPlayer = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromPlayer)
@@ -23,6 +22,21 @@ local GetAccessoryTypeFromAssetType = require(Getters:WaitForChild("GetAccessory
 local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlayer"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
+
+-- Accessory layering order by type (tops above bottoms)
+local ACCESSORY_TYPE_ORDER = {
+	[Enum.AccessoryType.LeftShoe] = 8,
+	[Enum.AccessoryType.RightShoe] = 8,
+	[Enum.AccessoryType.TShirt] = 7,
+	[Enum.AccessoryType.Shirt] = 6,
+	[Enum.AccessoryType.Sweater] = 5,
+	[Enum.AccessoryType.Jacket] = 4,
+	[Enum.AccessoryType.DressSkirt] = 3,
+	[Enum.AccessoryType.Shorts] = 2,
+	[Enum.AccessoryType.Pants] = 1,
+}
+
+local DEFAULT_ACCESSORY_ORDER = 1
 
 --
 
@@ -160,7 +174,7 @@ function ServerCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 	end
 	
 	accessoryDescription.IsLayered = true
-	accessoryDescription.Order = 1
+	accessoryDescription.Order = ACCESSORY_TYPE_ORDER[accessoryDescription.AccessoryType] or DEFAULT_ACCESSORY_ORDER
 	accessoryDescription.Parent = clonedDescription
 
 	ServerCustomisationService.applyDescription(player, clonedDescription)
@@ -192,7 +206,7 @@ function ServerCustomisationService.AddAccessoriesToAvatar(player: Player, acces
 		end
 
 		accessoryDescription.IsLayered = true
-		accessoryDescription.Order = 1
+		accessoryDescription.Order = ACCESSORY_TYPE_ORDER[accessoryDescription.AccessoryType] or DEFAULT_ACCESSORY_ORDER
 		accessoryDescription.Parent = clonedDescription
 	end
 
@@ -414,37 +428,121 @@ function ServerCustomisationService.AddClassicClothingToAvatar(player: Player, i
 	ServerCustomisationService.applyDescription(player, clonedDescription)
 end
 
-function ServerCustomisationService.TryEmote(player: Player, itemId: number)
-	local humanoid = GetHumanoidFromPlayer(player)
-
-	local asset = InsertService:LoadAsset(itemId)
-	local emote = Emotes:FindFirstChild(tostring(itemId)) :: Animation
-
-	if not emote then
-		emote = asset:FindFirstChildWhichIsA("Animation", true)
-		if emote then
-			emote:ClearAllChildren()
-			emote.Name = tostring(itemId)
-			emote.Parent = Emotes
-		end
+function ServerCustomisationService.LoadEmote(itemId: number): Animation?
+	local emote = Emotes:FindFirstChild(tostring(itemId)) :: Animation?
+	if emote then
+		return emote
 	end
 
+	local asset = InsertService:LoadAsset(itemId)
+	emote = asset:FindFirstChildWhichIsA("Animation", true)
+	if emote then
+		emote:ClearAllChildren()
+		emote.Name = tostring(itemId)
+		emote.Parent = Emotes
+	end
 	asset:Destroy()
+
+	return emote
+end
+
+function ServerCustomisationService.TryEmote(player: Player, itemId: number)
+	local humanoid = GetHumanoidFromPlayer(player)
+	local emote = ServerCustomisationService.LoadEmote(itemId)
+	if not emote then return end
 
 	local animator = humanoid:FindFirstChild("Animator") :: Animator?
 
 	local track : AnimationTrack
-	if animator then 
+	if animator then
 		track = animator:LoadAnimation(emote)
 	end
 
 	if track then
-		track.Looped = false
+		track.Looped = true
 		track:Play()
+		task.spawn(function()
+			local detector = humanoid:GetPropertyChangedSignal("MoveDirection")
+			detector:Connect(function()
+				track:Stop()
+				detector = nil
+			end)
+		end)
 	end
 end
 
 -- Public API
+
+function ServerCustomisationService.RemoveAllAccessories(description: HumanoidDescription)
+	for _, child in ipairs(description:GetChildren()) do
+		if child:IsA("AccessoryDescription") then
+			child:Destroy()
+		end
+	end
+	for _, prop in ipairs(Constants.CLASSIC_HUMANOID_ACCESSORIES) do
+		description[prop] = 0
+	end
+end
+
+function ServerCustomisationService.ApplyInspectedItemsToPlayer(
+	player: Player,
+	items: {{ itemId: number, assetOrBundleType: string, itemType: string }}
+)
+	local clonedDescription = getClonedDescription(player)
+	ServerCustomisationService.RemoveAllAccessories(clonedDescription)
+
+	local emoteIds = {}
+	local bundleItems = {}
+
+	for _, item in ipairs(items) do
+		if item.itemType == "Asset" and table.find(Constants.CLASSIC_CLOTHING_ASSET_TYPES, item.assetOrBundleType) then
+			if item.assetOrBundleType == "TShirt" then
+				clonedDescription.GraphicTShirt = item.itemId
+			elseif item.assetOrBundleType == "Shirt" then
+				clonedDescription.Shirt = item.itemId
+			elseif item.assetOrBundleType == "Pants" then
+				clonedDescription.Pants = item.itemId
+			end
+
+		elseif item.itemType == "Asset" and item.assetOrBundleType == Constants.EMOTE_ASSET_TYPE then
+			table.insert(emoteIds, item.itemId)
+
+		elseif item.itemType == "Asset" and Enum.BodyPart:FromName(item.assetOrBundleType) then
+			local bodyPartEnum = Enum.BodyPart[item.assetOrBundleType]
+			local bodyPartDescription = Instance.new("BodyPartDescription")
+			for _, desc in ipairs(clonedDescription:GetChildren()) do
+				if desc:IsA("BodyPartDescription") and desc.BodyPart == bodyPartEnum then
+					bodyPartDescription.Color = desc.Color
+					desc:Destroy()
+				end
+			end
+			bodyPartDescription.AssetId = item.itemId
+			bodyPartDescription.BodyPart = bodyPartEnum
+			bodyPartDescription.Parent = clonedDescription
+
+		elseif item.itemType == "Asset" then
+			local accessoryDescription = Instance.new("AccessoryDescription")
+			accessoryDescription.AssetId = item.itemId
+			accessoryDescription.AccessoryType = Enum.AccessoryType[GetAccessoryTypeFromAssetType(item.assetOrBundleType)]
+			accessoryDescription.IsLayered = true
+			accessoryDescription.Order = ACCESSORY_TYPE_ORDER[accessoryDescription.AccessoryType] or DEFAULT_ACCESSORY_ORDER
+			accessoryDescription.Parent = clonedDescription
+
+		elseif item.itemType == "Bundle" then
+			table.insert(bundleItems, item)
+		end
+	end
+
+	ServerCustomisationService.applyDescription(player, clonedDescription)
+
+	for _, emoteId in ipairs(emoteIds) do
+		ServerCustomisationService.TryEmote(player, emoteId)
+	end
+
+	for _, item in ipairs(bundleItems) do
+		ServerCustomisationService.AddBundleToAvatar(player, item.itemId, item.assetOrBundleType)
+	end
+end
 
 -- Batch version of AddItemToAvatar: clones description once, applies all items, then applies once
 function ServerCustomisationService.AddItemsToAvatar(
@@ -503,7 +601,7 @@ function ServerCustomisationService.AddItemsToAvatar(
 			end
 
 			accessoryDescription.IsLayered = true
-			accessoryDescription.Order = 1
+			accessoryDescription.Order = ACCESSORY_TYPE_ORDER[accessoryDescription.AccessoryType] or DEFAULT_ACCESSORY_ORDER
 			accessoryDescription.Parent = clonedDescription
 
 		elseif item.itemType == "Bundle" then

@@ -101,7 +101,6 @@ function GameStateManager.onAllPlayersFinishedVoting()
 end
 
 local function startCountdown(duration: number)
-	warn("Starting countdown for ", duration)
 	secondsRemaining.Value = duration
 	
 	timerThread = task.spawn(function()
@@ -109,7 +108,6 @@ local function startCountdown(duration: number)
 			task.wait(1)
 			task.defer(function()
 				secondsRemaining.Value -= 1
-				print("Ticked to ", secondsRemaining.Value, currentState)
 			end)
 		end
 		GameStateManager.transitionTo(STATES[currentState].next)

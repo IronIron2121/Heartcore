@@ -93,12 +93,11 @@ props: {
         ItemRestrictions: {any}?,
         ItemStatus: {any}?,
     },
-
-	onPurchaseCb: () -> ()?,
     
-    layoutOrder: number
-}): Frame
-	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return assert(props.itemDetails.AssetType or props.itemDetails.BundleType) end
+    layoutOrder: number,
+	onTryCb: () -> ()
+})
+	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return end
 	
 	local isHovering = scope:Value(false)
 	local isActivated = scope:Value(false)
@@ -269,7 +268,11 @@ props: {
 								layoutOrder = 1,
 								onTryonCallback = function()
 									deactivate()
-									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType, props.itemDetails.ItemType)
+									if props.onTryCb then
+										props.onTryCb()
+									end
+									-- Loop animation on the thingy
+									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType or "", props.itemDetails.ItemType)
 								end
 							}), 
 

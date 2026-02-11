@@ -20,13 +20,10 @@ function IsAssetAlreadyEquipped(player: Player, assetId: number): boolean
         return true
     end
 
-    warn(humanoidDescription:GetChildren())
     for _, description in ipairs(humanoidDescription:GetChildren()) do
         if (description:IsA("AccessoryDescription") or description:IsA("BodyPartDescription")) and description.AssetId == assetId then
             warn("Found a match!", assetId, description.AssetId)
             return true
-        else
-            print("No dice")
         end
     end
 
