@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
@@ -33,6 +34,8 @@ function BuyButton(
 		text: UsedAs<string>?,
 		isOffSale: UsedAs<boolean>?,
 		onPurchaseCallback: (() -> ())?,
+		pushLoad: () -> ()?,
+		popLoad: () -> ()?
 	}
 ): TextButton
 	local isHovering = scope:Value(false)
@@ -70,10 +73,26 @@ function BuyButton(
 		TextWrapped = true,
 
 		[OnEvent "Activated"] = function()
+			if props.pushLoad then
+				props.pushLoad()
+			else
+				warn("No push load")
+			end
+
+			local success, asset = nil, nil
+			
 			if props.assetType then
-				MarketplaceService:PromptPurchase(Players.LocalPlayer, props.assetId)
+				success, asset = callWithRetry(
+					function()
+						return MarketplaceService:PromptPurchase(Players.LocalPlayer, props.assetId)
+					end
+				)
 			elseif props.bundleType then
-				MarketplaceService:PromptBundlePurchase(Players.LocalPlayer, props.assetId)
+				success, asset = callWithRetry(
+					function()
+						return MarketplaceService:PromptBundlePurchase(Players.LocalPlayer, props.assetId)
+					end
+				)
 			else
 				warn("Failed to purchase item! No valiid asset or bundle type")
 				warn(props.assetType, props.bundleType)
@@ -82,6 +101,16 @@ function BuyButton(
 			if props.onPurchaseCallback then
 				props.onPurchaseCallback()
 			end 
+
+			if props.popLoad then
+				local test = MarketplaceService.PromptPurchaseFinished
+				test:Connect(function(a0: Player, a1: number, a2: boolean)  
+					warn("fin")
+					props.popLoad()
+				end)
+			else
+				warn("No pop load")
+			end
 		end,
 		
 		[OnEvent "MouseButton1Down"] = function()

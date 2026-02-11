@@ -4,8 +4,6 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local MarketplaceService = game:GetService("MarketplaceService")
-local Players = game:GetService("Players")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
@@ -13,10 +11,9 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
-local ItemDetailsCache = require(ReplicatedStorage.Libraries.ItemDetailsCache)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -36,10 +33,6 @@ local COLOUR_WHITE = UI_CONSTANTS.COLOUR_WHITE
 local COLOUR_GREY = UI_CONSTANTS.COLOUR_GREY
 -- LERP
 local COLOUR_HOVER = COLOUR_WHITE:Lerp(COLOUR_GREY, 0.5)
-
-
--- Text
-local OFF_SALE_TEXT = "Off-Sale"
 
 -- Config
 local CONFIG = {
@@ -98,6 +91,9 @@ props: {
     },
     
     layoutOrder: number,
+	onPurchaseCb: () -> (),
+	pushLoad: () -> ()?,
+	popLoad: () -> ()?,
 	onTryCb: () -> ()
 })
 	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return end
@@ -287,8 +283,12 @@ props: {
 								isOffSale = isOffSale,
 								onPurchaseCallback = function()
 									deactivate()
-									ClientCustomisationService.PlayerPurchasedItem(props.itemDetails.Id)
-								end
+									if props.onPurchaseCb then
+										props.onPurchaseCb()
+									end
+								end,
+								pushLoad = props.pushLoad,
+								popLoad = props.popLoad
 							})
 						}
 					}

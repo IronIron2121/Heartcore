@@ -79,8 +79,6 @@ function ServerCustomisationService.applyDescription(player: Player, description
 	return true
 end
 
-
-
 local function getUserOutfitIdFromBundleItems(bundleItems: {}): number?
 	for _, item in ipairs(bundleItems) do
 		if item.Type == "UserOutfit" then

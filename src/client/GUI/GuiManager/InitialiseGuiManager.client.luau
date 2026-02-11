@@ -264,7 +264,7 @@ local function InitialiseModals()
 
     -- TODO: Find a more robust way of doing the below, this is vestigial code
 	local controllers = {}
-	controllers["CatalogSearchController"] = CatalogSearchController.new(catalogContainer, controllers) 
+	controllers["CatalogSearchController"] = CatalogSearchController.new(catalogContainer, controllers, wardrobeContainer)
 	controllers["AvatarEditorController"] = AvatarEditorController.new(avatarContainer, controllers) 
     controllers["VotingGuiController"] = nil
 	controllers["OutfitViewController"] = OutfitViewController

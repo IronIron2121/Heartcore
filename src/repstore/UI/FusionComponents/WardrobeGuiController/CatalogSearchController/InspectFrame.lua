@@ -81,7 +81,10 @@ function InspectFrame(
 				local itemDetails = item.itemDetails
 
 
-				return FusionItemTile(scope, {itemDetails = itemDetails, layoutOrder = 1})
+				return FusionItemTile(scope, {
+					itemDetails = itemDetails, 
+					layoutOrder = 1
+				})
 			end)
 		}
 	} :: ScrollingFrame

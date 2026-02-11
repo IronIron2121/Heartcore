@@ -5,7 +5,6 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AvatarEditorService = game:GetService("AvatarEditorService")
-local ScriptCommitService = game:GetService("ScriptCommitService")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -16,8 +15,7 @@ local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiControll
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
-local AvatarPreviewModel = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.AvatarEditorController.AvatarPreviewModel)
-local AvatarEditorController = require(script.Parent.AvatarEditorController)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
@@ -51,9 +49,10 @@ local sortTextToSortType = {
 local CatalogSearchController = {}
 CatalogSearchController.__index = CatalogSearchController
 
-function CatalogSearchController.new(parentFrame: Frame, controllers: {any})
+function CatalogSearchController.new(parentFrame: Frame, controllers: {any}, wardrobeContainer: Frame)
 	local self = setmetatable({}, CatalogSearchController)
 	self.parentFrame = parentFrame
+	self.wardrobeContainer = wardrobeContainer
 	self.scope = Fusion:scoped()
 	self.searchAssetCategories = self.scope:Value(AssetFilterCategories.getAllAssetTypes())
 	self.searchBundleCategories = self.scope:Value(BundleFilterCategories.getAllRobloxBundleTypes())
@@ -123,6 +122,14 @@ function CatalogSearchController:_initialiseSearchFrame()
 						if itemDetails.AssetType == Enum.AssetType.EmoteAnimation.Name then
 							self.controllers.AvatarEditorController.avatarPreviewModel:PlayAnimation(itemDetails.Id)
 						end
+					end,
+					pushLoad = function() 
+						warn("Pushing load") 
+						LoadingScreenManager.show(self.parentFrame.Parent.Parent)
+					end,
+					popLoad = function()
+						warn("Popping load")
+						LoadingScreenManager.hide(self.parentFrame.Parent.Parent)
 					end
 				})
 
@@ -175,6 +182,14 @@ function CatalogSearchController:_initialiseSearchFrame()
 						if itemDetails.AssetType == Enum.AssetType.EmoteAnimation.Name then
 							self.controllers.AvatarEditorController.avatarPreviewModel:PlayAnimation(itemDetails.Id)
 						end
+					end,
+					pushLoad = function()
+						warn("Pushing load")
+						LoadingScreenManager.show(self.parentFrame.Parent.Parent)
+					end,
+					popLoad = function()
+						warn("Popping load")
+						LoadingScreenManager.hide(self.parentFrame.Parent.Parent)
 					end
 				})
 				newTile.Parent = self.SearchResultsFrame
@@ -200,6 +215,12 @@ function CatalogSearchController:_initialiseSearchFrame()
 					if itemDetails.AssetType == Enum.AssetType.EmoteAnimation.Name then
 						self.controllers.AvatarEditorController.avatarPreviewModel:PlayAnimation(itemDetails.Id)
 					end
+				end,
+				pushLoad = function()
+					LoadingScreenManager.show(self.parentFrame.Parent.Parent)
+				end,
+				popLoad = function()
+					LoadingScreenManager.hide(self.parentFrame.Parent.Parent)
 				end
 			})
 			newTile.Parent = self.SearchResultsFrame
