@@ -28,9 +28,6 @@ local RepositionShopItemEvent = Remotes:WaitForChild("RepositionShopItem")
 local PlayerPlacedShopItemAsync = Remotes:WaitForChild("PlayerPlacedShopItem")
 local playerExitedShopAsync = Remotes:WaitForChild("PlayerExitedShop")
 
--- Templates | Placeholders
-local mannequinPlaceholder = PreviewTemplate:WaitForChild("FullMannequin")
-
 -- Module Scripts
 local getRelativePosition 		= require(Utility:WaitForChild("getRelativePosition"))
 local getShopNameFromPlayer = require(Getters:WaitForChild("getShopNameFromPlayer"))
@@ -38,13 +35,11 @@ local localPlayerDetails = require(Trackers:WaitForChild("localPlayerDetails"))
 local getGroundYFromRay = require(Utility:WaitForChild("getGroundYFromRay"))
 local isPointInRegion = require(Checkers:WaitForChild("isPointInRegion"))
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
-local playerHasShop = require(Getters:WaitForChild("playerHasShop"))
 local ItemSelection = require(Utility:WaitForChild("ItemSelection"))
 local Types = require(Utility:WaitForChild("Types"))
 
 
 -- 3rd Party 
-local Zone = require(Utility:WaitForChild("Zone"))
 local ZoneController = require(Utility.Zone.ZoneController)
 
 -- Misc. Variables
@@ -53,10 +48,7 @@ local castParams = RaycastParams.new()
 castParams:AddToFilter(script.Parent)
 
 local preview -- Global variable for the preview part
-local currentId
 local gridSize = 2 
-
-local localPlayer = Players.LocalPlayer
 
 -- Constants
 local ROTATE_TWEEN_DURATION = 0.2

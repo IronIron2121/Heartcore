@@ -108,7 +108,8 @@ local function playerEquippedInspectedItems(player: Player, items: {id: number, 
 		})
 	end
 
-	ServerCustomisationService.AddItemsToAvatar(player, mappedItems)
+	-- ServerCustomisationService.AddItemsToAvatar(player, mappedItems)
+	ServerCustomisationService.ApplyInspectedItemsToPlayer(player, mappedItems)
 	setPlayerEquipping(player, false)
 end
 
