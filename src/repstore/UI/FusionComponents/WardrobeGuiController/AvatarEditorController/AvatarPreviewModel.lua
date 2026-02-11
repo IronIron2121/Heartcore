@@ -49,8 +49,13 @@ local function fixAccessoryTypes(humanoidDescription: HumanoidDescription)
 	end
 end
 
-function AvatarPreviewModel.new(scope: Fusion.Scope)
+function AvatarPreviewModel.new(scope: Fusion.Scope, props: {
+	showLoading: (() -> ())?,
+	hideLoading: (() -> ())?,
+})
 	local self = setmetatable({}, AvatarPreviewModel)
+	self.showLoading = props.showLoading
+	self.hideLoading = props.hideLoading
 
 	-- Get local player info
 	local localPlayer = Players.LocalPlayer
@@ -110,19 +115,24 @@ function AvatarPreviewModel:PlayAnimation(animationId: number)
 		animator.Parent = humanoid
 	end
 
+	if self.showLoading then self.showLoading() end
+
 	local success, emoteLoaded = callWithRetry(function()
 		return LoadEmoteRF:InvokeServer(animationId)
 	end)
 
-	if not success or not emoteLoaded then 
-		return 
+	if not success or not emoteLoaded then
+		if self.hideLoading then self.hideLoading() end
+		return
 	end
 
 	local emoteSuccess, animation = callWithRetry(function()
 		return Emotes:FindFirstChild(tostring(animationId))
 	end)
 
-	if not emoteSuccess or not animation then 
+	if self.hideLoading then self.hideLoading() end
+
+	if not emoteSuccess or not animation then
 		return
 	end
 
