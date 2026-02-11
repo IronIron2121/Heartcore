@@ -446,6 +446,77 @@ end
 
 -- Public API
 
+function ServerCustomisationService.RemoveAllAccessories(description: HumanoidDescription)
+	for _, child in ipairs(description:GetChildren()) do
+		if child:IsA("AccessoryDescription") then
+			child:Destroy()
+		end
+	end
+	for _, prop in ipairs(Constants.CLASSIC_HUMANOID_ACCESSORIES) do
+		description[prop] = 0
+	end
+end
+
+function ServerCustomisationService.ApplyInspectedItemsToPlayer(
+	player: Player,
+	items: {{ itemId: number, assetOrBundleType: string, itemType: string }}
+)
+	local clonedDescription = getClonedDescription(player)
+	ServerCustomisationService.RemoveAllAccessories(clonedDescription)
+
+	local emoteIds = {}
+	local bundleItems = {}
+
+	for _, item in ipairs(items) do
+		if item.itemType == "Asset" and table.find(Constants.CLASSIC_CLOTHING_ASSET_TYPES, item.assetOrBundleType) then
+			if item.assetOrBundleType == "TShirt" then
+				clonedDescription.GraphicTShirt = item.itemId
+			elseif item.assetOrBundleType == "Shirt" then
+				clonedDescription.Shirt = item.itemId
+			elseif item.assetOrBundleType == "Pants" then
+				clonedDescription.Pants = item.itemId
+			end
+
+		elseif item.itemType == "Asset" and item.assetOrBundleType == Constants.EMOTE_ASSET_TYPE then
+			table.insert(emoteIds, item.itemId)
+
+		elseif item.itemType == "Asset" and Enum.BodyPart:FromName(item.assetOrBundleType) then
+			local bodyPartEnum = Enum.BodyPart[item.assetOrBundleType]
+			local bodyPartDescription = Instance.new("BodyPartDescription")
+			for _, desc in ipairs(clonedDescription:GetChildren()) do
+				if desc:IsA("BodyPartDescription") and desc.BodyPart == bodyPartEnum then
+					bodyPartDescription.Color = desc.Color
+					desc:Destroy()
+				end
+			end
+			bodyPartDescription.AssetId = item.itemId
+			bodyPartDescription.BodyPart = bodyPartEnum
+			bodyPartDescription.Parent = clonedDescription
+
+		elseif item.itemType == "Asset" then
+			local accessoryDescription = Instance.new("AccessoryDescription")
+			accessoryDescription.AssetId = item.itemId
+			accessoryDescription.AccessoryType = Enum.AccessoryType[GetAccessoryTypeFromAssetType(item.assetOrBundleType)]
+			accessoryDescription.IsLayered = true
+			accessoryDescription.Order = 1
+			accessoryDescription.Parent = clonedDescription
+
+		elseif item.itemType == "Bundle" then
+			table.insert(bundleItems, item)
+		end
+	end
+
+	ServerCustomisationService.applyDescription(player, clonedDescription)
+
+	for _, emoteId in ipairs(emoteIds) do
+		ServerCustomisationService.TryEmote(player, emoteId)
+	end
+
+	for _, item in ipairs(bundleItems) do
+		ServerCustomisationService.AddBundleToAvatar(player, item.itemId, item.assetOrBundleType)
+	end
+end
+
 -- Batch version of AddItemToAvatar: clones description once, applies all items, then applies once
 function ServerCustomisationService.AddItemsToAvatar(
 	player: Player,

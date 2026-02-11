@@ -131,7 +131,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: BasePar
 		end
 	end
 
-	local function updateLabel()
+	local function updateLabel();
 		local action = "Browse the catalog"
 		local keyText = ""
 

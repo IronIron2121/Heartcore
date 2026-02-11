@@ -128,6 +128,12 @@ local Constants = {
 		Enum.AssetType.Face.Name
 	},
 
+	CLASSIC_HUMANOID_ACCESSORIES = {
+		"GraphicTShirt",
+		Enum.AssetType.Shirt.Name,
+		Enum.AssetType.Pants.Name,
+	},
+
 	CLASSIC_CLOTHING_ASSET_TYPES = {
 		Enum.AssetType.TShirt.Name,
 		Enum.AssetType.Shirt.Name,
