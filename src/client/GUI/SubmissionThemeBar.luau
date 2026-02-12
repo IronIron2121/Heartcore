@@ -62,7 +62,7 @@ local ThemeText = scope:Computed(function(use)
     local timeColorStr = use(TimeColor)
 
     if state == "Dressing" then
-        return "Current Fit Check theme: " .. highlightColor .. strokeColor .. theme .. closeStroke .. closeFont .. ". You have " .. timeColorStr .. seconds .. closeFont .. " seconds to submit!"
+        return "Fit Check theme: " .. highlightColor .. strokeColor .. theme .. closeStroke .. closeFont .. ".<br>You have " .. timeColorStr .. seconds .. closeFont .. " seconds to submit!</br>"
     elseif state == "Voting" then
         return "Voting time! You have " .. timeColorStr .. seconds .. closeFont .. " seconds to vote."
     elseif state == "Intermission" then
