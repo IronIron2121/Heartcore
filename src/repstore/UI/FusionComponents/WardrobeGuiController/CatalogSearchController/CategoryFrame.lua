@@ -212,7 +212,7 @@ function CategoryFrame(
 						children = {
 							scope:ForPairs(scope:Value(AssetFilterCategories.getAllAssetSearchTypes()), function(use, scope, index, categoryInfo)
 								return index, CategoryButton(scope, {
-									text = categoryInfo.name,
+									text = "- " ..categoryInfo.name,
 									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 									layoutOrder = index,
 									isSelected = isAssetSelected(categoryInfo.assetType),
@@ -243,7 +243,7 @@ function CategoryFrame(
 						children = {
 							scope:ForPairs(scope:Value(AssetFilterCategories.getAllClassicAssetSearchTypes()), function(use, scope, index, categoryInfo)
 								return index, CategoryButton(scope, {
-									text = categoryInfo.name,
+									text = "- " ..categoryInfo.name,
 									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 									layoutOrder = index,
 									isSelected = isAssetSelected(categoryInfo.assetType),
@@ -381,7 +381,7 @@ function CategoryFrame(
 						children = {
 							scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleSearchTypes()), function(use, scope, index, bundleTypeInfo)
 								return index, CategoryButton(scope, {
-									text = bundleTypeInfo.name,
+									text = "- " ..bundleTypeInfo.name,
 									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 									layoutOrder = index,
 									isSelected = isBundleSelected(bundleTypeInfo.bundleType),
@@ -408,7 +408,7 @@ function CategoryFrame(
 
 						children = {
 							CategoryButton(scope, {
-								text = "Emotes",
+								text = "- Emotes",
 								size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 								layoutOrder = 1,
 								isSelected = isAssetSelected(Enum.AvatarAssetType.EmoteAnimation),
@@ -418,7 +418,7 @@ function CategoryFrame(
 							}),
 
 							CategoryButton(scope, {
-								text = "Animation Bundles",
+								text = "- Animation Bundles",
 								size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 								layoutOrder = 2,
 								isSelected = isBundleSelected(Enum.BundleType.Animations),
