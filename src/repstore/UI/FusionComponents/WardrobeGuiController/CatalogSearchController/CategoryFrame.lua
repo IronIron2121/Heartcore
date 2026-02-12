@@ -16,6 +16,10 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
 
+-- Constants
+local COLOUR_SELECTED = UI_CONSTANTS.COLOUR_ORANGE
+local DEFAULT_COLOUR = Color3.new(0.92549, 0.545098, 0.321569)
+
 -- Fusion
 local Children = Fusion.Children
 local peek = Fusion.peek
@@ -47,6 +51,18 @@ function CategoryFrame(
 		editorsPickSelected: UsedAs<boolean>
 	}
 ): Frame
+
+	local textColorSpring = scope:Spring(
+    scope:Computed(function(use)
+        if use(props.editorsPickSelected) then  
+            return COLOUR_SELECTED
+        else
+            return DEFAULT_COLOUR
+        end
+    end)
+)
+	
+
 	local allSelected = scope:Computed(function(use)
 		return #use(props.searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes()
 			and #use(props.searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes()
@@ -180,6 +196,7 @@ function CategoryFrame(
 					CategoryButton(scope, {
 						text = "Editor's Pick",
 						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						textColor3 = textColorSpring,
 						layoutOrder = 2,
 						isSelected = props.editorsPickSelected,
 						onActivated = function()
