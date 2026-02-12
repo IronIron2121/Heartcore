@@ -22,7 +22,6 @@ local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 
 -- Modules
-local UI_CONSTANTS = require(ReplicatedStorage.Utility:WaitForChild("UI_CONSTANTS"))
 local Constants = require(ReplicatedStorage.Constants)
 local Inspector = require(Mannequins.Inspector) 
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -235,7 +234,8 @@ local function onMannequinAdded(mannequin: Model)
 	end
 	
 	if not inspectPrompt.Parent then
-		assert(inspectPrompt.Parent, "Failure to add parent to prompt")
+		warn(inspectPrompt.Parent, "Failure to add parent to prompt")
+		inspectPrompt:Destroy()
 	end
 
 	setupCustomPromptUI(inspectPrompt, mannequin) -- Cece addition
@@ -270,12 +270,20 @@ end)
 
 local function initialise()
 	-- Set up mannequin tracking
-	CollectionService:GetInstanceAddedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(onMannequinAdded)
+	CollectionService:GetInstanceAddedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(function(instance)
+		task.spawn(
+			function()
+				onMannequinAdded(instance)
+			end)
+		end)
+
 	CollectionService:GetInstanceRemovedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(onMannequinRemoved)
 
 	-- Initialise existing mannequins
 	for _, mannequin in CollectionService:GetTagged(Constants.FLOOR_MANNEQUIN_TAG) do
-		onMannequinAdded(mannequin)
+		task.spawn(function()
+			onMannequinAdded(mannequin)
+		end)
 	end
 
 	local VotePrompt = scope:New "ProximityPrompt" {

@@ -9,7 +9,6 @@ local StarterPlayer = game:GetService("StarterPlayer")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -50,7 +49,6 @@ function EquippedItemsPanel(
 				}
 			}
 		}
-
 	} :: Frame
 
 	local equippedItemsPanel = scope:New "ScrollingFrame" {

@@ -18,7 +18,7 @@ local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 -- Remotes
 local PlayerEquippedInspectedItemsRF = Remotes:WaitForChild("PlayerEquippedInspectedItemsRF")
 local PlayerEquippedInspectedPlayer = Remotes:WaitForChild("PlayerEquippedInspectedPlayer")
-local PlayerRemovedAllItemsRF = Remotes:WaitForChild("PlayerRemovedAllAccessoriesRF")
+local PlayerRemovedAllAccessoriesRF = Remotes:WaitForChild("PlayerRemovedAllAccessoriesRF")
 local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
 local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
@@ -107,7 +107,7 @@ end
 
 function ClientCustomisationService.RemoveAllAccessories(): boolean
 	local success = callWithRetry(function()  
-		return PlayerRemovedAllItemsRF:InvokeServer()
+		return PlayerRemovedAllAccessoriesRF:InvokeServer()
 	end)
 
 	return success

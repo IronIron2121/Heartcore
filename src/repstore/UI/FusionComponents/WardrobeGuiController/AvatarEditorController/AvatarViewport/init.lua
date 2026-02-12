@@ -17,7 +17,6 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
-local Value = require(ReplicatedStorage.Utility.Fusion.State.Value)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local ClientOutfitService = require(Utility:WaitForChild("ClientOutfitService"))
 
@@ -71,8 +70,6 @@ function AvatarViewport(
 	local rotateButton = scope:Value(nil)
 	
 	local viewportOut: Fusion.Value<ViewportFrame?> = scope:Value(nil)
-
-
 	
 	local viewportBackground = scope:New "Frame" {
 		Name = "ViewportContainer",
@@ -201,7 +198,7 @@ function AvatarViewport(
 						"SaveOutfit", 
 						"Are you sure you want to save this outfit?", 
 						function()  
-							ClientOutfitService.SaveCurrentPlayerOutfit(localPlayer)
+							ClientOutfitService.SaveCurrentPlayerOutfit()
 							if not props.controllers.CatalogSearchController then
 								return 
 							end

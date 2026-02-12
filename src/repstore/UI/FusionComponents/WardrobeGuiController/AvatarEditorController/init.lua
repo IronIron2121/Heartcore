@@ -111,6 +111,7 @@ function AvatarEditorController:_watchForItemChanges()
 end
 
 function AvatarEditorController:_syncItemsFromDescription(humDesc: HumanoidDescription)
+	warn("syncing")
 	LoadingScreenManager.show(self.EquippedItemsContainer)
 	local currentAssetIds = {}
 	local currentClassicItems = {}
@@ -125,6 +126,8 @@ function AvatarEditorController:_syncItemsFromDescription(humDesc: HumanoidDescr
 	-- Collect classic items
 	for _, itemType in CLASSIC_ITEMS do
 		local assetId = humDesc[itemType]
+		warn(itemType)
+		warn(assetId)
 		if assetId and assetId ~= 0 then
 			currentClassicItems[itemType] = assetId
 		end
@@ -141,7 +144,6 @@ function AvatarEditorController:_syncItemsFromDescription(humDesc: HumanoidDescr
 	-- Add new classic tiles
 	for itemType, assetId in currentClassicItems do
 		if not self.classicTiles[itemType] then
-			warn("adding classic item tile")
 			self:_addClassicItemTile(assetId, itemType)
 		end
 	end
@@ -156,7 +158,12 @@ function AvatarEditorController:_syncItemsFromDescription(humDesc: HumanoidDescr
 	
 	-- Remove classic tiles that no longer exist
 	for itemType, tile in self.classicTiles do
-		if not currentClassicItems[itemType] then
+		if not currentClassicItems[itemType] or tostring(currentClassicItems[itemType]) ~= tile.Name then
+			warn("at remove classic items")
+			warn("################")
+			warn("tile.Name", tile.Name, typeof(tile.Name), #(tile.Name))
+			warn("currentClassicItems", currentClassicItems[itemType], typeof(currentClassicItems[itemType]))
+			warn(currentClassicItems[itemType] ~= tile.Name)
 			tile:Destroy()
 			self.classicTiles[itemType] = nil
 		end
