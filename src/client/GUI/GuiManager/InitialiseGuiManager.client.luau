@@ -64,7 +64,7 @@ local function InitialiseHuds()
     local GameModeButton = BaseImageButton(hudScope, {
         name = "ChangeModeButton",
         layoutOrder = 2,
-        size = UDim2.fromScale(0.5, 0.5),
+        size = UDim2.fromScale(0.6, 0.6),
         image = hudScope:Computed(function(use)
             local currentConfig = use(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
@@ -95,7 +95,7 @@ local function InitialiseHuds()
     local GameModeButton2 = BaseImageButton(hudScope, {
         name = "ChangeModeButton2",
         layoutOrder = 2,
-        size = UDim2.fromScale(0.6,0.6),
+        size = UDim2.fromScale(0.7,0.7),
         image = hudScope:Computed(function(use)
             local currentConfig = use(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
