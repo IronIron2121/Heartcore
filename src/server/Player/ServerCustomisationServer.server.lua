@@ -15,9 +15,10 @@ local ServerCustomisationService = require(Utility:WaitForChild("ServerCustomisa
 local SerialisationService = require(Utility:WaitForChild("SerialisationService"))
 
 -- Remotes
+local PlayerEquippedInspectedItemsRF = Remotes:WaitForChild("PlayerEquippedInspectedItemsRF")
 local PlayerEquippedTastemakerOutfit = Remotes:WaitForChild("PlayerEquippedTastemakerOutfit")
 local PlayerEquippedInspectedOutfit = Remotes:WaitForChild("PlayerEquippedInspectedPlayer")
-local PlayerEquippedInspectedItemsRF = Remotes:WaitForChild("PlayerEquippedInspectedItemsRF")
+local PlayerRemovedAllAccessoriesRF = Remotes:WaitForChild("PlayerRemovedAllAccessoriesRF")
 local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
 local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
@@ -59,10 +60,17 @@ local function playerRemovedItem(player: Player, itemId: number)
 	return success
 end
 
-local function playerRemovedClassicItem(player, itemId: number, itemType: string)
+local function playerRemovedClassicItem(player: Player, itemId: number, itemType: string)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true)
 	ServerCustomisationService.RemoveClassicClothingFromAvatar(player, itemId, itemType)
+	setPlayerEquipping(player, false)
+end
+
+local function playerRemovedAllAccessories(player: Player)
+	if isPlayerEquipping(player) then return end
+	setPlayerEquipping(player, true)
+	ServerCustomisationService.RemoveAllAccessoriesFromPlayer(player)
 	setPlayerEquipping(player, false)
 end
 
@@ -141,4 +149,5 @@ LoadEmoteRF.OnServerInvoke = function(_player: Player, itemId: number)
 	return ServerCustomisationService.LoadEmote(itemId) ~= nil
 end
 Plrs.PlayerRemoving:Connect(onPlayerRemoving)
+PlayerRemovedAllAccessoriesRF.OnServerInvoke = playerRemovedAllAccessories
 Plrs.PlayerAdded:Connect(onPlayerAdded)

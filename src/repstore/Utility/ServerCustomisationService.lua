@@ -110,15 +110,10 @@ function ServerCustomisationService.getNumberOfItemsEquipped(player: Player)
 end
 
 -- Core functionality
-function ServerCustomisationService.RemoveAllAccessories(player: Player)
+function ServerCustomisationService.RemoveAllAccessoriesFromPlayer(player: Player)
 	local clonedDescription = getClonedDescription(player)
 
-	-- Remove all accessories and body parts
-	for _, description in ipairs(clonedDescription:GetChildren()) do
-		if description:IsA("AccessoryDescription") or description:IsA("BodyPartDescription") then
-			description:Destroy()
-		end
-	end
+	ServerCustomisationService.RemoveAllAccessoriesFromDescription(clonedDescription)
 
 	ServerCustomisationService.applyDescription(player, clonedDescription)
 end  
@@ -471,14 +466,14 @@ end
 
 -- Public API
 
-function ServerCustomisationService.RemoveAllAccessories(description: HumanoidDescription)
+function ServerCustomisationService.RemoveAllAccessoriesFromDescription(description: HumanoidDescription)
 	for _, child in ipairs(description:GetChildren()) do
 		if child:IsA("AccessoryDescription") then
 			child:Destroy()
 		end
 	end
 	for _, prop in ipairs(Constants.CLASSIC_HUMANOID_ACCESSORIES) do
-		description[prop] = 0
+		description[prop] = Constants.DEFAULT_CLASSIC_CLOTHING_IDS[prop]
 	end
 end
 
@@ -487,7 +482,7 @@ function ServerCustomisationService.ApplyInspectedItemsToPlayer(
 	items: {{ itemId: number, assetOrBundleType: string, itemType: string }}
 )
 	local clonedDescription = getClonedDescription(player)
-	ServerCustomisationService.RemoveAllAccessories(clonedDescription)
+	--ServerCustomisationService.RemoveAllAccessoriesFromDescription(clonedDescription)
 
 	local emoteIds = {}
 	local bundleItems = {}

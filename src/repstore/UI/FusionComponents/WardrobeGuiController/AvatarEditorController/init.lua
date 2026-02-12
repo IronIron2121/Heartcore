@@ -90,8 +90,14 @@ end
 
 function AvatarEditorController:_initialiseEquippedItemsPanel()
 	self.EquippedItemsContainer, self.EquippedItemsPanel = EquippedItemsPanel(self.scope, {
-		layoutOrder = 1
+		layoutOrder = 1,
+		onAccessoriesRemovedCb = function()
+			LoadingScreenManager.show(self.avatarViewport)
+			local _success = ClientCustomisationService.RemoveAllAccessories()
+			LoadingScreenManager.hide(self.avatarViewport)
+		end
 	})
+	
 	self.EquippedItemsContainer.Parent = self.parentFrame
 end
 
@@ -180,13 +186,13 @@ function AvatarEditorController:_addEquippedItemTile(description: AccessoryDescr
 		end,
 
 		removeCb = function()
-			LoadingScreenManager.show(self.EquippedItemsContainer)
+			LoadingScreenManager.show(self.avatarViewport)
 			local success = ClientCustomisationService.RemoveItem(description.AssetId)
 			
 			if success then
 				self:RemoveEquippedItemTile(description.AssetId)
 			end
-			LoadingScreenManager.hide(self.EquippedItemsContainer)
+			LoadingScreenManager.hide(self.avatarViewport)
 		end
 	})
 	
@@ -200,8 +206,22 @@ function AvatarEditorController:_addClassicItemTile(assetId: number, itemType: s
 		visible = true,
 		itemId = assetId,
 		itemType = itemType,
+		buyCb = function()
+			LoadingScreenManager.show(self.parentFrame)
+			task.defer(function()
+				local success = callWithRetry(function()
+					return MarketplaceService:PromptPurchase(Players.LocalPlayer, assetId)
+				end)
+
+				if not success then 
+					warn("Failed to purchase item")	
+				end
+
+				LoadingScreenManager.hide(self.parentFrame)
+			end)
+		end,
 		removeCb = function()
-			LoadingScreenManager.show(self.EquippedItemsContainer)
+			LoadingScreenManager.show(self.avatarViewport)
 			if table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, assetId) then
 				return true
 			end
@@ -211,7 +231,7 @@ function AvatarEditorController:_addClassicItemTile(assetId: number, itemType: s
 			else
 				warn("Failed to remove classic item", assetId, itemType)
 			end
-			LoadingScreenManager.hide(self.EquippedItemsContainer)
+			LoadingScreenManager.hide(self.avatarViewport)
 		end
 	})
 	

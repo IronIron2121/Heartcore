@@ -16,12 +16,13 @@ local Constants = require(ReplicatedStorage.Constants)
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
 -- Remotes
+local PlayerEquippedInspectedItemsRF = Remotes:WaitForChild("PlayerEquippedInspectedItemsRF")
 local PlayerEquippedInspectedPlayer = Remotes:WaitForChild("PlayerEquippedInspectedPlayer")
+local PlayerRemovedAllItemsRF = Remotes:WaitForChild("PlayerRemovedAllAccessoriesRF")
 local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
 local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
 local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
-local PlayerEquippedInspectedItemsRF = Remotes:WaitForChild("PlayerEquippedInspectedItemsRF")
 
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -96,8 +97,20 @@ function ClientCustomisationService.RemoveItem(assetId: number): boolean
 	return success
 end
 
-function ClientCustomisationService.PlayerEquippedInspectedPlayer(inspectedPlayer: Player)
-	PlayerEquippedInspectedPlayer:FireServer(inspectedPlayer)
+function ClientCustomisationService.PlayerEquippedInspectedPlayer(inspectedPlayer: Player): boolean
+	local success = callWithRetry(function()
+		return PlayerEquippedInspectedPlayer:FireServer(inspectedPlayer)
+	end)
+
+	return success
+end
+
+function ClientCustomisationService.RemoveAllAccessories(): boolean
+	local success = callWithRetry(function()  
+		return PlayerRemovedAllItemsRF:InvokeServer()
+	end)
+
+	return success
 end
 
 function ClientCustomisationService.RemoveClassicItem(assetId: number, itemType: string): boolean

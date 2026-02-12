@@ -3,11 +3,14 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
+local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
@@ -18,7 +21,8 @@ type UsedAs<T> = Fusion.UsedAs<T>
 function EquippedItemsPanel(
 	scope: Fusion.Scope,
 	props: {
-		layoutOrder: UsedAs<number>?
+		layoutOrder: UsedAs<number>?,
+		onAccessoriesRemovedCb: () -> ()
 	}
 ): (Frame, ScrollingFrame)
 	local equippedItemsContainer = scope:New "Frame" {
@@ -27,6 +31,26 @@ function EquippedItemsPanel(
 		Position = UDim2.fromScale(0, 0),
 		AnchorPoint = Vector2.new(0, 0),
 		BackgroundTransparency = 1,
+
+		[Children] = {
+			scope:New "Frame" {
+				Size = UDim2.fromScale(1, 0.1),
+				AnchorPoint = Vector2.new(0.5, 1),
+				Position = UDim2.fromScale(0.5, 1),
+				ZIndex = 2,
+				
+				[Children] = {
+					BaseButton(scope, {
+						text = "Remove All Accessories",
+						size = UDim2.fromScale(0.8, 0.8),
+						onActivated = function()
+							props.onAccessoriesRemovedCb()
+						end
+					})
+				}
+			}
+		}
+
 	} :: Frame
 
 	local equippedItemsPanel = scope:New "ScrollingFrame" {
@@ -43,6 +67,7 @@ function EquippedItemsPanel(
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		Parent = equippedItemsContainer,
+		ZIndex = 1,
 
 
 		[Children] = {
