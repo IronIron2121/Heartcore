@@ -211,7 +211,7 @@ function CategoryFrame(
 
 					ExpandingOptionsButton(scope, {
 						text = "Accessories",
-						layoutOrder = 3,
+						layoutOrder = 15,
 						textSize = 20,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
@@ -242,8 +242,8 @@ function CategoryFrame(
 					}),
 
 					ExpandingOptionsButton(scope, {
-						text = "Classic Clothing",
-						layoutOrder = 4,
+						text = "2D Clothing",
+						layoutOrder = 16,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false
@@ -380,8 +380,8 @@ function CategoryFrame(
 					}),
 
 					ExpandingOptionsButton(scope, {
-						text = "Bundles",
-						layoutOrder = 15,
+						text = "Body",
+						layoutOrder = 3,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false
@@ -412,7 +412,7 @@ function CategoryFrame(
 
 					ExpandingOptionsButton(scope, {
 						text = "Animations",
-						layoutOrder = 16,
+						layoutOrder = 17,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false
