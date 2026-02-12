@@ -18,6 +18,11 @@ type scope          = Fusion.Scope
 
 --
 
+type SlotInfo = {
+    Object: Frame,
+    AlwaysOn: boolean,
+}
+
 local SLOT_CONSTANTS = {
     Colour = Color3.new(1, 1, 1),
     BackgroundTransparency = 1,
@@ -102,11 +107,11 @@ GuiConfiguration.__index = GuiConfiguration
 function GuiConfiguration.new(props: {
     ConfigurationName: string,
     color: Color3?,
-    topMiddle: GuiObject?,
-    topRight: GuiObject?,
-    bottomLeft: GuiObject?,
-    bottomMiddle: GuiObject?,
-    bottomRight: GuiObject?
+    topMiddle: SlotInfo?,
+    topRight: SlotInfo?,
+    bottomLeft: SlotInfo?,
+    bottomMiddle: SlotInfo?,
+    bottomRight: SlotInfo?,
 }): GuiConfiguration
     -- Initialise an object of this class (Luau OOP)
     local self = {}
@@ -118,13 +123,20 @@ function GuiConfiguration.new(props: {
 
     self.Enabled = self.scope:Value(false)
 
+    -- Extract AlwaysOn flags
+    local topMiddleAlwaysOn = props.topMiddle and props.topMiddle.AlwaysOn or false
+    local topRightAlwaysOn = props.topRight and props.topRight.AlwaysOn or false
+    local bottomLeftAlwaysOn = props.bottomLeft and props.bottomLeft.AlwaysOn or false
+    local bottomMiddleAlwaysOn = props.bottomMiddle and props.bottomMiddle.AlwaysOn or false
+    local bottomRightAlwaysOn = props.bottomRight and props.bottomRight.AlwaysOn or false
+
     -- Store element references for reparenting on Enable()
     self._elements = {
-        topMiddle = props.topMiddle,
-        topRight = props.topRight,
-        bottomLeft = props.bottomLeft,
-        bottomMiddle = props.bottomMiddle,
-        bottomRight = props.bottomRight,
+        topMiddle = props.topMiddle and props.topMiddle.Object or nil,
+        topRight = props.topRight and props.topRight.Object or nil,
+        bottomLeft = props.bottomLeft and props.bottomLeft.Object or nil,
+        bottomMiddle = props.bottomMiddle and props.bottomMiddle.Object or nil,
+        bottomRight = props.bottomRight and props.bottomRight.Object or nil,
     }
 
     -- Empty list that will contain the screen positions for each slot
@@ -139,8 +151,8 @@ function GuiConfiguration.new(props: {
         Visible = true
     } :: Frame
     
-    self.TopMiddlePosition = self.scope:Computed(function(use)  
-        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].OutPosition  
+    self.TopMiddlePosition = self.scope:Computed(function(use)
+        return (topMiddleAlwaysOn or use(self.Enabled)) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].OutPosition
     end)
     self.TopMiddle = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS.TopMiddle.Name,
@@ -154,8 +166,8 @@ function GuiConfiguration.new(props: {
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopMiddle] = self.TopMiddlePosition
 
-    self.TopRightPosition = self.scope:Computed(function(use)  
-        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].OutPosition  
+    self.TopRightPosition = self.scope:Computed(function(use)
+        return (topRightAlwaysOn or use(self.Enabled)) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].OutPosition
     end)
     self.TopRight = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].Name,
@@ -169,8 +181,8 @@ function GuiConfiguration.new(props: {
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopRight] = self.TopRightPosition
 
-    self.BottomLeftPosition = self.scope:Computed(function(use)  
-        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].OutPosition  
+    self.BottomLeftPosition = self.scope:Computed(function(use)
+        return (bottomLeftAlwaysOn or use(self.Enabled)) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].OutPosition
     end)    
     self.BottomLeft = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS.BottomLeft.Name,
@@ -184,8 +196,8 @@ function GuiConfiguration.new(props: {
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.BottomLeft] = self.BottomLeftPosition
 
-    self.BottomMiddlePosition = self.scope:Computed(function(use)  
-        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomMiddle].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomMiddle].OutPosition  
+    self.BottomMiddlePosition = self.scope:Computed(function(use)
+        return (bottomMiddleAlwaysOn or use(self.Enabled)) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomMiddle].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomMiddle].OutPosition
     end)      
     self.BottomMiddle = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS.BottomMiddle.Name,
@@ -199,8 +211,8 @@ function GuiConfiguration.new(props: {
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.BottomMiddle] = self.BottomMiddlePosition
 
-    self.BottomRightPosition = self.scope:Computed(function(use)  
-        return use(self.Enabled) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomRight].OutPosition  
+    self.BottomRightPosition = self.scope:Computed(function(use)
+        return (bottomRightAlwaysOn or use(self.Enabled)) and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomRight].OutPosition
     end)      
     self.BottomRight = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS.BottomRight.Name,
@@ -213,6 +225,13 @@ function GuiConfiguration.new(props: {
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.BottomRight] = self.BottomRightPosition
+
+    -- Immediately reparent AlwaysOn elements so they're visible before Enable()
+    if topMiddleAlwaysOn and self._elements.topMiddle then self._elements.topMiddle.Parent = self.TopMiddle end
+    if topRightAlwaysOn and self._elements.topRight then self._elements.topRight.Parent = self.TopRight end
+    if bottomLeftAlwaysOn and self._elements.bottomLeft then self._elements.bottomLeft.Parent = self.BottomLeft end
+    if bottomMiddleAlwaysOn and self._elements.bottomMiddle then self._elements.bottomMiddle.Parent = self.BottomMiddle end
+    if bottomRightAlwaysOn and self._elements.bottomRight then self._elements.bottomRight.Parent = self.BottomRight end
 
     return (self :: any) :: GuiConfiguration
 end

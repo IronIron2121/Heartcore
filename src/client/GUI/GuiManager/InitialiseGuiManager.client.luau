@@ -234,20 +234,20 @@ local function InitialiseHuds()
 
     local GameLoopConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
-        topMiddle = submissionThemeBar,
-        topRight = expHud,
+        topMiddle = { Object = submissionThemeBar, AlwaysOn = true },
+        topRight = { Object = expHud, AlwaysOn = true },
         bottomLeft = nil,
-        bottomMiddle = buttonsFrame,
-        bottomRight = GameOptionsFrame1
+        bottomMiddle = { Object = buttonsFrame, AlwaysOn = false },
+        bottomRight = { Object = GameOptionsFrame1, AlwaysOn = false },
     })
 
     local ShoppingConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.ShoppingConfig,
         topMiddle = nil,
-        topRight = expHud,
+        topRight = { Object = expHud, AlwaysOn = true },
         bottomLeft = nil,
-        bottomMiddle = buttonsFrame,
-        bottomRight = GameOptionsFrame2
+        bottomMiddle = { Object = buttonsFrame, AlwaysOn = false },
+        bottomRight = { Object = GameOptionsFrame2, AlwaysOn = false },
     })
 
     GuiManager.RegisterConfiguration(GameLoopConfig)
