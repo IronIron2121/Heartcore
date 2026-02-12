@@ -30,17 +30,23 @@ local levelFusion = Fusion.Value(moduleScope, 1)
 local rankFusion  = Fusion.Value(moduleScope, "")
 
 local levelInst: NumberValue = nil :: any
+local rankInst: StringValue = nil :: any  
 
 task.spawn(function()
     local ls = localPlayer:WaitForChild("leaderstats")
     levelInst        = ls:WaitForChild("Level") :: NumberValue
-    local rankInst   = ls:WaitForChild("Rank") :: StringValue
+    rankInst   = ls:WaitForChild("Rank") :: StringValue
 
     levelFusion:set(levelInst.Value)
     rankFusion:set(rankInst.Value)
 
-    levelInst.Changed:Connect(function(v) levelFusion:set(v) end)
-    rankInst.Changed:Connect(function(v)  rankFusion:set(v) end)
+    levelInst.Changed:Connect(function(value) 
+		levelFusion:set(value) 
+	end)
+	
+    rankInst.Changed:Connect(function(value)
+		rankFusion:set(value) 
+	end)
 end)
 
 
@@ -160,11 +166,9 @@ local function ExpHud(scope: Fusion.Scope)
 	
 	-- Animation trigger: wait for levelInst to be populated by the bridge
 	task.spawn(function()
-		while levelInst == nil do task.wait(0.1) end
-		levelInst:GetPropertyChangedSignal("Value"):Connect(function()
-			if levelInst.Value % 10 == 0 then
-				task.spawn(animateRank, playerRankLabel)
-			end
+		while rankInst == nil do task.wait(0.1) end
+		rankInst:GetPropertyChangedSignal("Value"):Connect(function()
+			task.spawn(animateRank, playerRankLabel)
 		end)
 	end)
 
