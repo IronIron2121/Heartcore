@@ -15,6 +15,7 @@ local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiControll
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
+local Constants = require(ReplicatedStorage.Constants)
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
@@ -145,7 +146,13 @@ function CatalogSearchController:_initialiseSearchFrame()
 	self.editorsPickSelected = self.scope:Value(false)
 
 	self.searchCallback = function(keyword: string?)
-		keyword = keyword or "   "
+		if not peek(self.searchText) or (peek(self.searchText) == Constants.SEARCH_PLACEHOLDER) then
+			keyword = "   "
+		else
+			keyword = peek(self.searchText)
+		end
+
+		warn("running a search with " .. keyword, peek(self.searchText))
 		if not self.SearchResultsFrame then
 			warn("SearchResultsFrame not ready yet")
 			return
@@ -157,7 +164,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 		warn("Searching!", peek(self.editorsPickSelected))
 
 		local catalogParams = CatalogSearchParams.new()
-		catalogParams.SearchKeyword = keyword or peek(self.searchText)
+		catalogParams.SearchKeyword = keyword
 		catalogParams.SortType = sortTextToSortType[peek(self.searchSort)]
 		--catalogParams.MinPrice = 0
 		--catalogParams.MaxPrice = math.huge
