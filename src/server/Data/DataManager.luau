@@ -5,9 +5,17 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
 local ExpConfig = require(Libraries.ExpConfig)
+local UI_CONSTANTS = require(Utility.UI_CONSTANTS)
+
+-- Display constants
+local TEXT_LABEL_SIZE = UDim2.fromScale(1, 0.5)
+local BILLBOARD_GUI_NAME = "PlayerDisplayBillboard"
+local NAME_LABEL_NAME = "PlayerNameLabel"
+local RANK_LABEL_NAME = "PlayerRankLabel"
 
 --
 
@@ -35,6 +43,7 @@ function DataManager.AddExp(player: Player, amount: number)
 	end
 
 	local oldLevel = profile.Data.Level
+	warn("Old level", oldLevel)
 	local oldRankName = profile.Data.Rank or ExpConfig.RankNames[1]
 
 	profile.Data.Exp += amount
@@ -66,6 +75,13 @@ function DataManager.AddExp(player: Player, amount: number)
 
 	if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Exp") then
 		player.leaderstats.Exp.Value = profile.Data.Exp
+	end
+
+	if (newLevel > oldLevel) or (newRankName ~= oldRankName) then
+		warn("Updating player display")
+		DataManager.UpdatePlayerDisplay(player)
+	else
+		warn(newLevel, oldLevel, newRankName, oldRankName)
 	end
 end
 
@@ -243,6 +259,83 @@ function DataManager.DebugPrintXpThresholds()
 		print("Level", level, "| Cumulative:", ExpConfig.LevelThresholds[level], "| XP to next:", xpNeeded)
 	end
 	print("Total XP to 100:", ExpConfig.TotalExpToMax)
+end
+
+-- Player display (billboard above head)
+
+function DataManager.AddRankDisplayToCharacter(player: Player, character: Model?)
+	character = character or player.Character or player.CharacterAdded:Wait()
+	if not character then return end
+
+	local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+	if not humanoidRootPart then return end
+
+	local BillboardGui = Instance.new("BillboardGui", character)
+	BillboardGui.Name = BILLBOARD_GUI_NAME
+	BillboardGui.Adornee = humanoidRootPart
+	BillboardGui.Size = UDim2.fromScale(3, 1)
+	BillboardGui.SizeOffset = Vector2.new(0, 3.5)
+	BillboardGui.AlwaysOnTop = true
+
+	local uiListLayout = Instance.new("UIListLayout", BillboardGui)
+	uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	uiListLayout.FillDirection = Enum.FillDirection.Vertical
+
+	local playerRank = DataManager.GetRankName(player)
+	local RankLabel = Instance.new("TextLabel", BillboardGui)
+	RankLabel.Name = RANK_LABEL_NAME
+	RankLabel.Text = playerRank
+	RankLabel.TextColor3 = Color3.new(1, 1, 1)
+	RankLabel.TextStrokeColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE
+	RankLabel.TextStrokeTransparency = 0
+	RankLabel.TextScaled = true
+	RankLabel.BackgroundTransparency = 1
+	RankLabel.LayoutOrder = 1
+	RankLabel.FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold)
+	RankLabel.Size = TEXT_LABEL_SIZE
+
+	local playerLevel = DataManager.GetLevel(player)
+	local NameLabel = Instance.new("TextLabel", BillboardGui)
+	NameLabel.Name = NAME_LABEL_NAME
+	NameLabel.Text = player.Name .. " (Lv. " .. playerLevel .. ")"
+	NameLabel.TextColor3 = Color3.new(1, 1, 1)
+	NameLabel.TextStrokeColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE
+	NameLabel.TextStrokeTransparency = 0
+	NameLabel.TextScaled = true
+	NameLabel.BackgroundTransparency = 1
+	NameLabel.LayoutOrder = 2
+	NameLabel.FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold)
+	NameLabel.Size = TEXT_LABEL_SIZE
+end
+
+function DataManager.UpdateLevelDisplay(player: Player)
+	local character = player.Character or player.CharacterAdded:Wait()
+	local PlayerBillboard = character:FindFirstChild(BILLBOARD_GUI_NAME)
+	if not PlayerBillboard then return end
+
+	local NameLabel = PlayerBillboard:FindFirstChild(NAME_LABEL_NAME) :: TextLabel
+	if not NameLabel then return end
+
+	local newLevel = DataManager.GetLevel(player)
+	NameLabel.Text = player.Name .. " (Lv. " .. newLevel .. ")"
+end
+
+function DataManager.UpdateRankDisplay(player: Player)
+	local character = player.Character or player.CharacterAdded:Wait()
+	local PlayerBillboard = character:FindFirstChild(BILLBOARD_GUI_NAME)
+	if not PlayerBillboard then return end
+
+	local RankLabel = PlayerBillboard:FindFirstChild(RANK_LABEL_NAME) :: TextLabel
+	if not RankLabel then return end
+
+	local newRank = DataManager.GetRankName(player)
+	RankLabel.Text = newRank
+end
+
+function DataManager.UpdatePlayerDisplay(player: Player)
+	warn("UPDATING PLAYER DISPLAY")
+	DataManager.UpdateRankDisplay(player)
+	DataManager.UpdateLevelDisplay(player)
 end
 
 return DataManager
