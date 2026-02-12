@@ -12,7 +12,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Contstants
-local COLOUR_SELECTED = UI_CONSTANTS.COLOUR_LILAC
+local COLOUR_SELECTED = UI_CONSTANTS.COLOUR_GREY
 local DEFAULT_COLOUR = UI_CONSTANTS.TASTEMAKER_PURPLE
 local HOVER_SCALE = 1.2 
 

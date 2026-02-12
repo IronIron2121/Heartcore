@@ -12,7 +12,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 --Constants
-local COLOUR_SELECTED = UI_CONSTANTS.COLOUR_LILAC
+local COLOUR_SELECTED = UI_CONSTANTS.COLOUR_GREY
 local DEFAULT_COLOUR = UI_CONSTANTS.TASTEMAKER_PURPLE
 local HOVER_SCALE = 1.2 
 
@@ -29,7 +29,8 @@ function CategoryButton(
 		size: UsedAs<UDim2>?,
 		layoutOrder: UsedAs<number>?,
 		isSelected: UsedAs<boolean>?,
-		textSize: UsedAs<number>?
+		textSize: UsedAs<number>?,
+		textColor3: UsedAs<Color3>?,
 	}
 ): TextButton
 
@@ -82,7 +83,7 @@ function CategoryButton(
 		Size = props.size or UDim2.fromScale(0.15, 0.07),
 		LayoutOrder = props.layoutOrder or 1,
 		Text = props.text,
-		TextColor3 = textColorSpring,
+		TextColor3 = props.textColor3 or textColorSpring,
 		TextScaled = false,
 		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 		BackgroundColor3 = backgroundColorSpring,

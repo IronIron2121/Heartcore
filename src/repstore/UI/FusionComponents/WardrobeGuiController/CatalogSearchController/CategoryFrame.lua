@@ -16,6 +16,10 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
 
+-- Constants
+local COLOUR_SELECTED = UI_CONSTANTS.COLOUR_ORANGE
+local DEFAULT_COLOUR = Color3.new(0.92549, 0.545098, 0.321569)
+
 -- Fusion
 local Children = Fusion.Children
 local peek = Fusion.peek
@@ -47,6 +51,18 @@ function CategoryFrame(
 		editorsPickSelected: UsedAs<boolean>
 	}
 ): Frame
+
+	local textColorSpring = scope:Spring(
+    scope:Computed(function(use)
+        if use(props.editorsPickSelected) then  
+            return COLOUR_SELECTED
+        else
+            return DEFAULT_COLOUR
+        end
+    end)
+)
+	
+
 	local allSelected = scope:Computed(function(use)
 		return #use(props.searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes()
 			and #use(props.searchBundleCategories) == #BundleFilterCategories.getAllRobloxBundleTypes()
@@ -180,6 +196,7 @@ function CategoryFrame(
 					CategoryButton(scope, {
 						text = "Editor's Pick",
 						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
+						textColor3 = textColorSpring,
 						layoutOrder = 2,
 						isSelected = props.editorsPickSelected,
 						onActivated = function()
@@ -194,7 +211,7 @@ function CategoryFrame(
 
 					ExpandingOptionsButton(scope, {
 						text = "Accessories",
-						layoutOrder = 3,
+						layoutOrder = 15,
 						textSize = 20,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
@@ -212,7 +229,7 @@ function CategoryFrame(
 						children = {
 							scope:ForPairs(scope:Value(AssetFilterCategories.getAllAssetSearchTypes()), function(use, scope, index, categoryInfo)
 								return index, CategoryButton(scope, {
-									text = categoryInfo.name,
+									text = "- " ..categoryInfo.name,
 									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 									layoutOrder = index,
 									isSelected = isAssetSelected(categoryInfo.assetType),
@@ -225,8 +242,8 @@ function CategoryFrame(
 					}),
 
 					ExpandingOptionsButton(scope, {
-						text = "Classic Clothing",
-						layoutOrder = 4,
+						text = "2D Clothing",
+						layoutOrder = 16,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false
@@ -243,7 +260,7 @@ function CategoryFrame(
 						children = {
 							scope:ForPairs(scope:Value(AssetFilterCategories.getAllClassicAssetSearchTypes()), function(use, scope, index, categoryInfo)
 								return index, CategoryButton(scope, {
-									text = categoryInfo.name,
+									text = "- " ..categoryInfo.name,
 									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 									layoutOrder = index,
 									isSelected = isAssetSelected(categoryInfo.assetType),
@@ -363,8 +380,8 @@ function CategoryFrame(
 					}),
 
 					ExpandingOptionsButton(scope, {
-						text = "Bundles",
-						layoutOrder = 15,
+						text = "Body",
+						layoutOrder = 3,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false
@@ -381,7 +398,7 @@ function CategoryFrame(
 						children = {
 							scope:ForPairs(scope:Value(BundleFilterCategories.getAllRobloxBundleSearchTypes()), function(use, scope, index, bundleTypeInfo)
 								return index, CategoryButton(scope, {
-									text = bundleTypeInfo.name,
+									text = "- " ..bundleTypeInfo.name,
 									size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 									layoutOrder = index,
 									isSelected = isBundleSelected(bundleTypeInfo.bundleType),
@@ -395,7 +412,7 @@ function CategoryFrame(
 
 					ExpandingOptionsButton(scope, {
 						text = "Animations",
-						layoutOrder = 16,
+						layoutOrder = 17,
 						isSelected = scope:Computed(function(use) 
 							if use(allSelected) then
 								return false
@@ -408,7 +425,7 @@ function CategoryFrame(
 
 						children = {
 							CategoryButton(scope, {
-								text = "Emotes",
+								text = "- Emotes",
 								size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 								layoutOrder = 1,
 								isSelected = isAssetSelected(Enum.AvatarAssetType.EmoteAnimation),
@@ -418,7 +435,7 @@ function CategoryFrame(
 							}),
 
 							CategoryButton(scope, {
-								text = "Animation Bundles",
+								text = "- Animation Bundles",
 								size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 								layoutOrder = 2,
 								isSelected = isBundleSelected(Enum.BundleType.Animations),
