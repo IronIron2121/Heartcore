@@ -17,7 +17,6 @@ local Remotes 			= ReplicatedStorage:WaitForChild("Remotes")
 ]]
 
 -- Module Scripts
-local PlayerDisplayManager = require(ServerScriptService.Player.PlayerDisplayManager)
 local ChallengeManager 			= require(DailyChallenges:WaitForChild("ChallengeManager"))
 
 --[[
@@ -39,7 +38,7 @@ local function onCharacterAdded(player: Player, character: Model)
 	local humanoid 		= character:WaitForChild("Humanoid") :: Humanoid
 	humanoid.WalkSpeed 	= 32
 
-	PlayerDisplayManager.AddRankDisplayToCharacter(player, character)
+	DataManager.AddRankDisplayToCharacter(player, character)
 end
 
 --[[
@@ -78,7 +77,7 @@ local function onPlayerAdded(player: Player)
 	-- Listen for leaderstats changes
 	player:WaitForChild("leaderstats").Level.Changed:Connect(function()
 		warn("Levelled up!")
-		PlayerDisplayManager.UpdatePlayerDisplay(player)
+		DataManager.UpdatePlayerDisplay(player)
 	end)
 
 	--[[
