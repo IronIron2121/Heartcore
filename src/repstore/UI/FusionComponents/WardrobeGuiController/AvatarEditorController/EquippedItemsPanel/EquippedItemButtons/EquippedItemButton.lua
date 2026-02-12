@@ -33,7 +33,7 @@ function EquippedItemButton(
 		buttonSize: UsedAs<UDim2>,
 		itemDescription: AccessoryDescription | BodyPartDescription?,
 		visible: UsedAs<boolean>,
-		addCb: () -> ()?,
+		buyCb: () -> ()?,
 		removeCb: () -> ()?,
 	}
 ): Frame
@@ -161,8 +161,8 @@ function EquippedItemButton(
 				BorderSizePixel = 0,
 
 				[OnEvent "Activated"] = function()
-					if props.addCb then
-						props.addCb()
+					if props.buyCb then
+						props.buyCb()
 					end
 				end,
 

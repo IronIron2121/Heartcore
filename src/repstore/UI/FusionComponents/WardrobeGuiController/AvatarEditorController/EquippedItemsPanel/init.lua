@@ -20,10 +20,18 @@ function EquippedItemsPanel(
 	props: {
 		layoutOrder: UsedAs<number>?
 	}
-): ScrollingFrame
+): (Frame, ScrollingFrame)
+	local equippedItemsContainer = scope:New "Frame" {
+		Name = "EquippedItemsContainer",
+		Size = UDim2.fromScale(0.3, 1),
+		Position = UDim2.fromScale(0, 0),
+		AnchorPoint = Vector2.new(0, 0),
+		BackgroundTransparency = 1,
+	} :: Frame
+
 	local equippedItemsPanel = scope:New "ScrollingFrame" {
 		Name = "EquippedItemsPanel",
-		Size = UDim2.fromScale(0.3, 1),
+		Size = UDim2.fromScale(1, 1),
 		Position = UDim2.fromScale(0, 0),
 		AnchorPoint = Vector2.new(0, 0),
 		CanvasSize = UDim2.fromScale(0, 0),
@@ -34,6 +42,7 @@ function EquippedItemsPanel(
 		ScrollBarThickness = 6,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		Parent = equippedItemsContainer,
 
 
 		[Children] = {
@@ -59,7 +68,7 @@ function EquippedItemsPanel(
 		}
 	} :: ScrollingFrame
 
-	return equippedItemsPanel
+	return equippedItemsContainer, equippedItemsPanel
 end
 
 return EquippedItemsPanel

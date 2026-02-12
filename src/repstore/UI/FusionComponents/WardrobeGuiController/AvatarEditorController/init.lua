@@ -22,6 +22,7 @@ local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGui
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Constants = require(ReplicatedStorage.Constants)
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
+local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 
 -- Gui Components
 local AvatarViewport = require(script:WaitForChild("AvatarViewport"))
@@ -88,10 +89,10 @@ function AvatarEditorController:_initialiseAvatarViewport()
 end
 
 function AvatarEditorController:_initialiseEquippedItemsPanel()
-	self.EquippedItemsPanel = EquippedItemsPanel(self.scope, {
+	self.EquippedItemsContainer, self.EquippedItemsPanel = EquippedItemsPanel(self.scope, {
 		layoutOrder = 1
 	})
-	self.EquippedItemsPanel.Parent = self.parentFrame
+	self.EquippedItemsContainer.Parent = self.parentFrame
 end
 
 function AvatarEditorController:_watchForItemChanges()
@@ -104,6 +105,7 @@ function AvatarEditorController:_watchForItemChanges()
 end
 
 function AvatarEditorController:_syncItemsFromDescription(humDesc: HumanoidDescription)
+	LoadingScreenManager.show(self.EquippedItemsContainer)
 	local currentAssetIds = {}
 	local currentClassicItems = {}
 	
@@ -153,6 +155,7 @@ function AvatarEditorController:_syncItemsFromDescription(humDesc: HumanoidDescr
 			self.classicTiles[itemType] = nil
 		end
 	end
+	LoadingScreenManager.hide(self.EquippedItemsContainer)
 end
 
 function AvatarEditorController:_addEquippedItemTile(description: AccessoryDescription | BodyPartDescription)
@@ -160,22 +163,30 @@ function AvatarEditorController:_addEquippedItemTile(description: AccessoryDescr
 		buttonSize = UDim2.fromScale(0.7, 0.7),
 		visible = true,
 		itemDescription = description,
-		addCb = function()
-			warn("add cb")
+
+		buyCb = function()
 			LoadingScreenManager.show(self.parentFrame)
 			task.defer(function()
-				local success = callWithRetry(function()  
+				local success = callWithRetry(function()
 					return MarketplaceService:PromptPurchase(Players.LocalPlayer, description.AssetId)
 				end)
-				LoadingScreenManager.hide(self.parentFrame)
+
 				if not success then 
 					warn("Failed to purchase item")	
-				end		
+				end
+
+				LoadingScreenManager.hide(self.parentFrame)
 			end)
 		end,
+
 		removeCb = function()
-			ClientCustomisationService.RemoveItem(description.AssetId)
-			self:RemoveEquippedItemTile(description.AssetId)
+			LoadingScreenManager.show(self.EquippedItemsContainer)
+			local success = ClientCustomisationService.RemoveItem(description.AssetId)
+			
+			if success then
+				self:RemoveEquippedItemTile(description.AssetId)
+			end
+			LoadingScreenManager.hide(self.EquippedItemsContainer)
 		end
 	})
 	
@@ -190,11 +201,17 @@ function AvatarEditorController:_addClassicItemTile(assetId: number, itemType: s
 		itemId = assetId,
 		itemType = itemType,
 		removeCb = function()
+			LoadingScreenManager.show(self.EquippedItemsContainer)
 			if table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, assetId) then
 				return true
 			end
-			ClientCustomisationService.RemoveClassicItem(assetId, itemType)
-			self:RemoveClassicItemTile(itemType)
+			local success = ClientCustomisationService.RemoveClassicItem(assetId, itemType)
+			if success then
+				self:RemoveClassicItemTile(itemType)
+			else
+				warn("Failed to remove classic item", assetId, itemType)
+			end
+			LoadingScreenManager.hide(self.EquippedItemsContainer)
 		end
 	})
 	
@@ -212,16 +229,12 @@ function AvatarEditorController:RemoveEquippedItemTile(assetId: number)
 end
 
 function AvatarEditorController:RemoveClassicItemTile(itemType: string)
-	warn("removing classic item tile")
-	warn(self.classicTiles)
-	warn(itemType)
 	local tile = self.classicTiles[itemType]
 	if tile then
 		tile:Destroy()
 		self.classicTiles[itemType] = nil
-		warn("Found a tile for destroyed classic")
 	else
-		warn("No tile for destroyed classic")
+		warn("Failed to find tile!")
 	end
 end
 
