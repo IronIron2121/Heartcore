@@ -108,7 +108,7 @@ end
 
 local function ExpHud(scope: Fusion.Scope)
 	local rankText = scope:Computed(function(use)
-		return "(Lv. " .. use(levelFusion) .. ") " .. use(rankFusion)
+		return "Lv. " .. use(levelFusion) .. " " .. use(rankFusion)
 	end)
 
 	local playerRankLabel = scope:New "TextLabel" {
