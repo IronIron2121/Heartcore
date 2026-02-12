@@ -197,7 +197,9 @@ local Constants = {
 
 	DEFAULT_ID = 7356280958,
 
-	CLASSIC_ITEMS = {"GraphicTShirt", "Shirt", "Pants", "Face"}
+	CLASSIC_ITEMS = {"GraphicTShirt", "Shirt", "Pants", "Face"},
+
+	SEARCH_PLACEHOLDER = "Search for items...",
 
 
 }

@@ -11,6 +11,7 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
+local Constants = require(ReplicatedStorage.Constants)
 local ForValues = require(ReplicatedStorage.Utility.Fusion.State.ForValues)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -117,7 +118,7 @@ function SearchFrame(
 						name = "CatalogSearch",
 						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
 						layoutOrder = 2,
-						placeholder = "Search for items...",
+						placeholder = Constants.SEARCH_PLACEHOLDER,
 						searchText = props.searchText,
 						searchCallback = props.searchCallback,
 						TextXAlignment = Enum.TextXAlignment.Left,
