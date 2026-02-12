@@ -80,15 +80,15 @@ end
 
 function ExpConfig.getRankTier(level: number): number
 	if level >= 100 then return 11 end
-	if level >= 91 then return 10 end
-	if level >= 81 then return 9 end
-	if level >= 71 then return 8 end
-	if level >= 61 then return 7 end
-	if level >= 51 then return 6 end
-	if level >= 41 then return 5 end
-	if level >= 31 then return 4 end
-	if level >= 21 then return 3 end
-	if level >= 11 then return 2 end
+	if level >= 90 then return 10 end
+	if level >= 80 then return 9 end
+	if level >= 70 then return 8 end
+	if level >= 60 then return 7 end
+	if level >= 50 then return 6 end
+	if level >= 40 then return 5 end
+	if level >= 30 then return 4 end
+	if level >= 20 then return 3 end
+	if level >= 10 then return 2 end
 	return 1
 end
 
