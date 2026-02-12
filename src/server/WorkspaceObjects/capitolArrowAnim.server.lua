@@ -1,13 +1,13 @@
 --!strict
 
 -- Services
-local TweenService =    game:GetService("TweenService")
+local TweenService  = game:GetService("TweenService")
 
 -- Folders
-local labelStores =         workspace:WaitForChild("LabelStores")
-local capitol =             labelStores:WaitForChild("capitol")
-local arrowUp =     capitol:WaitForChild("arrowUp")
-local arrowDown =     capitol:WaitForChild("arrowDown")
+local labelStores       = workspace:WaitForChild("LabelStores")
+local capitol           = labelStores:WaitForChild("capitol")
+local arrowUp           = capitol:WaitForChild("arrowUp")
+local arrowDown         = capitol:WaitForChild("arrowDown")
 
 -- Arrow up positions
 local positionUp1 = CFrame.new(290.749, 115.278, 335.345)

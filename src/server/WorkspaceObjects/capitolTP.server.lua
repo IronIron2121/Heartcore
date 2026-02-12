@@ -1,13 +1,12 @@
 --!strict
 
 -- Folders
-local labelStores = workspace:WaitForChild("LabelStores")
-local capitol = labelStores:WaitForChild("capitol")
-
-local groundTp = capitol:WaitForChild("groundTp")
-local storeTp = capitol:WaitForChild("storeTp")
-local storeDestination = capitol:WaitForChild("storeDestination")
-local groundDestination = capitol:WaitForChild("groundDestination")
+local labelStores           = workspace:WaitForChild("LabelStores")
+local capitol               = labelStores:WaitForChild("capitol")
+local groundTp              = capitol:WaitForChild("groundTp")
+local storeTp               = capitol:WaitForChild("storeTp")
+local storeDestination      = capitol:WaitForChild("storeDestination")
+local groundDestination     = capitol:WaitForChild("groundDestination")
 
 
 -- TP up code
