@@ -57,7 +57,7 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
 end
 
 local function XpHack(player)
-    DataManager.AddExp(player, 1)
+    DataManager.AddExp(player, 80)
 end
 
 local function ResetPlayerLevel(player: Player)
