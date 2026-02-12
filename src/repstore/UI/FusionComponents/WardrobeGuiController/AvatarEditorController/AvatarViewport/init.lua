@@ -16,6 +16,7 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 -- Modules
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local ClientOutfitService = require(Utility:WaitForChild("ClientOutfitService"))
 
@@ -68,7 +69,34 @@ function AvatarViewport(
 
 	local rotateButton = scope:Value(nil)
 	
-	local viewportOut = scope:Value(nil)
+	local viewportOut: Fusion.Value<ViewportFrame?> = scope:Value(nil)
+	
+	local viewportBackground = scope:New "Frame" {
+		Name = "ViewportContainer",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Size = UDim2.fromScale(0.7, 1),
+		LayoutOrder = props.layoutOrder or 2,
+		Position = UDim2.fromScale(0.5, 0.5),
+		BackgroundTransparency = 1,
+
+		[Children] = {
+			scope:New "ImageLabel" {
+				Name = "viewportBackground",
+				Size = UDim2.fromScale(1,1),
+				Position = UDim2.fromScale(0, 0),
+				AnchorPoint = Vector2.new(0, 0),
+				Image = "rbxassetid://118393578077171",
+
+				[Children] = {
+					scope:New "UICorner" {
+						CornerRadius = UDim.new(0.05)
+					},
+				},
+			},
+
+			viewportOut
+		}
+	} :: Frame
 
 	local viewport = scope:New "ViewportFrame" {
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -121,7 +149,13 @@ function AvatarViewport(
 				zIndex = 3,
 				
 				onActivated = function()
+					if peek(viewportOut) ~= nil then
+						LoadingScreenManager.show(peek(viewportBackground))
+					end
 					ClientCustomisationService.ResetPlayerOutfit(localPlayer)
+					if peek(viewportOut) ~= nil then
+						LoadingScreenManager.hide(peek(viewportBackground))
+					end
 				end, 
 			}),
 
@@ -164,7 +198,7 @@ function AvatarViewport(
 						"SaveOutfit", 
 						"Are you sure you want to save this outfit?", 
 						function()  
-							ClientOutfitService.SaveCurrentPlayerOutfit(localPlayer)
+							ClientOutfitService.SaveCurrentPlayerOutfit()
 							if not props.controllers.CatalogSearchController then
 								return 
 							end
@@ -184,33 +218,6 @@ function AvatarViewport(
 			),
 		}
 	} :: ViewportFrame
-	
-	local viewportBackground = scope:New "Frame" {
-		Name = "ViewportContainer",
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Size = UDim2.fromScale(0.7, 1),
-		LayoutOrder = props.layoutOrder or 2,
-		Position = UDim2.fromScale(0.5, 0.5),
-		BackgroundTransparency = 1,
-
-		[Children] = {
-			scope:New "ImageLabel" {
-				Name = "viewportBackground",
-				Size = UDim2.fromScale(1,1),
-				Position = UDim2.fromScale(0, 0),
-				AnchorPoint = Vector2.new(0, 0),
-				Image = "rbxassetid://118393578077171",
-
-				[Children] = {
-					scope:New "UICorner" {
-						CornerRadius = UDim.new(0.05)
-					},
-				},
-			},
-
-			viewport
-		}
-	} :: Frame
 	
 	viewportOut:set(viewport)
 

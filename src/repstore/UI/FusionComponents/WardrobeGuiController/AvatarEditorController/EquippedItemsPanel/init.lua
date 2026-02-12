@@ -3,11 +3,13 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
@@ -18,12 +20,40 @@ type UsedAs<T> = Fusion.UsedAs<T>
 function EquippedItemsPanel(
 	scope: Fusion.Scope,
 	props: {
-		layoutOrder: UsedAs<number>?
+		layoutOrder: UsedAs<number>?,
+		onAccessoriesRemovedCb: () -> ()
 	}
-): ScrollingFrame
+): (Frame, ScrollingFrame)
+	local equippedItemsContainer = scope:New "Frame" {
+		Name = "EquippedItemsContainer",
+		Size = UDim2.fromScale(0.3, 1),
+		Position = UDim2.fromScale(0, 0),
+		AnchorPoint = Vector2.new(0, 0),
+		BackgroundTransparency = 1,
+
+		[Children] = {
+			scope:New "Frame" {
+				Size = UDim2.fromScale(1, 0.1),
+				AnchorPoint = Vector2.new(0.5, 1),
+				Position = UDim2.fromScale(0.5, 1),
+				ZIndex = 2,
+				
+				[Children] = {
+					BaseButton(scope, {
+						text = "Remove All Accessories",
+						size = UDim2.fromScale(0.8, 0.8),
+						onActivated = function()
+							props.onAccessoriesRemovedCb()
+						end
+					})
+				}
+			}
+		}
+	} :: Frame
+
 	local equippedItemsPanel = scope:New "ScrollingFrame" {
 		Name = "EquippedItemsPanel",
-		Size = UDim2.fromScale(0.3, 1),
+		Size = UDim2.fromScale(1, 1),
 		Position = UDim2.fromScale(0, 0),
 		AnchorPoint = Vector2.new(0, 0),
 		CanvasSize = UDim2.fromScale(0, 0),
@@ -34,6 +64,8 @@ function EquippedItemsPanel(
 		ScrollBarThickness = 6,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		Parent = equippedItemsContainer,
+		ZIndex = 1,
 
 
 		[Children] = {
@@ -59,7 +91,7 @@ function EquippedItemsPanel(
 		}
 	} :: ScrollingFrame
 
-	return equippedItemsPanel
+	return equippedItemsContainer, equippedItemsPanel
 end
 
 return EquippedItemsPanel

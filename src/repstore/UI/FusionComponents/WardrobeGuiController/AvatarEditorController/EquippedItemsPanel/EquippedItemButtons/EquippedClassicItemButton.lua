@@ -37,6 +37,7 @@ function EquippedClassicItemButton(
 		itemId: number,
 		itemType: string,
 		visible: UsedAs<boolean>,
+		buyCb: () -> ()?,
 		removeCb: () -> ()?,
 	}
 ): Frame
