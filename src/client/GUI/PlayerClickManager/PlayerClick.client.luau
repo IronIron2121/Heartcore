@@ -20,12 +20,15 @@ local OnEvent       = Fusion.OnEvent
 
 -- Instances
 local localPlayer = Players.LocalPlayer
+local hoverHighlight = Instance.new("Highlight", script)
+hoverHighlight.Name = "Hover_Highlight"
 
 -- Constants
 local CLICK_DETECTOR_NAME = "OD"
 
 -- Variables
 local CentreActive = GuiManager.GetCentreActiveValue()
+
 
 --
 
@@ -44,8 +47,17 @@ local function addClickDetector(player: Player, character: Model?)
 
         [OnEvent "MouseClick"] = function()
             GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI, player)
-        end
+        end,
 
+        [OnEvent "MouseHoverEnter"] = function()
+            warn("Enter")
+            hoverHighlight.Adornee = character
+        end,
+
+        [OnEvent "MouseHoverLeave"] = function()
+            warn("Exit")
+            hoverHighlight.Adornee = nil
+        end
     } :: ClickDetector
 
     clickDetector.Parent = character
