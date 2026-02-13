@@ -1,9 +1,12 @@
 --!strict
 
-local TweenService =    game:GetService("TweenService")
+-- Services
+local TweenService  = game:GetService("TweenService")
 
-local arrowController = workspace:WaitForChild("submissionZone").ArrowController
+-- Folders
+local arrowController   = workspace:WaitForChild("submissionZone").ArrowController
 
+-- Tween settings
 local position1 = CFrame.new(-65.368, 26.022, 12.458)
 local position2 = CFrame.new(-65.368, 31.022, 12.458)
 local tweenSpeed = 0.7
