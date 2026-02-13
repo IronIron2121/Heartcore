@@ -44,7 +44,8 @@ function AvatarViewport(
 		model: UsedAs<Model>,
 		currentView: Fusion.Value<string>,
 		layoutOrder: UsedAs<number>,
-		controllers: {any}
+		controllers: {any},
+		outfitPurchasedCb: () -> (),
 	}
 ): Frame
 	-- Avatar manipulation variables
@@ -182,7 +183,7 @@ function AvatarViewport(
 				visible = true,
 				
 				onActivated = function()
-					ClientOutfitService.PurchasePlayerOutfit(localPlayer)
+					props.outfitPurchasedCb()
 				end,
 			}),
 			

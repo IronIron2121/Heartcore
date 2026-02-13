@@ -3,6 +3,7 @@
 local AvatarEditorService = game:GetService("AvatarEditorService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -18,24 +19,27 @@ local PlayerPurchasedCurrentOutfit = Remotes:WaitForChild("PlayerPurchasedCurren
 local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
 local PlayerSavedInspectedOutfit = Remotes:WaitForChild("PlayerSavedInspectedOutfit")
 
+-- Instances
+local localPlayer = Players.LocalPlayer
+
 --
 
 local ClientOutfitService = {}
 
-function ClientOutfitService.PurchasePlayerOutfit(player: Player): boolean
-	local character = player.Character or player.CharacterAdded:Wait()
+function ClientOutfitService.PurchasePlayerOutfit(): boolean
+	local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 	local humanoid = character:WaitForChild("Humanoid") :: Humanoid
 	local humanoidDescription = humanoid:GetAppliedDescription()
 	
 	local shoppingCart = {}
 
 	for _, description in ipairs(humanoidDescription:GetChildren()) do
-		if description:IsA("AccessoryDescription") and description.AssetId ~= 0 and not MarketplaceService:PlayerOwnsAsset(player, description.AssetId) then
+		if description:IsA("AccessoryDescription") and description.AssetId ~= 0 and not MarketplaceService:PlayerOwnsAsset(localPlayer, description.AssetId) then
 			table.insert(shoppingCart, {
 				["Type"] = Enum.MarketplaceProductType.AvatarAsset,
 				["Id"] = tostring(description.AssetId)
 			})
-		elseif description:IsA("BodyPartDescription") and description.AssetId ~= 0 and not MarketplaceService:PlayerOwnsAsset(player, description.AssetId) then
+		elseif description:IsA("BodyPartDescription") and description.AssetId ~= 0 and not MarketplaceService:PlayerOwnsAsset(localPlayer, description.AssetId) then
 			local success, assetDetails = callWithRetry(function()
 				return MarketplaceService:GetProductInfo(description.AssetId, Enum.MarketplaceProductType.AvatarAsset)
 			end)
@@ -59,7 +63,7 @@ function ClientOutfitService.PurchasePlayerOutfit(player: Player): boolean
 
 	for _, itemType in Constants.CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES do
 		local classicItemId = humanoidDescription[itemType] :: number
-		if not table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, classicItemId) and not MarketplaceService:PlayerOwnsAsset(player, classicItemId) then
+		if not table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, classicItemId) and not MarketplaceService:PlayerOwnsAsset(localPlayer, classicItemId) then
 			table.insert(shoppingCart, {
 				["Type"] = Enum.MarketplaceProductType.AvatarAsset,
 				["Id"] = tostring(classicItemId)
@@ -73,7 +77,10 @@ function ClientOutfitService.PurchasePlayerOutfit(player: Player): boolean
 		return false
 	else
 		warn("purchasing with ", shoppingCart)
-		return PlayerPurchasedCurrentOutfit:InvokeServer(shoppingCart)
+		local success = callWithRetry(function()  
+			return PlayerPurchasedCurrentOutfit:InvokeServer(shoppingCart)
+		end)
+		return success
 	end
 end
 
