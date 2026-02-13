@@ -81,7 +81,12 @@ function AvatarEditorController:_initialiseAvatarViewport()
 		model = avatarPreviewModel:getInstance(),
 		currentView = WardrobeGuiState.currentView,
 		layoutOrder = 2,
-		controllers = self.controllers
+		controllers = self.controllers,
+		outfitPurchasedCb = function()
+			LoadingScreenManager.show(self.parentFrame)
+			ClientOutfitService.PurchasePlayerOutfit(localPlayer)
+			LoadingScreenManager.hide(self.parentFrame)
+		end
 	})
 	
 	self.avatarViewport.Parent = self.parentFrame

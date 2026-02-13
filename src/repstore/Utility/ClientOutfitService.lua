@@ -73,7 +73,10 @@ function ClientOutfitService.PurchasePlayerOutfit(player: Player): boolean
 		return false
 	else
 		warn("purchasing with ", shoppingCart)
-		return PlayerPurchasedCurrentOutfit:InvokeServer(shoppingCart)
+		local success = callWithRetry(function()  
+			return PlayerPurchasedCurrentOutfit:InvokeServer(shoppingCart)
+		end)
+		return success
 	end
 end
 
