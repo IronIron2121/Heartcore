@@ -244,7 +244,7 @@ local function InitialiseHuds()
     local ShoppingConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.ShoppingConfig,
         topMiddle = nil,
-        topRight = { Object = expHud, AlwaysOn = true },
+        topRight = { Object = expHud, AlwaysOn = false },
         bottomLeft = nil,
         bottomMiddle = { Object = buttonsFrame, AlwaysOn = false },
         bottomRight = { Object = GameOptionsFrame2, AlwaysOn = false },

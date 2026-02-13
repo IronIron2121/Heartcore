@@ -232,6 +232,8 @@ export type GuiConfiguration = {
     -- Methods
     Disable: (self: GuiConfiguration) -> (),
     Enable: (self: GuiConfiguration) -> (),
+    HideForModal: (self: GuiConfiguration) -> (),
+    ShowFromModal: (self: GuiConfiguration) -> (),
 }
 
 export type GuiManager = {

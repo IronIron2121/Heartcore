@@ -324,13 +324,13 @@ end
  
 function GuiManager.HideCurrentConfiguration(): ()
     if currentConfiguration then
-        currentConfiguration:Disable()
+        currentConfiguration:HideForModal()
     end
 end
 
 function GuiManager.ShowCurrentConfiguration(): ()
     if currentConfiguration then
-        currentConfiguration:Enable()
+        currentConfiguration:ShowFromModal()
     end
 end
 
