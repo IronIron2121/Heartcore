@@ -22,6 +22,7 @@ local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGui
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Constants = require(ReplicatedStorage.Constants)
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
+local ClientOutfitService = require(ReplicatedStorage.Utility.ClientOutfitService)
 local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 
 -- Gui Components
@@ -83,9 +84,10 @@ function AvatarEditorController:_initialiseAvatarViewport()
 		layoutOrder = 2,
 		controllers = self.controllers,
 		outfitPurchasedCb = function()
-			LoadingScreenManager.show(self.parentFrame)
-			ClientOutfitService.PurchasePlayerOutfit(localPlayer)
-			LoadingScreenManager.hide(self.parentFrame)
+			warn(self.parentFrame)
+			LoadingScreenManager.show(self.parentFrame.Parent.Parent)
+			local _success = ClientOutfitService.PurchasePlayerOutfit()
+			LoadingScreenManager.hide(self.parentFrame.Parent.Parent)
 		end
 	})
 	
@@ -164,11 +166,6 @@ function AvatarEditorController:_syncItemsFromDescription(humDesc: HumanoidDescr
 	-- Remove classic tiles that no longer exist
 	for itemType, tile in self.classicTiles do
 		if not currentClassicItems[itemType] or tostring(currentClassicItems[itemType]) ~= tile.Name then
-			warn("at remove classic items")
-			warn("################")
-			warn("tile.Name", tile.Name, typeof(tile.Name), #(tile.Name))
-			warn("currentClassicItems", currentClassicItems[itemType], typeof(currentClassicItems[itemType]))
-			warn(currentClassicItems[itemType] ~= tile.Name)
 			tile:Destroy()
 			self.classicTiles[itemType] = nil
 		end
@@ -183,7 +180,7 @@ function AvatarEditorController:_addEquippedItemTile(description: AccessoryDescr
 		itemDescription = description,
 
 		buyCb = function()
-			LoadingScreenManager.show(self.parentFrame)
+			LoadingScreenManager.show(self.parentFrame.Parent.Parent)
 			task.defer(function()
 				local success = callWithRetry(function()
 					return MarketplaceService:PromptPurchase(Players.LocalPlayer, description.AssetId)
@@ -193,7 +190,7 @@ function AvatarEditorController:_addEquippedItemTile(description: AccessoryDescr
 					warn("Failed to purchase item")	
 				end
 
-				LoadingScreenManager.hide(self.parentFrame)
+				LoadingScreenManager.hide(self.parentFrame.Parent.Parent)
 			end)
 		end,
 
@@ -219,7 +216,7 @@ function AvatarEditorController:_addClassicItemTile(assetId: number, itemType: s
 		itemId = assetId,
 		itemType = itemType,
 		buyCb = function()
-			LoadingScreenManager.show(self.parentFrame)
+			LoadingScreenManager.show(self.parentFrame.Parent.Parent)
 			task.defer(function()
 				local success = callWithRetry(function()
 					return MarketplaceService:PromptPurchase(Players.LocalPlayer, assetId)
@@ -229,7 +226,7 @@ function AvatarEditorController:_addClassicItemTile(assetId: number, itemType: s
 					warn("Failed to purchase item")	
 				end
 
-				LoadingScreenManager.hide(self.parentFrame)
+				LoadingScreenManager.hide(self.parentFrame.Parent.Parent)
 			end)
 		end,
 		removeCb = function()
