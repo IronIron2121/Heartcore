@@ -18,24 +18,13 @@ local UI_CONSTANTS      = require(Utility:WaitForChild("UI_CONSTANTS"))
 local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 local ChallengeCard     = require(Widgets:WaitForChild("ChallengeCard"))
 
---Instances
--- local centralPond               = workspace:WaitForChild("centralPond")
--- local pondModel                 = centralPond:WaitForChild("centralPond")
--- local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
--- local BillboardGui              = SubmissionBillboardHolder:WaitForChild("BillboardGui")
--- local Frame                     = BillboardGui:WaitForChild("Frame")
--- local TimeLabel                 = Frame:WaitForChild("TimeLabel")
-
 -- Fusion
 local Fusion    = require(Utility:WaitForChild("Fusion"))
 local peek      = Fusion.peek
-local scope     = Fusion:scoped()
 
 type UsedAs<T>  = Fusion.UsedAs<T> 
 local Children  = Fusion.Children
 type Value<T>   = Fusion.Value<T>
-
-local TimeText = scope:Value("Loading...")
 
 -- RemoteEvents
 local UpdateChallengeProgress   = Remotes:WaitForChild("UpdateChallengeProgress")
@@ -43,19 +32,6 @@ local ClaimChallengeReward      = Remotes:WaitForChild("ClaimChallengeReward")
 local GetActiveChallenges       = Remotes:WaitForChild("GetActiveChallenges")
 
 --
-
-local function updateTimeText(newText: string)
-    TimeText:set(newText)
-end
-
--- task.spawn(
---     function()
---         while true do
---             task.wait(1)
---             updateTimeText(TimeLabel.Text)
---         end
---     end
--- )
 
 local function DailyChallengeFrame(
     scope: Fusion.Scope

@@ -40,7 +40,10 @@ function ChallengeManager.InitialiseChallenges(player: Player)
             OutfitsSubmitted = 0,
             OutfitsVoted = 0,
             OutfitsViewed = 0,
-            VotesReceived = 0
+            VotesReceived = 0,
+            StyleFivePlus = 0,
+            PLACE_TOP_20 = 0,
+            ChallengesCompleted = 0,
         }
     end
 
@@ -48,6 +51,23 @@ function ChallengeManager.InitialiseChallenges(player: Player)
     local lastResetTime = profile.Data.LastChallengeResetTime or 0
     
     if isNewDay(lastResetTime) then
+        ChallengeManager.ResetPlayerChallenges(player)
+        return
+    end
+
+    -- Check if challenge definitions have changed (new challenges added/removed)
+    local currentDefinitions = ChallengeDefinitions.GetDailyChallengeSet()
+    local storedChallenges = profile.Data.DailyChallenges
+
+    if storedChallenges then
+        for _, def in ipairs(currentDefinitions) do
+            if not storedChallenges[def.id] then
+                print("Challenge definitions changed — resetting for", player.Name)
+                ChallengeManager.ResetPlayerChallenges(player)
+                return
+            end
+        end
+    else
         ChallengeManager.ResetPlayerChallenges(player)
     end
 end
@@ -66,9 +86,12 @@ function ChallengeManager.ResetPlayerChallenges(player: Player)
         OutfitsSubmitted = 0,
         OutfitsVoted = 0,
         OutfitsViewed = 0,
-        VotesReceived = 0
+        VotesReceived = 0,
+        StyleFivePlus = 0,
+        PLACE_TOP_20 = 0,
+        ChallengesCompleted = 0,
     }
-    
+
     -- Get all challenges and reset claim status
     local dailyChallenges = ChallengeDefinitions.GetDailyChallengeSet()
     
@@ -174,7 +197,12 @@ function ChallengeManager.ClaimReward(player: Player, challengeId: string): bool
         challengeId,
         definition.reward.exp or 0
     ))
-    
+
+    -- Increment meta-challenge tracker (skip if this IS the meta-challenge to avoid self-counting)
+    if definition.trackerKey ~= "ChallengesCompleted" then
+        ChallengeManager.IncrementTrackerStat(player, "ChallengesCompleted", 1)
+    end
+
     return true
 end
 
@@ -214,8 +242,11 @@ function ChallengeManager.SendChallengeUpdate(player: Player, challengeId: strin
 end
 
 -- Convenience functions for incrementing tracker stats
-function ChallengeManager.OnOutfitSubmitted(player: Player)
+function ChallengeManager.OnOutfitSubmitted(player: Player, numberAccessories: number)
     ChallengeManager.IncrementTrackerStat(player, "OutfitsSubmitted", 1)
+    if numberAccessories >= 5 then
+        ChallengeManager.IncrementTrackerStat(player, "StyleFivePlus", 1)
+    end
 end
 
 function ChallengeManager.OnOutfitVoted(player: Player)
@@ -228,6 +259,10 @@ end
 
 function ChallengeManager.OnVotesReceived(player: Player, amount: number)
     ChallengeManager.IncrementTrackerStat(player, "VotesReceived", amount)
+end
+
+function ChallengeManager.OnPlacedTop20(player: Player)
+    ChallengeManager.IncrementTrackerStat(player, "PLACE_TOP_20", 1)
 end
 
 return ChallengeManager

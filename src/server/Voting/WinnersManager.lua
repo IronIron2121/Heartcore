@@ -17,6 +17,7 @@ local ExpConfig = require(ReplicatedStorage.Libraries.ExpConfig)
 local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local DataManager = require(ServerScriptService.Data.DataManager)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
+local ChallengeManager = require(ServerScriptService:WaitForChild("DailyChallenges"):WaitForChild("ChallengeManager"))
 
 -- Replicated Values
 local CurrentThemeName = Values:WaitForChild("CurrentThemeName") :: StringValue
@@ -164,6 +165,19 @@ function WinnersManager.setNewWinners()
 				DataManager.AddExp(player, ExpConfig.Placements[i])
 			elseif i <= 20 then
 				DataManager.AddExp(player, ExpConfig.Rewards.TOP_20) 
+			end
+		end)
+	end
+
+	-- Increment top 20 challenge for all ranked players in the top 20
+	for i = 1, math.min(20, #rankings) do
+		local submission = rankings[i]
+		task.spawn(function()
+			local success, player = callWithRetry(function()
+				return Players:GetPlayerByUserId(submission.userId)
+			end)
+			if success and player then
+				ChallengeManager.OnPlacedTop20(player)
 			end
 		end)
 	end

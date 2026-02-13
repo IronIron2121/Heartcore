@@ -54,7 +54,7 @@ SubmitVoteRF.OnServerInvoke = function(player: Player, winnerOutfitId: string, l
 		return false
 	end
 	
-	local success = GameOutfitManager.addVote(winnerOutfitId, player.UserId)
+	local success = GameOutfitManager.addVote(player, winnerOutfitId)
 	DataManager.AddExp(player, ExpConfig.Rewards.VOTE_CAST)
 	return success
 end
