@@ -19,12 +19,12 @@ local CloseButton       = require(Widgets:WaitForChild("CloseButton"))
 local ChallengeCard     = require(Widgets:WaitForChild("ChallengeCard"))
 
 --Instances
-local centralPond               = workspace:WaitForChild("centralPond")
-local pondModel                 = centralPond:WaitForChild("centralPond")
-local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
-local BillboardGui              = SubmissionBillboardHolder:WaitForChild("BillboardGui")
-local Frame                     = BillboardGui:WaitForChild("Frame")
-local TimeLabel                 = Frame:WaitForChild("TimeLabel")
+-- local centralPond               = workspace:WaitForChild("centralPond")
+-- local pondModel                 = centralPond:WaitForChild("centralPond")
+-- local SubmissionBillboardHolder = pondModel:WaitForChild("SubmissionBillboardHolder")
+-- local BillboardGui              = SubmissionBillboardHolder:WaitForChild("BillboardGui")
+-- local Frame                     = BillboardGui:WaitForChild("Frame")
+-- local TimeLabel                 = Frame:WaitForChild("TimeLabel")
 
 -- Fusion
 local Fusion    = require(Utility:WaitForChild("Fusion"))
@@ -48,14 +48,14 @@ local function updateTimeText(newText: string)
     TimeText:set(newText)
 end
 
-task.spawn(
-    function()
-        while true do
-            task.wait(1)
-            updateTimeText(TimeLabel.Text)
-        end
-    end
-)
+-- task.spawn(
+--     function()
+--         while true do
+--             task.wait(1)
+--             updateTimeText(TimeLabel.Text)
+--         end
+--     end
+-- )
 
 local function DailyChallengeFrame(
     scope: Fusion.Scope

@@ -15,7 +15,7 @@ local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Instances
-local localPlayer = Players.LocalPlayer
+local localPlayer = Players.LocalPlayer 
 
 -- Fusion
 local Children = Fusion.Children
@@ -108,7 +108,7 @@ end
 
 local function ExpHud(scope: Fusion.Scope)
 	local rankText = scope:Computed(function(use)
-		return "(Lv. " .. use(levelFusion) .. ") " .. use(rankFusion)
+		return "Lv. " .. use(levelFusion) .. " " .. use(rankFusion)
 	end)
 
 	local playerRankLabel = scope:New "TextLabel" {
@@ -148,6 +148,19 @@ local function ExpHud(scope: Fusion.Scope)
 						name = "ExpBar"
 					})
 				}
+			},
+
+			scope:New "TextLabel" {
+				Name = "TasteMeter",
+				Size = UDim2.fromScale(0.2, 0.2),
+				Position = UDim2.fromScale(0.45,0),
+				BackgroundTransparency = 1,
+				Text = "Taste meter",
+				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+				TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+				TextStrokeColor3 = UI_CONSTANTS.COLOUR_WHITE,
+				TextStrokeTransparency = 0,
+				TextScaled = true
 			},
 
 			scope:New "Frame" {

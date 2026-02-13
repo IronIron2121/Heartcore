@@ -18,7 +18,7 @@ local Children =    Fusion.Children
 type UsedAs<T> =    Fusion.UsedAs<T>
 
 -- Instances
-local signHolder =  workspace:WaitForChild("fitCheckInfo").signHolder
+local signHolder =  workspace:WaitForChild("fitCheckPodium").fitCheckInfo.signHolder
 
 local BR = "<br></br>"
 local DOUBLE_BR = BR .. BR
@@ -30,6 +30,7 @@ local BODY_CLOSE = "</font>"
 local surfaceGui = scope:New "SurfaceGui" {
     Face = Enum.NormalId.Left,
     LightInfluence = 0,
+    Brightness = 1.5,
     Adornee = signHolder,
 
     [Children] = {
@@ -40,6 +41,8 @@ local surfaceGui = scope:New "SurfaceGui" {
             TextScaled = false,
             TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
             FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
+            TextStrokeColor3 = UI_CONSTANTS.COLOUR_WHITE,
+            TextStrokeTransparency = 0,
             RichText = true,
             Text = BOLD_OPEN .. "1. Create a fit" .. BOLD_CLOSE
                 .. BR
