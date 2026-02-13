@@ -11,7 +11,6 @@ local Remotes = repStore:WaitForChild("Remotes")
 local ResetPlayerChallenges = Remotes:WaitForChild("ResetPlayerChallenges")
 local ResetLevel = Remotes:WaitForChild("ResetLevel")
 local XPHack = Remotes:WaitForChild("XPHack")
-local RolloverSubStore = Remotes:WaitForChild("RolloverSubStore")
 
 --
 
@@ -22,8 +21,6 @@ local function onUserInputBegan(input: InputObject, gameProc: boolean)
         ResetLevel:FireServer()
     elseif input.KeyCode == Enum.KeyCode.J then
         ResetPlayerChallenges:FireServer()
-    elseif input.KeyCode == Enum.KeyCode.Z then
-        RolloverSubStore:FireServer()
     end
 end
 

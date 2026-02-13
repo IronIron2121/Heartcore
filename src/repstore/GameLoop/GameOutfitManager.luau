@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 -- Modules
 local ChallengeManager = require(ServerScriptService.DailyChallenges.ChallengeManager)
 local ExpConfig = require(ReplicatedStorage.Libraries.ExpConfig)
+local GetNumAccessoriesInHumanoidDescription = require(ReplicatedStorage.Utility.GetNumAccessoriesInHumanoidDescription)
 local ServerCustomisationService = require(ReplicatedStorage.Utility.ServerCustomisationService)
 local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local DataManager = require(ServerScriptService.Data.DataManager)
@@ -79,8 +80,9 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 		ok = true,
 		msg = "Outfit submitted successfully!"
 	})
- 
-	ChallengeManager.OnOutfitSubmitted(player)
+	
+	local numAccessories = GetNumAccessoriesInHumanoidDescription(humanoidDescription)
+	ChallengeManager.OnOutfitSubmitted(player, numAccessories)
 	DataManager.AddExp(player, ExpConfig.Rewards.OUTFIT_SUBMIT)
 	if ServerCustomisationService.getNumberOfItemsEquipped(player) > 3 then
 		DataManager.AddExp(player, ExpConfig.Rewards.OUTFIT_QUALITY_BONUS)
@@ -97,8 +99,9 @@ function GameOutfitManager.getOutfit(outfitId: string): Outfit?
 	return outfits[outfitId]
 end
 
-function GameOutfitManager.addVote(outfitId: string, voterUserId: number): boolean
+function GameOutfitManager.addVote(player: Player, outfitId: string): boolean
 	local outfit = outfits[outfitId]
+	local voterUserId = player.UserId
 	if not outfit then
 		return false
 	end
@@ -116,15 +119,8 @@ function GameOutfitManager.addVote(outfitId: string, voterUserId: number): boole
 
 	-- Award XP asynchronously
 	task.spawn(function()
-		local success, votedPlayer = callWithRetry(
-			function()
-				return Players:GetPlayerByUserId(outfit.userId)
-			end
-		)
-
-		if success and votedPlayer then
-			DataManager.AddExp(votedPlayer, ExpConfig.Rewards.VOTE_RECEIVED)
-		end
+		DataManager.AddExp(player, ExpConfig.Rewards.VOTE_RECEIVED)
+		ChallengeManager.OnOutfitVoted(player)
 	end)
 
 	return true

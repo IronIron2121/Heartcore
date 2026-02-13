@@ -42,7 +42,7 @@ aftman install
 - `GameStateManager` (`src/repstore/GameLoop/`) — State machine, timer, theme selection
 - `GameOutfitManager` (`src/repstore/GameLoop/`) — Outfit submissions, vote/view tracking
 - `WinnersManager` (`src/server/Voting/`) — Podium models, leaderboard
-- `DataManager` (`src/server/Data/`) — Player XP, levels, ranks via ProfileService
+- `DataManager` (`src/server/Data/`) — Player XP, levels, ranks via ProfileService; also handles billboard display updates (level/rank text above player heads)
 - `Inspector` (`src/client/Mannequins/Inspector/`) — Mannequin/player inspection with loading state
 - `LoadingScreenManager` (`src/repstore/Libraries/`) — Centralized loading screen management
 - `ClientOutfitService` (`src/repstore/Utility/`) — Client-side outfit save/delete operations
@@ -69,8 +69,12 @@ aftman install
 - Manages HUD layouts with 5 slots: TopMiddle, TopRight, BottomLeft, BottomMiddle, BottomRight
 - Each slot is a Frame with position animated via Fusion Tweens (slides in/out)
 - Elements are reparented into slots on `Enable()` — Roblox instances can only have one parent, so shared elements (e.g. buttons HUD) are reparented between configurations rather than duplicated
-- `GuiConfiguration.new(scope, props)` accepts slot elements and position overrides
-- `Enable()` / `Disable()` toggle visibility via an `Enabled` Fusion Value
+- `GuiConfiguration.new(props)` accepts SlotInfo tables: `{ Object: Frame, AlwaysOn: boolean }`
+- Two independent visibility states:
+  - `Enabled` — is this the active configuration? Controlled by `Enable()` / `Disable()` during config switches
+  - `ModalVisible` — is the config hidden because a modal is open? Controlled by `HideForModal()` / `ShowFromModal()`
+- `AlwaysOn = true` means the slot stays visible when a modal opens (ignores `ModalVisible`), but still hides on config switch (respects `Enabled`)
+- Non-AlwaysOn slots require both `Enabled` and `ModalVisible` to be true
 
 **LoadingScreenManager** (`src/repstore/Libraries/LoadingScreenManager.luau`):
 - Centralized loading screen management — avoids repeating LoadingScreen boilerplate across components
@@ -108,6 +112,28 @@ end
 - Tiered XP curve (L1-10: 250xp, L11-20: 400xp, ..., L91-100: 1200xp)
 - Total XP to max level: 68,500
 - Rewards: Submit=1xp, Vote=0.1xp, Placements: 1st=10xp, 2nd=5xp, 3rd=3xp
+
+### Daily Challenge System
+
+**Modules:**
+- `ChallengeDefinitions` (`src/server/DailyChallenges/`) — Challenge definitions with tracker keys, targets, rewards
+- `ChallengeManager` (`src/server/DailyChallenges/`) — Initialization, progress tracking, reward claiming
+- `ChallengeServer` (`src/server/DailyChallenges/`) — Remote routing for client requests
+
+**How it works:**
+- Each challenge has a `trackerKey` (e.g. `"OutfitsSubmitted"`, `"OutfitsVoted"`) that maps to a field in `profile.Data.ChallengeProgressTracker`
+- Game systems call convenience functions (e.g. `ChallengeManager.OnOutfitSubmitted(player, numAccessories)`) which increment the tracker
+- `IncrementTrackerStat` auto-notifies the client of progress changes for any challenge using that tracker key
+- Players claim completed challenges via `ClaimReward`, which awards EXP and marks the challenge as claimed
+- Challenges reset daily (checked on player join via `isNewDay`)
+
+**Adding a new challenge:**
+1. Add the definition to `ChallengeDefinitions.ALL_CHALLENGES` with a unique `id`, `trackerKey`, and `targetAmount`
+2. Add the `trackerKey` to both tracker initialization tables in `ChallengeManager` (in `InitialiseChallenges` and `ResetPlayerChallenges`)
+3. Add a convenience function or call `IncrementTrackerStat(player, trackerKey, amount)` from the relevant game system
+4. If the challenge type is new, add it to the `ChallengeType` union type
+
+**Meta-challenges:** The `COMPLETE_3_CHALLENGES` challenge uses `ChallengesCompleted` tracker, which is incremented in `ClaimReward` whenever any non-meta challenge is claimed.
 
 ## Code Style & Conventions
 
