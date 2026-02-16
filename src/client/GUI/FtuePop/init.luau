@@ -29,8 +29,8 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local function FtuePop(scope: Fusion.Scope)
     local closeButton, toggled = CloseButton(scope, {
         onClick = function()
-            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
             GuiManager.PopCentre()
+            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
         end,
         position = UDim2.fromScale(1, 0),
         anchorPoint = Vector2.new(1,0)
