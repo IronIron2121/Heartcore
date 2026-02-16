@@ -15,6 +15,7 @@ local UI_CONSTANTS 	= require(Utility:WaitForChild("UI_CONSTANTS"))
 local ImageUris 	= require(DataTables:WaitForChild("ImageUris"))
 local Fusion 		= require(Utility:WaitForChild("Fusion"))
 local Constants 	= require(ReplicatedStorage.Constants)
+local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 
 -- Fusion
 type UsedAs<T>	= Fusion.UsedAs<T>
@@ -51,7 +52,15 @@ function EquippedClassicItemButton(
 	local isDefaultItem = scope:Value(table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, props.itemId))
 
 	-- Get product info
-	local productInfo = MarketplaceService:GetProductInfo(props.itemId, Enum.InfoType.Asset)
+	local success, productInfo = callWithRetry(function()
+		return MarketplaceService:GetProductInfo(props.itemId, Enum.InfoType.Asset)
+	end)
+
+	if not success then
+		return scope:New "Frame" {
+
+		} :: Frame
+	end
 
 	-- State management
 	local Toggled = scope:Value(false)

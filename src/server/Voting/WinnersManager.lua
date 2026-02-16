@@ -98,6 +98,8 @@ function WinnersManager.updatePodiums(winners: { GameOutfitManager.Outfit })
 		local rig = podiumRigs[index]
 		if not rig then continue end
 
+		rig:SetAttribute("outfitId", outfit.outfitId)
+
 		local success = pcall(function()
 			rig:ScaleTo(1)
 			rig.Humanoid:ApplyDescriptionResetAsync(outfit.humanoidDescription)

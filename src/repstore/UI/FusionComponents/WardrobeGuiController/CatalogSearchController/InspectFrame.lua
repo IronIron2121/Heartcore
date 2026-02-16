@@ -2,7 +2,6 @@
 -- InspectFrame.lua
 
 -- Services
-local AvatarEditorService = game:GetService("AvatarEditorService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 

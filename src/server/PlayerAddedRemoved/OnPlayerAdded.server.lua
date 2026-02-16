@@ -25,6 +25,7 @@ local BuyableShopItems			= require(DataTables:WaitForChild("BuyableShopItems"))
 local PlayerTracker 			= require(Trackers:WaitForChild("PlayerTracker"))
 local PlayerDetails 			= require(Classes:WaitForChild("PlayerDetails"))
 ]]
+
 local DataManager 				= require(Data:WaitForChild("DataManager"))
 
 -- Datastores

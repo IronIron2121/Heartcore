@@ -3,21 +3,25 @@
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
-local Players = game:GetService("Players")
+
+-- Folders
+local DailyChallenges = ServerScriptService:WaitForChild("DailyChallenges")
+local Libraries = ReplicatedStorage:WaitForChild("Libraries")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
+local Data = ServerScriptService:WaitForChild("Data")
 
 -- Modules
-local ChallengeManager = require(ServerScriptService.DailyChallenges.ChallengeManager)
-local ExpConfig = require(ReplicatedStorage.Libraries.ExpConfig)
-local GetNumAccessoriesInHumanoidDescription = require(ReplicatedStorage.Utility.GetNumAccessoriesInHumanoidDescription)
-local ServerCustomisationService = require(ReplicatedStorage.Utility.ServerCustomisationService)
-local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
-local DataManager = require(ServerScriptService.Data.DataManager)
+local GetNumAccessoriesInHumanoidDescription = require(Utility.GetNumAccessoriesInHumanoidDescription)
+local ServerCustomisationService = require(Utility.ServerCustomisationService)
+local ChallengeManager = require(DailyChallenges.ChallengeManager)
+local ExpConfig = require(Libraries.ExpConfig)
+local DataManager = require(Data.DataManager)
 
 -- Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 local SubmissionResultRE = Remotes:FindFirstChild("SubmissionResultRE") or Instance.new("RemoteEvent")
-SubmissionResultRE.Name = "SubmissionResultRE"
+SubmissionResultRE.Name = "SubmissionResultRE" 
 SubmissionResultRE.Parent = Remotes
 
 local CanSubmitRF = Remotes:FindFirstChild("CanSubmitRF") or Instance.new("RemoteFunction")

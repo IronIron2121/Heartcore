@@ -13,11 +13,13 @@ local FusionComponents  = UI:WaitForChild("FusionComponents")
 local Widgets           = FusionComponents:WaitForChild("Widgets")
 local Libraries         = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
+local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
 
 -- GUI
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Constants = require(ReplicatedStorage.Constants)
 local getHumanoidDescriptionFromPlayer = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromPlayer)
+local getHumanoidDescriptionFromRig = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromRig)
 local Inspector = require(StarterPlayer.StarterPlayerScripts.Mannequins.Inspector)
 local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButtonTransparent)
 local LoadingScreenManager = require(Libraries:WaitForChild("LoadingScreenManager"))
@@ -31,6 +33,7 @@ local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion                = require(Utility:WaitForChild("Fusion"))
 local GuiManager            = require(GuiManagerLibrary:WaitForChild("GuiManager"))
 
+
 -- Fusion Modules
 local peek = Fusion.peek
 local Children = Fusion.Children
@@ -39,6 +42,10 @@ type Value<T> = Fusion.Value<T>
 
 -- Constants
 local buttonSize = UDim2.fromScale(0.8, 0.1)
+
+-- Remotes
+local PlayerRequestedOutfitRF = Remotes:WaitForChild("PlayerRequestedOutfitRF")
+
 
 -- Constants
 local DEFAULT_NAME = " "
@@ -81,45 +88,109 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     } :: Frame
 
     -- Functions
-    local function onFrameOpened(player: Player)
+    local function onFrameOpened(props: {player: Player?, rig: Model?})
         LoadingScreenManager.show(clickedPlayerContainer)
-        warn(player)
-        warn(player.UserId)
+        warn("Pushed frame")
 
-        task.spawn(function()
-            inspectPlayer:set(player)
-            -- Update the name tag
-            inspectName:set(player.Name)
-            -- Update the thumbnail
-            local success, newThumbnail = callWithRetry(function()  
-                return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
-            end)
-            inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
-            -- Update the description
-            local descSuccess, humDesc = callWithRetry(function()
-                warn("Getting hum desc")
-                return getHumanoidDescriptionFromPlayer(player)
-            end)
-            warn(descSuccess, humDesc)
-            if descSuccess then 
-                inspectDescription:set(humDesc) 
-            end
-            -- Get and set the new avatar
-            local modelSuccess, newModel = callWithRetry(
-                function()  
-                    warn("creating model", peek(inspectDescription), inspectDescription, peek(inspectDescription):GetChildren())
-                    return Players:CreateHumanoidModelFromDescriptionAsync(peek(inspectDescription), Enum.HumanoidRigType.R15)
+        if props.player then
+            local player = props.player
+            task.spawn(function()
+                inspectPlayer:set(player)
+
+                -- Update the name tag
+                inspectName:set(player.Name)
+
+                -- Update the thumbnail
+                local success, newThumbnail = callWithRetry(function()  
+                    return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
+                end)
+                inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
+
+                -- Update the description
+                local descSuccess, humDesc = callWithRetry(function()
+                    return getHumanoidDescriptionFromPlayer(player)
+                end)
+
+                if descSuccess then 
+                    inspectDescription:set(humDesc) 
                 end
-            )
-            if modelSuccess then
-                inspectModel:set(newModel)
-            else
-                inspectModel:set(DEFAULT_MODEL)
-                warn("Failed to get humanoid model!", modelSuccess, newModel)
-            end
 
-            LoadingScreenManager.hide(clickedPlayerContainer)
-        end)
+                -- Get and set the new avatar
+                local modelSuccess, newModel = callWithRetry(
+                    function()  
+                        return Players:CreateHumanoidModelFromDescriptionAsync(peek(inspectDescription), Enum.HumanoidRigType.R15)
+                    end
+                )
+                if modelSuccess then
+                    inspectModel:set(newModel)
+                else
+                    inspectModel:set(DEFAULT_MODEL)
+                    warn("Failed to get humanoid model!", modelSuccess, newModel)
+                end
+
+                LoadingScreenManager.hide(clickedPlayerContainer)
+            end)
+        elseif props.rig then
+            local rig = props.rig
+            task.spawn(function()
+                local outfitId = rig:GetAttribute("outfitId") :: string?
+
+                if not outfitId then
+                    warn("No outfit ID!")
+                    return
+                end
+
+
+                local success, outfit = callWithRetry(function()  
+                    return PlayerRequestedOutfitRF:InvokeServer(outfitId)
+                end)
+
+                if not success or not outfit then 
+                    warn("No current outfit!")
+                    return 
+                end
+                
+                local player = Players:GetPlayerByUserId(outfit.userId)
+                inspectPlayer:set(player)
+
+                -- Update the name tag
+                inspectName:set(player.Name)
+
+                -- Update the thumbnail
+                local success, newThumbnail = callWithRetry(function()  
+                    return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
+                end)
+
+                inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
+
+                -- Update the description
+                local descSuccess, humDesc = callWithRetry(function()
+                    return getHumanoidDescriptionFromRig(rig)
+                end)
+
+                if descSuccess then 
+                    warn("got desc")
+                    warn(humDesc:GetChildren())
+                    inspectDescription:set(humDesc) 
+                end
+
+                -- Get and set the new avatar
+                local modelSuccess, newModel = callWithRetry(
+                    function()  
+                        return Players:CreateHumanoidModelFromDescriptionAsync(peek(inspectDescription), Enum.HumanoidRigType.R15)
+                    end
+                )
+                if modelSuccess then
+                    inspectModel:set(newModel)
+                else
+                    inspectModel:set(DEFAULT_MODEL)
+                    warn("Failed to get humanoid model!", modelSuccess, newModel)
+                end
+
+                LoadingScreenManager.hide(clickedPlayerContainer)
+            end)
+            
+        end
     end 
 
     local function onFrameClosed()
@@ -303,7 +374,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         layoutOrder = 2,
                                         size = buttonSize,
                                         onActivated = function()
-                                            Inspector.inspectPlayer(peek(inspectPlayer))
+                                            Inspector.inspectDescription(peek(inspectDescription))
                                         end
                                     }),
 

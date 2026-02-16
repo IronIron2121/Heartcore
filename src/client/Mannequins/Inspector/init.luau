@@ -113,6 +113,76 @@ function Inspector.inspectMannequin(mannequin: Model)
 	end)
 end
 
+function Inspector.inspectDescription(description: HumanoidDescription)
+	if isLoading then
+		return
+	end
+	isLoading = true
+
+	inspectingItems:set({})
+	isLoadingVisible:set(true)
+
+	-- Show GUI immediately
+	WardrobeGuiState.ChangeCurrentView(Constants.WARDROBE_GUI_STATES.InspectFrame)
+	GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
+
+	task.spawn(function()
+		local newItems = {}
+
+		-- Collect current asset IDs from descriptions
+		for _, desc in description:GetChildren() do
+			if (desc:IsA("AccessoryDescription") or desc:IsA("BodyPartDescription")) and desc.AssetId ~= 0 then
+				local accSuccess, itemDetails = nil, detailsCache[desc.AssetId]
+				if not itemDetails then
+					accSuccess, itemDetails = callWithRetry(
+						function()
+							return AvatarEditorService:GetItemDetailsAsync(desc.AssetId, Enum.AvatarItemType.Asset)
+						end
+					)
+					if not accSuccess then
+						return
+					else
+						detailsCache[desc.AssetId] = itemDetails
+					end
+				end
+				table.insert(newItems, {
+					id = desc.AssetId,
+					type = Enum.MarketplaceProductType.AvatarAsset,
+					itemDetails = itemDetails
+				})
+			end
+		end
+
+		-- Collect classic items
+		for _, itemType in Constants.CLASSIC_ITEMS do
+			local assetId = description[itemType]
+			if assetId and assetId ~= 0 then
+				local accSuccess, itemDetails = nil, detailsCache[assetId]
+				if not itemDetails then
+					accSuccess, itemDetails = callWithRetry(
+						function()
+							return AvatarEditorService:GetItemDetailsAsync(assetId, Enum.AvatarItemType.Asset)
+						end
+					)
+					if not accSuccess then
+						return
+					else
+						detailsCache[assetId] = itemDetails
+					end
+				end
+				table.insert(newItems, {
+					id = assetId,
+					type = Enum.MarketplaceProductType.AvatarAsset
+				})
+			end
+		end
+
+		inspectingItems:set(newItems)
+		isLoadingVisible:set(false)
+		isLoading = false
+	end)
+end
+
 function Inspector.inspectPlayer(player: Player)
 	if isLoading then
 		return

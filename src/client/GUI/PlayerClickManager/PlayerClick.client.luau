@@ -1,6 +1,7 @@
 --!strict
 
 -- Services
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
@@ -32,6 +33,8 @@ local CentreActive = GuiManager.GetCentreActiveValue()
 
 --
 
+warn("Top of the morning")
+
 local function addClickDetector(player: Player, character: Model?)
     character = character or player.Character or player.CharacterAdded:Wait()
     if character and character:FindFirstChild(CLICK_DETECTOR_NAME) then
@@ -50,17 +53,40 @@ local function addClickDetector(player: Player, character: Model?)
         end,
 
         [OnEvent "MouseHoverEnter"] = function()
-            warn("Enter")
             hoverHighlight.Adornee = character
         end,
 
         [OnEvent "MouseHoverLeave"] = function()
-            warn("Exit")
             hoverHighlight.Adornee = nil
         end
     } :: ClickDetector
 
     clickDetector.Parent = character
+end
+
+local function addClickDetectorToWinnerRig(rig: Model)
+    warn("Adding to winner rig ", rig)
+    local activationDistanceComp = clickScope:Computed(function(use)
+        return use(CentreActive) and 0 or 20
+    end)
+    
+    local clickDetector = clickScope:New "ClickDetector" {
+        MaxActivationDistance = activationDistanceComp,
+
+        [OnEvent "MouseClick"] = function()
+            GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI, {player = nil, rig = rig})
+        end,
+
+        [OnEvent "MouseHoverEnter"] = function()
+            hoverHighlight.Adornee = rig
+        end,
+
+        [OnEvent "MouseHoverLeave"] = function()
+            hoverHighlight.Adornee = nil
+        end
+    } :: ClickDetector
+
+    clickDetector.Parent = rig
 end
 
 -- Add click detectors to all players in game when local player joins
@@ -87,3 +113,19 @@ Players.PlayerAdded:Connect(function(player)
         addClickDetector(player, player.Character)
     end
 end)
+
+CollectionService:GetInstanceAddedSignal("WinnerRig"):Connect(function(rig: Model) 
+    addClickDetectorToWinnerRig(rig)
+end)
+
+local function initWinnerRigs()
+    warn("init")
+    local winnerRigs = CollectionService:GetTagged("WinnerRig")
+    warn(winnerRigs)
+    for _, rig in winnerRigs do
+        addClickDetectorToWinnerRig(rig)
+    end
+
+end
+
+initWinnerRigs() 
