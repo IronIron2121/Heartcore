@@ -41,7 +41,7 @@ function EquippedItemsPanel(
 				
 				[Children] = {
 					BaseButton(scope, {
-						text = "Remove All Accessories",
+						text = "Remove All Clothing",
 						size = UDim2.fromScale(0.8, 0.8),
 						onActivated = function()
 							props.onAccessoriesRemovedCb()
