@@ -95,7 +95,6 @@ props: {
 	popLoad: () -> ()?,
 	onTryCb: () -> ()?
 })
-	warn(props)
 	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return end
 	
 	local isHovering = scope:Value(false)
@@ -270,7 +269,6 @@ props: {
 									if props.onTryCb then
 										props.onTryCb()
 									end
-									-- Loop animation on the thingy
 									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType or "", props.itemDetails.ItemType)
 								end
 							}), 

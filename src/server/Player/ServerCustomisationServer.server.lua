@@ -71,7 +71,7 @@ local function playerRemovedAllAccessories(player: Player)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true)
 	ServerCustomisationService.RemoveAllAccessoriesFromPlayer(player)
-	setPlayerEquipping(player, false)
+setPlayerEquipping(player, false)
 end
 
 local function playerEquippedItem(player: Player, itemId: number, assetType: string, itemType: string)
@@ -105,6 +105,7 @@ local function playerEquippedInspectedItems(player: Player, items: {id: number, 
 	if isPlayerEquipping(player) then
 		return
 	end
+	
 	setPlayerEquipping(player, true)
 
 	local mappedItems = {}

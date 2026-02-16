@@ -136,7 +136,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                 local outfitId = rig:GetAttribute("outfitId") :: string?
 
                 if not outfitId then
-                    warn("No outfit ID!")
+                warn("No outfit ID!")
                     LoadingScreenManager.hide(clickedPlayerContainer)
                     return
                 else
@@ -402,6 +402,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                                 "SaveOutfit", 
                                                 "Are you sure you want to save this outfit?", 
                                                 function()  
+                                                    if not peek(inspectPlayer) then return end
                                                     ClientOutfitService.SaveInspectedPlayerOutfit(peek(inspectPlayer))
                                                     GuiManager.PopCentre()
                                                 end
@@ -424,6 +425,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         layoutOrder = 5,
                                         size = buttonSize,
                                         onActivated = function()
+                                            if not peek(inspectPlayer) then return end
                                             StarterGui:SetCore("PromptSendFriendRequest", peek(inspectPlayer))
                                         end
                                     }),

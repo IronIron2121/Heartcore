@@ -69,12 +69,29 @@ function ServerCustomisationService.applyDescription(player: Player, description
 	end)
 	]]
 
-	humanoid:ApplyDescription(description)
+	local items = description:GetChildren()
+	for _, item in ipairs(items) do
+		if item:IsA("AccessoryDescription") then
+			warn(item.AccessoryType)
+			warn(item.AssetId)
+		end
+	end
 
-	-- For some reason, 2d clothing doesn't update locally unless something is added to the character
-	local refresher = Instance.new("Pants", humanoid.Parent)
-	refresher:Destroy()
-	description:Destroy()
+	warn("faceacc", description.FaceAccessory)
+	warn("face", description.Face)
+	local success, err = callWithRetry(function()
+		return humanoid:ApplyDescription(description)
+	end)
+
+	if success then
+		-- For some reason, 2d clothing doesn't update locally unless something is added to the character
+		local refresher = Instance.new("Pants", humanoid.Parent)
+		refresher:Destroy()
+		description:Destroy()
+	else
+		warn(err)
+		return false
+	end
 
 	return true
 end
@@ -416,6 +433,8 @@ function ServerCustomisationService.AddClassicClothingToAvatar(player: Player, i
 		clonedDescription.Shirt = itemId 
 	elseif assetType == "Pants" then 
 		clonedDescription.Pants = itemId
+	elseif assetType == "Face" then 
+		clonedDescription.Face = itemId
 	end
 
 	ServerCustomisationService.applyDescription(player, clonedDescription)
@@ -495,6 +514,8 @@ function ServerCustomisationService.ApplyInspectedItemsToPlayer(
 				clonedDescription.Shirt = item.itemId
 			elseif item.assetOrBundleType == "Pants" then
 				clonedDescription.Pants = item.itemId
+			elseif item.assetOrBundleType == "Face" then
+				clonedDescription.Face = item.itemId
 			end
 
 		elseif item.itemType == "Asset" and item.assetOrBundleType == Constants.EMOTE_ASSET_TYPE then
@@ -509,6 +530,7 @@ function ServerCustomisationService.ApplyInspectedItemsToPlayer(
 					desc:Destroy()
 				end
 			end
+
 			bodyPartDescription.AssetId = item.itemId
 			bodyPartDescription.BodyPart = bodyPartEnum
 			bodyPartDescription.Parent = clonedDescription
@@ -520,7 +542,7 @@ function ServerCustomisationService.ApplyInspectedItemsToPlayer(
 			accessoryDescription.IsLayered = true
 			accessoryDescription.Order = ACCESSORY_TYPE_ORDER[accessoryDescription.AccessoryType] or DEFAULT_ACCESSORY_ORDER
 			accessoryDescription.Parent = clonedDescription
-
+			
 		elseif item.itemType == "Bundle" then
 			table.insert(bundleItems, item)
 		end
@@ -558,12 +580,14 @@ function ServerCustomisationService.AddItemsToAvatar(
 				clonedDescription.Shirt = item.itemId
 			elseif item.assetOrBundleType == "Pants" then
 				clonedDescription.Pants = item.itemId
+			elseif item.assetOrBundleType == "Face" then
+				clonedDescription.Face = item.itemId
 			end
 
 		elseif item.itemType == "Asset" and item.assetOrBundleType == Constants.EMOTE_ASSET_TYPE then
 			table.insert(emoteIds, item.itemId)
 
-		elseif item.itemType == "Asset" and Enum.BodyPart:FromName(item.assetOrBundleType) then
+		elseif item.itemType == "Asset" and Enum.BodyPart:FromName(item.assetOrBundleType) and item.assetOrBundleType ~= "Face" then
 			local bodyPartEnum = Enum.BodyPart[item.assetOrBundleType]
 			local bodyPartDescription = Instance.new("BodyPartDescription")
 			for _, desc in ipairs(clonedDescription:GetChildren()) do
@@ -576,7 +600,7 @@ function ServerCustomisationService.AddItemsToAvatar(
 			bodyPartDescription.BodyPart = bodyPartEnum
 			bodyPartDescription.Parent = clonedDescription
 
-		elseif item.itemType == "Asset" then
+		elseif item.itemType == "Asset" and item.assetOrBundleType ~= "Face" then
 			local accessoryDescription = Instance.new("AccessoryDescription")
 			accessoryDescription.AssetId = item.itemId
 			accessoryDescription.AccessoryType = Enum.AccessoryType[GetAccessoryTypeFromAssetType(item.assetOrBundleType)]
