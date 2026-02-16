@@ -21,6 +21,7 @@ local GameState = StarterPlayerScripts.GameState
 
 -- Modules
 local FtuePop = require(StarterPlayer.StarterPlayerScripts.GUI.FtuePop)
+local PlayerDisplayManager = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
 local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
 local PlayerSubmissionState = require(GameState.PlayerSubmissionState)
 local Fusion = require(FusionUtility)
@@ -294,7 +295,6 @@ local function initialiseGuiManager()
     InitialiseHuds()
     GuiManager.SetLoaded()
     GuiManager.PushCentreByName(MODAL_NAMES.FTUE_GUI)
-
 end
 
 initialiseGuiManager()

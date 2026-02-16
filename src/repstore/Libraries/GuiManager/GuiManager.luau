@@ -10,6 +10,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Lighting          = game:GetService("Lighting")
 local Players           = game:GetService("Players")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
 local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
@@ -19,6 +20,7 @@ local Widgets       = UI.FusionComponents.Widgets
 local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Modules
+local PlayerDisplayManager = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
 local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Types         = require(Utility.Types)
@@ -405,6 +407,8 @@ function GuiManager.PushCentreByName(modalName: string, params: any?): ()
     end 
 
     modalStack:set(currentModals)
+    PlayerDisplayManager.HideAllDisplays()
+
 end
 
 function GuiManager.PopCentre(guiObject: GuiObject?): ()
@@ -434,6 +438,7 @@ function GuiManager.PopCentre(guiObject: GuiObject?): ()
     end
 
     modalStack:set(modals)
+    PlayerDisplayManager.ShowAllDisplays()
 end
 
 return GuiManager

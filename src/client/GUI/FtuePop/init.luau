@@ -14,6 +14,7 @@ local localPlayer = Players.LocalPlayer
 local PlayerGui = localPlayer:WaitForChild("PlayerGui")
 
 -- Modules
+local PlayerDisplayManager = require(script.Parent.PlayerDisplayManager)
 local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
 local CONFIGURATION_NAMES = require(ReplicatedStorage.Libraries.GuiManager.CONFIGURATION_NAMES)
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
@@ -21,7 +22,6 @@ local CloseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.CloseB
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
 -- Fusion Modules
-local scope = Fusion:scoped()
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
