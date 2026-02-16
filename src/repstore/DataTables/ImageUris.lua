@@ -26,7 +26,8 @@ local assets = {
 	ExitFitCheck = "109235442991718",
 	Submit = "119739436734284",
 	Vote = "85654210815705",
-	TopBarBG = "78848001203719"
+	TopBarBG = "78848001203719",
+	TastemakerLogo = "95945400211645"
 }
 
 setmetatable(ImageUris, {
