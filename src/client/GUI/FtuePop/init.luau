@@ -1,8 +1,8 @@
 --!strict
 
 -- Services
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
+local ReplicatedStorage     = game:GetService("ReplicatedStorage")
+local Players               = game:GetService("Players")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -14,12 +14,14 @@ local localPlayer = Players.LocalPlayer
 local PlayerGui = localPlayer:WaitForChild("PlayerGui")
 
 -- Modules
-local PlayerDisplayManager = require(script.Parent.PlayerDisplayManager)
-local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
-local CONFIGURATION_NAMES = require(ReplicatedStorage.Libraries.GuiManager.CONFIGURATION_NAMES)
-local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
-local CloseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.CloseButton)
-local Fusion = require(Utility:WaitForChild("Fusion"))
+local PlayerDisplayManager  = require(script.Parent.PlayerDisplayManager)
+local ImageUris             = require(ReplicatedStorage.DataTables.ImageUris)
+local CONFIGURATION_NAMES   = require(ReplicatedStorage.Libraries.GuiManager.CONFIGURATION_NAMES)
+local GuiManager            = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
+local CloseButton           = require(ReplicatedStorage.UI.FusionComponents.Widgets.CloseButton)
+local Fusion                = require(Utility:WaitForChild("Fusion"))
+local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
+
 
 -- Fusion Modules
 local Children = Fusion.Children
@@ -39,7 +41,7 @@ local function FtuePop(scope: Fusion.Scope)
 
     local ftuePop = scope:New "Frame" {
         Name = "FtuePop",
-        Size = UDim2.fromScale(0.3,0.7),
+        Size = UDim2.fromScale(0.5,0.9),
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.fromScale(0.5, 0.5),
         BackgroundTransparency = 0.3,
@@ -48,6 +50,11 @@ local function FtuePop(scope: Fusion.Scope)
             closeButton,
             scope: New "UICorner" {
                 CornerRadius = UDim.new(0.1,0)
+            },
+            scope:New "UIStroke" {
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Thickness = 3,
+                Color = UI_CONSTANTS.TASTEMAKER_PURPLE
             },
             scope:New "Frame"{
                 Name = "TopBar",
@@ -58,7 +65,7 @@ local function FtuePop(scope: Fusion.Scope)
                     scope:New "ImageLabel" {
                         Name = "Logo",
                         AnchorPoint = Vector2.new(0.5,0.5),
-                        Size = UDim2.fromScale(1,1),
+                        Size = UDim2.fromScale(1,1.5),
                         Position = UDim2.fromScale(0.5,0.5),
                         Image = ImageUris.TastemakerLogo,
                         BackgroundTransparency = 1,
@@ -76,6 +83,57 @@ local function FtuePop(scope: Fusion.Scope)
                 Size = UDim2.fromScale(1,0.8),
                 Position = UDim2.fromScale(0,0.2),
                 BackgroundTransparency = 1,
+
+                [Children] = {
+                    scope:New "TextLabel" {
+                        Name = "Header",
+                        Size = UDim2.fromScale(1,0.1),
+                        BackgroundTransparency = 1,
+                        Text = "Welcome to the Tastemaker Alpha Test!",
+                        TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
+                        TextScaled = true,
+                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
+
+                        [Children] = {
+                            scope:New "UIStroke" {
+                                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+                                Thickness = 3,
+                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE
+                            },
+                            scope:New "UIPadding" {
+                                PaddingTop = UDim.new(0.1, 0),
+                                PaddingBottom = UDim.new(0.1, 0),
+                                PaddingLeft = UDim.new(0.1, 0),
+                                PaddingRight = UDim.new(0.1, 0),
+                            }
+                        }
+                    },
+                    scope:New "TextLabel" {
+                        Name = "Body",
+                        Size = UDim2.fromScale(1,0.9),
+                        Position = UDim2.fromScale(0,0.1),
+                        BackgroundTransparency = 1,
+                        RichText = true,
+                        Text = "Thank you so much for taking part! Below are some tips on how to play:<br></br><br>- Explore the island and discover official music merch and trending UGC</br><br>- Style and save outfits to show your friends</br><br>- Compete in the Fit Check minigame and climb the Tastemaker ranks</br><br></br><br>Have fun! And don't forget to report any bugs/issues/ideas to us!</br>",
+                        TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
+                        TextScaled = true,
+                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
+
+                        [Children] = {
+                            scope:New "UIStroke" {
+                                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+                                Thickness = 2,
+                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE
+                            },
+                            scope:New "UIPadding" {
+                                PaddingTop = UDim.new(0.02, 0),
+                                PaddingBottom = UDim.new(0.1, 0),
+                                PaddingLeft = UDim.new(0.2, 0),
+                                PaddingRight = UDim.new(0.2, 0),
+                            }
+                        }
+                    }
+                }
             }
         }
 
