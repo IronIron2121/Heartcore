@@ -37,7 +37,7 @@ local DataManager 				= require(Data:WaitForChild("DataManager"))
 local function onCharacterAdded(player: Player, character: Model)
 	warn("On character added!")
 	local humanoid 		= character:WaitForChild("Humanoid") :: Humanoid
-	humanoid.WalkSpeed 	= 32
+	humanoid.WalkSpeed 	= 40
 
 	DataManager.AddRankDisplayToCharacter(player, character)
 end
