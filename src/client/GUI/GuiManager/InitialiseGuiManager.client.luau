@@ -251,9 +251,19 @@ local function InitialiseHuds()
         bottomRight = { Object = GameOptionsFrame2, AlwaysOn = false },
     })
 
+    local FtueConfig = GuiConfiguration.new({
+        ConfigurationName = CONFIGURATION_NAMES.FtueConfig,
+        topMiddle = nil,
+        topRight = nil,
+        bottomLeft = nil,
+        bottomMiddle = nil,
+        bottomRight = nil,
+    })
+
     GuiManager.RegisterConfiguration(GameLoopConfig)
     GuiManager.RegisterConfiguration(ShoppingConfig) 
-    GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.ShoppingConfig)
+    GuiManager.RegisterConfiguration(FtueConfig) 
+    GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.FtueConfig)
 end
 
 local function InitialiseModals()
