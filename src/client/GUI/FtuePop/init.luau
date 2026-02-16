@@ -114,17 +114,25 @@ local function FtuePop(scope: Fusion.Scope)
                         Position = UDim2.fromScale(0,0.1),
                         BackgroundTransparency = 1,
                         RichText = true,
-                        Text = "Thank you so much for taking part! Below are some tips on how to play:<br></br><br>- Explore the island and discover official music merch and trending UGC</br><br>- Style and save outfits to show your friends</br><br>- Compete in the Fit Check minigame and climb the Tastemaker ranks</br><br></br><br>Have fun! And don't forget to report any bugs/issues/ideas to us!</br>",
-                        TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
+                        Text = "<font color='#FFFFFF'><stroke color='#5B60D6' thickness='2' transparency='0' joins='round'>Thank you so much for taking part! Below are some tips on how to play:</stroke></font>" ..
+                                "<br /><br />" ..
+                                "<font color='#FFFFFF'><stroke color='#5B60D6' thickness='2' transparency='0' joins='round'>- </stroke></font><font color='#5B60D6'>Explore the island</font><font color='#FFFFFF'><stroke color='#5B60D6' thickness='2' transparency='0' joins='round'> and discover official music merch and trending UGC</stroke></font>" ..
+                                "<br />" ..
+                                "<font color='#FFFFFF'><stroke color='#5B60D6' thickness='2' transparency='0' joins='round'>- </stroke></font><font color='#5B60D6'>Style and save</font><font color='#FFFFFF'><stroke color='#5B60D6' thickness='2' transparency='0' joins='round'> outfits to show your friends</stroke></font>" ..
+                                "<br />" ..
+                                "<font color='#FFFFFF'><stroke color='#5B60D6' thickness='2' transparency='0' joins='round'>- Compete in the </stroke></font><font color='#5B60D6'>Fit Check minigame</font><font color='#FFFFFF'><stroke color='#5B60D6' thickness='2' transparency='0' joins='round'> and climb the </stroke></font><font color='#5B60D6'>Tastemaker ranks</font>" ..
+                                "<br /><br />" ..
+                                "<font color='#FFFFFF'><stroke color='#5B60D6' thickness='2' transparency='0' joins='round'>Have fun! And don't forget to </stroke></font><font color='#5B60D6'>report</font><font color='#FFFFFF'><stroke color='#5B60D6' thickness='2' transparency='0' joins='round'> any bugs/issues/ideas to us!</stroke></font>",
+                        --TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
                         TextScaled = true,
                         FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
 
                         [Children] = {
-                            scope:New "UIStroke" {
-                                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
-                                Thickness = 2,
-                                Color = UI_CONSTANTS.TASTEMAKER_PURPLE
-                            },
+                            -- scope:New "UIStroke" {
+                            --     ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+                            --     Thickness = 2,
+                            --     Color = UI_CONSTANTS.TASTEMAKER_PURPLE
+                            -- },
                             scope:New "UIPadding" {
                                 PaddingTop = UDim.new(0.02, 0),
                                 PaddingBottom = UDim.new(0.1, 0),
