@@ -15,8 +15,10 @@ local GameOutfitManager = require(GameLoop.GameOutfitManager)
 
 --
 
+warn("Initialised server outfit manager")
 
 local function onPlayerRequestedOutfit(_player: Player, outfitId: string)
+    warn("Server side getting outfit: ", _player, outfitId)
     return GameOutfitManager.getOutfit(outfitId)
 end
 

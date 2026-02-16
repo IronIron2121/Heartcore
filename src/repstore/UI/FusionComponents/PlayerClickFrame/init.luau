@@ -46,7 +46,6 @@ local buttonSize = UDim2.fromScale(0.8, 0.1)
 -- Remotes
 local PlayerRequestedOutfitRF = Remotes:WaitForChild("PlayerRequestedOutfitRF")
 
-
 -- Constants
 local DEFAULT_NAME = " "
 local _success, DEFAULT_THUMBNAIL = callWithRetry(function()
@@ -131,23 +130,33 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                 LoadingScreenManager.hide(clickedPlayerContainer)
             end)
         elseif props.rig then
+            warn("Inspecting rig!")
             local rig = props.rig
             task.spawn(function()
                 local outfitId = rig:GetAttribute("outfitId") :: string?
 
                 if not outfitId then
                     warn("No outfit ID!")
+                    LoadingScreenManager.hide(clickedPlayerContainer)
                     return
+                else
+                    warn("Got outfitID", outfitId)
                 end
 
 
+                warn("Getting outfit")
                 local success, outfit = callWithRetry(function()  
                     return PlayerRequestedOutfitRF:InvokeServer(outfitId)
                 end)
+                warn("Got outfit")
+
 
                 if not success or not outfit then 
                     warn("No current outfit!")
+                    LoadingScreenManager.hide(clickedPlayerContainer)
                     return 
+                else
+                    warn("Success outfit")
                 end
                 
                 local player = Players:GetPlayerByUserId(outfit.userId)
@@ -163,6 +172,8 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
 
                 inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
 
+                warn("Hiding okayw")
+
                 -- Update the description
                 local descSuccess, humDesc = callWithRetry(function()
                     return getHumanoidDescriptionFromRig(rig)
@@ -172,7 +183,10 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                     warn("got desc")
                     warn(humDesc:GetChildren())
                     inspectDescription:set(humDesc) 
+                else
+                    warn("Failed to get description from rig")
                 end
+                warn("no")
 
                 -- Get and set the new avatar
                 local modelSuccess, newModel = callWithRetry(
@@ -187,6 +201,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                     warn("Failed to get humanoid model!", modelSuccess, newModel)
                 end
 
+                warn("Hiding now")
                 LoadingScreenManager.hide(clickedPlayerContainer)
             end)
             

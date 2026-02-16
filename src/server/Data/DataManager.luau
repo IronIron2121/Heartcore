@@ -78,10 +78,10 @@ function DataManager.AddExp(player: Player, amount: number)
 	end
 
 	if (newLevel > oldLevel) or (newRankName ~= oldRankName) then
-		warn("Updating player display")
+		--warn("Updating player display")
 		DataManager.UpdatePlayerDisplay(player)
 	else
-		warn(newLevel, oldLevel, newRankName, oldRankName)
+		--warn(newLevel, oldLevel, newRankName, oldRankName)
 	end
 end
 
