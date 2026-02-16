@@ -35,7 +35,7 @@ type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
 type Computed<T>    = Fusion.Computed<T>
 
--- Bindables
+-- Bindables 
 local HideAllPromptsBindable = BindablesFolder:WaitForChild("HideAllPromptsBindable")
 local ShowAllPromptsBindable = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
 

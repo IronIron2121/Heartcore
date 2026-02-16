@@ -115,7 +115,6 @@ local function startCountdown(duration: number)
 end
 
 function GameStateManager.transitionTo(stateName: string)
-	warn("transing...")
 	local config = STATES[stateName]
 	timerThread = nil
 
@@ -127,13 +126,10 @@ function GameStateManager.transitionTo(stateName: string)
 end
 
 function GameStateManager._onStateEnter(stateName: string)
-	print(`[GameStateManager] Entered {stateName}`)
-	
 	if stateName == "Dressing" then
 		-- Select new theme
 		currentTheme = selectNewTheme()
 		currentThemeName.Value = currentTheme
-		print(`[GameStateManager] Theme: {currentTheme}`)
 		
 		GameOutfitManager.reset()
 	elseif stateName == "Voting" then

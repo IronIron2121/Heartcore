@@ -2,12 +2,10 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local MarketplaceService = game:GetService("MarketplaceService")
 
 -- Folders
 local UI = ReplicatedStorage:WaitForChild("UI")
 local Objects = UI:WaitForChild("Objects")
-local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
@@ -27,8 +25,6 @@ local DEFAULT_Y_SCALE = 0.1
 
 
 function AccessoryTile(itemId : number, itemType : Enum.MarketplaceProductType)
-	local productInfo = MarketplaceService:GetProductInfo(itemId)
-	
 	local accessoryTile = AccessoryTileTemplate:Clone()
 	
 	accessoryTile.Size = UDim2.fromScale(DEFAULT_X_SCALE, DEFAULT_Y_SCALE)

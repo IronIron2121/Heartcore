@@ -133,8 +133,6 @@ function AvatarEditorController:_syncItemsFromDescription(humDesc: HumanoidDescr
 	-- Collect classic items
 	for _, itemType in CLASSIC_ITEMS do
 		local assetId = humDesc[itemType]
-		warn(itemType)
-		warn(assetId)
 		if assetId and assetId ~= 0 then
 			currentClassicItems[itemType] = assetId
 		end

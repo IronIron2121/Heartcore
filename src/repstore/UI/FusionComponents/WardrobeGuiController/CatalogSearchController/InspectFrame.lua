@@ -2,7 +2,6 @@
 -- InspectFrame.lua
 
 -- Services
-local AvatarEditorService = game:GetService("AvatarEditorService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
@@ -83,7 +82,8 @@ function InspectFrame(
 
 				return FusionItemTile(scope, {
 					itemDetails = itemDetails, 
-					layoutOrder = 1
+					layoutOrder = 1,
+					item = item
 				})
 			end)
 		}

@@ -42,7 +42,6 @@ local CONFIG = {
 
 --
 
--- TODO: Turn "Try" button into a "Remove" button if the item is equipped
 function FusionItemTile( 
 	scope: Fusion.Scope,
 props: {
@@ -91,10 +90,10 @@ props: {
     },
     
     layoutOrder: number,
-	onPurchaseCb: () -> (),
+	onPurchaseCb: () -> ()?,
 	pushLoad: () -> ()?,
 	popLoad: () -> ()?,
-	onTryCb: () -> ()
+	onTryCb: () -> ()?
 })
 	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return end
 	
@@ -270,7 +269,6 @@ props: {
 									if props.onTryCb then
 										props.onTryCb()
 									end
-									-- Loop animation on the thingy
 									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType or "", props.itemDetails.ItemType)
 								end
 							}), 
