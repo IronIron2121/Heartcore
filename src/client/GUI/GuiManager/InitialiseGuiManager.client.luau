@@ -253,7 +253,7 @@ local function InitialiseHuds()
 
     GuiManager.RegisterConfiguration(GameLoopConfig)
     GuiManager.RegisterConfiguration(ShoppingConfig) 
-    GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+    GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.ShoppingConfig)
 end
 
 local function InitialiseModals()

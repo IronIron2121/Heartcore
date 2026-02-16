@@ -14,6 +14,7 @@ local localPlayer = Players.LocalPlayer
 local PlayerGui = localPlayer:WaitForChild("PlayerGui")
 
 -- Modules
+local CONFIGURATION_NAMES = require(ReplicatedStorage.Libraries.GuiManager.CONFIGURATION_NAMES)
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local CloseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.CloseButton)
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -28,6 +29,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local function FtuePop(scope: Fusion.Scope)
     local closeButton, toggled = CloseButton(scope, {
         onClick = function()
+            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
             GuiManager.PopCentre()
         end,
         position = UDim2.fromScale(1, 0),
