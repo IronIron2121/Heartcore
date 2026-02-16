@@ -43,7 +43,6 @@ function DataManager.AddExp(player: Player, amount: number)
 	end
 
 	local oldLevel = profile.Data.Level
-	warn("Old level", oldLevel)
 	local oldRankName = profile.Data.Rank or ExpConfig.RankNames[1]
 
 	profile.Data.Exp += amount
@@ -56,8 +55,6 @@ function DataManager.AddExp(player: Player, amount: number)
 		profile.Data.Level = newLevel
 		profile.Data.LevelUpTime = DateTime.now().UnixTimestamp
 
-		print(player.Name, "leveled up to level", newLevel)
-
 		if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level") then
 			player.leaderstats.Level.Value = newLevel
 		end
@@ -65,8 +62,6 @@ function DataManager.AddExp(player: Player, amount: number)
 
 	if newRankName ~= oldRankName then
 		profile.Data.Rank = newRankName
-
-		print(player.Name, "ranked up to", newRankName, "(Rank", newRankTier .. ")!")
 
 		if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Rank") then
 			player.leaderstats.Rank.Value = newRankName
@@ -146,8 +141,6 @@ function DataManager.ProcessLogin(player: Player)
 	if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Exp") then
 		player.leaderstats.Exp.Value = profile.Data.Exp
 	end
-
-	print("Total exp:", profile.Data.Exp, "Login streak:", profile.Data.LoginStreak)
 end
 
 function DataManager.GetLoginStreak(player: Player): number

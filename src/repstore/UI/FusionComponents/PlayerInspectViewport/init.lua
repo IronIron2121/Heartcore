@@ -122,7 +122,7 @@ function PlayerInspectViewport(
 				Image = "rbxassetid://118393578077171",
 
 				[Children] = {
-					scope:New "UICorner" {
+				scope:New "UICorner" {
 						CornerRadius = UDim.new(0.05)
 					},
 				},
@@ -139,8 +139,6 @@ function PlayerInspectViewport(
 	-- Camera update function
 	local function updateCameraPosition()
 		local currentModel = peek(props.model)
-		warn(type(currentModel))
-		warn(typeof(currentModel))
 		local camera = peek(viewportCamera)
 		if not currentModel or not camera then 
 			return

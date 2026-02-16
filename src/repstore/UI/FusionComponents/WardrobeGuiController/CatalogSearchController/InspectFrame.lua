@@ -82,7 +82,8 @@ function InspectFrame(
 
 				return FusionItemTile(scope, {
 					itemDetails = itemDetails, 
-					layoutOrder = 1
+					layoutOrder = 1,
+					item = item
 				})
 			end)
 		}

@@ -115,7 +115,6 @@ local function startCountdown(duration: number)
 end
 
 function GameStateManager.transitionTo(stateName: string)
-	warn("transing...")
 	local config = STATES[stateName]
 	timerThread = nil
 

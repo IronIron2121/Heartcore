@@ -42,7 +42,6 @@ local CONFIG = {
 
 --
 
--- TODO: Turn "Try" button into a "Remove" button if the item is equipped
 function FusionItemTile( 
 	scope: Fusion.Scope,
 props: {
@@ -91,11 +90,12 @@ props: {
     },
     
     layoutOrder: number,
-	onPurchaseCb: () -> (),
+	onPurchaseCb: () -> ()?,
 	pushLoad: () -> ()?,
 	popLoad: () -> ()?,
-	onTryCb: () -> ()
+	onTryCb: () -> ()?
 })
+	warn(props)
 	if not props.itemDetails.AssetType and not props.itemDetails.BundleType then return end
 	
 	local isHovering = scope:Value(false)

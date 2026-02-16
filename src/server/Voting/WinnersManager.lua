@@ -150,7 +150,6 @@ function WinnersManager.setNewWinners()
 	local rankings = GameOutfitManager.getOutfitsByScore()
 
 	if #rankings == 0 then
-		warn("No outfits to rank")
 		return false
 	end
 

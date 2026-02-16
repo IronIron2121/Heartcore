@@ -140,7 +140,7 @@ function Inspector.inspectDescription(description: HumanoidDescription)
 						end
 					)
 					if not accSuccess then
-						return
+						continue
 					else
 						detailsCache[desc.AssetId] = itemDetails
 					end
@@ -148,9 +148,11 @@ function Inspector.inspectDescription(description: HumanoidDescription)
 				table.insert(newItems, {
 					id = desc.AssetId,
 					type = Enum.MarketplaceProductType.AvatarAsset,
-					itemDetails = itemDetails
+					itemDetails = itemDetails or "NO ITEM DETAILS??"
 				})
 			end
+
+			warn(newItems)
 		end
 
 		-- Collect classic items
@@ -165,14 +167,15 @@ function Inspector.inspectDescription(description: HumanoidDescription)
 						end
 					)
 					if not accSuccess then
-						return
+						continue
 					else
 						detailsCache[assetId] = itemDetails
 					end
 				end
 				table.insert(newItems, {
 					id = assetId,
-					type = Enum.MarketplaceProductType.AvatarAsset
+					type = Enum.MarketplaceProductType.AvatarAsset,
+					itemDetails = itemDetails or "NO ITEM DETAILS??"
 				})
 			end
 		end
