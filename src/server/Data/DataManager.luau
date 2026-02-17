@@ -299,6 +299,10 @@ function DataManager.AddRankDisplayToCharacter(player: Player, character: Model?
 	NameLabel.LayoutOrder = 2
 	NameLabel.FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold)
 	NameLabel.Size = TEXT_LABEL_SIZE
+
+	local humanoid = character:WaitForChild("Humanoid", 10) :: Humanoid
+	humanoid.NameDisplayDistance = 0
+	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 end
 
 function DataManager.UpdateLevelDisplay(player: Player)

@@ -151,8 +151,6 @@ function Inspector.inspectDescription(description: HumanoidDescription)
 					itemDetails = itemDetails or "NO ITEM DETAILS??"
 				})
 			end
-
-			warn(newItems)
 		end
 
 		-- Collect classic items
