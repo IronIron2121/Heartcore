@@ -21,6 +21,7 @@ function Button(
 	props: {
 		name: UsedAs<string>?,
 		active: UsedAs<boolean>?,
+		reactive: UsedAs<boolean>?,
 		visible: UsedAs<boolean>?,
 		size: UsedAs<UDim2>?,
 		position: UsedAs<UDim2>?,
@@ -43,7 +44,9 @@ function Button(
 
 	local backgroundTransparencySpring = scope:Spring(
 		scope:Computed(function(use)
-			if use(isHeldDown) then
+			if use(props.reactive) then
+				return 1
+			elseif use(isHeldDown) then
 				return 0.4
 			elseif use(isHovering) then
 				return 0.7

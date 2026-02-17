@@ -1,5 +1,6 @@
 --!strict
 
+--[[
 -- Folders
 local labelStores           = workspace:WaitForChild("LabelStores")
 local capitol               = labelStores:WaitForChild("capitol")
@@ -30,3 +31,4 @@ storeTp.Touched:Connect(function(hit)
         humanoidRootPart.CFrame = groundDestination.CFrame + Vector3.new(0, 15, 0)
     end
 end)
+]]

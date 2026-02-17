@@ -85,19 +85,25 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     local playerObs = scope:Observer(inspectPlayer)
 
     playerObs:onChange(function()  
+        if not peek(inspectPlayer) then
+            isFriend:set(false)
+            return
+        end
+
         local success, playerIsFriend = callWithRetry(function()  
-            return localPlayer:IsFriendsWithAsync(peek(inspectPlayer).IserId)
+            return localPlayer:IsFriendsWithAsync(peek(inspectPlayer).UserId) 
         end)    
-        
+
         if not success then return end
 
         if playerIsFriend then
             isFriend:set(true)
+            return
         else
             isFriend:set(false)
+            return
         end
     end)
-
 
     local clickedPlayerContainer = scope:New "Frame" {
         Name = "ClickedPlayerContainer",
@@ -157,35 +163,25 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                 LoadingScreenManager.hide(clickedPlayerContainer)
             end)
         elseif props.rig then
-            warn("Inspecting rig!")
             local rig = props.rig
             task.spawn(function()
                 local outfitId = rig:GetAttribute("outfitId") :: string?
 
                 if not outfitId then
-                warn("No outfit ID!")
                     LoadingScreenManager.hide(clickedPlayerContainer)
                     return
-                else
-                    warn("Got outfitID", outfitId)
                 end
 
 
-                warn("Getting outfit")
                 local success, outfit = callWithRetry(function()  
                     return PlayerRequestedOutfitRF:InvokeServer(outfitId)
                 end)
-                warn("Got outfit")
-
 
                 if not success or not outfit then 
-                    warn("No current outfit!")
                     LoadingScreenManager.hide(clickedPlayerContainer)
                     return 
-                else
-                    warn("Success outfit")
                 end
-                
+                 
                 local player = Players:GetPlayerByUserId(outfit.userId)
                 inspectPlayer:set(player)
 
@@ -199,21 +195,16 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
 
                 inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
 
-                warn("Hiding okayw")
-
                 -- Update the description
                 local descSuccess, humDesc = callWithRetry(function()
                     return getHumanoidDescriptionFromRig(rig)
                 end)
 
                 if descSuccess then 
-                    warn("got desc")
-                    warn(humDesc:GetChildren())
                     inspectDescription:set(humDesc) 
                 else
                     warn("Failed to get description from rig")
                 end
-                warn("no")
 
                 -- Get and set the new avatar
                 local modelSuccess, newModel = callWithRetry(
@@ -225,10 +216,8 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                     inspectModel:set(newModel)
                 else
                     inspectModel:set(DEFAULT_MODEL)
-                    warn("Failed to get humanoid model!", modelSuccess, newModel)
                 end
 
-                warn("Hiding now")
                 LoadingScreenManager.hide(clickedPlayerContainer)
             end)
             
@@ -236,11 +225,12 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     end 
 
     local function onFrameClosed()
-        inspectPlayer:set(nil)
+        -- Reset player
+        inspectPlayer:set(DEFAULT_PLAYER)
         -- Reset name tag
         inspectName:set(DEFAULT_NAME)
         -- Reset thumbnail
-        inspectThumbnail:set(DEFAULT_THUMBNAIL)
+        inspectThumbnail:set(DEFAULT_THUMBNAIL) 
         -- Reset avatar viewport frame
         inspectModel:set(DEFAULT_MODEL)
         -- Reset humanoid description
@@ -451,11 +441,15 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         text = scope:Computed(function(use)  
                                             return use(isFriend) and FRIENDS_ADD_TEXT or NOT_FRIENDS_ADD_TEXT
                                         end),
+                                        reactive = isFriend,
+                                        active = isFriend,
                                         layoutOrder = 5,
                                         size = buttonSize,
                                         onActivated = function()
-                                            if not peek(inspectPlayer) then return end
-                                            StarterGui:SetCore("PromptSendFriendRequest", peek(inspectPlayer))
+                                            if not peek(inspectPlayer) then return end 
+                                            if peek(isFriend) then
+                                                StarterGui:SetCore("PromptSendFriendRequest", peek(inspectPlayer))
+                                            end
                                         end
                                     }),
 
