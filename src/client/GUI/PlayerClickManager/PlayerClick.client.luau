@@ -24,6 +24,7 @@ local localPlayer = Players.LocalPlayer
 local hoverHighlight = Instance.new("Highlight", script)
 hoverHighlight.Name = "Hover_Highlight"
 
+
 -- Constants
 local CLICK_DETECTOR_NAME = "OD"
 

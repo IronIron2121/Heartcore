@@ -215,8 +215,11 @@ function ServerCustomisationService.AddBodyPartToAvatar(player: Player, itemId: 
 	local clonedDescription = getClonedDescription(player)
 
 	-- Get the bodypart enum
-	local bodyPartEnum = Enum.BodyPart[bodyPartType]
-	if not bodyPartEnum then
+	local bodyPartEnum = Enum.BodyPart:FromName(bodyPartType)
+
+	if not bodyPartEnum and bodyPartType == "DynamicHead" then
+		bodyPartEnum = Enum.BodyPart.Head
+	else if not bodyPartEnum then
 		warn("Bad bodypart type:", bodyPartType)
 		return false
 	end
@@ -572,7 +575,10 @@ function ServerCustomisationService.AddItemsToAvatar(
 
 		elseif item.itemType == "Asset" and (Enum.BodyPart:FromName(item.assetOrBundleType) or item.assetOrBundleType == Enum.AssetType.DynamicHead.Name) and item.assetOrBundleType ~= "Face" then
 			local bodyPartEnum = Enum.BodyPart:FromName(item.assetOrBundleType)
-			if not bodyPartEnum then bodyPartEnum = Enum.BodyPart.Head
+			if not bodyPartEnum then 
+				bodyPartEnum = Enum.BodyPart.Head
+			end
+
 			local bodyPartDescription = Instance.new("BodyPartDescription")
 			for _, desc in ipairs(clonedDescription:GetChildren()) do
 				if desc:IsA("BodyPartDescription") and desc.BodyPart == bodyPartEnum then
@@ -631,7 +637,7 @@ function ServerCustomisationService.AddItemToAvatar(player: Player, itemId: numb
 		ServerCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Asset" and assetOrBundleType == Constants.EMOTE_ASSET_TYPE then
 		ServerCustomisationService.TryEmote(player, itemId)
-	elseif itemType == "Asset" and Enum.BodyPart:FromName(assetOrBundleType) then
+	elseif itemType == "Asset" and (Enum.BodyPart:FromName(assetOrBundleType) or assetOrBundleType == Enum.AssetType.DynamicHead.Name) then
 		ServerCustomisationService.AddBodyPartToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Asset" then
 		ServerCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
