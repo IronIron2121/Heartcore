@@ -13,6 +13,7 @@ export type ChallengeDefinition = {
     description: string,
     trackerKey: string,  -- Links to ChallengeProgressTracker field
     targetAmount: number,
+    layoutOrder: number,
     reward: {
         exp: number,
         currency: number?
@@ -29,6 +30,7 @@ ChallengeDefinitions.ALL_CHALLENGES = {
         description = "Submit 1 outfit in Fit Check",
         trackerKey = "OutfitsSubmitted",
         targetAmount = 1,
+        layoutOrder = 1,
         reward = {
             exp = 60,
             currency = 50
@@ -42,6 +44,7 @@ ChallengeDefinitions.ALL_CHALLENGES = {
         description = "Submit 2 outfits in Fit Check",
         trackerKey = "OutfitsSubmitted",
         targetAmount = 2,
+        layoutOrder = 2,
         reward = {
             exp = 100,
             currency = 50
@@ -55,6 +58,7 @@ ChallengeDefinitions.ALL_CHALLENGES = {
         description = "Come in the top 20 once",
         trackerKey = "PLACE_TOP_20",
         targetAmount = 1,
+        layoutOrder = 7,
         reward = {
             exp = 80,
             currency = 50
@@ -68,6 +72,7 @@ ChallengeDefinitions.ALL_CHALLENGES = {
         description = "Submit an outfit with more than 5 accessories in it",
         trackerKey = "StyleFivePlus",
         targetAmount = 1,
+        layoutOrder = 3,
         reward = {
             exp = 60,
             currency = 50
@@ -82,6 +87,7 @@ ChallengeDefinitions.ALL_CHALLENGES = {
         description = "Vote on 5 different outfits",
         trackerKey = "OutfitsVoted",
         targetAmount = 5,
+        layoutOrder = 4,
         reward = {
             exp = 15,
             currency = 75
@@ -95,6 +101,7 @@ ChallengeDefinitions.ALL_CHALLENGES = {
         description = "Vote on 10 different outfits",
         trackerKey = "OutfitsVoted",
         targetAmount = 10,
+        layoutOrder = 5,
         reward = {
             exp = 50,
             currency = 150
@@ -108,6 +115,7 @@ ChallengeDefinitions.ALL_CHALLENGES = {
         description = "Vote on 20 different outfits",
         trackerKey = "OutfitsVoted",
         targetAmount = 20,
+        layoutOrder = 6,
         reward = {
             exp = 90,
             currency = 150
@@ -122,6 +130,7 @@ ChallengeDefinitions.ALL_CHALLENGES = {
         description = "Complete 3 daily challenges",
         trackerKey = "ChallengesCompleted",
         targetAmount = 3,
+        layoutOrder = 0,
         reward = {
             exp = 150,
             currency = 200
