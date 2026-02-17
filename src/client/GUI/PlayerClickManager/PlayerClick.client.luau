@@ -33,8 +33,6 @@ local CentreActive = GuiManager.GetCentreActiveValue()
 
 --
 
-warn("Top of the morning")
-
 local function addClickDetector(player: Player, character: Model?)
     character = character or player.Character or player.CharacterAdded:Wait()
     if character and character:FindFirstChild(CLICK_DETECTOR_NAME) then

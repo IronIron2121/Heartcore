@@ -118,7 +118,6 @@ function AvatarEditorController:_watchForItemChanges()
 end
 
 function AvatarEditorController:_syncItemsFromDescription(humDesc: HumanoidDescription)
-	warn("syncing")
 	LoadingScreenManager.show(self.EquippedItemsContainer)
 	local currentAssetIds = {}
 	local currentClassicItems = {}
