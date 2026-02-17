@@ -23,6 +23,7 @@ local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 
 -- Modules
 local Constants = require(ReplicatedStorage.Constants)
+local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local Inspector = require(Mannequins.Inspector) 
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local votingZone = workspace:WaitForChild("votingZone")
@@ -282,7 +283,9 @@ local function initialise()
 	CollectionService:GetInstanceAddedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(function(instance)
 		task.spawn(
 			function()
-				onMannequinAdded(instance)
+				callWithRetry(function()
+					return onMannequinAdded(instance)
+				end, 10)
 			end)
 		end)
 
@@ -290,10 +293,14 @@ local function initialise()
 
 	-- Initialise existing mannequins
 	for _, mannequin in CollectionService:GetTagged(Constants.FLOOR_MANNEQUIN_TAG) do
-		task.spawn(function()
-			onMannequinAdded(mannequin)
-		end)
-	end
+		task.spawn(
+			function()
+				callWithRetry(
+					function()
+						return onMannequinAdded(mannequin)
+					end, 10)
+				end)
+			end
 
 	local VotePrompt = scope:New "ProximityPrompt" {
 		Name = "VotePrompt",

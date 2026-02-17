@@ -10,8 +10,8 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local scope = Fusion:scoped()
 
 -- State value tracking if player has submitted this round
-local playerHasSubmitted = scope:Value(false)
+local cooldown = scope:Value(false)
 
 return {
-	playerHasSubmitted = playerHasSubmitted,
+	cooldown = cooldown,
 }

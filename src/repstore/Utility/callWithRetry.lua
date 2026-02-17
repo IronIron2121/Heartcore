@@ -7,14 +7,11 @@ local function callWithRetry(
     functionToTry: () -> any, 
     maxRetries: number?
 ): (boolean, any)
-    local maxRetries = maxRetries or DEFAULT_RETRIES
     local success = false
     local result = nil
     local tries = 0
-    
 
-
-    while not success and tries < maxRetries do
+    while not success and tries < (maxRetries or DEFAULT_RETRIES) do
         tries = tries + 1
         success, result = pcall(functionToTry)
 

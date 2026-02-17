@@ -24,10 +24,6 @@ local SubmissionResultRE = Remotes:FindFirstChild("SubmissionResultRE") or Insta
 SubmissionResultRE.Name = "SubmissionResultRE" 
 SubmissionResultRE.Parent = Remotes
 
-local CanSubmitRF = Remotes:FindFirstChild("CanSubmitRF") or Instance.new("RemoteFunction")
-CanSubmitRF.Name = "CanSubmitRF"
-CanSubmitRF.Parent = Remotes
-
 --
 
 local GameOutfitManager = {}
@@ -247,12 +243,6 @@ function GameOutfitManager.reset()
 	outfits = {}
 	submittedPlayers = {}
 	playerViews = {}
-end
-
-function GameOutfitManager.initialize()
-	CanSubmitRF.OnServerInvoke = function(player: Player): boolean
-		return GameOutfitManager.canSubmit(player.UserId)
-	end
 end
 
 return GameOutfitManager

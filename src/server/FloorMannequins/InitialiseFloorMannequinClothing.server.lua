@@ -118,6 +118,7 @@ local function onMannequinAdded(mannequin: Model)
 	end
 
 	task.spawn(function()
+		warn("SPAWNING")
 		setupMannequinAsync(mannequin)
 	end)
 end
@@ -131,6 +132,7 @@ local function initialise()
 	CollectionService:GetInstanceRemovedSignal(Constants.FLOOR_MANNEQUIN_TAG):Connect(onMannequinRemoved)
 
 	for _, mannequin in CollectionService:GetTagged(Constants.FLOOR_MANNEQUIN_TAG) do
+		warn("BUMBA")
 		onMannequinAdded(mannequin)
 	end
 end

@@ -167,7 +167,7 @@ local function InitialiseHuds()
                 layoutOrder = 1,
                 image = hudScope:Computed(function(use)
                     if use(GameStateValues.isDressing) then
-                        if use(PlayerSubmissionState.playerHasSubmitted) then
+                        if use(PlayerSubmissionState.cooldown) then
                             return ImageUris.Submit
                         else
                             return ImageUris.Submit
@@ -181,7 +181,7 @@ local function InitialiseHuds()
                 backgroundColor = hudScope:Computed(function(use)
                     if use(GameStateValues.isIntermission) then
                         return UI_CONSTANTS.COLOUR_GREY
-                    elseif use(GameStateValues.isDressing) and use(PlayerSubmissionState.playerHasSubmitted) then
+                    elseif use(GameStateValues.isDressing) and use(PlayerSubmissionState.cooldown) then
                         return UI_CONSTANTS.COLOUR_GREY
                     else
                         return UI_CONSTANTS.COLOUR_WHITE
@@ -189,7 +189,7 @@ local function InitialiseHuds()
                 end),
                 onActivated = function()
                     if (peek(GameStateValues.isDressing)) then
-                        if not peek(PlayerSubmissionState.playerHasSubmitted) then
+                        if not peek(PlayerSubmissionState.cooldown) then
                             PlayerSubmittedOutfitRF:InvokeServer()
                         else
                             warn("Already submitted this round")
