@@ -172,7 +172,7 @@ function OutfitsFrame(
 						Padding = UDim.new(0, 10)
 					},
 
-					scope:New "UIPadding" {
+					scope:New "UIPadding" { 
 						PaddingTop = UDim.new(0.02,0),
 						PaddingBottom = UDim.new(0.02,0),
 						PaddingLeft = UDim.new(0.02,0),

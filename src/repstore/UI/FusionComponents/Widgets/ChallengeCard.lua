@@ -154,7 +154,7 @@ local function ChallengeCard(
                             },
 
                             scope:New "TextLabel" {
-                                Text = "Rewards:",
+                                Text = "Reward:",
                                 BackgroundTransparency = 1,
                                 TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
                                 Size = UDim2.fromScale(1, 0.5),
