@@ -20,6 +20,8 @@ local ClientGUI = StarterPlayerScripts.GUI
 local GameState = StarterPlayerScripts.GameState
 
 -- Modules
+local FtuePop = require(StarterPlayer.StarterPlayerScripts.GUI.FtuePop)
+local PlayerDisplayManager = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
 local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
 local PlayerSubmissionState = require(GameState.PlayerSubmissionState)
 local Fusion = require(FusionUtility)
@@ -48,7 +50,8 @@ local PlayerSubmittedOutfitRF = Remotes:WaitForChild("PlayerSubmittedOutfit") ::
 
 -- Fusion
 local Children = Fusion.Children
- 
+local modalScope = Fusion:scoped() 
+
 --
 
 local function InitialiseHuds()
@@ -249,17 +252,27 @@ local function InitialiseHuds()
         bottomRight = { Object = GameOptionsFrame2, AlwaysOn = false },
     })
 
+    local FtueConfig = GuiConfiguration.new({
+        ConfigurationName = CONFIGURATION_NAMES.FtueConfig,
+        topMiddle = nil,
+        topRight = nil,
+        bottomLeft = nil,
+        bottomMiddle = nil,
+        bottomRight = nil,
+    })
+
     GuiManager.RegisterConfiguration(GameLoopConfig)
     GuiManager.RegisterConfiguration(ShoppingConfig) 
-    GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+    GuiManager.RegisterConfiguration(FtueConfig) 
+    GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.FtueConfig)
 end
 
 local function InitialiseModals()
-    local modalScope = Fusion:scoped() 
     local dailyChallengeFrame = DailyChallengeFrame(modalScope)
     local wardrobeContainer, avatarContainer, catalogContainer = WardrobeContainer(modalScope)
     local votingFrame, initialiseVoting = VotingFrame(modalScope)
     local playerClickFrame, onFrameOpened = PlayerClickFrame(modalScope)
+    local ftuePop = FtuePop(modalScope)
 
     -- TODO: Find a more robust way of doing the below, this is vestigial code
 	local controllers = {}
@@ -274,12 +287,14 @@ local function InitialiseModals()
     GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer) 
     GuiManager.RegisterModal(MODAL_NAMES.VOTING_GUI, votingFrame, initialiseVoting)
     GuiManager.RegisterModal(MODAL_NAMES.PLAYER_INSPECT_GUI, playerClickFrame, onFrameOpened)
+    GuiManager.RegisterModal(MODAL_NAMES.FTUE_GUI, ftuePop)
 end
 
 local function initialiseGuiManager()
     InitialiseModals()
     InitialiseHuds()
     GuiManager.SetLoaded()
+    GuiManager.PushCentreByName(MODAL_NAMES.FTUE_GUI)
 end
 
 initialiseGuiManager()

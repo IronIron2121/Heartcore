@@ -326,7 +326,6 @@ function DataManager.UpdateRankDisplay(player: Player)
 end
 
 function DataManager.UpdatePlayerDisplay(player: Player)
-	warn("UPDATING PLAYER DISPLAY")
 	DataManager.UpdateRankDisplay(player)
 	DataManager.UpdateLevelDisplay(player)
 end
