@@ -26,7 +26,6 @@ local hoverHighlight = Instance.new("Highlight", script)
 hoverHighlight.Name = "Hover_Highlight"
 hoverHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_PURPLE
 
-
 -- Constants
 local CLICK_DETECTOR_NAME = "OD"
 
@@ -68,7 +67,7 @@ end
 local function addClickDetectorToWinnerRig(rig: Model)
     warn("Adding to winner rig ", rig)
     local activationDistanceComp = clickScope:Computed(function(use)
-        return use(CentreActive) and 0 or 20
+        return use(CentreActive) and 0 or 200
     end)
     
     local clickDetector = clickScope:New "ClickDetector" {
@@ -123,9 +122,7 @@ CollectionService:GetInstanceAddedSignal("WinnerRig"):Connect(function(rig: Mode
 end)
 
 local function initWinnerRigs()
-    warn("init")
     local winnerRigs = CollectionService:GetTagged("WinnerRig")
-    warn(winnerRigs)
     for _, rig in winnerRigs do
         addClickDetectorToWinnerRig(rig)
     end
