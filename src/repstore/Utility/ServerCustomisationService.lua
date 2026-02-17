@@ -62,23 +62,6 @@ end
 function ServerCustomisationService.applyDescription(player: Player, description: HumanoidDescription)
 	local humanoid = GetHumanoidFromPlayer(player)
 
-	--[[
-	local connection
-	connection = humanoid.ApplyDescriptionFinished:Connect(function()
-		connection:Disconnect()
-	end)
-	]]
-
-	local items = description:GetChildren()
-	for _, item in ipairs(items) do
-		if item:IsA("AccessoryDescription") then
-			warn(item.AccessoryType)
-			warn(item.AssetId)
-		end
-	end
-
-	warn("faceacc", description.FaceAccessory)
-	warn("face", description.Face)
 	local success, err = callWithRetry(function()
 		return humanoid:ApplyDescription(description)
 	end)
@@ -588,6 +571,7 @@ function ServerCustomisationService.AddItemsToAvatar(
 			table.insert(emoteIds, item.itemId)
 
 		elseif item.itemType == "Asset" and Enum.BodyPart:FromName(item.assetOrBundleType) and item.assetOrBundleType ~= "Face" then
+			Enum.
 			local bodyPartEnum = Enum.BodyPart[item.assetOrBundleType]
 			local bodyPartDescription = Instance.new("BodyPartDescription")
 			for _, desc in ipairs(clonedDescription:GetChildren()) do

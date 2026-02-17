@@ -127,7 +127,9 @@ end
 
 function ClientCustomisationService.PlayerEquippedInspectedItems()
 	local items = peek(Inspector.getInspectingItems())
-	PlayerEquippedInspectedItemsRF:InvokeServer(items)
+	callWithRetry(function()
+		return PlayerEquippedInspectedItemsRF:InvokeServer(items)
+	end)
 end
 
 function ClientCustomisationService.GetCurrentEquippedItems(): {any}
