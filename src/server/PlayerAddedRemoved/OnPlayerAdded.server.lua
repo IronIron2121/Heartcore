@@ -38,9 +38,7 @@ local function onCharacterAdded(player: Player, character: Model)
 	local humanoid 		= character:WaitForChild("Humanoid") :: Humanoid
 	humanoid.WalkSpeed 	= 40
 
-	task.spawn(function()
-		DataManager.AddRankDisplayToCharacter(player, character)
-	end)
+	DataManager.AddRankDisplayToCharacter(player, character)
 end
 
 --[[
@@ -77,9 +75,7 @@ local function onPlayerAdded(player: Player)
 
 	-- Listen for leaderstats changes
 	player:WaitForChild("leaderstats").Level.Changed:Connect(function()
-		task.spawn(function()
-			DataManager.UpdatePlayerDisplay(player)
-		end)
+		DataManager.UpdatePlayerDisplay(player)
 	end)
 
 	--[[
