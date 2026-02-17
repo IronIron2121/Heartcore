@@ -57,7 +57,7 @@ local function addClickDetector(player: Player, character: Model?)
         end,
 
         [OnEvent "MouseHoverLeave"] = function()
-            hoverHighlight.Adornee = nil
+            hoverHighlight.Adornee = nil 
         end
     } :: ClickDetector
 
@@ -78,7 +78,6 @@ local function addClickDetectorToWinnerRig(rig: Model)
         end,
 
         [OnEvent "MouseHoverEnter"] = function()
-            warn("Added to rigs")
             hoverHighlight.Adornee = rig
         end,
 
