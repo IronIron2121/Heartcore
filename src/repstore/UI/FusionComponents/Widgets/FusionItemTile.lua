@@ -269,7 +269,6 @@ props: {
 									if props.onTryCb then
 										props.onTryCb()
 									end
-									warn(props.itemDetails, props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType or "", props.itemDetails.ItemType)
 									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType or "", props.itemDetails.ItemType)
 								end
 							}), 

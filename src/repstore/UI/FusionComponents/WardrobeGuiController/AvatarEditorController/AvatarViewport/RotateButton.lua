@@ -138,7 +138,6 @@ function RotateButton(
 
 		[OnEvent("MouseWheelBackward")] = function()
 			if zoom then
-				warn("Zooming out!")
 				zoom:set(math.clamp(peek(zoom) / CONFIG.ZOOM_STEP, 
 						CONFIG.MIN_ZOOM, 
 						CONFIG.MAX_ZOOM

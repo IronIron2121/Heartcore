@@ -152,7 +152,6 @@ function CatalogSearchController:_initialiseSearchFrame()
 			keyword = peek(self.searchText)
 		end
 
-		warn("running a search with " .. keyword, peek(self.searchText))
 		if not self.SearchResultsFrame then
 			warn("SearchResultsFrame not ready yet")
 			return
@@ -161,7 +160,6 @@ function CatalogSearchController:_initialiseSearchFrame()
 		self.editorsPickSelected:set(false)
 		
 		self.clearCatalogCallback()
-		warn("Searching!", peek(self.editorsPickSelected))
 
 		local catalogParams = CatalogSearchParams.new()
 		catalogParams.SearchKeyword = keyword

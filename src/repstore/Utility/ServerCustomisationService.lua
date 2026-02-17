@@ -170,8 +170,6 @@ function ServerCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 				end
 			end
 		end
-	else
-		print("Equipping", itemId)
 	end
 	
 	accessoryDescription.IsLayered = true

@@ -140,7 +140,6 @@ function AvatarEditorController:_syncItemsFromDescription(humDesc: HumanoidDescr
 	-- Add new tiles that don't exist yet
 	for assetId, desc in currentAssetIds do
 		if not self.equippedTiles[assetId] then
-			warn("adding item tile")
 			self:_addEquippedItemTile(desc)
 		end
 	end

@@ -95,7 +95,6 @@ function CategoryButton(
 		[OnEvent "Activated"] = function()
 			if props.onActivated then
 				props.onActivated()
-				print(Fusion.peek(props.isSelected))
 			end
 		end, 
 
