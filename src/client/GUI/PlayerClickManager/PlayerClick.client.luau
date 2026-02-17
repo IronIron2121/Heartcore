@@ -12,6 +12,7 @@ local Utility           = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
 local MODAL_NAMES   = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
+local UI_CONSTANTS = require(ReplicatedStorage.Utility.UI_CONSTANTS)
 local GuiManager    = require(GuiManagerFolder.GuiManager) 
 
 -- Fusion
@@ -23,6 +24,7 @@ local OnEvent       = Fusion.OnEvent
 local localPlayer = Players.LocalPlayer
 local hoverHighlight = Instance.new("Highlight", script)
 hoverHighlight.Name = "Hover_Highlight"
+hoverHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_PURPLE
 
 
 -- Constants
