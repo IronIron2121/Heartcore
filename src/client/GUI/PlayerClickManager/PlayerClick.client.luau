@@ -67,7 +67,7 @@ end
 local function addClickDetectorToWinnerRig(rig: Model)
     warn("Adding to winner rig ", rig)
     local activationDistanceComp = clickScope:Computed(function(use)
-        return use(CentreActive) and 0 or 20
+        return use(CentreActive) and 0 or 200
     end)
     
     local clickDetector = clickScope:New "ClickDetector" {
