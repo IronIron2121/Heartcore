@@ -49,7 +49,7 @@ local function addClickDetector(player: Player, character: Model?)
         MaxActivationDistance = activationDistanceComp,
 
         [OnEvent "MouseClick"] = function()
-            GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI, player)
+            GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI, {player = player, rig = nil})
         end,
 
         [OnEvent "MouseHoverEnter"] = function()
