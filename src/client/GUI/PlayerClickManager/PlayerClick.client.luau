@@ -79,6 +79,7 @@ local function addClickDetectorToWinnerRig(rig: Model)
         end,
 
         [OnEvent "MouseHoverEnter"] = function()
+            warn("Added to rigs")
             hoverHighlight.Adornee = rig
         end,
 
@@ -88,6 +89,8 @@ local function addClickDetectorToWinnerRig(rig: Model)
     } :: ClickDetector
 
     clickDetector.Parent = rig
+
+    warn("Added to rigs")
 end
 
 -- Add click detectors to all players in game when local player joins

@@ -4,7 +4,13 @@
 	Gets the humanoid description from a given player
 ]]
 
+local DEFAULT_DESC = Instance.new("HumanoidDescription")
+
 function getHumanoidDescriptionFromPlayer(player: Player): HumanoidDescription?
+	if not player then
+		return DEFAULT_DESC
+	end
+
 	local character = player.Character or player.CharacterAdded:Wait()
 	
 	local humanoid  = character:FindFirstChildOfClass("Humanoid")

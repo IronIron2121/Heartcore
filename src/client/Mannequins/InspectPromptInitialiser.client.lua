@@ -202,13 +202,13 @@ end
 
 local function hideAllPrompts()
 	for _, prompt in inspectPrompts do
-		prompt.Enabled = false
+		prompt.MaxActivationDistance = 0
 	end
 end
 
 local function showAllPrompts()
 	for _, prompt in inspectPrompts do
-		prompt.Enabled = true
+		prompt.MaxActivationDistance = 20
 	end
 end
  
@@ -249,6 +249,15 @@ local function onMannequinRemoved(mannequin: Instance)
 		inspectPrompts[mannequin] = nil
 	end
 end
+
+local isVoting = scope:Computed(function(use, a1)
+	if use(GameStateValues.isVoting) == true then
+		return true
+	else
+		return false
+	end
+end)
+
 
 -- Reactively update voting pad appearance
 local promptHolderMaterial = scope:Computed(function(use)
@@ -295,10 +304,11 @@ local function initialise()
 		Enabled = GameStateValues.isVoting,
 		[OnEvent "Triggered"] = function()
 			GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
+			warn(peek(isVoting))
 		end
 	} :: ProximityPrompt
 
-	local dudInstance = Instance.new("Model")
+	local dudInstance = Instance.new("Model") 
 	inspectPrompts[dudInstance] = VotePrompt
 
 	-- Connect prompt visibility controls
