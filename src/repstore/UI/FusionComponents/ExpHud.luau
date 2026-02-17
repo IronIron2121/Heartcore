@@ -152,7 +152,7 @@ local function ExpHud(scope: Fusion.Scope)
 
 			scope:New "TextLabel" {
 				Name = "TasteMeter",
-				Size = UDim2.fromScale(0.2, 0.2),
+				Size = UDim2.fromOffset(120,40),
 				Position = UDim2.fromScale(0.45,0),
 				BackgroundTransparency = 1,
 				Text = "Taste meter",

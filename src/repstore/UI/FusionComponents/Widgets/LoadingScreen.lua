@@ -70,6 +70,9 @@ function Frame(
         Active = props.active or true,
 
         [Children] = {
+            scope:New "UICorner" {
+                CornerRadius = UDim.new(0.05,0)
+            },
             scope:New "UIListLayout" {
                 FillDirection = Enum.FillDirection.Horizontal,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
