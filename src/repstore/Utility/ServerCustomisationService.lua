@@ -475,18 +475,23 @@ function ServerCustomisationService.TryEmote(player: Player, itemId: number)
 
 	local animator = humanoid:FindFirstChild("Animator") :: Animator?
 
-	local track : AnimationTrack
+	local newTrack : AnimationTrack
 	if animator then
-		track = animator:LoadAnimation(emote)
+		for _, previousTrack in animator:GetPlayingAnimationTracks() do
+			previousTrack:Stop()
+			previousTrack:Destroy()
+		end
+
+		newTrack = animator:LoadAnimation(emote)
 	end
 
-	if track then
-		track.Looped = true
-		track:Play()
+	if newTrack then
+		newTrack.Looped = true
+		newTrack:Play()
 		task.spawn(function()
 			local detector = humanoid:GetPropertyChangedSignal("MoveDirection")
 			detector:Connect(function()
-				track:Stop()
+				newTrack:Stop()
 				detector = nil
 			end)
 		end)
