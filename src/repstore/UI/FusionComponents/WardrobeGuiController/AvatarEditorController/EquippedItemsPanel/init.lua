@@ -36,11 +36,12 @@ function EquippedItemsPanel(
 				Size = UDim2.fromScale(1, 0.1),
 				AnchorPoint = Vector2.new(0.5, 1),
 				Position = UDim2.fromScale(0.5, 1),
+				BackgroundTransparency = 1,
 				ZIndex = 2,
 				
 				[Children] = {
 					BaseButton(scope, {
-						text = "Remove All Accessories",
+						text = "Remove All Clothing",
 						size = UDim2.fromScale(0.8, 0.8),
 						onActivated = function()
 							props.onAccessoriesRemovedCb()
@@ -53,7 +54,7 @@ function EquippedItemsPanel(
 
 	local equippedItemsPanel = scope:New "ScrollingFrame" {
 		Name = "EquippedItemsPanel",
-		Size = UDim2.fromScale(1, 1),
+		Size = UDim2.fromScale(1, 0.89),
 		Position = UDim2.fromScale(0, 0),
 		AnchorPoint = Vector2.new(0, 0),
 		CanvasSize = UDim2.fromScale(0, 0),
@@ -87,6 +88,13 @@ function EquippedItemsPanel(
 				PaddingBottom = UDim.new(0.02, 0),
 				PaddingLeft = UDim.new(0.02, 0),
 				PaddingRight = UDim.new(0.02, 0)
+			},
+
+			scope:New "Frame" {
+				Name = "Buffer",
+				Size = UDim2.fromOffset(100, 50),
+				BackgroundTransparency = 1,
+				LayoutOrder = 10,
 			}
 		}
 	} :: ScrollingFrame

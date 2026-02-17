@@ -93,15 +93,16 @@ function InspectFrame(
 		Name = "bottomFrame",
 		Visible = visible,
 		AnchorPoint = Vector2.new(0.5, 1),
-		Size = UDim2.fromScale(1, 0.1),
+		Size = UDim2.fromScale(1, 0.15),
 		Position = UDim2.fromScale(0.5, 1),
 		BackgroundColor3 = Color3.new(0.5, 1, 1),
-		BackgroundTransparency = 0,
+		BackgroundTransparency = 1,
 		LayoutOrder = 3,
 		[Children] = {
 			BaseButton(scope, {
 				name = "WearAllButton",
 				text = "Wear All",
+				size = UDim2.fromScale(0.2,0.6),
 				onActivated = function()
 					ClientCustomisationService.PlayerEquippedInspectedItems()
 				end
