@@ -571,7 +571,6 @@ function ServerCustomisationService.AddItemsToAvatar(
 			table.insert(emoteIds, item.itemId)
 
 		elseif item.itemType == "Asset" and Enum.BodyPart:FromName(item.assetOrBundleType) and item.assetOrBundleType ~= "Face" then
-			Enum.
 			local bodyPartEnum = Enum.BodyPart[item.assetOrBundleType]
 			local bodyPartDescription = Instance.new("BodyPartDescription")
 			for _, desc in ipairs(clonedDescription:GetChildren()) do
