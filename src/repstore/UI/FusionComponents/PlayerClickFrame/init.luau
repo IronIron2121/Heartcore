@@ -33,6 +33,8 @@ local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
 local Fusion                = require(Utility:WaitForChild("Fusion"))
 local GuiManager            = require(GuiManagerLibrary:WaitForChild("GuiManager"))
 
+-- Instances
+local localPlayer = Players.LocalPlayer
 
 -- Fusion Modules
 local peek = Fusion.peek
@@ -48,6 +50,11 @@ local PlayerRequestedOutfitRF = Remotes:WaitForChild("PlayerRequestedOutfitRF")
 
 -- Constants
 local DEFAULT_NAME = " "
+
+local NOT_FRIENDS_ADD_TEXT = "Add Friend"
+
+local FRIENDS_ADD_TEXT = "Friend Added"
+
 local _success, DEFAULT_THUMBNAIL = callWithRetry(function()
     return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
 end)
@@ -62,6 +69,7 @@ local _success, DEFAULT_PLAYER = callWithRetry(function()
     return Players:GetPlayerByUserId(Constants.DEFAULT_ID)
 end)
 
+
 --
 
 local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
@@ -71,6 +79,25 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     local inspectModel = scope:Value(DEFAULT_MODEL)
     local inspectPlayer = scope:Value(DEFAULT_PLAYER)
     local inspectDescription = scope:Value(DEFAULT_DESC)
+
+    local isFriend = scope:Value(false)
+
+    local playerObs = scope:Observer(inspectPlayer)
+
+    playerObs:onChange(function()  
+        local success, playerIsFriend = callWithRetry(function()  
+            return localPlayer:IsFriendsWithAsync(peek(inspectPlayer).IserId)
+        end)    
+        
+        if not success then return end
+
+        if playerIsFriend then
+            isFriend:set(true)
+        else
+            isFriend:set(false)
+        end
+    end)
+
 
     local clickedPlayerContainer = scope:New "Frame" {
         Name = "ClickedPlayerContainer",
@@ -421,7 +448,9 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                     }),
 
                                     BaseButton(scope, {
-                                        text = "Add Friend",
+                                        text = scope:Computed(function(use)  
+                                            return use(isFriend) and FRIENDS_ADD_TEXT or NOT_FRIENDS_ADD_TEXT
+                                        end),
                                         layoutOrder = 5,
                                         size = buttonSize,
                                         onActivated = function()
