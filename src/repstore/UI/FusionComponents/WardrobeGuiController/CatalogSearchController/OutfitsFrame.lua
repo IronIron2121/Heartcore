@@ -179,6 +179,13 @@ function OutfitsFrame(
 						PaddingRight = UDim.new(0.02,0),			
 					},
 
+					scope:New "Frame" {
+						Name = "buffer",
+						Size = UDim2.fromScale(1,0.1),
+						BackgroundTransparency = 1,
+						LayoutOrder = 10
+					},
+
 					-- Empty state message
 					scope:New "TextLabel" {
 						Name = "EmptyStateLabel",
