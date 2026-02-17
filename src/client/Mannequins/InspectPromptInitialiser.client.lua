@@ -202,13 +202,13 @@ end
 
 local function hideAllPrompts()
 	for _, prompt in inspectPrompts do
-		prompt.Enabled = false
+		prompt.MaxActivationDistance = 0
 	end
 end
 
 local function showAllPrompts()
 	for _, prompt in inspectPrompts do
-		prompt.MaxActivationDistance = 0
+		prompt.MaxActivationDistance = 20
 	end
 end
  
