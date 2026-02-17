@@ -144,7 +144,7 @@ function OutfitsFrame(
 				SortOrder = Enum.SortOrder.LayoutOrder,
 				HorizontalAlignment = Enum.HorizontalAlignment.Center,
 				VerticalAlignment = Enum.VerticalAlignment.Top,
-				Padding = UDim.new(0, 10)
+				Padding = UDim.new(0.01, 0)
 			},
 			
 			scope:New "UICorner" {
@@ -153,7 +153,7 @@ function OutfitsFrame(
 
 			scope:New "ScrollingFrame" {
 				Name = "OutfitScrollFrame",
-				Size = UDim2.fromScale(1, 0.9),
+				Size = UDim2.fromScale(1, 0.89),
 				Position = UDim2.fromScale(0, 0),
 				BackgroundTransparency = 1,
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
