@@ -219,7 +219,7 @@ function ServerCustomisationService.AddBodyPartToAvatar(player: Player, itemId: 
 
 	if not bodyPartEnum and bodyPartType == "DynamicHead" then
 		bodyPartEnum = Enum.BodyPart.Head
-	else if not bodyPartEnum then
+	elseif not bodyPartEnum then
 		warn("Bad bodypart type:", bodyPartType)
 		return false
 	end
