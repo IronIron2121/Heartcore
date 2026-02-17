@@ -35,11 +35,11 @@ local currentlyResetting = false
 
 local localPlayer = Players.LocalPlayer
 local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-local humanoid = char.Humanoid
+local humanoid = char:WaitForChild("Humanoid")
 
 local currentHumanoidDescription = scope:Value(humanoid:WaitForChild("HumanoidDescription") :: HumanoidDescription) 
 
-humanoid.ChildAdded:Connect(function(child)
+humanoid.ChildAdded:Connect(function(child) 
 	if child:IsA("HumanoidDescription") then
 		currentHumanoidDescription:set(child)
 	end

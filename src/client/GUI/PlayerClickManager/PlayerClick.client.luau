@@ -18,7 +18,7 @@ local GuiManager    = require(GuiManagerFolder.GuiManager)
 -- Fusion
 local Fusion        = require(Utility.Fusion)
 local clickScope    = Fusion:scoped()
-local OnEvent       = Fusion.OnEvent
+local OnEvent       = Fusion.OnEvent 
 
 -- Instances
 local localPlayer = Players.LocalPlayer

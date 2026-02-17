@@ -35,11 +35,12 @@ local DataManager 				= require(Data:WaitForChild("DataManager"))
 --local UpdateLocalPlayerDetailsAsync = Remotes:WaitForChild("UpdateLocalPlayerDetails")
 
 local function onCharacterAdded(player: Player, character: Model)
-	warn("On character added!")
 	local humanoid 		= character:WaitForChild("Humanoid") :: Humanoid
 	humanoid.WalkSpeed 	= 40
 
-	DataManager.AddRankDisplayToCharacter(player, character)
+	task.spawn(function()
+		DataManager.AddRankDisplayToCharacter(player, character)
+	end)
 end
 
 --[[
@@ -71,14 +72,14 @@ local function onPlayerAdded(player: Player)
 
 	onCharacterAdded(player, player.Character or player.CharacterAdded:Wait())
 	player.CharacterAdded:Connect(function(character: Model)  
-		warn("Char added 1")
 		onCharacterAdded(player, character)
 	end)
 
 	-- Listen for leaderstats changes
 	player:WaitForChild("leaderstats").Level.Changed:Connect(function()
-		warn("Levelled up!")
-		DataManager.UpdatePlayerDisplay(player)
+		task.spawn(function()
+			DataManager.UpdatePlayerDisplay(player)
+		end)
 	end)
 
 	--[[
