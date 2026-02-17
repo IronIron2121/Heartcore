@@ -23,6 +23,12 @@ local GetHumanoidFromPlayer = require(Getters:WaitForChild("GetHumanoidFromPlaye
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
+-- Misc
+local flipId = 134227711062993
+local fallId = 131035550365656
+
+local animPrefix = "rbxassetid://"
+
 -- Accessory layering order by type (tops above bottoms)
 local ACCESSORY_TYPE_ORDER = {
 	[Enum.AccessoryType.LeftShoe] = 8,
@@ -75,6 +81,8 @@ function ServerCustomisationService.applyDescription(player: Player, description
 		warn(err)
 		return false
 	end
+
+	ServerCustomisationService.ApplyJumpAnim(player)
 
 	return true
 end
@@ -204,6 +212,21 @@ function ServerCustomisationService.AddAccessoriesToAvatar(player: Player, acces
 	end
 
 	ServerCustomisationService.applyDescription(player, clonedDescription)
+end
+
+function ServerCustomisationService.ApplyJumpAnim(player: Player)
+	local char = player.Character or player.CharacterAdded:Wait()
+	local hum = char:WaitForChild("Humanoid")
+	local animator = hum:WaitForChild("Animator")
+	for _, track in pairs(animator:GetPlayingAnimationTracks()) do
+		track:Stop(0)
+	end
+	local animScript = char:WaitForChild("Animate")
+	
+	
+	--All custom animations go here vvv --
+	animScript.jump.JumpAnim.AnimationId = animPrefix .. tostring(flipId)
+	animScript.fall.FallAnim.AnimationId = animPrefix .. tostring(fallId)
 end
 
 function ServerCustomisationService.AddBodyPartToAvatar(player: Player, itemId: number, bodyPartType: string)
@@ -390,6 +413,7 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 
 		if descSuccess then
 			ServerCustomisationService.applyDescription(player, outfitDescription)
+
 			return
 		else
 			warn("Failed to get outfit description for ID:", userOutfitId)
