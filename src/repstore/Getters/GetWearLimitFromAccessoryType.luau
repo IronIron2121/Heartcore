@@ -5,7 +5,17 @@ local Getters = ReplicatedStorage:WaitForChild("Getters")
 local GetAssetTypeFromAccessoryType = require(Getters:WaitForChild("GetAssetTypeFromAccessoryType"))
 
 local AvatarEditorService = game:GetService("AvatarEditorService")
-local AvatarRules = AvatarEditorService:GetAvatarRules()
+local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
+local success, AvatarRules = callWithRetry(function()
+    return AvatarEditorService:GetAvatarRules()
+end)
+
+warn(success)
+warn(AvatarRules)
+
+assert(success and AvatarRules, "Failed to get avatar rules!")
+
+
 local WearableAssetTypes = AvatarRules["WearableAssetTypes"]
 
 --

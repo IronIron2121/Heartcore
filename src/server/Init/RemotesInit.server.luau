@@ -38,7 +38,10 @@ GetNextOutfitRF.OnServerInvoke = function(player: Player)
 	
 	if not outfit then
 		GameStateManager.markFinishedVoting(player)
+		warn(player.Name, "finished voting!")
 		return nil
+	else
+		warn("Got an outfit!", outfit)
 	end
 	
 	-- Mark as seen and increment views
@@ -61,7 +64,11 @@ SubmitVoteRF.OnServerInvoke = function(player: Player, winnerOutfitId: string, l
 end
 
 GetUnseenCountRF.OnServerInvoke = function(player: Player)
-	return GameOutfitManager.getUnseenCount(player)
+	local count = GameOutfitManager.getUnseenCount(player)
+	if count == 0 then
+		GameStateManager.markFinishedVoting(player)
+	end
+	return count
 end
 
 GetVotingThemeRF.OnServerInvoke = function(player: Player)

@@ -165,8 +165,11 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 
 		local newOutfit = fetchNextOutfit()
 		if not newOutfit then
+			warn("No new outfits!")
 			votingComplete:set(true)
 			return
+		else
+			warn("New outfit...", newOutfit)
 		end
 
 		rightTile, rightControls, rightPositionValue = spawnTile(

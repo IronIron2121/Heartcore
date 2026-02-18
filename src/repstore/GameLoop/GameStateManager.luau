@@ -134,35 +134,40 @@ function GameStateManager.checkAllSubmitted()
 	for userId in participatingPlayers do
 		hasParticipants = true
 		if not GameOutfitManager.hasSubmitted(userId) then
-			warn(userId .. " has not submitted!")
 			return
 		end
 	end
 
-	warn("All have submitted!")
-
 	if not hasParticipants then 
-		warn("No participants") 
 		return 
 	end
-	warn("All have submitted!")
+
 	GameStateManager.hurryRound()
 end
 
 function GameStateManager.checkAllFinishedVoting()
-	if currentState ~= "Voting" then return end
+	if currentState ~= "Voting" then 
+		warn("Not voting!")
+		return 
+	end
 
 	local hasParticipants = false
 	for userId in participatingPlayers do
 		hasParticipants = true
 		if not finishedVotingPlayers[userId] then
+			warn(userId, "Not finished Voting!")
 			return
 		end
 	end
 
-	if not hasParticipants then return end
+	if not hasParticipants then 
+		warn("no participants") 
+		return
+	end
+	warn("All players have finished voting!")
+
 	GameStateManager.hurryRound()
-end
+end 
 
 function GameStateManager.markFinishedVoting(player: Player)
 	finishedVotingPlayers[player.UserId] = true
