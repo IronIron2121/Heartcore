@@ -75,7 +75,7 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 		votes = 0,
 		views = 0,
 		score = 0,
-	}
+	} 
 
 	submittedPlayers[userId] = true
 	
@@ -191,8 +191,6 @@ function GameOutfitManager.getUnseenOutfit(player: Player, excludeOutfitId: stri
 		return a.views < b.views
 	end)
 
-	warn("Unseen outfits: ")
-	
 	return unseen[1]
 end
 
