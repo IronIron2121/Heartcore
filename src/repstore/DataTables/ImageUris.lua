@@ -24,8 +24,8 @@ local assets = {
 	ViewportBG = "118393578077171",
 	PlayFitCheck = "101694125564466",
 	ExitFitCheck = "85432016776197",
-	Submit = "119739436734284",
-	Vote = "85654210815705",
+	Submit = "138236657285503",
+	Vote = "111631712234137",
 	TopBarBG = "78848001203719",
 	TastemakerLogo = "95945400211645"
 }
