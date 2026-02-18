@@ -159,7 +159,7 @@ function ServerCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 	-- Check if at max capacity for this accessory type
 	if PlayerHasMaxOfAccessoryTypeEquipped(player, accessoryDescription.AccessoryType) then
 		if accessoryDescription.AccessoryType == Enum.AccessoryType.Hat then
-			warn("Cannot equip more than 3 hats!")
+			warn("Cannot equip more than 3 hats!") 
 			return
 		else
 			warn("Maxed out! Deleting previous one...")

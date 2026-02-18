@@ -1,11 +1,13 @@
 -- GameStateManager.lua
 
 -- Services
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Folders
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Values = ReplicatedStorage:WaitForChild("Values")
 
 
@@ -46,6 +48,8 @@ local currentState: string = nil
 local currentTheme: string = nil
 
 local recentThemes: { string } = {}
+local participatingPlayers: {[number]: boolean} = {}
+local finishedVotingPlayers: {[number]: boolean} = {}
 
 local currentStateName = Values:FindFirstChild("CurrentStateName") or Instance.new("StringValue")
 currentStateName.Name = "CurrentStateName"
@@ -62,6 +66,27 @@ secondsRemaining.Parent = Values
 --
 
 local GameStateManager = {}
+
+-- Participation remote
+local SetParticipatingRE = Remotes:FindFirstChild("SetParticipating") or Instance.new("RemoteEvent")
+SetParticipatingRE.Name = "SetParticipating"
+SetParticipatingRE.Parent = Remotes
+
+SetParticipatingRE.OnServerEvent:Connect(function(player, participating)
+	if participating then
+		participatingPlayers[player.UserId] = true
+	else
+		participatingPlayers[player.UserId] = nil
+		finishedVotingPlayers[player.UserId] = nil
+		GameStateManager._checkHurry()
+	end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+	participatingPlayers[player.UserId] = nil
+	finishedVotingPlayers[player.UserId] = nil
+	GameStateManager._checkHurry()
+end)
 
 local function selectNewTheme(): string
 	local availableThemes = {}
@@ -90,12 +115,55 @@ local function selectNewTheme(): string
 	return selectedTheme
 end
 
+function GameStateManager._checkHurry()
+	if currentState == "Dressing" then
+		GameStateManager.checkAllSubmitted()
+	elseif currentState == "Voting" then
+		GameStateManager.checkAllFinishedVoting()
+	end
+end
+
+function GameStateManager.checkAllSubmitted()
+	if currentState ~= "Dressing" then return end
+
+	local hasParticipants = false
+	for userId in participatingPlayers do
+		hasParticipants = true
+		if not GameOutfitManager.hasSubmitted(userId) then
+			return
+		end
+	end
+
+	if not hasParticipants then return end
+	GameStateManager.hurryRound()
+end
+
+function GameStateManager.checkAllFinishedVoting()
+	if currentState ~= "Voting" then return end
+
+	local hasParticipants = false
+	for userId in participatingPlayers do
+		hasParticipants = true
+		if not finishedVotingPlayers[userId] then
+			return
+		end
+	end
+
+	if not hasParticipants then return end
+	GameStateManager.hurryRound()
+end
+
+function GameStateManager.markFinishedVoting(player: Player)
+	finishedVotingPlayers[player.UserId] = true
+	GameStateManager.checkAllFinishedVoting()
+end
+
 function GameStateManager.hurryRound()
 	task.defer(
 		function()
 			if secondsRemaining.Value >= 10 then
 				secondsRemaining.Value = 10
-			end	
+			end
 		end
 	)
 end
@@ -114,7 +182,7 @@ local function startCountdown(duration: number)
 	end)
 end
 
-function GameStateManager.transitionTo(stateName: string
+function GameStateManager.transitionTo(stateName: string)
 	local config = STATES[stateName]
 	timerThread = nil
 
@@ -133,7 +201,7 @@ function GameStateManager._onStateEnter(stateName: string)
 		
 		GameOutfitManager.reset()
 	elseif stateName == "Voting" then
-
+		finishedVotingPlayers = {}
 	elseif stateName == "Intermission" then
 		WinnersManager.reset()
 		WinnersManager.setNewWinners()

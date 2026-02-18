@@ -40,7 +40,7 @@ local function onOutfitSubmitted(player: Player)
     -- Check if already submitted this round
     if GameOutfitManager.hasSubmitted(player.UserId) then
 		warn("Player has already submitted.")
-        return
+        return 
     end
 
     -- Get humanoid description
@@ -51,6 +51,7 @@ local function onOutfitSubmitted(player: Player)
     end
 
     GameOutfitManager.submitOutfit(player, humanoidDescription)
+    GameStateManager.checkAllSubmitted()
 end
 
 local prompt = scope:New "ProximityPrompt" {
