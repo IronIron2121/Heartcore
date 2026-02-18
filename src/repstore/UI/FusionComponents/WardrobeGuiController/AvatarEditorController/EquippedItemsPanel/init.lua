@@ -77,22 +77,22 @@ function EquippedItemsPanel(
 			scope:New "UIListLayout" {
 				Padding = UDim.new(0, 10),
 				FillDirection = Enum.FillDirection.Vertical,
-				HorizontalAlignment = Enum.HorizontalAlignment.Center,
+				HorizontalAlignment = Enum.HorizontalAlignment.Left,
 				VerticalAlignment = Enum.VerticalAlignment.Top,
 				SortOrder = Enum.SortOrder.Name,
-				ItemLineAlignment = Enum.ItemLineAlignment.End,
+				ItemLineAlignment = Enum.ItemLineAlignment.Start,
 			},
 
 			scope:New "UIPadding" {
 				PaddingTop = UDim.new(0.02, 0),
 				PaddingBottom = UDim.new(0.02, 0),
-				PaddingLeft = UDim.new(0.02, 0),
-				PaddingRight = UDim.new(0.02, 0)
+				PaddingLeft = UDim.new(0.15, 0),
+				PaddingRight = UDim.new(0, 0)
 			},
 
 			scope:New "Frame" {
 				Name = "Buffer",
-				Size = UDim2.fromOffset(100, 50),
+				Size = UDim2.fromScale(1, 0.1),
 				BackgroundTransparency = 1,
 				LayoutOrder = 10,
 			}
