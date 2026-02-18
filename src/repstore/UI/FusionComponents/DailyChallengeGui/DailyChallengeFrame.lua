@@ -2,6 +2,7 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 
 -- Folders
 local Utility           = ReplicatedStorage:WaitForChild("Utility")
@@ -46,7 +47,7 @@ local function DailyChallengeFrame(
     end
 
     -- Listen for challenge updates
-    UpdateChallengeProgress.OnClientEvent:Connect(function(update)
+    UpdateChallengeProgress.OnClientEvent:Connect(function(update: { id: string, progress: number, claimed: boolean })
         local currentChallenges = peek(challenges)
         local newChallenges = {}
         
@@ -60,6 +61,12 @@ local function DailyChallengeFrame(
                     claimed = update.claimed,
                     definition = challenge.definition
                 })
+                if update.progress >= challenge.target and challenge.progress < challenge.target and not update.claimed then
+                    StarterGui:SetCore("SendNotification", {
+                        Title = "Daily Challenge Completed!",
+                        Text = "You can claim your reward for " .. challenge.definition.name,
+                    })
+                end
             else
                 table.insert(newChallenges, challenge)
             end
@@ -146,7 +153,7 @@ local function DailyChallengeFrame(
                         HorizontalAlignment = Enum.HorizontalAlignment.Left,
                         VerticalAlignment = Enum.VerticalAlignment.Center,
                         Padding = UDim.new(0, 10),
-                        SortOrder = Enum.SortOrder.Name
+                        SortOrder = Enum.SortOrder.LayoutOrder
                     },
 
                     scope:New "UIPadding" {
@@ -161,6 +168,7 @@ local function DailyChallengeFrame(
                         
                         return ChallengeCard(scope, {
                             name = challenge.id,
+                            layoutOrder = def.layoutOrder,
                             description = def.description,
                             progress = string.format("%d/%d", challenge.progress, challenge.target),
                             reward = tostring(def.reward.exp),
