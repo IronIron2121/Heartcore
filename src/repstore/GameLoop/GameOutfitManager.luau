@@ -75,7 +75,7 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 		votes = 0,
 		views = 0,
 		score = 0,
-	}
+	} 
 
 	submittedPlayers[userId] = true
 	

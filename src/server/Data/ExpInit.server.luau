@@ -46,7 +46,7 @@ local function Initialise(player: Player, profile: typeof(PlayerStore:StartSessi
 
     local Rank = Instance.new("StringValue", leaderstats)
     Rank.Name = "Rank"
-    Rank.Value = profile.Data.Rank or DataManager.GetRank(Level.Value)
+    Rank.Value = profile.Data.Rank or DataManager.GetRankName(Level.Value)
 
     local Flair = Instance.new("NumberValue", leaderstats)
     Flair.Name = "Flair"

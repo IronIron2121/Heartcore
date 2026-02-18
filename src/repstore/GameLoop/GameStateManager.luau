@@ -82,6 +82,10 @@ SetParticipatingRE.OnServerEvent:Connect(function(player, participating)
 	end
 end)
 
+Players.PlayerAdded:Connect(function(player)
+	participatingPlayers[player.UserId] = true
+end)
+
 Players.PlayerRemoving:Connect(function(player)
 	participatingPlayers[player.UserId] = nil
 	finishedVotingPlayers[player.UserId] = nil
@@ -130,11 +134,18 @@ function GameStateManager.checkAllSubmitted()
 	for userId in participatingPlayers do
 		hasParticipants = true
 		if not GameOutfitManager.hasSubmitted(userId) then
+			warn(userId .. " has not submitted!")
 			return
 		end
 	end
 
-	if not hasParticipants then return end
+	warn("All have submitted!")
+
+	if not hasParticipants then 
+		warn("No participants") 
+		return 
+	end
+	warn("All have submitted!")
 	GameStateManager.hurryRound()
 end
 
