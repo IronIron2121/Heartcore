@@ -152,15 +152,17 @@ local function ExpHud(scope: Fusion.Scope)
 
 			scope:New "TextLabel" {
 				Name = "TasteMeter",
-				Size = UDim2.fromOffset(120,40),
-				Position = UDim2.fromScale(0.45,0),
+				Size = UDim2.fromScale(0.5,0.12),
+				Position = UDim2.fromScale(0.45,0.05),
 				BackgroundTransparency = 1,
 				Text = "Taste meter",
 				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
-				TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+				TextColor3 = Color3.fromRGB(130,194,144),
 				TextStrokeColor3 = UI_CONSTANTS.COLOUR_WHITE,
 				TextStrokeTransparency = 0,
-				TextScaled = true
+				TextScaled = true,
+				TextWrapped = false,
+				TextXAlignment = Enum.TextXAlignment.Left
 			},
 
 			scope:New "Frame" {
