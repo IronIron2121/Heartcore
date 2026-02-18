@@ -183,6 +183,8 @@ function WinnersManager.setNewWinners()
 		end)
 	end
 
+	GameOutfitManager.setPodiumOutfits(top3)
+
 	local podiumSuccess = pcall(function()
 		WinnersManager.updatePodiums(top3)
 	end)

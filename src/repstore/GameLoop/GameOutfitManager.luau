@@ -46,6 +46,9 @@ local submittedPlayers: {[number]: boolean} = {}
 -- Track which outfits each player has seen: userId -> {outfitId -> true}
 local playerViews: {[number]: {[string]: boolean}} = {}
 
+-- Podium outfits persist across reset() so winner rigs remain inspectable
+local podiumOutfits: {[string]: Outfit} = {}
+
 --
 
 local function generateOutfitId(userId: number): string
@@ -96,7 +99,14 @@ function GameOutfitManager.getOutfits(): {[string]: Outfit}
 end
 
 function GameOutfitManager.getOutfit(outfitId: string): Outfit?
-	return outfits[outfitId]
+	return outfits[outfitId] or podiumOutfits[outfitId]
+end
+
+function GameOutfitManager.setPodiumOutfits(outfitList: {Outfit})
+	podiumOutfits = {}
+	for _, outfit in ipairs(outfitList) do
+		podiumOutfits[outfit.outfitId] = outfit
+	end
 end
 
 function GameOutfitManager.addVote(player: Player, outfitId: string): boolean
