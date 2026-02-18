@@ -2,16 +2,16 @@
 -- EquippedItemsPanel.lua
 
 -- Services
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterPlayer = game:GetService("StarterPlayer")
+local ReplicatedStorage 	= game:GetService("ReplicatedStorage")
+local StarterPlayer 		= game:GetService("StarterPlayer")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
-local Fusion = require(Utility:WaitForChild("Fusion"))
-local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local BaseButton 	= require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
+local Fusion 		= require(Utility:WaitForChild("Fusion"))
+local UI_CONSTANTS 	= require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion
 local Children = Fusion.Children
