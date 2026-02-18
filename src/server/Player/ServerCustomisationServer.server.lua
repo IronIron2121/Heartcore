@@ -122,10 +122,10 @@ local function playerEquippedInspectedItems(player: Player, items: {id: number, 
 	setPlayerEquipping(player, false)
 end
 
-local function playerEquippedInspectedPlayer(player: Player, inspectedPlayer: Player)
+local function playerEquippedInspectedPlayer(player: Player, inspectedOutfit: HumanoidDescription)
 	if isPlayerEquipping(player) then return end
 	setPlayerEquipping(player, true) 
-	ServerCustomisationService.ApplyInspectedOutfitToPlayer(player, inspectedPlayer)
+	ServerCustomisationService.ApplyInspectedOutfitToPlayer(player, inspectedOutfit)
 	setPlayerEquipping(player, false)
 end
 

@@ -90,7 +90,7 @@ local function selectNewTheme(): string
 	return selectedTheme
 end
 
-function GameStateManager.onAllPlayersFinishedVoting()
+function GameStateManager.hurryRound()
 	task.defer(
 		function()
 			if secondsRemaining.Value >= 10 then
@@ -114,7 +114,7 @@ local function startCountdown(duration: number)
 	end)
 end
 
-function GameStateManager.transitionTo(stateName: string)
+function GameStateManager.transitionTo(stateName: string
 	local config = STATES[stateName]
 	timerThread = nil
 

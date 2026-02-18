@@ -432,7 +432,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         layoutOrder = 4,
                                         size = buttonSize,
                                         onActivated = function()
-                                            ClientCustomisationService.PlayerEquippedInspectedPlayer(peek(inspectPlayer))
+                                            ClientCustomisationService.PlayerEquippedInspectedPlayer(peek(inspectDescription))
                                             GuiManager.PopCentre()
                                         end
                                     }),

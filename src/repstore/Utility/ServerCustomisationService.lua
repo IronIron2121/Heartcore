@@ -140,11 +140,10 @@ function ServerCustomisationService.ResetPlayerOutfit(player: Player): boolean
 	return true
 end
 
-function ServerCustomisationService.ApplyInspectedOutfitToPlayer(player: Player, inspectedPlayer: Player)
-	local inspectedHumDesc = getHumanoidDescriptionFromPlayer(inspectedPlayer)
+function ServerCustomisationService.ApplyInspectedOutfitToPlayer(player: Player, humanoidDescription: Player)
 	local humanoid = GetHumanoidFromPlayer(player)
 	local success = callWithRetry(function()  
-		return humanoid:ApplyDescriptionAsync(inspectedHumDesc)
+		return humanoid:ApplyDescriptionAsync(humanoidDescription)
 	end)
 
 	return success
