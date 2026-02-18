@@ -97,9 +97,9 @@ function ClientCustomisationService.RemoveItem(assetId: number): boolean
 	return success
 end
 
-function ClientCustomisationService.PlayerEquippedInspectedPlayer(inspectedPlayer: Player): boolean
+function ClientCustomisationService.PlayerEquippedInspectedPlayer(description: HumanoidDescription): boolean
 	local success = callWithRetry(function()
-		return PlayerEquippedInspectedPlayer:FireServer(inspectedPlayer)
+		return PlayerEquippedInspectedPlayer:FireServer(description)
 	end)
 
 	return success

@@ -29,7 +29,7 @@ GetUnseenCountRF.Parent = Remotes
 local GetVotingThemeRF = Remotes:WaitForChild("GetVotingThemeRF") or Instance.new("RemoteFunction")
 GetVotingThemeRF.Name = "GetVotingThemeRF"
 GetVotingThemeRF.Parent = Remotes
-
+ 
 
 -- Handlers
 GetNextOutfitRF.OnServerInvoke = function(player: Player)
@@ -37,6 +37,7 @@ GetNextOutfitRF.OnServerInvoke = function(player: Player)
 	local outfit = GameOutfitManager.getUnseenOutfit(player, currentChampionId)
 	
 	if not outfit then
+		GameStateManager.markFinishedVoting(player)
 		return nil
 	end
 	

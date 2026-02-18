@@ -20,7 +20,7 @@ local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 local ChallengeManager = require(ServerScriptService:WaitForChild("DailyChallenges"):WaitForChild("ChallengeManager"))
 
 -- Replicated Values
-local CurrentThemeName = Values:WaitForChild("CurrentThemeName") :: StringValue
+local CurrentThemeName = Values:WaitForChild("CurrentThemeName") :: StringValue 
 
 -- Instances
 local leaderboard = dailyWinners:WaitForChild("leaderboard")

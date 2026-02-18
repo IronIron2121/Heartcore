@@ -21,7 +21,6 @@ local GameState = StarterPlayerScripts.GameState
 
 -- Modules
 local FtuePop = require(StarterPlayer.StarterPlayerScripts.GUI.FtuePop)
-local PlayerDisplayManager = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
 local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
 local PlayerSubmissionState = require(GameState.PlayerSubmissionState)
 local Fusion = require(FusionUtility)
@@ -47,6 +46,7 @@ local OpenDailyChallengeGuiButton = require(FusionComponents:WaitForChild("OpenD
 
 -- Remotes
 local PlayerSubmittedOutfitRF = Remotes:WaitForChild("PlayerSubmittedOutfit") :: RemoteFunction
+local SetParticipatingRE = Remotes:WaitForChild("SetParticipating") :: RemoteEvent
 
 -- Fusion
 local Children = Fusion.Children
@@ -80,8 +80,10 @@ local function InitialiseHuds()
             local currentConfig = peek(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
                 GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.ShoppingConfig)
+                SetParticipatingRE:FireServer(false)
             elseif currentConfig == CONFIGURATION_NAMES.ShoppingConfig then
                 GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+                SetParticipatingRE:FireServer(true)
             end
         end,
 
@@ -111,8 +113,10 @@ local function InitialiseHuds()
             local currentConfig = peek(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
                 GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.ShoppingConfig)
+                SetParticipatingRE:FireServer(false)
             elseif currentConfig == CONFIGURATION_NAMES.ShoppingConfig then
                 GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+                SetParticipatingRE:FireServer(true)
             end
         end,
 
