@@ -56,7 +56,7 @@ local modalScope = Fusion:scoped()
 
 local function InitialiseHuds()
     local hudScope = Fusion:scoped()
-    local expHud = ExpHud(hudScope)
+    local expHud = ExpHud(hudScope, { Size = UDim2.fromScale(1, 0.5) })
     local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
     local openWardrobeButton = OpenWardrobeButton(hudScope)
     local submissionThemeBar = SubmissionThemeBar()
@@ -67,39 +67,6 @@ local function InitialiseHuds()
         name = "ChangeModeButton",
         layoutOrder = 2,
         size = UDim2.fromScale(0.6, 0.6),
-        image = hudScope:Computed(function(use)
-            local currentConfig = use(currentConfigurationName)
-            if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
-                return ImageUris.ExitFitCheck
-            else
-                return ImageUris.PlayFitCheck
-            end
-        end),
-
-        onActivated = function()
-            local currentConfig = peek(currentConfigurationName)
-            if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
-                GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.ShoppingConfig)
-                SetParticipatingRE:FireServer(false)
-            elseif currentConfig == CONFIGURATION_NAMES.ShoppingConfig then
-                GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
-                SetParticipatingRE:FireServer(true)
-            end
-        end,
-
-        [Children] = {
-            hudScope:New "UIAspectRatioConstraint" {
-                AspectRatio = 1,
-                AspectType = Enum.AspectType.FitWithinMaxSize,
-                DominantAxis = Enum.DominantAxis.Width
-            }
-        }
-    })
-
-    local GameModeButton2 = BaseImageButton(hudScope, {
-        name = "ChangeModeButton2",
-        layoutOrder = 2,
-        size = UDim2.fromScale(0.7,0.7),
         image = hudScope:Computed(function(use)
             local currentConfig = use(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
@@ -212,36 +179,42 @@ local function InitialiseHuds()
                         DominantAxis = Enum.DominantAxis.Width
                     }
                 }
-            }),
+            })
+        }
+    } :: Frame
 
+    local gameModeButtonFrame = hudScope:New "Frame" {
+        Name = "GameModeButtonFrame",
+        Size = UDim2.fromScale(1, 0.5),
+        BackgroundTransparency = 1,
+
+        [Children] = {
             GameModeButton
         }
     } :: Frame
 
-    local GameOptionsFrame2 = hudScope:New "Frame" {
-        Name = "GameOptionsFrame2",
+    local topRightContainer = hudScope:New "Frame" {
+        Name = "TopRightContainer",
         Size = UDim2.fromScale(1, 1),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.fromScale(0.5, 0.5),
         BackgroundTransparency = 1,
 
         [Children] = {
             hudScope:New "UIListLayout" {
-                Padding = UDim.new(0.15, 0),
-                FillDirection = Enum.FillDirection.Horizontal,
+                FillDirection = Enum.FillDirection.Vertical,
                 SortOrder = Enum.SortOrder.LayoutOrder,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                VerticalAlignment = Enum.VerticalAlignment.Center
+                VerticalAlignment = Enum.VerticalAlignment.Top,
             },
 
-            GameModeButton2
+            expHud,
+            gameModeButtonFrame
         }
     } :: Frame
 
     local GameLoopConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
         topMiddle = { Object = submissionThemeBar, AlwaysOn = true },
-        topRight = { Object = expHud, AlwaysOn = true },
+        topRight = { Object = topRightContainer, AlwaysOn = true },
         bottomLeft = nil,
         bottomMiddle = { Object = buttonsFrame, AlwaysOn = false },
         bottomRight = { Object = GameOptionsFrame1, AlwaysOn = false },
@@ -250,10 +223,10 @@ local function InitialiseHuds()
     local ShoppingConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.ShoppingConfig,
         topMiddle = nil,
-        topRight = { Object = expHud, AlwaysOn = false },
+        topRight = { Object = topRightContainer, AlwaysOn = false },
         bottomLeft = nil,
         bottomMiddle = { Object = buttonsFrame, AlwaysOn = false },
-        bottomRight = { Object = GameOptionsFrame2, AlwaysOn = false },
+        bottomRight = nil,
     })
 
     local FtueConfig = GuiConfiguration.new({

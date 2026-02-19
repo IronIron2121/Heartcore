@@ -106,7 +106,7 @@ local function animateRank(label)
 	label.Position = originalPosition
 end
 
-local function ExpHud(scope: Fusion.Scope)
+local function ExpHud(scope: Fusion.Scope, props: { Size: UsedAs<UDim2>? }?)
 	local rankText = scope:Computed(function(use)
 		return "Lv. " .. use(levelFusion) .. " " .. use(rankFusion)
 	end)
@@ -129,7 +129,7 @@ local function ExpHud(scope: Fusion.Scope)
 	} :: TextLabel
 	
 	local hudTopBar = scope:New "Frame" {
-		Size = UDim2.fromScale(1,1),
+		Size = if props and props.Size then props.Size else UDim2.fromScale(1, 0.5),
 		Position = UDim2.fromScale(0,0),
 		AnchorPoint = Vector2.new(0,0),
 		BackgroundColor3 = Color3.new(1, 1, 1),
