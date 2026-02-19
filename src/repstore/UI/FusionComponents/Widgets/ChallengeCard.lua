@@ -29,11 +29,11 @@ local function ChallengeCard(
         description: UsedAs<string>?,
         progress: UsedAs<string>?,
         reward: UsedAs<string>?,
+        isCompleted: UsedAs<boolean>?,
         isClaimed: UsedAs<boolean>?,
         onClaim: (() -> ())?
     }
 ): Frame
-    local isHovered = scope:Value(false)
     local Toggled = scope:Value(false)
     local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
@@ -207,9 +207,7 @@ local function ChallengeCard(
                 Size = UDim2.fromScale(1, 1),
                 BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
                 BackgroundTransparency = 0.5,
-                Visible = scope:Computed(function(use)
-                    return props.isClaimed or use(isHovered) 
-                end),
+                Visible = props.isCompleted,
                 ZIndex = 10,
 
                 [Children] = {
@@ -286,16 +284,6 @@ local function ChallengeCard(
             },
         }
     } :: Frame
-
-    challengeFrame.MouseEnter:Connect(function()
-        isHovered:set(true) 
-        warn(props)
-        warn(props.isClaimed)  
-    end)
-
-    challengeFrame.MouseLeave:Connect(function()
-        isHovered:set(false)
-    end)
 
     return challengeFrame
 end

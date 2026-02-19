@@ -172,6 +172,7 @@ local function DailyChallengeFrame(
                             description = def.description,
                             progress = string.format("%d/%d", challenge.progress, challenge.target),
                             reward = tostring(def.reward.exp),
+                            isCompleted = isCompleted,
                             isClaimed = challenge.claimed,
                             onClaim = function()
                                 if canClaim then
