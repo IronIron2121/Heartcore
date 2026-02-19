@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
 local BaseButton = require(script.Parent.BaseButton)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -88,133 +89,192 @@ function Frame(
             scope:New "UICorner" {
                 CornerRadius = props.cornered and UDim.new(0.00, 0) or UDim.new(0.05,0) 
             },
-            scope:New "UIListLayout" {
-                FillDirection = Enum.FillDirection.Vertical,
-                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                VerticalAlignment = Enum.VerticalAlignment.Center,
-                SortOrder = Enum.SortOrder.LayoutOrder
-            },
-
             scope:New "Frame" {
-                Name = "Buffer",
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                Size = UDim2.fromScale(1, 1/3),
-                LayoutOrder = 1,
-                BackgroundTransparency = 1
+                Name = "loadingBackground",
+                Size = UDim2.fromScale(1,1),
+                Visible = props.onSkipped and true or false,
+                
+                [Children] = {
+                    scope:New "UIGradient" {
+                        Color = ColorSequence.new(
+                            Color3.fromRGB(176, 183, 253),
+                            UI_CONSTANTS.COLOUR_WHITE
+                        ),
+                        Rotation = 90
+                    },
+                    scope:New "UICorner" {
+                        CornerRadius = props.cornered and UDim.new(0.00, 0) or UDim.new(0.05,0) 
+                    },
+                }
             },
-
             scope:New "Frame" {
-                Name = "LoadingContainer",
+                Name = "TMLogoContainer",
                 AnchorPoint = Vector2.new(0.5, 0.5),
-                Size = UDim2.fromScale(1, 1/3),
-                LayoutOrder = 2,
+                Size = UDim2.fromScale(1,0.5),
+                Position = UDim2.fromScale(0.5,0.2),
+                BackgroundTransparency = 1,
+                ZIndex = 5,
+                Visible = props.onSkipped and true or false,
 
                 [Children] = {
-                    scope:New "UIListLayout" {
-                        FillDirection = Enum.FillDirection.Horizontal,
-                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                        VerticalAlignment = Enum.VerticalAlignment.Center,
-                        Padding = UDim.new(0.02,0),
-                        SortOrder = Enum.SortOrder.LayoutOrder
-                    },
-
-                    scope:New "TextLabel" {
-                        Name = "LoadingLabel",
-                        Size = UDim2.fromScale(0.5, 1),
-                        AnchorPoint = Vector2.new(0.5, 0.5),
-                        Position = UDim2.fromScale(0.5, 0.5),
-                        LayoutOrder = 0,
-                        Text = "Loading...",
-                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                        TextStrokeTransparency = 1,
-                        BackgroundTransparency = 1,
-                        TextScaled = true,
-                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
-                    },
-                    scope:New "Frame" {
-                        Name = "loadingIconContainer",
-                        Size = UDim2.fromScale(0.2,1),
+                    scope:New "ImageLabel"{
+                        Name = "TMLogo",
                         AnchorPoint = Vector2.new(0.5,0.5),
+                        Size = UDim2.fromScale(1,1),
+                        Position = UDim2.fromScale(0.5,0.5),
                         BackgroundTransparency = 1,
-                        LayoutOrder = 1,
+                        Image = ImageUris.TastemakerLogo,
 
                         [Children] = {
-                            scope:New "ImageLabel" {
-                                Name = "LoadingIcon",
-                                Size = UDim2.fromScale(1,1),
-                                AnchorPoint = Vector2.new(0.5,0.5),
-                                Position = UDim2.fromScale(0.5,0.5),
-                                BackgroundTransparency = 1,
-                                ImageColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                                LayoutOrder = 1,
-                                Image = "rbxassetid://96217797477627",
-                                Rotation = rotationTween ,
-
-                                [Children] = {
-                                    scope:New "UIAspectRatioConstraint" {
-                                        AspectRatio = 1
-                                    }
-                                }
+                            scope:New "UIAspectRatioConstraint" {
+                                AspectRatio = 1
                             }
                         }
-                    } 
+                    }
                 }
             },
 
             scope:New "Frame" {
-                Name = "SkipProgressContainer",
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                Size = UDim2.fromScale(1, 1/3),
-                LayoutOrder = 3,
+                Name = "Container",
+                Size = UDim2.fromScale(1,0.7),
+                Position = UDim2.fromScale(0,0.3),
+                BackgroundTransparency = 1,
 
                 [Children] = {
                     scope:New "UIListLayout" {
-                        FillDirection = Enum.FillDirection.Horizontal,
+                        FillDirection = Enum.FillDirection.Vertical,
                         HorizontalAlignment = Enum.HorizontalAlignment.Center,
                         VerticalAlignment = Enum.VerticalAlignment.Center,
                         SortOrder = Enum.SortOrder.LayoutOrder
                     },
 
                     scope:New "Frame" {
-                        Name = "Skip",
-                        Size = UDim2.fromScale(0.5, 1),
-                        LayoutOrder = 2,
-                        Visible = props.onSkipped and true or false,
-
-                        [Children] = {
-                            BaseButton(scope, {
-                                text = "SKIP",
-                                size = UDim2.fromScale(0.8, 0.8),
-                                onActivated = props.onSkipped,
-                            })
-
-                        }
+                        Name = "Buffer",
+                        AnchorPoint = Vector2.new(0.5, 0.5),
+                        Size = UDim2.fromScale(1, 0.05),
+                        LayoutOrder = 1,
+                        BackgroundTransparency = 1
                     },
 
                     scope:New "Frame" {
-                        Name = "ProgressContainer",
-                        Size = UDim2.fromScale(0.5, 1),
-                        LayoutOrder = 1,
+                        Name = "LoadingContainer",
+                        AnchorPoint = Vector2.new(0.5, 0.5),
+                        Size = UDim2.fromScale(1, 1/3),
+                        LayoutOrder = 2,
+                        BackgroundTransparency = 1,
 
                         [Children] = {
+                            scope:New "UIListLayout" {
+                                FillDirection = Enum.FillDirection.Horizontal,
+                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                                VerticalAlignment = Enum.VerticalAlignment.Center,
+                                Padding = UDim.new(0,0),
+                                SortOrder = Enum.SortOrder.LayoutOrder
+                            },
+
                             scope:New "TextLabel" {
-                                Name = "LoadingTextLabel",
+                                Name = "LoadingLabel",
                                 Size = UDim2.fromScale(0.5, 1),
                                 AnchorPoint = Vector2.new(0.5, 0.5),
                                 Position = UDim2.fromScale(0.5, 0.5),
                                 LayoutOrder = 0,
-                                Text = props.text or "",
+                                Text = "Loading...",
                                 TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
                                 TextStrokeTransparency = 1,
                                 BackgroundTransparency = 1,
                                 TextScaled = true,
                                 FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
                             },
+                            scope:New "Frame" {
+                                Name = "loadingIconContainer",
+                                Size = UDim2.fromScale(0.1,0.8),
+                                AnchorPoint = Vector2.new(0.5,0.5),
+                                BackgroundTransparency = 1,
+                                LayoutOrder = 1,
+
+                                [Children] = {
+                                    scope:New "ImageLabel" {
+                                        Name = "LoadingIcon",
+                                        Size = UDim2.fromScale(1,1),
+                                        AnchorPoint = Vector2.new(0.5,0.5),
+                                        Position = UDim2.fromScale(0.5,0.5),
+                                        BackgroundTransparency = 1,
+                                        ImageColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                                        LayoutOrder = 1,
+                                        Image = "rbxassetid://96217797477627",
+                                        Rotation = rotationTween ,
+
+                                        [Children] = {
+                                            scope:New "UIAspectRatioConstraint" {
+                                                AspectRatio = 1
+                                            }
+                                        }
+                                    }
+                                }
+                            } 
+                        }
+                    },
+                    
+
+                    scope:New "Frame" {
+                        Name = "SkipProgressContainer",
+                        AnchorPoint = Vector2.new(0.5, 0.5),
+                        Size = UDim2.fromScale(1, 1/3),
+                        LayoutOrder = 3,
+                        BackgroundTransparency = 1,
+
+                        [Children] = {
+                            scope:New "UIListLayout" {
+                                FillDirection = Enum.FillDirection.Horizontal,
+                                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                                VerticalAlignment = Enum.VerticalAlignment.Center,
+                                SortOrder = Enum.SortOrder.LayoutOrder
+                            },
+
+                            scope:New "Frame" {
+                                Name = "Skip",
+                                Size = UDim2.fromScale(0.5, 1),
+                                LayoutOrder = 2,
+                                BackgroundTransparency = 1,
+                                Visible = props.onSkipped and true or false,
+
+                                [Children] = {
+                                    BaseButton(scope, {
+                                        text = "SKIP",
+                                        size = UDim2.fromScale(0.5, 0.5),
+                                        onActivated = props.onSkipped,
+                                    })
+
+                                }
+                            },
+
+                            scope:New "Frame" {
+                                Name = "ProgressContainer",
+                                Size = UDim2.fromScale(0.5, 1),
+                                LayoutOrder = 1,
+                                BackgroundTransparency = 1,
+
+                                [Children] = {
+                                    scope:New "TextLabel" {
+                                        Name = "LoadingTextLabel",
+                                        Size = UDim2.fromScale(0.5, 1),
+                                        AnchorPoint = Vector2.new(0.5, 0.5),
+                                        Position = UDim2.fromScale(0.5, 0.5),
+                                        LayoutOrder = 0,
+                                        Text = props.text or "",
+                                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                                        TextStrokeTransparency = 1,
+                                        BackgroundTransparency = 1,
+                                        TextScaled = true,
+                                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
+                                    },
+                                }
+                            }
+
                         }
                     }
-
                 }
-            },
+            }
         }
     } :: Frame
     

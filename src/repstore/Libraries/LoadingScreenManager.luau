@@ -39,7 +39,7 @@ function LoadingScreenManager.show(parent: GuiBase, props: {transparency: number
 			backgroundTransparency = props and props.transparency or 0.2,
 			parent = parent,
 			text = props and props.text or nil,
-			cornered = props and props.cornered,
+			cornered = props and props.cornered, 
 			onSkipped = props and props.onSkipped or nil
 		})
 
