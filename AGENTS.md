@@ -43,10 +43,26 @@ aftman install
 - `GameOutfitManager` (`src/repstore/GameLoop/`) — Outfit submissions, vote/view tracking
 - `WinnersManager` (`src/server/Voting/`) — Podium models, leaderboard
 - `DataManager` (`src/server/Data/`) — Player XP, levels, ranks via ProfileService; also handles billboard display updates (level/rank text above player heads)
+- `RemotesInit` (`src/server/Init/`) — Server-side remote function/event handlers for voting, outfit fetching, and voting-finished detection
+- `SubmissionServer` (`src/server/GameLoop/`) — Handles outfit submissions, triggers hurry-round checks
 - `Inspector` (`src/client/Mannequins/Inspector/`) — Mannequin/player inspection with loading state
 - `LoadingScreenManager` (`src/repstore/Libraries/`) — Centralized loading screen management
 - `ClientOutfitService` (`src/repstore/Utility/`) — Client-side outfit save/delete operations
 - `SerialisationService` (`src/repstore/Utility/`) — HumanoidDescription serialization/deserialization
+
+**Hurry Round / Participant Tracking:**
+- `GameStateManager` tracks `participatingPlayers` and `finishedVotingPlayers` (dictionaries keyed by UserId)
+- Players are added to `participatingPlayers` on join (`PlayerAdded`) and toggled via `SetParticipating` RemoteEvent (fired from mode buttons)
+- Players removed from both lists on `PlayerRemoving`
+- `_checkHurry()` calls `checkAllSubmitted()` during Dressing or `checkAllFinishedVoting()` during Voting
+- `markFinishedVoting(player)` is called from `RemotesInit` when `getUnseenOutfit` returns nil or `getUnseenCount` returns 0
+- `finishedVotingPlayers` is reset on Voting state entry
+
+**Podium Outfit Persistence:**
+- `GameOutfitManager` has a separate `podiumOutfits` table that survives `reset()`
+- `getOutfit(id)` falls back to `podiumOutfits` if not found in current `outfits`
+- `setPodiumOutfits(outfitList)` is called from `WinnersManager.setNewWinners()` before updating podiums
+- This allows podium rig inspection to work across round resets
 
 **Cross-Script Communication:**
 - Replicated ValueObjects in ReplicatedStorage:
@@ -132,6 +148,7 @@ end
 2. Add the `trackerKey` to both tracker initialization tables in `ChallengeManager` (in `InitialiseChallenges` and `ResetPlayerChallenges`)
 3. Add a convenience function or call `IncrementTrackerStat(player, trackerKey, amount)` from the relevant game system
 4. If the challenge type is new, add it to the `ChallengeType` union type
+5. New definitions are auto-detected on player join — `InitialiseChallenges` compares stored challenge IDs against current definitions and forces a reset if any are missing
 
 **Meta-challenges:** The `COMPLETE_3_CHALLENGES` challenge uses `ChallengesCompleted` tracker, which is incremented in `ClaimReward` whenever any non-meta challenge is claimed.
 
