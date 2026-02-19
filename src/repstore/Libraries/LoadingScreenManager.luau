@@ -13,7 +13,7 @@ local LoadingScreen = require(ReplicatedStorage.UI.FusionComponents.Widgets.Load
 
 -- Fusion
 type Value<T> = Fusion.Value<T>
-
+type UsedAs<T> = Fusion.UsedAs<T>
 --
 
 local scope = Fusion:scoped()
@@ -27,7 +27,7 @@ local cache: { [GuiObject]: CacheEntry } = {}
 
 local LoadingScreenManager = {}
 
-function LoadingScreenManager.show(parent: GuiObject)
+function LoadingScreenManager.show(parent: GuiObject, transparency: number?, text: UsedAs<string>?, cornered: boolean)
 	local entry = cache[parent]
 	if not entry then
 		local visible = scope:Value(true)
@@ -36,8 +36,10 @@ function LoadingScreenManager.show(parent: GuiObject)
 			backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
 			visible = visible,
 			zIndex = 100,
-			backgroundTransparency = 0.2,
+			backgroundTransparency = transparency or 0.2,
 			parent = parent,
+			text = text or nil,
+			cornered = cornered
 		})
 		cache[parent] = { frame = frame, visible = visible }
 	else

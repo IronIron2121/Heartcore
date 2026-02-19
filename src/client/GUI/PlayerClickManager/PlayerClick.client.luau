@@ -65,7 +65,6 @@ local function addClickDetector(player: Player, character: Model?)
 end
 
 local function addClickDetectorToWinnerRig(rig: Model)
-    warn("Adding to winner rig ", rig)
     local activationDistanceComp = clickScope:Computed(function(use)
         return use(CentreActive) and 0 or 200
     end)
@@ -87,8 +86,6 @@ local function addClickDetectorToWinnerRig(rig: Model)
     } :: ClickDetector
 
     clickDetector.Parent = rig
-
-    warn("Added to rigs")
 end
 
 -- Add click detectors to all players in game when local player joins
