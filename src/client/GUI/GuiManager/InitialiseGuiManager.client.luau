@@ -49,6 +49,15 @@ local ImageUris = require(DataTables.ImageUris)
 local FtuePop = require(ClientGUI.FtuePop)
 local Fusion = require(FusionUtility)
 
+local artistStores = workspace:WaitForChild("ArtistStores")
+local lobbyRock = workspace:WaitForChild("lobbyRock")
+local labelStores = workspace:WaitForChild("LabelStores")
+local podium = workspace:WaitForChild("fitCheckPodium")
+local layoutBlocks = workspace:WaitForChild("layoutBlocks")
+local dailyWinners = workspace:WaitForChild("dailyWinners")
+local curatedStores = workspace:WaitForChild("curatedStores")
+
+
 -- Remotes
 local PlayerSubmittedOutfitRF = Remotes:WaitForChild("PlayerSubmittedOutfit") :: RemoteFunction
 local SetParticipatingRE = Remotes:WaitForChild("SetParticipating") :: RemoteEvent
@@ -68,8 +77,16 @@ task.spawn(function()
 
     } :: ScreenGui
 
-    local Parts = game:GetDescendants()
-    local numberOfParts = #Parts
+    local assetGroups = {
+        lobbyRock:GetDescendants(),
+        podium:GetDescendants(),
+        labelStores:GetDescendants(),
+        artistStores:GetDescendants(),
+        layoutBlocks:GetDescendants(),
+        dailyWinners:GetDescendants(),
+        curatedStores:GetDescendants()
+
+    }
     local loadingText = modalScope:Value("...")
     local skipped = false
 
@@ -87,10 +104,10 @@ task.spawn(function()
         task.wait(1)
     end
 
-    for i, part in Parts do
+    for i, group in assetGroups do
         if skipped then break end
-        ContentProvider:PreloadAsync({part})
-        loadingText:set(i .. "/" .. numberOfParts)
+        loadingText:set(i .. "/" .. #assetGroups)
+        ContentProvider:PreloadAsync(group)
     end
 
     LoadingScreenManager.hide(initialLoadGui)
