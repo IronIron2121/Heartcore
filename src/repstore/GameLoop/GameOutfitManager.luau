@@ -58,16 +58,18 @@ end
 function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: HumanoidDescription): boolean
 	local userId = player.UserId
 	
+	-- Remove previous submission if resubmitting
 	if submittedPlayers[userId] then
-		SubmissionResultRE:FireClient(player, {
-			ok = false,
-			msg = "You've already submitted an outfit this round!"
-		})
-		return false
+		for id, outfit in outfits do
+			if outfit.userId == userId then
+				outfits[id] = nil
+				break
+			end
+		end
 	end
-	
+
 	local outfitId = generateOutfitId(userId)
-	
+
 	outfits[outfitId] = {
 		outfitId = outfitId,
 		userId = userId,

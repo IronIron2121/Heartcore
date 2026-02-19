@@ -37,12 +37,6 @@ local function onOutfitSubmitted(player: Player)
         return
     end
 
-    -- Check if already submitted this round
-    if GameOutfitManager.hasSubmitted(player.UserId) then
-		warn("Player has already submitted.")
-        return 
-    end
-
     -- Get humanoid description
     local humanoidDescription = getHumanoidDescriptionFromPlayer(player)
     if not humanoidDescription then
