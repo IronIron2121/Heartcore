@@ -127,6 +127,7 @@ local function InitialiseHuds()
         name = "ChangeModeButton",
         layoutOrder = 2,
         size = UDim2.fromScale(0.6, 0.6),
+        position = UDim2.fromScale(0.8,0),
         image = hudScope:Computed(function(use)
             local currentConfig = use(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
