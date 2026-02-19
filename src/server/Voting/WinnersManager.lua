@@ -128,13 +128,13 @@ function WinnersManager.updateLeaderboard(rankings: { GameOutfitManager.Outfit }
 		end)
 
 		-- Format score as percentage
-		local scorePercent = math.floor(outfit.score * 100 + 0.5)
+		--local scorePercent = math.floor(outfit.score * 100 + 0.5)
 		local displayName = if success then playerName else "Player " .. tostring(i)
 		
 		local newLabel = Instance.new("TextLabel")
 		newLabel.Parent = leaderboardFrame
 		newLabel.LayoutOrder = i
-		newLabel.Text = string.format("%d. %s (%d%%)", i, displayName, scorePercent)
+		newLabel.Text = string.format("%d. %s", i, displayName)
 		newLabel.Size = UDim2.new(1, 0, 0, 30)
 		newLabel.BackgroundTransparency = 1
 		newLabel.TextColor3 = Color3.fromRGB(92, 96, 214)
