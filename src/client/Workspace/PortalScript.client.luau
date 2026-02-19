@@ -13,8 +13,6 @@ local portal = portal1:WaitForChild("Portal")
 local portalGui1 = portal.PortalGui
 local portalGui = portalGui1:WaitForChild("Portal")
 
-warn("PORTAL OKKKK", portal1)
-
 type LayerInfo = { position: UDim2, depth: number }
 
 local layers: { [GuiObject]: LayerInfo } = {}

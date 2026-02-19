@@ -82,28 +82,23 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
 
     local isFriend = scope:Value(false)
 
-    local playerObs = scope:Observer(inspectPlayer)
-
-    playerObs:onChange(function()  
-        if not peek(inspectPlayer) then
+    local function updateIsFriend()
+        local player = peek(inspectPlayer)
+        if not player then
             isFriend:set(false)
             return
         end
 
-        local success, playerIsFriend = callWithRetry(function()  
-            return localPlayer:IsFriendsWithAsync(peek(inspectPlayer).UserId) 
-        end)    
+        local success, playerIsFriend = callWithRetry(function()
+            return localPlayer:IsFriendsWithAsync(player.UserId)
+        end)
 
-        if not success then return end
-
-        if playerIsFriend then
-            isFriend:set(true)
-            return
-        else
-            isFriend:set(false)
-            return
+        if success then
+            isFriend:set(playerIsFriend == true)
         end
-    end)
+    end
+
+    scope:Observer(inspectPlayer):onChange(updateIsFriend)
 
     local clickedPlayerContainer = scope:New "Frame" {
         Name = "ClickedPlayerContainer",
@@ -128,28 +123,29 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
             local player = props.player
             task.spawn(function()
                 inspectPlayer:set(player)
+                updateIsFriend()
 
                 -- Update the name tag
                 inspectName:set(player.Name)
 
                 -- Update the thumbnail
-                local success, newThumbnail = callWithRetry(function()  
+                local thumbSuccess, newThumbnail = callWithRetry(function()
                     return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
                 end)
-                inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
+                inspectThumbnail:set(thumbSuccess and newThumbnail or DEFAULT_THUMBNAIL)
 
                 -- Update the description
                 local descSuccess, humDesc = callWithRetry(function()
                     return getHumanoidDescriptionFromPlayer(player)
                 end)
 
-                if descSuccess then 
-                    inspectDescription:set(humDesc) 
+                if descSuccess then
+                    inspectDescription:set(humDesc)
                 end
 
                 -- Get and set the new avatar
                 local modelSuccess, newModel = callWithRetry(
-                    function()  
+                    function()
                         return Players:CreateHumanoidModelFromDescriptionAsync(peek(inspectDescription), Enum.HumanoidRigType.R15)
                     end
                 )
@@ -173,27 +169,28 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                 end
 
 
-                local success, outfit = callWithRetry(function()  
+                local outfitSuccess, outfit = callWithRetry(function()
                     return PlayerRequestedOutfitRF:InvokeServer(outfitId)
                 end)
 
-                if not success or not outfit then 
+                if not outfitSuccess or not outfit then
                     LoadingScreenManager.hide(clickedPlayerContainer)
-                    return 
+                    return
                 end
-                 
+
                 local player = Players:GetPlayerByUserId(outfit.userId)
                 inspectPlayer:set(player)
+                updateIsFriend()
 
                 -- Update the name tag
                 inspectName:set(player.Name)
 
                 -- Update the thumbnail
-                local success, newThumbnail = callWithRetry(function()  
+                local thumbSuccess, newThumbnail = callWithRetry(function()
                     return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
                 end)
 
-                inspectThumbnail:set(success and newThumbnail or DEFAULT_THUMBNAIL)
+                inspectThumbnail:set(thumbSuccess and newThumbnail or DEFAULT_THUMBNAIL)
 
                 -- Update the description
                 local descSuccess, humDesc = callWithRetry(function()

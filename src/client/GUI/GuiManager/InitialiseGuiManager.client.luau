@@ -1,48 +1,62 @@
 --!strict
 
 -- Services
+local ContentProvider = game:GetService("ContentProvider")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
+local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
-local UI = ReplicatedStorage:WaitForChild("UI")
+local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local UI = ReplicatedStorage:WaitForChild("UI")
 
+local WardrobeGuiController = UI.FusionComponents.WardrobeGuiController
+local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
+local DailyChallengeFolder = UI.FusionComponents.DailyChallengeGui
 local FusionComponents = UI.FusionComponents
 local FusionWidgets = FusionComponents.Widgets
-local DailyChallengeFolder = FusionComponents.DailyChallengeGui
-local WardrobeGuiController = FusionComponents.WardrobeGuiController
-local FusionUtility = ReplicatedStorage.Utility.Fusion
-local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
-local ClientGUI = StarterPlayerScripts.GUI
+local FusionUtility = Utility.Fusion
 local GameState = StarterPlayerScripts.GameState
+local ClientGUI = StarterPlayerScripts.GUI
 
 -- Modules
-local FtuePop = require(StarterPlayer.StarterPlayerScripts.GUI.FtuePop)
-local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
-local PlayerSubmissionState = require(GameState.PlayerSubmissionState)
-local Fusion = require(FusionUtility)
-local peek = require(FusionUtility.State.peek)
-local BaseImageButton = require(FusionWidgets.BaseImageButton)
-local GuiManager = require(GuiManagerLibrary.GuiManager)
-local UI_CONSTANTS = require(ReplicatedStorage.Utility.UI_CONSTANTS)
-local VotingFrame = require(FusionComponents.VotingFrame)
-local GameStateValues = require(Libraries.GameStateValues)
-local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
-local ExpHud = require(FusionComponents:WaitForChild("ExpHud"))
-local SubmissionThemeBar = require(ClientGUI.SubmissionThemeBar)
-local PlayerClickFrame = require(FusionComponents.PlayerClickFrame)
-local GuiConfiguration = require(GuiManagerLibrary.GuiConfiguration)
-local OpenWardrobeButton = require(FusionComponents.OpenWardrobeButton)
-local CONFIGURATION_NAMES = require(GuiManagerLibrary.CONFIGURATION_NAMES)
-local DailyChallengeFrame = require(DailyChallengeFolder.DailyChallengeFrame)
-local OutfitViewController = require(WardrobeGuiController.OutfitViewController)
-local AvatarEditorController = require(WardrobeGuiController.AvatarEditorController)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
+local OpenDailyChallengeGuiButton = require(FusionComponents:WaitForChild("OpenDailyChallengeGuiButton"))
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
-local OpenDailyChallengeGuiButton = require(FusionComponents:WaitForChild("OpenDailyChallengeGuiButton"))
+local AvatarEditorController = require(WardrobeGuiController.AvatarEditorController)
+local OutfitViewController = require(WardrobeGuiController.OutfitViewController)
+local DailyChallengeFrame = require(DailyChallengeFolder.DailyChallengeFrame)
+local CONFIGURATION_NAMES = require(GuiManagerLibrary.CONFIGURATION_NAMES)
+local OpenWardrobeButton = require(FusionComponents.OpenWardrobeButton)
+local PlayerSubmissionState = require(GameState.PlayerSubmissionState)
+local GuiConfiguration = require(GuiManagerLibrary.GuiConfiguration)
+local PlayerClickFrame = require(FusionComponents.PlayerClickFrame)
+local SubmissionThemeBar = require(ClientGUI.SubmissionThemeBar)
+local BaseImageButton = require(FusionWidgets.BaseImageButton)
+local ExpHud = require(FusionComponents:WaitForChild("ExpHud"))
+local GameStateValues = require(Libraries.GameStateValues)
+local GuiManager = require(GuiManagerLibrary.GuiManager)
+local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
+local VotingFrame = require(FusionComponents.VotingFrame)
+local UI_CONSTANTS = require(Utility.UI_CONSTANTS)
+local peek = require(FusionUtility.State.peek)
+local ImageUris = require(DataTables.ImageUris)
+local FtuePop = require(ClientGUI.FtuePop)
+local Fusion = require(FusionUtility)
+
+local artistStores = workspace:WaitForChild("ArtistStores")
+local lobbyRock = workspace:WaitForChild("lobbyRock")
+local labelStores = workspace:WaitForChild("LabelStores")
+local podium = workspace:WaitForChild("fitCheckPodium")
+local layoutBlocks = workspace:WaitForChild("layoutBlocks")
+local dailyWinners = workspace:WaitForChild("dailyWinners")
+local curatedStores = workspace:WaitForChild("curatedStores")
+
 
 -- Remotes
 local PlayerSubmittedOutfitRF = Remotes:WaitForChild("PlayerSubmittedOutfit") :: RemoteFunction
@@ -53,6 +67,52 @@ local Children = Fusion.Children
 local modalScope = Fusion:scoped() 
 
 --
+
+
+task.spawn(function()
+    local initialLoadGui = modalScope:New "ScreenGui" {
+        Parent = Players.LocalPlayer.PlayerGui,
+        DisplayOrder = 9999,
+        IgnoreGuiInset = true
+
+    } :: ScreenGui
+
+    local assetGroups = {
+        lobbyRock:GetDescendants(),
+        podium:GetDescendants(),
+        labelStores:GetDescendants(),
+        artistStores:GetDescendants(),
+        layoutBlocks:GetDescendants(),
+        dailyWinners:GetDescendants(),
+        curatedStores:GetDescendants()
+
+    }
+    local loadingText = modalScope:Value("...")
+    local skipped = false
+
+    LoadingScreenManager.show(initialLoadGui, {
+        transparency = 0,
+        text = loadingText,
+        cornered = true,
+        skippable = true,
+        onSkipped = function()
+            skipped = true
+        end
+    })
+
+    while not game:IsLoaded() do
+        task.wait(1)
+    end
+
+    for i, group in assetGroups do
+        if skipped then break end
+        loadingText:set(i .. "/" .. #assetGroups)
+        ContentProvider:PreloadAsync(group)
+    end
+
+    LoadingScreenManager.hide(initialLoadGui)
+    initialLoadGui:Destroy()
+end)
 
 local function InitialiseHuds()
     local hudScope = Fusion:scoped()
@@ -271,6 +331,7 @@ local function initialiseGuiManager()
     InitialiseModals()
     InitialiseHuds()
     GuiManager.SetLoaded()
+
     GuiManager.PushCentreByName(MODAL_NAMES.FTUE_GUI)
 end
 

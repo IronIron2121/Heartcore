@@ -173,6 +173,12 @@ end
 - Utility modules: PascalCase (e.g., `MannequinFactory`, `ShopUtilities`)
 - UI Components: PascalCase (e.g., `AccessoryTile`, `DropdownButton`)
 
+**Require / Folder Conventions:**
+- Top-level folders (direct children of services like `ReplicatedStorage`, `StarterPlayer`) **must** use `:WaitForChild()` — they may not be loaded yet at require time
+- Anything below a `WaitForChild`-ed folder can use `.` notation (e.g. `UI.FusionComponents`, `FusionComponents.Widgets`)
+- Extract repeated parent paths into `-- Folders` section variables to keep `require()` calls short
+- Sort lines within each section (`-- Folders`, `-- Modules`, `-- Remotes`) in descending order of length, respecting dependency ordering
+
 ## Common Gotchas
 
 **Watch for typo:** `odtfitId` → `outfitId` (avoid this common mistake)

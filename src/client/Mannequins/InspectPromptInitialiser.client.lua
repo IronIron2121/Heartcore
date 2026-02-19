@@ -219,7 +219,7 @@ local function onMannequinAdded(mannequin: Model)
 	inspectPrompt:AddTag(Constants.INSPECT_PROMPT_TAG)
 	inspectPrompt.Parent = mannequin.PrimaryPart or mannequin:FindFirstChildOfClass("BasePart")
 
-	local maxTries = 3
+	local maxTries = 20
 	local tries = 0
 	while not inspectPrompt.Parent and tries < maxTries do
 		tries += 1
