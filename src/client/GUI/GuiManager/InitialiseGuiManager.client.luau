@@ -60,8 +60,6 @@ local modalScope = Fusion:scoped()
 --
 
 
-
-
 task.spawn(function()
     local initialLoadGui = modalScope:New "ScreenGui" {
         Parent = Players.LocalPlayer.PlayerGui,
@@ -72,25 +70,32 @@ task.spawn(function()
 
     local Parts = game:GetDescendants()
     local numberOfParts = #Parts
-    local loadingText = modalScope:Value("")
-    
-    LoadingScreenManager.show(initialLoadGui, 0, loadingText)
+    local loadingText = modalScope:Value("...")
+    local skipped = false
 
-    for i, part in Parts do
-        ContentProvider:PreloadAsync({part})
-        loadingText:set(i .. "/" .. numberOfParts)
-    end
+    LoadingScreenManager.show(initialLoadGui, {
+        transparency = 0,
+        text = loadingText,
+        cornered = true,
+        skippable = true,
+        onSkipped = function()
+            skipped = true
+        end
+    })
 
     while not game:IsLoaded() do
         task.wait(1)
     end
 
+    for i, part in Parts do
+        if skipped then break end
+        ContentProvider:PreloadAsync({part})
+        loadingText:set(i .. "/" .. numberOfParts)
+    end
+
     LoadingScreenManager.hide(initialLoadGui)
     initialLoadGui:Destroy()
 end)
-
-
-
 
 local function InitialiseHuds()
     local hudScope = Fusion:scoped()

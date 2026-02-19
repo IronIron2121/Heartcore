@@ -23,11 +23,11 @@ type CacheEntry = {
 	visible: Value<boolean>,
 }
 
-local cache: { [GuiObject]: CacheEntry } = {}
+local cache: { [GuiBase]: CacheEntry } = {}
 
 local LoadingScreenManager = {}
 
-function LoadingScreenManager.show(parent: GuiObject, transparency: number?, text: UsedAs<string>?, cornered: boolean)
+function LoadingScreenManager.show(parent: GuiBase, props: {transparency: number?, text: UsedAs<string>?, cornered: boolean?, onSkipped: () -> ()?}?)
 	local entry = cache[parent]
 	if not entry then
 		local visible = scope:Value(true)
@@ -36,18 +36,20 @@ function LoadingScreenManager.show(parent: GuiObject, transparency: number?, tex
 			backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
 			visible = visible,
 			zIndex = 100,
-			backgroundTransparency = transparency or 0.2,
+			backgroundTransparency = props and props.transparency or 0.2,
 			parent = parent,
-			text = text or nil,
-			cornered = cornered
+			text = props and props.text or nil,
+			cornered = props and props.cornered,
+			onSkipped = props and props.onSkipped or nil
 		})
+
 		cache[parent] = { frame = frame, visible = visible }
 	else
 		entry.visible:set(true)
 	end
 end
 
-function LoadingScreenManager.hide(parent: GuiObject)
+function LoadingScreenManager.hide(parent: GuiBase)
 	local entry = cache[parent]
 	if entry then
 		entry.visible:set(false)

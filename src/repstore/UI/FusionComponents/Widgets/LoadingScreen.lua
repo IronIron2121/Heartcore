@@ -8,9 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local Child = require(ReplicatedStorage.Utility.Fusion.Instances.Child)
-local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
-local ChallengeCard = require(script.Parent.ChallengeCard)
+local BaseButton = require(script.Parent.BaseButton)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
@@ -40,8 +38,10 @@ function Frame(
         strokeThickness: UsedAs<number>?,
         cornerRadius: UsedAs<UDim>?,
         zIndex: UsedAs<number>?,
+        skippable: boolean?,
         onActivated: (() -> ())?,
-        parent: UsedAs<GuiObject>?
+        onSkipped: (() -> ())?,
+        parent: UsedAs<GuiBase>?
     }
 ): Frame
     -- Create a state value for rotation
@@ -162,30 +162,59 @@ function Frame(
             },
 
             scope:New "Frame" {
-                Name = "LoadingTextContainer",
+                Name = "SkipProgressContainer",
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 Size = UDim2.fromScale(1, 1/3),
                 LayoutOrder = 3,
+
                 [Children] = {
-                    scope:New "TextLabel" {
-                        Name = "LoadingTextLabel",
-                        Size = UDim2.fromScale(0.5, 1),
-                        AnchorPoint = Vector2.new(0.5, 0.5),
-                        Position = UDim2.fromScale(0.5, 0.5),
-                        LayoutOrder = 0,
-                        Text = props.text or "",
-                        TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                        TextStrokeTransparency = 1,
-                        BackgroundTransparency = 1,
-                        TextScaled = true,
-                        FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
+                    scope:New "UIListLayout" {
+                        FillDirection = Enum.FillDirection.Horizontal,
+                        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                        VerticalAlignment = Enum.VerticalAlignment.Center,
+                        SortOrder = Enum.SortOrder.LayoutOrder
                     },
+
+                    scope:New "Frame" {
+                        Name = "Skip",
+                        Size = UDim2.fromScale(0.5, 1),
+                        LayoutOrder = 2,
+                        Visible = props.onSkipped and true or false,
+
+                        [Children] = {
+                            BaseButton(scope, {
+                                text = "SKIP",
+                                size = UDim2.fromScale(0.8, 0.8),
+                                onActivated = props.onSkipped,
+                            })
+
+                        }
+                    },
+
+                    scope:New "Frame" {
+                        Name = "ProgressContainer",
+                        Size = UDim2.fromScale(0.5, 1),
+                        LayoutOrder = 1,
+
+                        [Children] = {
+                            scope:New "TextLabel" {
+                                Name = "LoadingTextLabel",
+                                Size = UDim2.fromScale(0.5, 1),
+                                AnchorPoint = Vector2.new(0.5, 0.5),
+                                Position = UDim2.fromScale(0.5, 0.5),
+                                LayoutOrder = 0,
+                                Text = props.text or "",
+                                TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+                                TextStrokeTransparency = 1,
+                                BackgroundTransparency = 1,
+                                TextScaled = true,
+                                FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
+                            },
+                        }
+                    }
+
                 }
             },
-
-
-
-
         }
     } :: Frame
     
