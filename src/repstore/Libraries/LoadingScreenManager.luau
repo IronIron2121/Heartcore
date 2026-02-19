@@ -27,7 +27,7 @@ local cache: { [GuiBase]: CacheEntry } = {}
 
 local LoadingScreenManager = {}
 
-function LoadingScreenManager.show(parent: GuiBase, props: {transparency: number?, text: UsedAs<string>?, cornered: boolean?, onSkipped: () -> ()?}?)
+function LoadingScreenManager.show(parent: GuiBase, props: {transparency: number?, text: UsedAs<string>?, cornered: boolean?, onSkipped	: () -> ()?}?)
 	local entry = cache[parent]
 	if not entry then
 		local visible = scope:Value(true)
