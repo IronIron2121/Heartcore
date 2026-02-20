@@ -438,13 +438,13 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         text = scope:Computed(function(use)  
                                             return use(isFriend) and FRIENDS_ADD_TEXT or NOT_FRIENDS_ADD_TEXT
                                         end),
-                                        reactive = isFriend,
-                                        active = isFriend,
+                                        reactive = not isFriend,
+                                        active = not isFriend,
                                         layoutOrder = 5,
                                         size = buttonSize,
                                         onActivated = function()
-                                            if not peek(inspectPlayer) then return end 
-                                            if peek(isFriend) then
+                                            if not peek(inspectPlayer) then return end  
+                                            if not peek(isFriend) then
                                                 StarterGui:SetCore("PromptSendFriendRequest", peek(inspectPlayer))
                                             end
                                         end
@@ -452,7 +452,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
 
                                     scope:New "Frame" {
                                         Name = "EndBuffer",
-                                        Size = UDim2.fromOffset(200, 10),
+                                        Size = UDim2.fromOffset(200, 10), 
                                         BackgroundTransparency = 1,
                                         LayoutOrder = 999
                                     },
