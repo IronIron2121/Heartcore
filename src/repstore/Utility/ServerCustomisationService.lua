@@ -374,7 +374,7 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 								table.insert(bodyParts, {
 									itemId = item.Id,
 									bodyPartType = assetTypeName :: string
-								})
+								}) 
 							else
 								-- It's an accessory
 								table.insert(accessories, {
