@@ -89,18 +89,18 @@ local function showCategoryButton(category: string)
 end
 
 local function populateItemFrame()
-	warn("populating item frame")
+	print("populating item frame")
 	for itemName, itemDetails in pairs(BuyableShopItems) do
 		print("item here", itemDetails)
 		local newTile = AddTile(itemDetails) 
 		newTile.Parent = ItemFrame
 	end 
-	warn("finished populating item frame")
+	print("finished populating item frame")
 
 end
 
 local function populateCategories()
-	warn("Populating categories")
+	print("Populating categories")
 	for index, category in ipairs(ShopItemStoreCategories) do
 		print(category)
 		local newButton = CategoryButton(category)
@@ -108,7 +108,7 @@ local function populateCategories()
 		newButton.Button.LayoutOrder = index
 		categoryButtons[newButton.GetText()] = newButton
 	end
-	warn("finished populating categories")
+	print("finished populating categories")
 end
 
 -- Remove all populated options

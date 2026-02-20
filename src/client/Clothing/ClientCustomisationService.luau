@@ -52,7 +52,7 @@ local ClientCustomisationService = {}
 
 function ClientCustomisationService.ResetPlayerOutfit(player: Player): boolean
 	if currentlyResetting then 
-		warn("Already resetting!")
+		print("Already resetting!")
 	end
 
 	currentlyResetting = true
@@ -73,17 +73,17 @@ function ClientCustomisationService.PlayerPurchasedItem(itemId: number)
 		return MarketplaceService:PromptPurchase(Players.LocalPlayer, itemId)
 	end)
 
-	if not success then warn(err) end
+	if not success then 
+		warn(err) 
+	end
 
 	return success
 end
 
 function ClientCustomisationService.AddItem(assetId: number, assetTypeOrBundleType: string, itemType: string): boolean
 	if isEquipping then 
-		warn("Already equipping!")
 		return true 
 	end
-	warn("Adding...")
 	isEquipping = true
 	local success = callWithRetry(
 		function()  

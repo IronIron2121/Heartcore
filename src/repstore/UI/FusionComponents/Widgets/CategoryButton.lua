@@ -79,16 +79,6 @@ function CategoryButton(
 		1  
 	)
 
-	if playerIsMobile then
-		warn("Player is mobile!")
-		warn(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled, UserInputService.MouseEnabled)
-
-	else
-		warn("Player is not mobile!")
-		warn(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled, UserInputService.MouseEnabled)
-		warn(UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled)
-	end
-
 	local categoryButton = scope:New "TextButton" {
 		Name = "CategoryButton",
 		AnchorPoint = Vector2.new(0, 0.5),

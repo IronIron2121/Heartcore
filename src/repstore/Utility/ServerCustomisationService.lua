@@ -159,10 +159,10 @@ function ServerCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 	-- Check if at max capacity for this accessory type
 	if PlayerHasMaxOfAccessoryTypeEquipped(player, accessoryDescription.AccessoryType) then
 		if accessoryDescription.AccessoryType == Enum.AccessoryType.Hat then
-			warn("Cannot equip more than 3 hats!") 
+			print("Cannot equip more than 3 hats!") 
 			return true
 		else
-			warn("Maxed out! Deleting previous one...")
+			print("Maxed out! Deleting previous one...")
 			for _, description in ipairs(clonedDescription:GetChildren()) do
 				if description:IsA("AccessoryDescription") and description.AccessoryType == accessoryDescription.AccessoryType then
 					description:Destroy()
@@ -189,10 +189,10 @@ function ServerCustomisationService.AddAccessoriesToAvatar(player: Player, acces
 		-- Check if at max capacity for this accessory type
 		if PlayerHasMaxOfAccessoryTypeEquipped(player, accessoryDescription.AccessoryType) then
 			if accessoryDescription.AccessoryType == Enum.AccessoryType.Hat then
-				warn("Cannot equip more than 3 hats!")
+				print("Cannot equip more than 3 hats!")
 				continue
 			else
-				warn("Maxed out! Deleting previous one...")
+				print("Maxed out! Deleting previous one...")
 				for _, description in ipairs(clonedDescription:GetChildren()) do
 					if description:IsA("AccessoryDescription") and description.AccessoryType == accessoryDescription.AccessoryType then
 						description:Destroy()
@@ -271,12 +271,11 @@ function ServerCustomisationService.AddBodyPartsToAvatar(player: Player, bodyPar
 	for _, bodyPart in ipairs(bodyParts) do
 		-- TODO: Modularise this with the redundant code in above singular add body part function
 		-- Get the bodypart enum
-		warn("equipping", bodyPart)
 
-		local bodyPartEnum = Enum.BodyPart[bodyPart.bodyPartType]
+		local bodyPartEnum = Enum.BodyPart:FromName(bodyPart.bodyPartType)
 		if not bodyPartEnum then
 			warn("Bad bodypart type:", bodyPart.bodyPartType)
-			continue
+			return false
 		end
 
 		-- Remove existing body part on the same slot after copying its colours
@@ -340,7 +339,6 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 
 	-- Handle Body Parts bundles
 	if bundleInfo.BundleType == Enum.BundleType.BodyParts.Name or bundleInfo.BundleType == Enum.BundleType.Shoes.Name then
-		warn("Equipping shoes!")
 		local bodyParts = {}
 		local accessories = {}
 		

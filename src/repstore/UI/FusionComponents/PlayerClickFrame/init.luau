@@ -117,7 +117,6 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
     -- Functions
     local function onFrameOpened(props: {player: Player?, rig: Model?})
         LoadingScreenManager.show(clickedPlayerContainer)
-        warn("Pushed frame")
 
         if props.player then
             local player = props.player
@@ -179,6 +178,10 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                 end
 
                 local player = Players:GetPlayerByUserId(outfit.userId)
+                if not player then 
+                    warn("Failed to get player with userId ", outfit.userId)
+                    player = DEFAULT_PLAYER
+                end
                 inspectPlayer:set(player)
                 updateIsFriend()
 
@@ -440,6 +443,13 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         end),
                                         reactive = not isFriend,
                                         active = not isFriend,
+                                        visible = scope:Computed(function(use)
+                                            local player = peek(inspectPlayer)
+                                            if not player then return false end
+
+                                            return player.UserId ~= localPlayer.UserId
+                                        end),
+
                                         layoutOrder = 5,
                                         size = buttonSize,
                                         onActivated = function()

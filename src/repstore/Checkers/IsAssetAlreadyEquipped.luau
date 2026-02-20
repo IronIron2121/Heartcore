@@ -16,13 +16,12 @@ function IsAssetAlreadyEquipped(player: Player, assetId: number): boolean
 
     local humanoidDescription = getHumanoidDescriptionFromPlayer(player)
     if not humanoidDescription then
-        warn("No description!")
+        warn("No description at IsAssetAlreadyEquipped!")
         return true
     end
 
     for _, description in ipairs(humanoidDescription:GetChildren()) do
         if (description:IsA("AccessoryDescription") or description:IsA("BodyPartDescription")) and description.AssetId == assetId then
-            warn("Found a match!", assetId, description.AssetId)
             return true
         end
     end

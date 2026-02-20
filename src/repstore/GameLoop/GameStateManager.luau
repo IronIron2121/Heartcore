@@ -197,7 +197,6 @@ end
 
 function GameStateManager.checkAllFinishedVoting()
 	if currentState ~= "Voting" then 
-		warn("Not voting!")
 		return 
 	end
 
@@ -205,16 +204,15 @@ function GameStateManager.checkAllFinishedVoting()
 	for userId in participatingPlayers do
 		hasParticipants = true
 		if not finishedVotingPlayers[userId] then
-			warn(userId, "Not finished Voting!")
 			return
 		end
 	end
 
 	if not hasParticipants then 
-		warn("no participants") 
+		print("No participants at checkAllFinishedVoting") 
 		return
 	end
-	warn("All players have finished voting!")
+	print("All players have finished voting!")
 
 	GameStateManager.hurryRound()
 end 

@@ -255,7 +255,7 @@ local function place(_name, inputState, _inputObj)
 			PlayerPlacedShopItemAsync:FireServer(shopItemRecipe) 
 			destroyPreview()
 		else
-			warn("Invalid position!", preview:GetPivot().Position)
+			print("Invalid position!", preview:GetPivot().Position)
 		end
 	end
 end
@@ -277,7 +277,7 @@ local function reposition(_name, inputState, _inputObj)
 				ItemSelection.unSelectItem()
 				destroyPreview()
 			else
-				warn("Invalid position!", preview:GetPivot().Position)
+				print("Invalid position!", preview:GetPivot().Position)
 			end
 	end
 end
@@ -289,14 +289,14 @@ local actionDictionary = {
 
 -- Creates a preview for object placement
 local function createPreview(modelToPreview: string, modelType: string, actionToTake: string)
-	if preview then warn("Already previewing!") return end 
+	if preview then print("Already previewing!") return end 
 
 	local actionFunction = actionDictionary[actionToTake]
-	if not actionFunction then warn("No relevant place command") return end
+	if not actionFunction then print("No relevant place command") return end
 
 	PlayerCreatedPreview:Fire()
 	preview = preparePreviewPart(modelToPreview) :: Model 
-	if not preview then warn("couldn't prepare a preview part!") return end
+	if not preview then print("couldn't prepare a preview part!") return end
 	
 	preview:SetAttribute(Constants.ITEM_TYPE_ATTRIBUTE, modelType)
 	RunService:BindToRenderStep("Preview", Enum.RenderPriority.Camera.Value, renderPreview)

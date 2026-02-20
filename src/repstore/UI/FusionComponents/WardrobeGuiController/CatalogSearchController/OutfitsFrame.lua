@@ -96,9 +96,9 @@ function OutfitsFrame(
 		if tastemakerSuccess and result then
 			tastemakerOutfits:set(result)
 		elseif tastemakerSuccess and not result then
-			warn("Successful query but no outfits")
+			print("Successful query but no outfits")
 		elseif not tastemakerSuccess then
-			warn("Error on attempt to get tastemaker outfits!")
+			warn("Error on attempt to get tastemaker outfits!", tastemakerSuccess, result)
 		end
 		isLoading:set(false)
 	end

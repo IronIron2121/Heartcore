@@ -231,7 +231,7 @@ local function onMannequinAdded(mannequin: Model)
 		highlight.FillColor = Color3.new(1,0,0)
 		highlight.Name = "BadMannequin"
 		highlight.Parent = mannequin
-		warn("Error: No parent of inspect prompt! Attempt: ", tries)
+		print("Error: No parent of inspect prompt! Attempt: ", tries)
 	end
 	
 	if not inspectPrompt.Parent then
@@ -311,7 +311,6 @@ local function initialise()
 		Enabled = GameStateValues.isVoting,
 		[OnEvent "Triggered"] = function()
 			GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
-			warn(peek(isVoting))
 		end
 	} :: ProximityPrompt
 

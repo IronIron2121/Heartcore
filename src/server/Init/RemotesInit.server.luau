@@ -38,10 +38,8 @@ GetNextOutfitRF.OnServerInvoke = function(player: Player)
 	
 	if not outfit then
 		GameStateManager.markFinishedVoting(player)
-		warn(player.Name, "finished voting!")
+		print(player.Name, "finished voting!")
 		return nil
-	else
-		warn("Got an outfit!", outfit)
 	end
 	
 	-- Mark as seen and increment views
