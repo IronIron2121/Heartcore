@@ -85,7 +85,7 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 	
 	SubmissionResultRE:FireClient(player, {
 		ok = true,
-		msg = overwrite and "Outfit overwritten" or "Outfit submitted successfully!"
+		msg = overwrite and "Outfit overwritten!" or "Outfit submitted successfully!"
 	})
 	
 	local numAccessories = GetNumAccessoriesInHumanoidDescription(humanoidDescription)

@@ -45,8 +45,8 @@ end
 local function onSubmissionResult(result: { ok: boolean, msg: string })
     if result.ok then
         StarterGui:SetCore("SendNotification", {
-            Title = "Outfit Submitted Successfully!",
-            Text = result.msg or "",
+            Title = result.msg,
+            Text = "",
         })
         task.spawn(function()
             PlayerSubmissionState.cooldown:set(true)
