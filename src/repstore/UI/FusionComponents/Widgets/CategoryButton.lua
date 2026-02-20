@@ -22,7 +22,6 @@ local Children = Fusion.Children
 local OnEvent = Fusion.OnEvent
 type UsedAs<T> = Fusion.UsedAs<T>
 
-local playerIsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
 
 
 function CategoryButton(
@@ -37,6 +36,7 @@ function CategoryButton(
 		textColor3: UsedAs<Color3>?,
 	}
 ): TextButton
+	local playerIsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
 
 	local isHovering = scope:Value(false)
 

@@ -23,7 +23,6 @@ local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 type UsedAs<T> = Fusion.UsedAs<T>
 
-local playerIsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
 
 
 --
@@ -40,6 +39,7 @@ function ExpandingOptionsButton(
 		textSize: UsedAs<number>?
 	}
 ): Frame
+	local playerIsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
 	local isHovering = scope:Value(false)
 	local isExpanded = scope:Value(false)  -- Track expansion state
 
@@ -94,6 +94,7 @@ function ExpandingOptionsButton(
 		warn(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled, UserInputService.MouseEnabled)
 		warn(UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled)
 	end
+
 	local expandingOptionsButton = scope:New "Frame" {
 		Name = "ExpandingOptionsButton",
 		Size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,  -- Width in scale, height auto

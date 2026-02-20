@@ -41,28 +41,36 @@ function AvatarPreviewModel.new(scope: Fusion.Scope, props: {
 	-- Store the current HumanoidDescription as a reactive Value
 	self.currentHumanoidDescription = scope:Value(humanoid:WaitForChild("HumanoidDescription"))
 
-	-- Create a Computed that automatically updates the model when HumanoidDescription changes
-	self.instance = scope:Computed(function(use)
-		local description = use(self.currentHumanoidDescription)
-		return Players:CreateHumanoidModelFromDescription(description, Enum.HumanoidRigType.R15)
-	end)
+	-- Plain Value so CreateHumanoidModelFromDescription is never called inside Fusion's
+	-- reactive graph (it can yield and fire events, both of which break Computeds)
+	self.instance = scope:Value(
+		Players:CreateHumanoidModelFromDescription(
+			humanoid:WaitForChild("HumanoidDescription"),
+			Enum.HumanoidRigType.R15
+		)
+	)
 
 	self.currentTrack = scope:Value(nil)
 	self.currentTrackSignal = scope:Value(nil)
 
 	-- Watch for HumanoidDescription changes
+	-- task.defer ensures set() is never called while Fusion's graph update is still
+	-- propagating (e.g. CreateHumanoidModelFromDescription firing ChildAdded mid-Computed)
 	humanoid.ChildAdded:Connect(function(child)
 		if child:IsA("HumanoidDescription") then
-			self:onHumanoidDescriptionChanged(child)
+			task.defer(function()
+				self:onHumanoidDescriptionChanged(child) 
+			end)
 		end
-	end)
+ 	end) 
 
 	return self
 end
 
 function AvatarPreviewModel:onHumanoidDescriptionChanged(child: HumanoidDescription)
-	-- Update the reactive value
 	self.currentHumanoidDescription:set(child)
+	local newModel = Players:CreateHumanoidModelFromDescription(child, Enum.HumanoidRigType.R15)
+	self.instance:set(newModel)
 end
 
 function AvatarPreviewModel:getInstance()
