@@ -443,8 +443,8 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         layoutOrder = 5,
                                         size = buttonSize,
                                         onActivated = function()
-                                            if not peek(inspectPlayer) then return end 
-                                            if peek(isFriend) then
+                                            if not peek(inspectPlayer) then return end  
+                                            if not peek(isFriend) then
                                                 StarterGui:SetCore("PromptSendFriendRequest", peek(inspectPlayer))
                                             end
                                         end
