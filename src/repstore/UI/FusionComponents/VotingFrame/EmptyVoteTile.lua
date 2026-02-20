@@ -139,7 +139,7 @@ function OutfitVoteTile(
 
 						[Children] = {
 							scope:New "UICorner" {
-							CornerRadius = UDim.new(0.05, 0)
+								CornerRadius = UDim.new(0.05, 0)
 							}
 						}
                     },

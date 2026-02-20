@@ -100,10 +100,6 @@ task.spawn(function()
         end
     })
 
-    while not game:IsLoaded() do
-        task.wait(1)
-    end
-
     for i, group in assetGroups do
         if skipped then break end
         loadingText:set(math.floor((i / #assetGroups) * 100) .. "%")
