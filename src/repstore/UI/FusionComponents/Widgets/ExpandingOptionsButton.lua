@@ -3,6 +3,7 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
@@ -21,6 +22,11 @@ local Children = Fusion.Children
 local OnEvent = Fusion.OnEvent
 local peek = Fusion.peek
 type UsedAs<T> = Fusion.UsedAs<T>
+
+local playerIsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
+
+
+--
 
 function ExpandingOptionsButton(
 	scope: Fusion.Scope,
@@ -79,6 +85,15 @@ function ExpandingOptionsButton(
 		1  
 	)
 
+	if playerIsMobile then
+		warn("Player is mobile!")
+		warn(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled, UserInputService.MouseEnabled)
+
+	else
+		warn("Player is not mobile!")
+		warn(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled, UserInputService.MouseEnabled)
+		warn(UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled)
+	end
 	local expandingOptionsButton = scope:New "Frame" {
 		Name = "ExpandingOptionsButton",
 		Size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,  -- Width in scale, height auto
@@ -148,7 +163,7 @@ function ExpandingOptionsButton(
 								BackgroundTransparency = 1,
 								Text = props.text,
 								TextColor3 = textColorSpring,
-								TextScaled = false,
+								TextScaled = playerIsMobile,
 								TextWrapped = true,
 								FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 								LayoutOrder = 2,

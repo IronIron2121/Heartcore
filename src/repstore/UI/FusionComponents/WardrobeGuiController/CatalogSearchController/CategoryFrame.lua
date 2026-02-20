@@ -2,6 +2,7 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
 -- Folders
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
@@ -28,6 +29,8 @@ type UsedAs<T> = Fusion.UsedAs<T>
 -- GUI Components
 local ExpandingOptionsButton = require(Widgets:WaitForChild("ExpandingOptionsButton"))
 local CategoryButton = require(Widgets:WaitForChild("CategoryButton"))
+
+local playerIsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
 
 --
 
@@ -59,9 +62,7 @@ function CategoryFrame(
         else
             return DEFAULT_COLOUR
         end
-    end)
-)
-	
+    end))
 
 	local allSelected = scope:Computed(function(use)
 		return #use(props.searchAssetCategories) == #AssetFilterCategories.getAllAssetTypes()
