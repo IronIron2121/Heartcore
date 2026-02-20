@@ -132,7 +132,6 @@ local function InitialiseHuds()
             return not use(isCentreActive)        
         end),
         image = hudScope:Computed(function(use)
-            GuiManager.PopCentre()
             local currentConfig = use(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
                 return ImageUris.ExitFitCheck

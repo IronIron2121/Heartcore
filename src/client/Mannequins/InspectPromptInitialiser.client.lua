@@ -219,24 +219,24 @@ local function onMannequinAdded(mannequin: Model)
 	inspectPrompt:AddTag(Constants.INSPECT_PROMPT_TAG)
 	inspectPrompt.Parent = mannequin.PrimaryPart or mannequin:FindFirstChildOfClass("BasePart")
 
-	local maxTries = 20
+	local maxTries = 10
 	local tries = 0
+
 	while not inspectPrompt.Parent and tries < maxTries do
 		tries += 1
 		task.wait(tries)
-
-		local highlight = Instance.new("Highlight")
-		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-		highlight.Enabled = true
-		highlight.FillColor = Color3.new(1,0,0)
-		highlight.Name = "BadMannequin"
-		highlight.Parent = mannequin
-		warn("Error: No parent of inspect prompt! Attempt: ", tries)
+		local part = mannequin.PrimaryPart or mannequin:FindFirstChildOfClass("BasePart")
+		if part then
+			inspectPrompt.Parent = part
+		else
+			warn("No BasePart for inspect prompt on", mannequin.Name, "- attempt", tries)
+		end 
 	end
-	
+
 	if not inspectPrompt.Parent then
-		warn(inspectPrompt.Parent, "Failure to add parent to prompt")
+		warn("Failed to find BasePart for inspect prompt on", mannequin.Name)
 		inspectPrompt:Destroy()
+		return
 	end
 
 	setupCustomPromptUI(inspectPrompt, mannequin) -- Cece addition
@@ -250,15 +250,6 @@ local function onMannequinRemoved(mannequin: Instance)
 		inspectPrompts[mannequin] = nil
 	end
 end
-
-local isVoting = scope:Computed(function(use, a1)
-	if use(GameStateValues.isVoting) == true then
-		return true
-	else
-		return false
-	end
-end)
-
 
 -- Reactively update voting pad appearance
 local promptHolderMaterial = scope:Computed(function(use)
@@ -311,7 +302,6 @@ local function initialise()
 		Enabled = GameStateValues.isVoting,
 		[OnEvent "Triggered"] = function()
 			GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
-			warn(peek(isVoting))
 		end
 	} :: ProximityPrompt
 

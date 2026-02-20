@@ -269,14 +269,12 @@ props: {
 									end
 
 									if props.pushLoad then
-										warn("Pushing load!")
 										props.pushLoad()
 									end
 
 									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType or "", props.itemDetails.ItemType)
 
 									if props.popLoad then
-										warn("Popping load!")
 										props.popLoad()
 									end
 								end

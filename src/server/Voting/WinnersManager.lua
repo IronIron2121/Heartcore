@@ -118,7 +118,7 @@ function WinnersManager.updateLeaderboard(rankings: { GameOutfitManager.Outfit }
 
 	local count = math.min(20, #rankings)
 
-	warn("Rankings: ", rankings)
+	print("Rankings: ", rankings)
 
 	for i = 1, count do
 		local outfit = rankings[i]

@@ -85,16 +85,6 @@ function ExpandingOptionsButton(
 		1  
 	)
 
-	if playerIsMobile then
-		warn("Player is mobile!")
-		warn(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled, UserInputService.MouseEnabled)
-
-	else
-		warn("Player is not mobile!")
-		warn(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled, UserInputService.MouseEnabled)
-		warn(UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled)
-	end
-
 	local expandingOptionsButton = scope:New "Frame" {
 		Name = "ExpandingOptionsButton",
 		Size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,  -- Width in scale, height auto

@@ -416,7 +416,7 @@ function GuiManager.PopCentre(guiObject: GuiObject?): ()
     local modals = table.clone(peek(modalStack))
 
     if #modals == 0 then
-        warn("Cannot pop with no active modals!")
+        print("Cannot pop with no active modals!")
         return
     end
 

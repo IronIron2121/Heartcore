@@ -41,7 +41,7 @@ local function populateColours()
 	local selectedItem = ItemSelection.getSelectedItem()
 	local furnitureColours = getFurnitureColours(selectedItem)
 	if not furnitureColours then
-		warn("No furniture colours for this item!")
+		print("No furniture colours for this item!")
 	else
 		print("Got colours!", furnitureColours)
 	end

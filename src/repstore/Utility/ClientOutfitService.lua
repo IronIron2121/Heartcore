@@ -72,12 +72,10 @@ function ClientOutfitService.PurchasePlayerOutfit(): boolean
 		end
 	end
 	
-	warn("Prompting purchase now!")
 	if #shoppingCart == 0 then
 		warn("No items to purchase!")
 		return false
 	else
-		warn("purchasing with ", shoppingCart)
 		local success = callWithRetry(function()  
 			return PlayerPurchasedCurrentOutfit:InvokeServer(shoppingCart)
 		end)
