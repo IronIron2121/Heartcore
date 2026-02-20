@@ -62,6 +62,7 @@ end
 
 function AvatarPreviewModel:onHumanoidDescriptionChanged(child: HumanoidDescription)
 	-- Update the reactive value
+	warn("Changing humanoid description")
 	self.currentHumanoidDescription:set(child)
 end
 

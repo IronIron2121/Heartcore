@@ -13,7 +13,6 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
-local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -65,7 +64,7 @@ props: {
         -- Purchase info
         IsPurchasable: boolean?,
         IsOffSale: boolean?,
-        Owned: boolean?,
+        Owned: boolean?, 
         HasResellers: boolean?,
         
         -- Creator info
@@ -248,7 +247,6 @@ props: {
 						Size = UDim2.fromScale(0.9, 0.8),
 						BackgroundTransparency = 1,
 
-
 						[Children] = {
 							scope:New "UIListLayout" {
 								SortOrder = Enum.SortOrder.LayoutOrder,
@@ -269,9 +267,20 @@ props: {
 									if props.onTryCb then
 										props.onTryCb()
 									end
+
+									if props.pushLoad then
+										warn("Pushing load!")
+										props.pushLoad()
+									end
+
 									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType or "", props.itemDetails.ItemType)
+
+									if props.popLoad then
+										warn("Popping load!")
+										props.popLoad()
+									end
 								end
-							}), 
+							}),  
 
 							BuyButton(scope, {
 								assetId = props.itemDetails.Id,

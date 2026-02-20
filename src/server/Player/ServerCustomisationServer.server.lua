@@ -21,7 +21,7 @@ local PlayerEquippedInspectedOutfit = Remotes:WaitForChild("PlayerEquippedInspec
 local PlayerRemovedAllAccessoriesRF = Remotes:WaitForChild("PlayerRemovedAllAccessoriesRF")
 local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
 local PlayerEquippedOutfit = Remotes:WaitForChild("PlayerEquippedOutfit")
-local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
+local PlayerEquippedItemRF = Remotes:WaitForChild("PlayerEquippedItemRF")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
 local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
 local LoadEmoteRF = Remotes:WaitForChild("LoadEmoteRF")
@@ -82,9 +82,7 @@ local function playerEquippedItem(player: Player, itemId: number, assetType: str
 end
 
 local function playerEquippedOutfit(player: Player, outfitId: number)
-	warn("Equipping on server side!")
 	if isPlayerEquipping(player) then 
-		warn("Already equipping") 
 		return 
 	end
 	
@@ -142,7 +140,7 @@ PlayerEquippedOutfit.OnServerEvent:Connect(playerEquippedOutfit)
 PlayerEquippedTastemakerOutfit.OnServerEvent:Connect(playerEquippedTastemakerOutfit)
 PlayerEquippedInspectedOutfit.OnServerEvent:Connect(playerEquippedInspectedPlayer)
 PlayerRemovedClassicItem.OnServerEvent:Connect(playerRemovedClassicItem)
-PlayerEquippedItem.OnServerEvent:Connect(playerEquippedItem)
+PlayerEquippedItemRF.OnServerInvoke = playerEquippedItem
 PlayerRemovedItem.OnServerInvoke = playerRemovedItem
 PlayerResetOutfit.OnServerInvoke = playerResetOutfit
 PlayerEquippedInspectedItemsRF.OnServerInvoke = playerEquippedInspectedItems
