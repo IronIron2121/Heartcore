@@ -106,7 +106,8 @@ task.spawn(function()
 
     for i, group in assetGroups do
         if skipped then break end
-        loadingText:set(i .. "/" .. #assetGroups)
+        -- loadingText:set(i .. "/" .. #assetGroups)
+        loadingText:set(math.floor((i / #assetGroups) * 100) .. "%")
         ContentProvider:PreloadAsync(group)
     end
 
