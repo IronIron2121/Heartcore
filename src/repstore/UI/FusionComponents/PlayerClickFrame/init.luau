@@ -438,8 +438,8 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                         text = scope:Computed(function(use)  
                                             return use(isFriend) and FRIENDS_ADD_TEXT or NOT_FRIENDS_ADD_TEXT
                                         end),
-                                        reactive = isFriend,
-                                        active = isFriend,
+                                        reactive = not isFriend,
+                                        active = not isFriend,
                                         layoutOrder = 5,
                                         size = buttonSize,
                                         onActivated = function()
