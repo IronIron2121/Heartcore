@@ -196,6 +196,13 @@ function AvatarViewport(
 				zIndex = 3,
 				onActivated = function()
 					ClientOutfitService.SaveCurrentPlayerOutfit()
+					if not props.controllers.CatalogSearchController then
+						return 
+					end
+					if not props.controllers.CatalogSearchController.updatePlayerOutfits then
+						return 
+					end
+					props.controllers.CatalogSearchController.updatePlayerOutfits()
 				end
 			}),
 
