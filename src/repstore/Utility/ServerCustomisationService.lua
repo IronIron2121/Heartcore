@@ -335,10 +335,12 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 				end
 			end
 		end
+		return true
 	end
 
 	-- Handle Body Parts bundles
 	if bundleInfo.BundleType == Enum.BundleType.BodyParts.Name or bundleInfo.BundleType == Enum.BundleType.Shoes.Name then
+		warn("Equipping shoes!")
 		local bodyParts = {}
 		local accessories = {}
 		
@@ -371,7 +373,7 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 								or assetTypeName == "Torso" or assetTypeName == "Head" then
 								table.insert(bodyParts, {
 									itemId = item.Id,
-									bodyPartType = assetTypeName
+									bodyPartType = assetTypeName :: string
 								})
 							else
 								-- It's an accessory
@@ -394,6 +396,7 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		if #accessories > 0 then
 			ServerCustomisationService.AddAccessoriesToAvatar(player, accessories)
 		end
+		return true
 	end
 
 	-- Check for UserOutfit (simpler approach for other bundle types)
