@@ -75,7 +75,7 @@ function ImageButton(
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		Position = props.position or UDim2.fromScale(0.5, 0.5),
 		Size = props.size or UDim2.fromScale(0.5, 0.5),
-		ImageColor3 = props.imageColor3 or imageColorSpring,
+		ImageColor3 = imageColorSpring,
 		BackgroundTransparency = 1,
 		LayoutOrder = props.layoutOrder or 1,
 		ZIndex = props.zIndex or 1,

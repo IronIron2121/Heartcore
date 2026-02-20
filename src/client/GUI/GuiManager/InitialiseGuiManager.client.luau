@@ -211,6 +211,9 @@ local function InitialiseHuds()
                         return ""
                     end
                 end),
+                imageColor3 = hudScope:Computed(function(use)  
+                    return use(PlayerSubmissionState.cooldown) and UI_CONSTANTS.COLOUR_GREY or UI_CONSTANTS.COLOUR_WHITE
+                end),
                 backgroundColor = hudScope:Computed(function(use)
                     if use(GameStateValues.isIntermission) then
                         return UI_CONSTANTS.COLOUR_GREY
