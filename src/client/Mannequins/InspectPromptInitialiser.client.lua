@@ -251,15 +251,6 @@ local function onMannequinRemoved(mannequin: Instance)
 	end
 end
 
-local isVoting = scope:Computed(function(use, a1)
-	if use(GameStateValues.isVoting) == true then
-		return true
-	else
-		return false
-	end
-end)
-
-
 -- Reactively update voting pad appearance
 local promptHolderMaterial = scope:Computed(function(use)
 	return if use(GameStateValues.isVoting) then Enum.Material.Neon else Enum.Material.Asphalt
