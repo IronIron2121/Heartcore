@@ -105,6 +105,9 @@ function OutfitsFrame(
 	
 	viewObserver:onChange(function()
 		if peek(props.currentView) == "Outfits" then
+			if peek(isLoading) then
+				return
+			end
 			isLoading:set(true)
 
 			if not peek(inventoryAccessGranted) then
@@ -116,6 +119,7 @@ function OutfitsFrame(
 				else
 					inventoryAccessGranted:set(false)
 					props.currentView:set("Catalog")
+					isLoading:set(false)
 					return
 				end
 			end

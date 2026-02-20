@@ -452,7 +452,7 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
 
                                     scope:New "Frame" {
                                         Name = "EndBuffer",
-                                        Size = UDim2.fromOffset(200, 10),
+                                        Size = UDim2.fromOffset(200, 10), 
                                         BackgroundTransparency = 1,
                                         LayoutOrder = 999
                                     },
