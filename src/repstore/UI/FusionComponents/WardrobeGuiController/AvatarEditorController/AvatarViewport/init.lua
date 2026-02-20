@@ -32,6 +32,9 @@ local Button = require(Widgets:WaitForChild("BaseButton"))
 -- Local Player 
 local localPlayer = Players.LocalPlayer
 
+-- vars
+local isSaving = false
+
 -- Config
 local CONFIG = {
 	MIN_ZOOM = 7,
@@ -195,20 +198,21 @@ function AvatarViewport(
 				anchorPoint = Vector2.new(0,1),
 				zIndex = 3,
 				onActivated = function()
-					GuiManager.PushNotificationCentre(
-						"SaveOutfit", 
-						"Are you sure you want to save this outfit?", 
-						function()  
-							ClientOutfitService.SaveCurrentPlayerOutfit()
-							if not props.controllers.CatalogSearchController then
-								return 
-							end
-							if not props.controllers.CatalogSearchController.updatePlayerOutfits then
-								return 
-							end
-							props.controllers.CatalogSearchController.updatePlayerOutfits()
-						end
-					)
+					if isSaving then
+						return
+					end
+					isSaving = true
+					ClientOutfitService.SaveCurrentPlayerOutfit()
+					if not props.controllers.CatalogSearchController then
+						isSaving = false
+						return 
+					end
+					if not props.controllers.CatalogSearchController.updatePlayerOutfits then
+						isSaving = false
+						return 
+					end
+					props.controllers.CatalogSearchController.updatePlayerOutfits()
+					isSaving = false
 				end
 			}),
 

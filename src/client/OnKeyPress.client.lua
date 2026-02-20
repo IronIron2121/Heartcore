@@ -1,5 +1,6 @@
 --!strict
 
+--[[
 -- ReplicatedStorage
 local UIS = game:GetService("UserInputService")
 local repStore = game:GetService("ReplicatedStorage")
@@ -25,3 +26,4 @@ local function onUserInputBegan(input: InputObject, gameProc: boolean)
 end
 
 UIS.InputBegan:Connect(onUserInputBegan)
+]]

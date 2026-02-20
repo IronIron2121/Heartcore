@@ -159,6 +159,13 @@ local function DailyChallengeFrame(
                     scope:New "UIPadding" {
                         PaddingLeft = UDim.new(0.035,0)
                     },
+
+                    scope:New "Frame" {
+                        Name = "Buffer",
+                        Size = UDim2.fromScale(0.3, 0.8),
+                        BackgroundTransparency = 1,
+                        LayoutOrder = 100
+                    },
                     
                     -- Dynamically create cards based on challenges
                     scope:ForValues(challenges, function(use, scope, challenge)

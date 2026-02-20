@@ -66,8 +66,12 @@ local SetParticipatingRE = Remotes:WaitForChild("SetParticipating") :: RemoteEve
 local Children = Fusion.Children
 local modalScope = Fusion:scoped() 
 
+-- Vals
+local isCentreActive = GuiManager.GetCentreActiveValue()
+
 --
 
+-- ### --- INITIAL LOADING SCREEN --- ### -- 
 
 task.spawn(function()
     local initialLoadGui = modalScope:New "ScreenGui" {
@@ -124,7 +128,11 @@ local function InitialiseHuds()
         layoutOrder = 2,
         size = UDim2.fromScale(0.6, 0.6),
         position = UDim2.fromScale(0.8,0),
+        visible = hudScope:Computed(function(use)  
+            return not use(isCentreActive)        
+        end),
         image = hudScope:Computed(function(use)
+            GuiManager.PopCentre()
             local currentConfig = use(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
                 return ImageUris.ExitFitCheck
@@ -196,7 +204,7 @@ local function InitialiseHuds()
                 image = hudScope:Computed(function(use)
                     if use(GameStateValues.isDressing) then
                         if use(PlayerSubmissionState.cooldown) then
-                            return ImageUris.Submit
+                            return ImageUris.Submit 
                         else
                             return ImageUris.Submit
                         end

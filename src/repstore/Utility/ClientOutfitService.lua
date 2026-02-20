@@ -4,6 +4,7 @@ local AvatarEditorService = game:GetService("AvatarEditorService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
 
 -- Folders
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -89,7 +90,16 @@ function ClientOutfitService.SaveInspectedPlayerOutfit(inspectedPlayer: Player)
 end
 
 function ClientOutfitService.SaveCurrentPlayerOutfit()
-	PlayerSavedTastemakerOutfit:FireServer()
+	local success = callWithRetry(function()
+		return PlayerSavedTastemakerOutfit:FireServer()
+	end)
+
+	if success then
+        StarterGui:SetCore("SendNotification", {
+            Title = "Outfit Saved Successfully!",
+            Text = "",
+        })
+	end
 
 	-- The below code is commented out until we need to implement saving outfits via Roblox official API
 
