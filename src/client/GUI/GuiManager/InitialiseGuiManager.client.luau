@@ -106,7 +106,6 @@ task.spawn(function()
 
     for i, group in assetGroups do
         if skipped then break end
-        -- loadingText:set(i .. "/" .. #assetGroups)
         loadingText:set(math.floor((i / #assetGroups) * 100) .. "%")
         ContentProvider:PreloadAsync(group)
     end
@@ -227,13 +226,9 @@ local function InitialiseHuds()
                     if (peek(GameStateValues.isDressing)) then
                         if not peek(PlayerSubmissionState.cooldown) then
                             PlayerSubmittedOutfitRF:InvokeServer()
-                        else
-                            warn("Already submitted this round")
                         end
                     elseif (peek(GameStateValues.isVoting)) then
                         GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
-                    else
-                        warn("Nothing to do")
                     end
                 end,
 
