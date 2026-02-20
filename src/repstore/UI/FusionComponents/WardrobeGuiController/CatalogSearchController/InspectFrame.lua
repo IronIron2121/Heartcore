@@ -71,7 +71,7 @@ function InspectFrame(
 			gridLayout,
 			scope:New "UIPadding" {
 				PaddingTop = UDim.new(0,10),
-				PaddingBottom = UDim.new(0,10),
+				PaddingBottom = UDim.new(0,100),
 				PaddingRight = UDim.new(0.05,0),
 				PaddingLeft = UDim.new(0.05,0),
 			},
