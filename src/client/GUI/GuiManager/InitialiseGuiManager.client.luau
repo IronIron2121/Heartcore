@@ -68,6 +68,7 @@ local modalScope = Fusion:scoped()
 
 --
 
+-- ### --- INITIAL LOADING SCREEN --- ### -- 
 
 task.spawn(function()
     local initialLoadGui = modalScope:New "ScreenGui" {
@@ -125,6 +126,7 @@ local function InitialiseHuds()
         size = UDim2.fromScale(0.6, 0.6),
         position = UDim2.fromScale(0.8,0),
         image = hudScope:Computed(function(use)
+            GuiManager.PopCentre()
             local currentConfig = use(currentConfigurationName)
             if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
                 return ImageUris.ExitFitCheck
