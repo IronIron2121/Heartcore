@@ -160,7 +160,7 @@ function ServerCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 	if PlayerHasMaxOfAccessoryTypeEquipped(player, accessoryDescription.AccessoryType) then
 		if accessoryDescription.AccessoryType == Enum.AccessoryType.Hat then
 			warn("Cannot equip more than 3 hats!") 
-			return
+			return true
 		else
 			warn("Maxed out! Deleting previous one...")
 			for _, description in ipairs(clonedDescription:GetChildren()) do
@@ -175,7 +175,7 @@ function ServerCustomisationService.AddAccessoryToAvatar(player: Player, itemId:
 	accessoryDescription.Order = ACCESSORY_TYPE_ORDER[accessoryDescription.AccessoryType] or DEFAULT_ACCESSORY_ORDER
 	accessoryDescription.Parent = clonedDescription
 
-	ServerCustomisationService.applyDescription(player, clonedDescription)
+	return ServerCustomisationService.applyDescription(player, clonedDescription)
 end
 
 function ServerCustomisationService.AddAccessoriesToAvatar(player: Player, accessories: {{itemId: number, assetType: string}})
@@ -316,7 +316,7 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 
 	if not success then
 		warn("Failed to get bundle details for ID:", bundleId)
-		return
+		return false
 	end
 
 	local bundleItems = bundleInfo.Items
@@ -331,17 +331,14 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 
 				-- AssetTypeId 79 is DynamicHead
 				if assetSuccess and assetInfo and assetInfo.AssetTypeId == 79 then
-					ServerCustomisationService.AddBodyPartToAvatar(player, item.Id, "Head")
-					return
+					return ServerCustomisationService.AddBodyPartToAvatar(player, item.Id, "Head")
 				end
 			end
 		end
-		return
 	end
 
 	-- Handle Body Parts bundles
 	if bundleInfo.BundleType == Enum.BundleType.BodyParts.Name or bundleInfo.BundleType == Enum.BundleType.Shoes.Name then
-		warn("Adding here...")
 		local bodyParts = {}
 		local accessories = {}
 		
@@ -397,10 +394,8 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		if #accessories > 0 then
 			ServerCustomisationService.AddAccessoriesToAvatar(player, accessories)
 		end
-		return
 	end
 
-	warn("Not found ABOVE; ", bundleInfo)
 	-- Check for UserOutfit (simpler approach for other bundle types)
 	local userOutfitId = getUserOutfitIdFromBundleItems(bundleItems)
 	if userOutfitId then
@@ -409,9 +404,7 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 		end)
 
 		if descSuccess then
-			ServerCustomisationService.applyDescription(player, outfitDescription)
-
-			return
+			return ServerCustomisationService.applyDescription(player, outfitDescription)
 		else
 			warn("Failed to get outfit description for ID:", userOutfitId)
 		end
@@ -429,6 +422,8 @@ function ServerCustomisationService.AddBundleToAvatar(player: Player, bundleId: 
 			end
 		end
 	end
+
+	return true
 end
 
 function ServerCustomisationService.AddClassicClothingToAvatar(player: Player, itemId: number, assetType: string)
@@ -444,7 +439,7 @@ function ServerCustomisationService.AddClassicClothingToAvatar(player: Player, i
 		clonedDescription.Face = itemId
 	end
 
-	ServerCustomisationService.applyDescription(player, clonedDescription)
+	return ServerCustomisationService.applyDescription(player, clonedDescription)
 end
 
 function ServerCustomisationService.LoadEmote(itemId: number): Animation?
@@ -465,10 +460,10 @@ function ServerCustomisationService.LoadEmote(itemId: number): Animation?
 	return emote
 end
 
-function ServerCustomisationService.TryEmote(player: Player, itemId: number)
+function ServerCustomisationService.TryEmote(player: Player, itemId: number): boolean
 	local humanoid = GetHumanoidFromPlayer(player)
 	local emote = ServerCustomisationService.LoadEmote(itemId)
-	if not emote then return end
+	if not emote then return false end
 
 	local animator = humanoid:FindFirstChild("Animator") :: Animator?
 
@@ -493,6 +488,8 @@ function ServerCustomisationService.TryEmote(player: Player, itemId: number)
 			end)
 		end)
 	end
+
+	return true
 end
 
 -- Public API
@@ -656,21 +653,22 @@ end
 function ServerCustomisationService.AddItemToAvatar(player: Player, itemId: number, assetOrBundleType: string, itemType: string)
 	if IsAssetAlreadyEquipped(player, itemId) then 
 		warn("Item already equipped")
-		return 
+		return false
 	end
 
 	if itemType == "Asset" and table.find(Constants.CLASSIC_CLOTHING_ASSET_TYPES, assetOrBundleType) then
-		ServerCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
+		return ServerCustomisationService.AddClassicClothingToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Asset" and assetOrBundleType == Constants.EMOTE_ASSET_TYPE then
-		ServerCustomisationService.TryEmote(player, itemId)
+		return ServerCustomisationService.TryEmote(player, itemId)
 	elseif itemType == "Asset" and (Enum.BodyPart:FromName(assetOrBundleType) or assetOrBundleType == Enum.AssetType.DynamicHead.Name) then
-		ServerCustomisationService.AddBodyPartToAvatar(player, itemId, assetOrBundleType)
+		return ServerCustomisationService.AddBodyPartToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Asset" then
-		ServerCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
+		return ServerCustomisationService.AddAccessoryToAvatar(player, itemId, assetOrBundleType)
 	elseif itemType == "Bundle" then
-		ServerCustomisationService.AddBundleToAvatar(player, itemId, assetOrBundleType)
+		return ServerCustomisationService.AddBundleToAvatar(player, itemId, assetOrBundleType)
 	else
 		warn("Invalid item type:", itemType, "Expected 'Asset' or 'Bundle'")
+		return false
 	end
 end
 

@@ -74,7 +74,6 @@ end
 
 -- Reset player's challenges (resets tracker and claim status)
 function ChallengeManager.ResetPlayerChallenges(player: Player)
-    print("Resetting challenges for", player.Name)
     local profile = DataManager.Profiles[player]
     if not profile then
         warn("No profile found for player:", player.Name)
@@ -104,7 +103,6 @@ function ChallengeManager.ResetPlayerChallenges(player: Player)
     end
     
     profile.Data.LastChallengeResetTime = DateTime.now().UnixTimestamp
-    print("Reset", #dailyChallenges, "challenges for", player.Name)
     
     -- Notify client of all progress updates
     for _, challenge in ipairs(dailyChallenges) do

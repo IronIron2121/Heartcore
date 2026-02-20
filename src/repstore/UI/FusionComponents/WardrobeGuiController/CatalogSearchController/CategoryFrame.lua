@@ -30,7 +30,6 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local ExpandingOptionsButton = require(Widgets:WaitForChild("ExpandingOptionsButton"))
 local CategoryButton = require(Widgets:WaitForChild("CategoryButton"))
 
-local playerIsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
 
 --
 

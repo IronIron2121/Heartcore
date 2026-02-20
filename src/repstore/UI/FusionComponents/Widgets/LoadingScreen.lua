@@ -83,7 +83,7 @@ function Frame(
         BackgroundColor3 = props.backgroundColor or UI_CONSTANTS.COLOUR_WHITE,
         ZIndex = props.zIndex or 3,
         Parent = props.parent,
-        Active = props.active or true,
+        Active = true,
 
         [Children] = {
             scope:New "UICorner" {
@@ -139,6 +139,7 @@ function Frame(
                 Size = UDim2.fromScale(1,0.7),
                 Position = UDim2.fromScale(0,0.3),
                 BackgroundTransparency = 1,
+                Active = true,
 
                 [Children] = {
                     scope:New "UIListLayout" {
@@ -162,6 +163,7 @@ function Frame(
                         Size = UDim2.fromScale(1, 1/3),
                         LayoutOrder = 2,
                         BackgroundTransparency = 1,
+                        Active = true,
 
                         [Children] = {
                             scope:New "UIListLayout" {

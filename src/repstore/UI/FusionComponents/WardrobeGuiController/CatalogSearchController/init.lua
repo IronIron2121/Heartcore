@@ -222,9 +222,11 @@ function CatalogSearchController:_initialiseSearchFrame()
 					end
 				end,
 				pushLoad = function()
+					warn("Pushing load")
 					LoadingScreenManager.show(self.parentFrame.Parent.Parent)
 				end,
 				popLoad = function()
+					warn("Popping load")
 					LoadingScreenManager.hide(self.parentFrame.Parent.Parent)
 				end
 			})

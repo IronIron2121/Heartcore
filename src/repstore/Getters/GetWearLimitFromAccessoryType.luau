@@ -29,8 +29,6 @@ function GetWearLimitFromAccessoryType(accessoryType: string)
         end
     end
 
-	warn("Did not find limits for assetType", assetType)
-	
     return nil
 end
 

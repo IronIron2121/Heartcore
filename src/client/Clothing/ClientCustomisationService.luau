@@ -22,7 +22,7 @@ local PlayerRemovedAllAccessoriesRF = Remotes:WaitForChild("PlayerRemovedAllAcce
 local PlayerRemovedClassicItem = Remotes:WaitForChild("PlayerRemovedClassicItem")
 local PlayerResetOutfit = Remotes:WaitForChild("PlayerResetOutfit")
 local PlayerRemovedItem = Remotes:WaitForChild("PlayerRemovedItem")
-local PlayerEquippedItem = Remotes:WaitForChild("PlayerEquippedItem")
+local PlayerEquippedItemRF = Remotes:WaitForChild("PlayerEquippedItemRF")
 
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -32,6 +32,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 -- Variables
 local currentlyResetting = false
+local isEquipping = false
 
 local localPlayer = Players.LocalPlayer
 local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
@@ -78,12 +79,18 @@ function ClientCustomisationService.PlayerPurchasedItem(itemId: number)
 end
 
 function ClientCustomisationService.AddItem(assetId: number, assetTypeOrBundleType: string, itemType: string): boolean
+	if isEquipping then 
+		warn("Already equipping!")
+		return true 
+	end
+	warn("Adding...")
+	isEquipping = true
 	local success = callWithRetry(
 		function()  
-			return PlayerEquippedItem:FireServer(assetId, assetTypeOrBundleType, itemType)
+			return PlayerEquippedItemRF:InvokeServer(assetId, assetTypeOrBundleType, itemType)
 		end
 	)
-
+	isEquipping = false
 	return success
 end
 

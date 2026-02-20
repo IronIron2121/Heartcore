@@ -50,6 +50,7 @@ local function change(
 					table.insert(invalidateList, dependent)
 					table.insert(searchInNext, dependent)
 				elseif dependent.validity == "busy" then
+					warn(dependent)
 					return External.logError("infiniteLoop")
 				end
 			end

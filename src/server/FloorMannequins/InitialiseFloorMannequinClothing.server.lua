@@ -6,7 +6,6 @@
 --]]
 
 -- Services
-local MarketplaceService = game:GetService("MarketplaceService")
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local InsertService = game:GetService("InsertService")
@@ -69,7 +68,7 @@ local function setupMannequinAsync(mannequin: Instance)
 				warn("No accessory found in asset " .. accessoryId .. " for mannequin " .. mannequin.Name)
 			end
 		else
-			warn("Failed to load accessory " .. accessoryId .. " for mannequin " .. mannequin.Name)
+			warn("Failed to load accessory " .. accessoryId .. " for mannequin ")
 		end
 	end
 
