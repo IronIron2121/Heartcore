@@ -121,6 +121,7 @@ function GameOutfitManager.addVote(player: Player, outfitId: string): boolean
 	end
 	
 	if outfit.userId == voterUserId then
+		warn("Player voted for own outfit!")
 		return false
 	end
 
@@ -136,6 +137,8 @@ function GameOutfitManager.addVote(player: Player, outfitId: string): boolean
 		DataManager.AddExp(player, ExpConfig.Rewards.VOTE_RECEIVED)
 		ChallengeManager.OnOutfitVoted(player)
 	end)
+
+	warn("Just added vote to outfit", outfit)
 
 	return true
 end
@@ -197,6 +200,7 @@ function GameOutfitManager.getUnseenOutfit(player: Player, excludeOutfitId: stri
 
 	return unseen[1]
 end
+
 
 function GameOutfitManager.getUnseenCount(player: Player): number
 	local userId = player.UserId

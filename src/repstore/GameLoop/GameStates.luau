@@ -6,7 +6,7 @@ local GameStates = {
     },
     Voting = { 
         name = "Voting", 
-        duration = 1/6 * 60, -- FINAL: 2 mins
+        duration = 2/6 * 60, -- FINAL: 2 mins
         next = "Intermission" 
     },
     Intermission = { 
@@ -16,4 +16,4 @@ local GameStates = {
     },
 }
 
-return GameStates 
+return GameStates

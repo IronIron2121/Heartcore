@@ -234,6 +234,7 @@ function GameStateManager.checkAllFinishedVoting()
 	end
 
 	local hasParticipants = false
+
 	for userId in participatingPlayers do
 		hasParticipants = true
 		if not finishedVotingPlayers[userId] then
@@ -245,6 +246,7 @@ function GameStateManager.checkAllFinishedVoting()
 		print("No participants at checkAllFinishedVoting") 
 		return
 	end
+
 	print("All players have finished voting!")
 
 	GameStateManager.hurryRound()
@@ -290,6 +292,10 @@ function GameStateManager.transitionTo(stateName: string)
 	startCountdown(config.duration)
 end
 
+-- Optional callback set by VotingArenaManager to handle Voting-phase teleportation.
+-- When set, it is called instead of teleportAllPlayers for the Voting state.
+GameStateManager.onVotingStart = nil :: (() -> ())?
+
 function GameStateManager._onStateEnter(stateName: string)
 	teleportAllPlayers(STATE_SPAWNS[stateName])
 
@@ -311,6 +317,9 @@ function GameStateManager._onStateEnter(stateName: string)
 					end
 				end
 			end
+			print("At game state manager", GameOutfitManager.getOutfits())
+			GameStateManager.onVotingStart()
+
 		end
 		finishedVotingPlayers = {}
 	elseif stateName == "Intermission" then

@@ -19,12 +19,12 @@ local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
 local DailyChallengeFolder = UI.FusionComponents.DailyChallengeGui
 local FusionComponents = UI.FusionComponents
 local FusionWidgets = FusionComponents.Widgets
-local FusionUtility = Utility.Fusion
+local FusionUtility = Utility.Fusion 
 local GameState = StarterPlayerScripts.GameState
 local ClientGUI = StarterPlayerScripts.GUI
 
 -- Modules
-local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager) 
 local OpenDailyChallengeGuiButton = require(FusionComponents:WaitForChild("OpenDailyChallengeGuiButton"))
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
@@ -49,7 +49,7 @@ local ImageUris = require(DataTables.ImageUris)
 local FtuePop = require(ClientGUI.FtuePop)
 local Fusion = require(FusionUtility)
 
-local VotingStage = workspace:WaitForChild("VotingStage")
+local VotingStages = workspace:WaitForChild("VotingStages")
 local lobby = workspace:WaitForChild("lobby")
 local mainStage = workspace:WaitForChild("mainStage")
 
@@ -74,10 +74,9 @@ task.spawn(function()
     } :: ScreenGui
 
     local assetGroups = {
-        VotingStage:GetDescendants(),
+        VotingStages:GetDescendants(),
         lobby:GetDescendants(),
         mainStage:GetDescendants(),
-
     }
     local loadingText = modalScope:Value("...")
     local skipped = false
@@ -180,7 +179,10 @@ local function InitialiseHuds()
                             PlayerSubmittedOutfitRF:InvokeServer()
                         end
                     elseif (peek(GameStateValues.isVoting)) then
-                        GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
+                        -- Suppress when the 3D arena is active (VotingStageIndex is set)
+                        if not game:GetService("Players").LocalPlayer:GetAttribute("VotingStageIndex") then
+                            GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
+                        end
                     end
                 end,
 

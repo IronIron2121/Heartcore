@@ -256,6 +256,10 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 	} :: Frame
 
 	local function initialiseVoting()
+		-- The 3D arena (VotingArenaManager) handles voting when VotingStageIndex is set.
+		-- In that case suppress the 2D tile UI entirely.
+		if game:GetService("Players").LocalPlayer:GetAttribute("VotingStageIndex") then return end
+
 		LoadingScreenManager.show(tilesContainerFrame)
 
 		task.spawn(function()
