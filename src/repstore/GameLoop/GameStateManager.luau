@@ -247,12 +247,13 @@ function GameStateManager.checkAllFinishedVoting()
 		return
 	end
 
-	print("All players have finished voting!")
+	print("All players have finished voting!", participatingPlayers)
 
 	GameStateManager.hurryRound()
 end 
 
 function GameStateManager.markFinishedVoting(player: Player)
+	warn("Marking finished voting")
 	finishedVotingPlayers[player.UserId] = true
 	GameStateManager.checkAllFinishedVoting()
 end
@@ -297,7 +298,10 @@ end
 GameStateManager.onVotingStart = nil :: (() -> ())?
 
 function GameStateManager._onStateEnter(stateName: string)
-	teleportAllPlayers(STATE_SPAWNS[stateName])
+	-- For Voting, onVotingStart handles teleportation; skip the generic teleport
+	if stateName ~= "Voting" or not GameStateManager.onVotingStart then
+		teleportAllPlayers(STATE_SPAWNS[stateName])
+	end
 
 	if stateName == "Dressing" then
 		-- Select new theme
@@ -317,11 +321,12 @@ function GameStateManager._onStateEnter(stateName: string)
 					end
 				end
 			end
-			print("At game state manager", GameOutfitManager.getOutfits())
-			GameStateManager.onVotingStart()
-
 		end
 		finishedVotingPlayers = {}
+		-- Kick off the arena after all auto-submissions are complete
+		if GameStateManager.onVotingStart then
+			GameStateManager.onVotingStart()
+		end
 	elseif stateName == "Intermission" then
 		WinnersManager.reset()
 		WinnersManager.setNewWinners()

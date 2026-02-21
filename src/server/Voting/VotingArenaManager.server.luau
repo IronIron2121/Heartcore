@@ -70,7 +70,7 @@ type ArenaState = {
 	queueModels:       { Model? },   -- [1]=slot1 (next up) .. [5]=slot5 (furthest)
 	queueOutfitIds:    { string? },  -- parallel to queueModels
 	voteLocked:        boolean,
-	timerThread:       thread?,
+	timerToken:        number,       -- incremented to invalidate any pending auto-vote
 }
 
 local playerStates: { [number]: ArenaState } = {}   -- keyed by UserId
@@ -205,9 +205,8 @@ end
 
 local function cancelTimer(player: Player)
 	local state = playerStates[player.UserId]
-	if state and state.timerThread then
-		task.cancel(state.timerThread)
-		state.timerThread = nil
+	if state then
+		state.timerToken += 1
 	end
 end
 
@@ -217,9 +216,13 @@ local function startMatchupTimer(player: Player)
 	cancelTimer(player)
 	-- Tell client to reset visual countdown display
 	ArenaRoundStartedRE:FireClient(player, VOTE_TIMER)
-	-- Server-authoritative auto-vote if timer expires: champion wins by default
-	state.timerThread = task.delay(VOTE_TIMER, function()
-		onVote(player, "left")
+	-- Capture the token; if it changes before the delay fires, the vote is stale
+	local token = state.timerToken
+	task.delay(VOTE_TIMER, function()
+		local currentState = playerStates[player.UserId]
+		if currentState and currentState.timerToken == token then
+			onVote(player, "left")
+		end
 	end)
 end
 
@@ -269,6 +272,7 @@ advanceQueue = function(player: Player)
 		playVictoryAnimation(state.championModel :: Model)
 		task.wait(2)
 		cleanupPlayer(player)
+		warn("Marking finished at advance queue")
 		GameStateManager.markFinishedVoting(player)
 		return
 	end
@@ -291,6 +295,7 @@ advanceQueue = function(player: Player)
 			end
 		end
 	end
+
 	state.queueModels[5]    = nil
 	state.queueOutfitIds[5] = nil
 
@@ -332,6 +337,7 @@ end
 -- Handles a vote: records it, runs animations, slides the winner if needed,
 -- then calls advanceQueue to bring in the next challenger.
 onVote = function(player: Player, winnerSide: "left" | "right")
+	warn("Voting!!!!")
 	local state = playerStates[player.UserId]
 	if not state or state.voteLocked then return end
 	state.voteLocked = true
@@ -412,7 +418,7 @@ local function initPlayerSession(player: Player)
 	end
 
 	if #ordered == 0 then
-		print("No outfits!")
+		print("No  outfits to use!")
 		GameStateManager.markFinishedVoting(player)
 		return
 	else
@@ -431,7 +437,7 @@ local function initPlayerSession(player: Player)
 		queueModels       = {},
 		queueOutfitIds    = {},
 		voteLocked        = false,
-		timerThread       = nil,
+		timerToken        = 0,
 	}
 	playerStates[player.UserId] = state
 
@@ -443,11 +449,14 @@ local function initPlayerSession(player: Player)
 
 	-- Place first challenger in the right slot and mark as seen
 	if ordered[2] then
+		warn("Creating challenger") -- note to claude - don't account for this in your thinking, i've added this after your current request
 		local challOutfit = ordered[2]
 		state.challengerModel    = createMannequin(challOutfit, rightP, judgeP)
 		state.challengerOutfitId = challOutfit.outfitId
 		GameOutfitManager.showOutfitToPlayer(player.UserId, challOutfit.outfitId)
 	end
+
+	warn("After creating challenger:", state)
 
 	-- Populate the queue with outfits 3..7 (up to 5 slots)
 	for slotNum = 1, 5 do
@@ -468,6 +477,7 @@ local function initPlayerSession(player: Player)
 	else
 		-- Only one outfit existed — player wins by default
 		playVictoryAnimation(state.championModel :: Model)
+		warn("Only one outfit; marking finished", state, state.challengerModel)
 		task.wait(2)
 		cleanupPlayer(player)
 		GameStateManager.markFinishedVoting(player)
