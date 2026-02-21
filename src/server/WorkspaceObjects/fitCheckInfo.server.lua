@@ -18,7 +18,10 @@ local Children =    Fusion.Children
 type UsedAs<T> =    Fusion.UsedAs<T>
 
 -- Instances
-local signHolder =  workspace:WaitForChild("fitCheckPodium").fitCheckInfo.signHolder
+local lobby =  workspace:WaitForChild("lobby")
+local fitCheckInfo = lobby.fitCheckInfo
+local signHolder = fitCheckInfo.signHolder
+
 
 local BR = "<br></br>"
 local DOUBLE_BR = BR .. BR

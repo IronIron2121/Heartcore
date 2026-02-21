@@ -5,28 +5,17 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Getters = ReplicatedStorage:WaitForChild("Getters")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
-local submissionZone = workspace:WaitForChild("submissionZone")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
 local getHumanoidDescriptionFromPlayer = require(Getters:WaitForChild("getHumanoidDescriptionFromPlayer"))
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 local GameStateManager = require(GameLoop:WaitForChild("GameStateManager"))
-local Fusion = require(Utility:WaitForChild("Fusion"))
-
--- Fusion
-local scope = Fusion:scoped()
-local OnEvent = Fusion.OnEvent
 
 -- Remotes
 local PlayerSubmittedOutfitRF = Remotes:WaitForChild("PlayerSubmittedOutfit") :: RemoteFunction
-
--- Instances
-local SubmissionPad = submissionZone:WaitForChild("SubmissionPad")
-local promptHolder = SubmissionPad:WaitForChild("PromptHolder")
 
 --
 
@@ -47,19 +36,6 @@ local function onOutfitSubmitted(player: Player)
     GameOutfitManager.submitOutfit(player, humanoidDescription)
     GameStateManager.checkAllSubmitted()
 end
-
-local prompt = scope:New "ProximityPrompt" {
-    Name = "SubmissionPrompt",
-    Parent = promptHolder,
-    Enabled = true,
-    ActionText = "Submit Outfit",
-    HoldDuration = 0.5,
-    RequiresLineOfSight = false,
-    MaxActivationDistance = 16,
-    [OnEvent "Triggered"] = function(player)
-        onOutfitSubmitted(player)
-    end
-}
 
 -- Handle RemoteFunction calls from GUI
 PlayerSubmittedOutfitRF.OnServerInvoke = function(player: Player)
