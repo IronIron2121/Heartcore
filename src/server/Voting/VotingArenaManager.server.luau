@@ -29,7 +29,7 @@ local teleportPlayer    = require(UtilityFolder.teleportPlayer)
 local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
 
 -- Constants
-local VOTE_TIMER       = 10    -- seconds per matchup before auto-vote (champion wins)
+local VOTE_TIMER       = 120    -- seconds per matchup before auto-vote (champion wins)
 local HRP_STAND_OFFSET = 3.2   -- studs above platform surface to HumanoidRootPart
 local QUEUE_SHIFT_TIME = 0.4   -- seconds for queue mannequins to slide forward
 local VICTORY_ANIM_ID  = "rbxassetid://507770239"  -- Roblox "Wave" emote
@@ -139,13 +139,12 @@ end
 -- Replaces the ClickDetector on model.HumanoidRootPart with a fresh one wired to
 -- onVoteCallback, gated to assignedPlayer only.
 local function attachClickDetector(model: Model, assignedPlayer: Player, onVoteCallback: () -> ())
-	local hrp = model:FindFirstChild("HumanoidRootPart")
-	if not hrp then return end
-	local old = hrp:FindFirstChildOfClass("ClickDetector")
+	local old = model:FindFirstChildOfClass("ClickDetector")
 	if old then old:Destroy() end
 	local cd = Instance.new("ClickDetector")
-	cd.MaxActivationDistance = 100
-	cd.Parent = hrp
+	cd.MaxActivationDistance = 500
+	cd.Parent = model
+	cd.Name = "voteHandler"
 	cd.MouseClick:Connect(function(clicker: Player)
 		if clicker == assignedPlayer then
 			onVoteCallback()
@@ -320,17 +319,26 @@ end
 -- Called after each vote so click handlers always capture the correct pair.
 attachVoteHandlers = function(player: Player)
 	local state = playerStates[player.UserId]
-	if not state then return end
+	if not state then 
+		warn("No state at attach vote handlers")
+		return 
+	end
+
+	warn("Attaching vote handlers")
 
 	if state.championModel then
 		attachClickDetector(state.championModel, player, function()
 			onVote(player, "left")
 		end)
+	else
+		warn("No left challenger")
 	end
 	if state.challengerModel then
 		attachClickDetector(state.challengerModel, player, function()
 			onVote(player, "right")
 		end)
+	else
+		warn("No right challenger")
 	end
 end
 
@@ -403,11 +411,11 @@ local function initPlayerSession(player: Player)
 
 	-- Teleport player to their judge platform (This is working)
 	local char = player.Character or player.CharacterAdded:Wait()
-	--teleportPlayer(player, judgeP)
+	teleportPlayer(player, judgeP)
 
 	-- Anchor them in place
 	local hrp = char:FindFirstChild("HumanoidRootPart") :: BasePart?
-	if hrp then hrp.Anchored = true end
+	--if hrp then hrp.Anchored = true end
 
 	-- Collect all outfits this player is eligible to vote on (everyone else's)
 	local ordered: { GameOutfitManager.Outfit } = {}
@@ -439,6 +447,7 @@ local function initPlayerSession(player: Player)
 		voteLocked        = false,
 		timerToken        = 0,
 	}
+
 	playerStates[player.UserId] = state
 
 	-- Place champion in the left challenger slot and mark as seen
@@ -453,7 +462,7 @@ local function initPlayerSession(player: Player)
 		local challOutfit = ordered[2]
 		state.challengerModel    = createMannequin(challOutfit, rightP, judgeP)
 		state.challengerOutfitId = challOutfit.outfitId
-		GameOutfitManager.showOutfitToPlayer(player.UserId, challOutfit.outfitId)
+		GameOutfitManager.showOutfitToPlayer(player.UserId, challOutfit.outfitId) 
 	end
 
 	warn("After creating challenger:", state)

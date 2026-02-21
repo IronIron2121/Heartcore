@@ -95,7 +95,7 @@ local function computeJudgeCFrame(stageIndex: number): CFrame
 
 	-- Camera sits 8 studs above JudgePlatform, looking at the midpoint of the challengers
 	local camPos = judge.Position + Vector3.new(0, 8, 0)
-	local lookAt = (leftC.Position + rightC.Position) / 2
+	local lookAt = ((leftC.Position + rightC.Position)) / 2
 	return CFrame.lookAt(camPos, lookAt)
 end
 
@@ -136,6 +136,7 @@ local function activate()
 
 	camera.CameraType = Enum.CameraType.Scriptable
 	camera.CFrame     = computeJudgeCFrame(stageIndex)
+	camera.FieldOfView = 110
 
 	isArenaActive:set(true)
 end
