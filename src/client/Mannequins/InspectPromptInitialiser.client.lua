@@ -5,6 +5,11 @@
 	CLIENT-SIDE: Handles UI interaction only.
 --]]
 
+--[[
+
+script.Enabled = false
+script.Disabled = true
+
 -- Services
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -318,3 +323,5 @@ end
 task.wait(5)
 
 initialise()
+
+]]

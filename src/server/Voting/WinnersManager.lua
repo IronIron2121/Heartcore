@@ -7,7 +7,8 @@ local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Folders
-local dailyWinners = workspace:WaitForChild("dailyWinners")
+local lobby = workspace:WaitForChild("lobby")
+local dailyWinners = lobby:WaitForChild("dailyWinners")
 local descriptions = ReplicatedStorage:WaitForChild("Descriptions")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 local Values = ReplicatedStorage.Values
@@ -92,7 +93,7 @@ function WinnersManager.reset()
 	resetLeaderboard()
 	resetThemeLabel()
 end
-
+ 
 function WinnersManager.updatePodiums(winners: { GameOutfitManager.Outfit })
 	for index, outfit in ipairs(winners) do
 		local rig = podiumRigs[index]
@@ -128,13 +129,13 @@ function WinnersManager.updateLeaderboard(rankings: { GameOutfitManager.Outfit }
 		end)
 
 		-- Format score as percentage
-		--local scorePercent = math.floor(outfit.score * 100 + 0.5)
+		local scorePercent = math.floor(outfit.score * 100 + 0.5)
 		local displayName = if success then playerName else "Player " .. tostring(i)
 		
 		local newLabel = Instance.new("TextLabel")
 		newLabel.Parent = leaderboardFrame
 		newLabel.LayoutOrder = i
-		newLabel.Text = string.format("%d. %s", i, displayName)
+		newLabel.Text = string.format("%d. %s (%d%%)", i, displayName, scorePercent)
 		newLabel.Size = UDim2.new(1, 0, 0, 30)
 		newLabel.BackgroundTransparency = 1
 		newLabel.TextColor3 = Color3.fromRGB(92, 96, 214)

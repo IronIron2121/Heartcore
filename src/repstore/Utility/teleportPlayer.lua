@@ -4,11 +4,6 @@
 	Teleports a player to a given part
 ]]
 
--- Services
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
--- Module Scripts
-local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
 -- Local Constants
 local TELEPORT_Y_OFFSET = 10

@@ -49,13 +49,9 @@ local ImageUris = require(DataTables.ImageUris)
 local FtuePop = require(ClientGUI.FtuePop)
 local Fusion = require(FusionUtility)
 
-local artistStores = workspace:WaitForChild("ArtistStores")
-local lobbyRock = workspace:WaitForChild("lobbyRock")
-local labelStores = workspace:WaitForChild("LabelStores")
-local podium = workspace:WaitForChild("fitCheckPodium")
-local layoutBlocks = workspace:WaitForChild("layoutBlocks")
-local dailyWinners = workspace:WaitForChild("dailyWinners")
-local curatedStores = workspace:WaitForChild("curatedStores")
+local VotingStage = workspace:WaitForChild("VotingStage")
+local lobby = workspace:WaitForChild("lobby")
+local mainStage = workspace:WaitForChild("mainStage")
 
 
 -- Remotes
@@ -82,13 +78,9 @@ task.spawn(function()
     } :: ScreenGui
 
     local assetGroups = {
-        lobbyRock:GetDescendants(),
-        podium:GetDescendants(),
-        labelStores:GetDescendants(),
-        artistStores:GetDescendants(),
-        layoutBlocks:GetDescendants(),
-        dailyWinners:GetDescendants(),
-        curatedStores:GetDescendants()
+        VotingStage:GetDescendants(),
+        lobby:GetDescendants(),
+        mainStage:GetDescendants(),
 
     }
     local loadingText = modalScope:Value("...")
