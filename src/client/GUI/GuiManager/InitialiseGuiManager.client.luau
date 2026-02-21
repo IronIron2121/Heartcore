@@ -56,14 +56,10 @@ local mainStage = workspace:WaitForChild("mainStage")
 
 -- Remotes
 local PlayerSubmittedOutfitRF = Remotes:WaitForChild("PlayerSubmittedOutfit") :: RemoteFunction
-local SetParticipatingRE = Remotes:WaitForChild("SetParticipating") :: RemoteEvent
 
 -- Fusion
 local Children = Fusion.Children
 local modalScope = Fusion:scoped() 
-
--- Vals
-local isCentreActive = GuiManager.GetCentreActiveValue()
 
 --
 
@@ -112,45 +108,6 @@ local function InitialiseHuds()
     local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
     local openWardrobeButton = OpenWardrobeButton(hudScope)
     local submissionThemeBar = SubmissionThemeBar()
-
-    local currentConfigurationName = GuiManager.GetCurrentConfigurationNameValue()
-
-    local GameModeButton = BaseImageButton(hudScope, {
-        name = "ChangeModeButton",
-        layoutOrder = 2,
-        size = UDim2.fromScale(0.6, 0.6),
-        position = UDim2.fromScale(0.8,0),
-        visible = hudScope:Computed(function(use)  
-            return not use(isCentreActive)        
-        end),
-        image = hudScope:Computed(function(use)
-            local currentConfig = use(currentConfigurationName)
-            if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
-                return ImageUris.ExitFitCheck
-            else
-                return ImageUris.PlayFitCheck
-            end
-        end),
-
-        onActivated = function()
-            local currentConfig = peek(currentConfigurationName)
-            if currentConfig == CONFIGURATION_NAMES.GameLoopConfig then
-                GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.ShoppingConfig)
-                SetParticipatingRE:FireServer(false)
-            elseif currentConfig == CONFIGURATION_NAMES.ShoppingConfig then
-                GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
-                SetParticipatingRE:FireServer(true)
-            end
-        end,
-
-        [Children] = {
-            hudScope:New "UIAspectRatioConstraint" {
-                AspectRatio = 1,
-                AspectType = Enum.AspectType.FitWithinMaxSize,
-                DominantAxis = Enum.DominantAxis.Width
-            }
-        }
-    })
 
     local buttonsFrame = hudScope:New "Frame" {
         Size = UDim2.fromScale(1, 1),
@@ -238,16 +195,6 @@ local function InitialiseHuds()
         }
     } :: Frame
 
-    local gameModeButtonFrame = hudScope:New "Frame" {
-        Name = "GameModeButtonFrame",
-        Size = UDim2.fromScale(1, 0.5),
-        BackgroundTransparency = 1,
-
-        [Children] = {
-            GameModeButton
-        }
-    } :: Frame
-
     local topRightContainer = hudScope:New "Frame" {
         Name = "TopRightContainer",
         Size = UDim2.fromScale(1, 1),
@@ -262,7 +209,6 @@ local function InitialiseHuds()
             },
 
             expHud,
-            gameModeButtonFrame
         }
     } :: Frame
 
@@ -275,15 +221,6 @@ local function InitialiseHuds()
         bottomRight = { Object = GameOptionsFrame1, AlwaysOn = false },
     })
 
-    local ShoppingConfig = GuiConfiguration.new({
-        ConfigurationName = CONFIGURATION_NAMES.ShoppingConfig,
-        topMiddle = nil,
-        topRight = { Object = topRightContainer, AlwaysOn = false },
-        bottomLeft = nil,
-        bottomMiddle = { Object = buttonsFrame, AlwaysOn = false },
-        bottomRight = nil,
-    })
-
     local FtueConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.FtueConfig,
         topMiddle = nil,
@@ -294,8 +231,7 @@ local function InitialiseHuds()
     })
 
     GuiManager.RegisterConfiguration(GameLoopConfig)
-    GuiManager.RegisterConfiguration(ShoppingConfig) 
-    GuiManager.RegisterConfiguration(FtueConfig) 
+    GuiManager.RegisterConfiguration(FtueConfig)
     GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.FtueConfig)
 end
 
