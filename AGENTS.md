@@ -74,10 +74,15 @@ aftman install
 - `ClientOutfitService` (`src/repstore/Utility/`) — Client-side outfit save/delete operations
 - `SerialisationService` (`src/repstore/Utility/`) — HumanoidDescription serialization/deserialization
 
+**Round Teleportation:**
+- `GameStateManager._onStateEnter()` teleports all players to the zone for the current state via `teleportAllPlayers()`
+- Spawn destinations: `workspace.GeneralWorld.GameSpawn` (Dressing), `.VoteSpawn` (Voting), `.IntermissionSpawn` (Intermission)
+- Players joining mid-round are teleported to the current state's spawn in `PlayerAdded`
+- Uses `teleportPlayer` utility (`src/repstore/Utility/teleportPlayer.lua`)
+
 **Hurry Round / Participant Tracking:**
 - `GameStateManager` tracks `participatingPlayers` and `finishedVotingPlayers` (dictionaries keyed by UserId)
-- Players are added to `participatingPlayers` on join (`PlayerAdded`) and toggled via `SetParticipating` RemoteEvent (fired from mode buttons)
-- Players removed from both lists on `PlayerRemoving`
+- Players are added to `participatingPlayers` on join (`PlayerAdded`); removed on `PlayerRemoving`
 - `_checkHurry()` calls `checkAllSubmitted()` during Dressing or `checkAllFinishedVoting()` during Voting
 - `markFinishedVoting(player)` is called from `RemotesInit` when `getUnseenOutfit` returns nil or `getUnseenCount` returns 0
 - `finishedVotingPlayers` is reset on Voting state entry
@@ -108,13 +113,12 @@ aftman install
 **GuiConfiguration** (`src/repstore/Libraries/GuiManager/GuiConfiguration.luau`):
 - Manages HUD layouts with 5 slots: TopMiddle, TopRight, BottomLeft, BottomMiddle, BottomRight
 - Each slot is a Frame with position animated via Fusion Tweens (slides in/out)
-- Elements are reparented into slots on `Enable()` — Roblox instances can only have one parent, so shared elements (e.g. buttons HUD) are reparented between configurations rather than duplicated
 - `GuiConfiguration.new(props)` accepts SlotInfo tables: `{ Object: Frame, AlwaysOn: boolean }`
+- Two configs remain: `GameLoopConfig` (main gameplay HUD) and `FtueConfig` (first-time user experience)
 - Two independent visibility states:
-  - `Enabled` — is this the active configuration? Controlled by `Enable()` / `Disable()` during config switches
-  - `ModalVisible` — is the config hidden because a modal is open? Controlled by `HideForModal()` / `ShowFromModal()`
-- `AlwaysOn = true` means the slot stays visible when a modal opens (ignores `ModalVisible`), but still hides on config switch (respects `Enabled`)
-- Non-AlwaysOn slots require both `Enabled` and `ModalVisible` to be true
+  - `Enabled` — is this the active configuration?
+  - `ModalVisible` — is the config hidden because a modal is open?
+- `AlwaysOn = true` means the slot stays visible when a modal opens (ignores `ModalVisible`)
 
 **LoadingScreenManager** (`src/repstore/Libraries/LoadingScreenManager.luau`):
 - Centralized loading screen management — avoids repeating LoadingScreen boilerplate across components
