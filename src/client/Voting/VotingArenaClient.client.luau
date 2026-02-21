@@ -5,11 +5,11 @@
 --   • Shows a per-vote countdown timer UI
 
 -- Services
+local CollectionService = game:GetService("CollectionService")
 local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local Remotes   = ReplicatedStorage:WaitForChild("Remotes")
 local Utility   = ReplicatedStorage:WaitForChild("Utility")
 local Values    = ReplicatedStorage:WaitForChild("Values")
@@ -25,7 +25,15 @@ local Children = Fusion.Children
 local ArenaRoundStartedRE = Remotes:WaitForChild("ArenaRoundStartedRE")
 local CurrentStateName    = Values:WaitForChild("CurrentStateName") :: StringValue
 
+-- Instances
+
+
 local LocalPlayer = Players.LocalPlayer
+local hoverHighlight = Instance.new("Highlight")
+hoverHighlight.Name = "VoteHighlight"
+hoverHighlight.Parent = LocalPlayer
+hoverHighlight.Adornee = nil
+hoverHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_GREEN
 
 -- ─── Reactive state ─────────────────────────────────────────────────────────
 
@@ -93,9 +101,10 @@ local function computeJudgeCFrame(stageIndex: number): CFrame
 	local rightC = judgeP:FindFirstChild("RightChallenger") :: BasePart?
 	if not judge or not leftC or not rightC then return CFrame.identity end
 
-	-- Camera sits 8 studs above JudgePlatform, looking at the midpoint of the challengers
+	-- Camera sits 8 studs above JudgePlatform, looking at chest height of the challengers
 	local camPos = judge.Position + Vector3.new(0, 8, 0)
-	local lookAt = ((leftC.Position + rightC.Position)) / 2
+	local midpoint = (leftC.Position + rightC.Position) / 2
+	local lookAt = midpoint + Vector3.new(0, 5, 0)
 	return CFrame.lookAt(camPos, lookAt)
 end
 
@@ -136,7 +145,6 @@ local function activate()
 
 	camera.CameraType = Enum.CameraType.Scriptable
 	camera.CFrame     = computeJudgeCFrame(stageIndex)
-	camera.FieldOfView = 110
 
 	isArenaActive:set(true)
 end
@@ -173,3 +181,20 @@ end)
 if CurrentStateName.Value == "Voting" then
 	task.delay(0.5, activate)
 end
+
+CollectionService:GetInstanceAddedSignal("VoteHandler"):Connect(function(clickDetector: ClickDetector)
+	local target = clickDetector.Parent
+
+	clickDetector.MouseHoverEnter:Connect(function()
+		hoverHighlight.Adornee = target
+	end)
+
+	clickDetector.MouseHoverLeave:Connect(function()
+		hoverHighlight.Adornee = nil
+	end)
+end)
+
+-- When detectors are destroyed (vote cast), clear any active highlight immediately
+CollectionService:GetInstanceRemovedSignal("VoteHandler"):Connect(function()
+	hoverHighlight.Adornee = nil
+end)

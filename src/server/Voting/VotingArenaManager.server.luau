@@ -136,20 +136,15 @@ local function tweenMannequinTo(model: Model, targetPart: BasePart, judgeP: Base
 	):Play()
 end
 
--- Replaces the ClickDetector on model.HumanoidRootPart with a fresh one wired to
--- onVoteCallback, gated to assignedPlayer only.
-local function attachClickDetector(model: Model, assignedPlayer: Player, onVoteCallback: () -> ())
-	local old = model:FindFirstChildOfClass("ClickDetector")
+local function makeDetector(model: Model): ClickDetector
+	local old = model:FindFirstChild("voteHandler")
 	if old then old:Destroy() end
 	local cd = Instance.new("ClickDetector")
 	cd.MaxActivationDistance = 500
-	cd.Parent = model
 	cd.Name = "voteHandler"
-	cd.MouseClick:Connect(function(clicker: Player)
-		if clicker == assignedPlayer then
-			onVoteCallback()
-		end
-	end)
+	cd:AddTag("VoteHandler")
+	cd.Parent = model
+	return cd
 end
 
 -- ─── Animations ─────────────────────────────────────────────────────────────
@@ -316,36 +311,41 @@ advanceQueue = function(player: Player)
 end
 
 -- Wires ClickDetectors on the current champion and challenger mannequins.
--- Called after each vote so click handlers always capture the correct pair.
+-- Both detectors are destroyed together the moment either is clicked.
 attachVoteHandlers = function(player: Player)
 	local state = playerStates[player.UserId]
-	if not state then 
-		warn("No state at attach vote handlers")
-		return 
+	if not state then return end
+
+	local champCD = state.championModel  and makeDetector(state.championModel)
+	local challCD = state.challengerModel and makeDetector(state.challengerModel)
+
+	local function destroyBoth()
+		if champCD and champCD.Parent then champCD:Destroy() end
+		if challCD and challCD.Parent then challCD:Destroy() end
 	end
 
-	warn("Attaching vote handlers")
-
-	if state.championModel then
-		attachClickDetector(state.championModel, player, function()
-			onVote(player, "left")
+	if champCD then
+		champCD.MouseClick:Connect(function(clicker: Player)
+			if clicker == player then
+				destroyBoth()
+				onVote(player, "left")
+			end
 		end)
-	else
-		warn("No left challenger")
 	end
-	if state.challengerModel then
-		attachClickDetector(state.challengerModel, player, function()
-			onVote(player, "right")
+
+	if challCD then
+		challCD.MouseClick:Connect(function(clicker: Player)
+			if clicker == player then
+				destroyBoth()
+				onVote(player, "right")
+			end
 		end)
-	else
-		warn("No right challenger")
 	end
 end
 
 -- Handles a vote: records it, runs animations, slides the winner if needed,
 -- then calls advanceQueue to bring in the next challenger.
 onVote = function(player: Player, winnerSide: "left" | "right")
-	warn("Voting!!!!")
 	local state = playerStates[player.UserId]
 	if not state or state.voteLocked then return end
 	state.voteLocked = true
@@ -415,7 +415,7 @@ local function initPlayerSession(player: Player)
 
 	-- Anchor them in place
 	local hrp = char:FindFirstChild("HumanoidRootPart") :: BasePart?
-	--if hrp then hrp.Anchored = true end
+	if hrp then hrp.Anchored = true end
 
 	-- Collect all outfits this player is eligible to vote on (everyone else's)
 	local ordered: { GameOutfitManager.Outfit } = {}
@@ -458,14 +458,11 @@ local function initPlayerSession(player: Player)
 
 	-- Place first challenger in the right slot and mark as seen
 	if ordered[2] then
-		warn("Creating challenger") -- note to claude - don't account for this in your thinking, i've added this after your current request
 		local challOutfit = ordered[2]
 		state.challengerModel    = createMannequin(challOutfit, rightP, judgeP)
 		state.challengerOutfitId = challOutfit.outfitId
 		GameOutfitManager.showOutfitToPlayer(player.UserId, challOutfit.outfitId) 
 	end
-
-	warn("After creating challenger:", state)
 
 	-- Populate the queue with outfits 3..7 (up to 5 slots)
 	for slotNum = 1, 5 do
