@@ -13,6 +13,8 @@ local Values = ReplicatedStorage:WaitForChild("Values")
 
 
 -- Modules
+local GameStates = require(script.Parent.GameStates)
+local Constants = require(ReplicatedStorage.Constants)
 local teleportPlayer = require(ReplicatedStorage:WaitForChild("Utility").teleportPlayer)
 local WinnersManager = require(ServerScriptService.Voting.WinnersManager)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
@@ -330,8 +332,8 @@ function GameStateManager.getSecondsRemaining(): number
 end
 
 function GameStateManager.start()
-	if getPlayerCount() >= MIN_PLAYERS then
-		GameStateManager.transitionTo("Dressing")
+	if getPlayerCount() >= MIN_PLAYERS or Constants.DEBUG_MODE == true then
+		GameStateManager.transitionTo(GameStates.Intermission.name)
 	else
 		currentState = "Waiting"
 		currentStateName.Value = "Waiting"

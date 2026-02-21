@@ -201,6 +201,8 @@ local Constants = {
 
 	SEARCH_PLACEHOLDER = "Search for items...",
 
+	DEBUG_MODE = true
+
 
 }
 
