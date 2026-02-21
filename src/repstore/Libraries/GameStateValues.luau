@@ -44,6 +44,10 @@ local isIntermission = scope:Computed(function(use)
 	return use(stateName) == "Intermission"
 end)
 
+local isWaiting = scope:Computed(function(use)
+	return use(stateName) == "Waiting"
+end)
+
 -- Formatted time string (e.g., "3:45")
 local formattedTime = scope:Computed(function(use)
 	local seconds = use(secondsRemaining)
@@ -57,11 +61,12 @@ return {
 	stateName = stateName,
 	themeName = themeName,
 	secondsRemaining = secondsRemaining,
-	
+
 	-- Pre-built boolean computeds for state checks
 	isVoting = isVoting,
 	isDressing = isDressing,
 	isIntermission = isIntermission,
+	isWaiting = isWaiting,
 	
 	-- Utility computeds
 	formattedTime = formattedTime,
