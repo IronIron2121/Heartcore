@@ -1,6 +1,7 @@
 --!strict
 
 -- Services
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
@@ -20,6 +21,16 @@ type UsedAs<T> = Fusion.UsedAs<T>
 -- State Variables
 local timeBound = 30
 
+local playerCount = scope:Value(#Players:GetPlayers())
+Players.PlayerAdded:Connect(function()
+    playerCount:set(#Players:GetPlayers())
+end)
+Players.PlayerRemoving:Connect(function()
+    task.defer(function()
+        playerCount:set(#Players:GetPlayers())
+    end)
+end)
+
 local highlightColor = "<font color=\"rgb(92, 95, 212)\">"
 local strokeColor = "<stroke color=\"#FFFFFF\">"
 local closeStroke = "</stroke>"
@@ -33,8 +44,8 @@ end)
 
 local labelSize = scope:Computed(function(use)
     local state = use(GameStateValues.stateName)
-    
-    if state == "Dressing" then
+
+    if state == "Dressing" or state == "Waiting" then
         return UDim2.fromScale(1, 0.5)
     elseif state == "Voting" or state == "Intermission" then
         return UDim2.fromScale(1, 0.3)
@@ -61,7 +72,9 @@ local ThemeText = scope:Computed(function(use)
     local seconds = use(GameStateValues.secondsRemaining)
     local timeColorStr = use(TimeColor)
 
-    if state == "Dressing" then
+    if state == "Waiting" then
+        return "Waiting for players... (" .. use(playerCount) .. "/3)"
+    elseif state == "Dressing" then
         return "Fit Check theme: " .. highlightColor .. strokeColor .. theme .. closeStroke .. closeFont .. ".<br>You have " .. timeColorStr .. seconds .. closeFont .. " seconds to submit!</br>"
     elseif state == "Voting" then
         return "Voting time! You have " .. timeColorStr .. seconds .. closeFont .. " seconds to vote."

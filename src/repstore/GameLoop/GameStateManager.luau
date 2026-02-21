@@ -13,6 +13,8 @@ local Values = ReplicatedStorage:WaitForChild("Values")
 
 
 -- Modules
+local GameStates = require(script.Parent.GameStates)
+local Constants = require(ReplicatedStorage.Constants)
 local teleportPlayer = require(ReplicatedStorage:WaitForChild("Utility").teleportPlayer)
 local WinnersManager = require(ServerScriptService.Voting.WinnersManager)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
@@ -100,6 +102,7 @@ local THEMES = {
 }
 
 local MAX_RECENT_THEMES = 5
+local MIN_PLAYERS = 3
 
 local currentState: string = nil
 local currentTheme: string = nil
@@ -139,10 +142,23 @@ SetParticipatingRE.OnServerEvent:Connect(function(player, participating)
 	end
 end)
 
+local function getPlayerCount(): number
+	local count = 0
+	for _ in participatingPlayers do
+		count += 1
+	end
+	return count
+end
+
 Players.PlayerAdded:Connect(function(player)
 	participatingPlayers[player.UserId] = true
 
-	if currentState then
+	if currentState == "Waiting" then
+		task.spawn(teleportPlayer, player, STATE_SPAWNS.Intermission)
+		if getPlayerCount() >= MIN_PLAYERS then
+			GameStateManager.transitionTo("Dressing")
+		end
+	elseif currentState then
 		task.spawn(teleportPlayer, player, STATE_SPAWNS[currentState])
 	end
 end)
@@ -269,7 +285,7 @@ function GameStateManager.transitionTo(stateName: string)
 
 	currentState = stateName
 	currentStateName.Value = stateName
-	
+
 	GameStateManager._onStateEnter(stateName)
 	startCountdown(config.duration)
 end
@@ -284,6 +300,18 @@ function GameStateManager._onStateEnter(stateName: string)
 
 		GameOutfitManager.reset()
 	elseif stateName == "Voting" then
+		-- Auto-submit for players who didn't submit during Dressing
+		for userId in participatingPlayers do
+			if not GameOutfitManager.hasSubmitted(userId) then
+				local player = Players:GetPlayerByUserId(userId)
+				if player and player.Character then
+					local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+					if humanoid then
+						GameOutfitManager.submitOutfit(player, humanoid:GetAppliedDescription())
+					end
+				end
+			end
+		end
 		finishedVotingPlayers = {}
 	elseif stateName == "Intermission" then
 		WinnersManager.reset()
@@ -304,7 +332,15 @@ function GameStateManager.getSecondsRemaining(): number
 end
 
 function GameStateManager.start()
-	GameStateManager.transitionTo("Dressing")
+	if getPlayerCount() >= MIN_PLAYERS or Constants.DEBUG_MODE == true then
+		GameStateManager.transitionTo(GameStates.Intermission.name)
+	else
+		currentState = "Waiting"
+		currentStateName.Value = "Waiting"
+		currentThemeName.Value = ""
+		secondsRemaining.Value = 0
+		teleportAllPlayers(STATE_SPAWNS.Intermission)
+	end
 end
 
 return GameStateManager
