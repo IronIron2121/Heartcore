@@ -14,7 +14,6 @@ local AvatarEditorService = game:GetService("AvatarEditorService")
 local UtiltyFolder = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
-local ItemFilters = require(ReplicatedStorage.Client.EquipFrame.ItemFilters)
 local getHumanoidDescriptionFromPlayer = require(ReplicatedStorage.Getters.getHumanoidDescriptionFromPlayer)
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local MODAL_NAMES = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
