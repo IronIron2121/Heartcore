@@ -33,7 +33,7 @@ local VOTE_TIMER       = 120    -- seconds per matchup before auto-vote (champio
 local HRP_STAND_OFFSET = 3.2   -- studs above platform surface to HumanoidRootPart
 local QUEUE_SHIFT_TIME = 0.4   -- seconds for queue mannequins to slide forward
 local VICTORY_ANIM_ID  = "rbxassetid://507770239"  -- Roblox "Wave" emote
-local OOF_SOUND_ID     = "rbxassetid://142082198"  -- classic Roblox oof
+local OOF_SOUND_ID     = "rbxassetid://79348298352567"  -- classic Roblox oof
 
 -- ─── Stage types ────────────────────────────────────────────────────────────
 
@@ -156,11 +156,7 @@ local function playDeathAnimation(model: Model)
 	if hrp then
 		local sound = Instance.new("Sound")
 		sound.SoundId = OOF_SOUND_ID
-		sound.Volume = 1.5
-		sound.PlaybackSpeed = 0.55   -- pitch-shifted down for distortion effect
-		local distortion = Instance.new("DistortionSoundEffect")
-		distortion.Level = 0.85
-		distortion.Parent = sound
+		sound.Volume = 0.8
 		sound.Parent = hrp
 		sound:Play()
 		game:GetService("Debris"):AddItem(sound, 3)
@@ -194,6 +190,8 @@ local function playVictoryAnimation(model: Model)
 		if track.IsPlaying then track:Stop() end
 	end)
 end
+
+-- local function playDeathAnimation
 
 -- ─── Timer ──────────────────────────────────────────────────────────────────
 
@@ -411,7 +409,7 @@ local function initPlayerSession(player: Player)
 
 	-- Teleport player to their judge platform (This is working)
 	local char = player.Character or player.CharacterAdded:Wait()
-	teleportPlayer(player, judgeP)
+	teleportPlayer(player, judgeP, Vector3.new(0,0,50))
 
 	-- Anchor them in place
 	local hrp = char:FindFirstChild("HumanoidRootPart") :: BasePart?
