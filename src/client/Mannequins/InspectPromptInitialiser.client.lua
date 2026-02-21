@@ -5,6 +5,8 @@
 	CLIENT-SIDE: Handles UI interaction only.
 --]]
 
+script.Enabled = false
+
 -- Services
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

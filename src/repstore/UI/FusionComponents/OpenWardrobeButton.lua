@@ -20,8 +20,6 @@ local OnEvent = Fusion.OnEvent
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
--- Remotes / Bindables
-local PlayerTriggeredCatalogConsole = Bindables:WaitForChild("PlayerTriggeredCatalogConsole")
 
 -- Constants
 local COLOUR_ORANGE = Color3.new(0.901961, 0.380392, 0.078431)
@@ -47,10 +45,6 @@ local function OpenWardrobeButton(
 		end
 	end
 
-	PlayerTriggeredCatalogConsole.Event:Connect(function()
-		OnClick()
-	end)
-	
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
 	

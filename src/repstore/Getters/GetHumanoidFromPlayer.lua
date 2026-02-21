@@ -1,5 +1,6 @@
 function GetHumanoidFromPlayer(player: Player)
-	return player.Character:WaitForChild("Humanoid") :: Humanoid
+	local character = player.Character or player.CharacterAdded:Wait()
+	return character:WaitForChild("Humanoid") :: Humanoid
 end
 
 return GetHumanoidFromPlayer

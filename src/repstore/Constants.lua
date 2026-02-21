@@ -14,8 +14,6 @@ local Constants = {
 	DEFAULT_ROTATE = 45,	
 
 	-- Datastore names
-	PLAYER_SHOPS_DATA_STORE_NAME = "PlayerShops",
-	OWNEDITEMS_DATASTORE = "PlayerOwnedItems",
 	PLAYER_OUTFITS_DATASTORE = "PlayerOutfits",
 	PLAYER_CLOTHING_DATASTORE = "PlayerClothing",
 	-- Object names
