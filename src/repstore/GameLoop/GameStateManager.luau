@@ -6,16 +6,23 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Folders
+local GeneralWorld = workspace:WaitForChild("GeneralWorld")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Values = ReplicatedStorage:WaitForChild("Values")
 
 
 -- Modules
+local teleportPlayer = require(ReplicatedStorage:WaitForChild("Utility").teleportPlayer)
 local WinnersManager = require(ServerScriptService.Voting.WinnersManager)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
---
+-- Spawn destinations
+local STATE_SPAWNS = {
+	Dressing = GeneralWorld.GameSpawn,
+	Voting = GeneralWorld.VoteSpawn,
+	Intermission = GeneralWorld.IntermissionSpawn,
+}
 
 local STATES = require(GameLoop.GameStates)
 
@@ -134,6 +141,10 @@ end)
 
 Players.PlayerAdded:Connect(function(player)
 	participatingPlayers[player.UserId] = true
+
+	if currentState then
+		task.spawn(teleportPlayer, player, STATE_SPAWNS[currentState])
+	end
 end)
 
 Players.PlayerRemoving:Connect(function(player)
@@ -141,6 +152,12 @@ Players.PlayerRemoving:Connect(function(player)
 	finishedVotingPlayers[player.UserId] = nil
 	GameStateManager._checkHurry()
 end)
+
+local function teleportAllPlayers(destination: BasePart)
+	for _, player in Players:GetPlayers() do
+		task.spawn(teleportPlayer, player, destination)
+	end
+end
 
 local function selectNewTheme(): string
 	local availableThemes = {}
@@ -258,11 +275,13 @@ function GameStateManager.transitionTo(stateName: string)
 end
 
 function GameStateManager._onStateEnter(stateName: string)
+	teleportAllPlayers(STATE_SPAWNS[stateName])
+
 	if stateName == "Dressing" then
 		-- Select new theme
 		currentTheme = selectNewTheme()
 		currentThemeName.Value = currentTheme
-		
+
 		GameOutfitManager.reset()
 	elseif stateName == "Voting" then
 		finishedVotingPlayers = {}

@@ -7,7 +7,8 @@ local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Folders
-local dailyWinners = workspace:WaitForChild("dailyWinners")
+local lobby = workspace:WaitForChild("lobby")
+local dailyWinners = lobby:WaitForChild("dailyWinners")
 local descriptions = ReplicatedStorage:WaitForChild("Descriptions")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 local Values = ReplicatedStorage.Values
