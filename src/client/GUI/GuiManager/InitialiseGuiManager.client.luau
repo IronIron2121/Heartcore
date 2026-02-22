@@ -43,6 +43,7 @@ local GameStateValues = require(Libraries.GameStateValues)
 local GuiManager = require(GuiManagerLibrary.GuiManager)
 local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
 local VotingFrame = require(FusionComponents.VotingFrame)
+local ArenaTimerHud = require(FusionComponents.ArenaTimerHud)
 local UI_CONSTANTS = require(Utility.UI_CONSTANTS)
 local peek = require(FusionUtility.State.peek)
 local ImageUris = require(DataTables.ImageUris)
@@ -221,9 +222,27 @@ local function InitialiseHuds()
         bottomRight = nil,
     })
 
+    local VotingHudConfig = GuiConfiguration.new({
+        ConfigurationName = CONFIGURATION_NAMES.VotingConfig,
+        topMiddle = { Object = ArenaTimerHud.frame, AlwaysOn = true },
+        topRight = nil,
+        bottomLeft = nil,
+        bottomMiddle = nil,
+        bottomRight = nil,
+    })
+
     GuiManager.RegisterConfiguration(GameLoopConfig)
     GuiManager.RegisterConfiguration(FtueConfig)
+    GuiManager.RegisterConfiguration(VotingHudConfig)
     GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.FtueConfig)
+
+    hudScope:Observer(GameStateValues.isVoting):onChange(function()
+        if peek(GameStateValues.isVoting) then
+            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
+        else
+            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+        end
+    end)
 end
 
 local function InitialiseModals()

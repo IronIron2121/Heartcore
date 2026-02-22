@@ -30,7 +30,7 @@ local teleportPlayer           = require(UtilityFolder.teleportPlayer)
 local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
 
 -- Constants
-local VOTE_TIMER       = 120    -- seconds per matchup before auto-vote (champion wins)
+local VOTE_TIMER       = 10    -- seconds per matchup before auto-vote (champion wins)
 local HRP_STAND_OFFSET = 3.2   -- studs above platform surface to HumanoidRootPart
 local QUEUE_SHIFT_TIME = 0.4   -- seconds for queue mannequins to slide forward
 local VICTORY_ANIM_ID  = "rbxassetid://507770239"  -- Roblox "Wave" emote

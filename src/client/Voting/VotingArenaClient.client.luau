@@ -10,16 +10,14 @@ local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Remotes   = ReplicatedStorage:WaitForChild("Remotes")
-local Utility   = ReplicatedStorage:WaitForChild("Utility")
-local Values    = ReplicatedStorage:WaitForChild("Values")
+local Remotes          = ReplicatedStorage:WaitForChild("Remotes")
+local Utility          = ReplicatedStorage:WaitForChild("Utility")
+local Values           = ReplicatedStorage:WaitForChild("Values")
+local FusionComponents = ReplicatedStorage:WaitForChild("UI"):WaitForChild("FusionComponents")
 
 -- Modules
-local Fusion        = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
-
-local scope    = Fusion:scoped()
-local Children = Fusion.Children
+local ArenaTimerHud = require(FusionComponents:WaitForChild("ArenaTimerHud"))
 
 -- Remotes / Values
 local ArenaRoundStartedRE = Remotes:WaitForChild("ArenaRoundStartedRE")
@@ -36,56 +34,6 @@ hoverHighlight.Parent = LocalPlayer
 hoverHighlight.Adornee = nil
 hoverHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_GREEN
 
--- ─── Reactive state ─────────────────────────────────────────────────────────
-
-local isArenaActive = scope:Value(false)
-local timerCount    = scope:Value(0)
-
-local timerColor = scope:Computed(function(use)
-	return use(timerCount) <= 3
-		and Color3.fromRGB(255, 80, 80)
-		or  Color3.fromRGB(255, 255, 255)
-end)
-
-local timerText = scope:Computed(function(use)
-	return tostring(use(timerCount))
-end)
-
--- ─── Timer GUI (built once, toggled via Enabled) ────────────────────────────
-
-scope:New "ScreenGui" {
-	Name             = "ArenaTimerGui",
-	IgnoreGuiInset   = true,
-	DisplayOrder     = 20,   -- above standard HUD elements
-	ResetOnSpawn     = false,
-	Enabled          = isArenaActive,
-	Parent           = LocalPlayer:WaitForChild("PlayerGui"),
-
-	[Children] = {
-		scope:New "Frame" {
-			Name                 = "TimerFrame",
-			Size                 = UDim2.fromScale(0.08, 0.1),
-			Position             = UDim2.fromScale(0.5, 0.04),
-			AnchorPoint          = Vector2.new(0.5, 0),
-			BackgroundColor3     = Color3.fromRGB(20, 20, 20),
-			BackgroundTransparency = 0.35,
-
-			[Children] = {
-				scope:New "UICorner" {
-					CornerRadius = UDim.new(0.25, 0),
-				},
-				scope:New "TextLabel" {
-					Size                 = UDim2.fromScale(1, 1),
-					BackgroundTransparency = 1,
-					Text                 = timerText,
-					TextScaled           = true,
-					TextColor3           = timerColor,
-					FontFace             = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
-				},
-			},
-		},
-	},
-}
 
 -- ─── Camera ─────────────────────────────────────────────────────────────────
 
@@ -115,13 +63,13 @@ local countdownThread: thread? = nil
 
 local function startCountdown(duration: number)
 	if countdownThread then task.cancel(countdownThread) end
-	timerCount:set(duration)
+	ArenaTimerHud.setTimer(duration)
 	countdownThread = task.spawn(function()
 		local t = duration
 		while t > 0 do
 			task.wait(1)
 			t -= 1
-			timerCount:set(t)
+			ArenaTimerHud.setTimer(t)
 		end
 	end)
 end
@@ -131,7 +79,7 @@ local function stopCountdown()
 		task.cancel(countdownThread)
 		countdownThread = nil
 	end
-	timerCount:set(0)
+	ArenaTimerHud.setTimer(0)
 end
 
 -- ─── Activate / deactivate ──────────────────────────────────────────────────
@@ -146,13 +94,10 @@ local function activate(stageIndex: number?)
 
 	camera.CameraType = Enum.CameraType.Scriptable
 	camera.CFrame     = computeJudgeCFrame(idx)
-
-	isArenaActive:set(true)
 end
 
 local function deactivate()
 	stopCountdown()
-	isArenaActive:set(false)
 
 	local camera = workspace.CurrentCamera
 	camera.CameraType = savedCameraType

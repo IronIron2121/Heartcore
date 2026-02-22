@@ -2,7 +2,8 @@
 
 local CONFIGURATION_NAMES = {
     GameLoopConfig = "GameLoopConfig",
-    FtueConfig = "fish"
+    FtueConfig = "fish",
+    VotingConfig = "VotingConfig",
 }
 
 return CONFIGURATION_NAMES
