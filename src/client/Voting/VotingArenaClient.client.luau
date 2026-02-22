@@ -20,9 +20,10 @@ local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local ArenaTimerHud = require(FusionComponents:WaitForChild("ArenaTimerHud"))
 
 -- Remotes / Values
-local ArenaRoundStartedRE = Remotes:WaitForChild("ArenaRoundStartedRE")
-local ArenaActivateRE     = Remotes:WaitForChild("ArenaActivateRE")
-local CurrentStateName    = Values:WaitForChild("CurrentStateName") :: StringValue
+local ArenaRoundStartedRE    = Remotes:WaitForChild("ArenaRoundStartedRE")
+local ArenaActivateRE        = Remotes:WaitForChild("ArenaActivateRE")
+local ArenaVotingCompleteRE  = Remotes:WaitForChild("ArenaVotingCompleteRE")
+local CurrentStateName       = Values:WaitForChild("CurrentStateName") :: StringValue
 
 -- Instances
 
@@ -117,6 +118,12 @@ end)
 -- Server fires this at the start of each matchup so the countdown resets
 ArenaRoundStartedRE.OnClientEvent:Connect(function(duration: number)
 	startCountdown(duration)
+end)
+
+-- Server fires this when all outfits have been voted on
+ArenaVotingCompleteRE.OnClientEvent:Connect(function()
+	stopCountdown()
+	ArenaTimerHud.setWaiting()
 end)
 
 -- Deactivate when the round ends
