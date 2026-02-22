@@ -261,8 +261,8 @@ end
 function GameStateManager.hurryRound()
 	task.defer(
 		function()
-			if secondsRemaining.Value >= 10 then
-				secondsRemaining.Value = 10
+			if secondsRemaining.Value >= 3 then
+				secondsRemaining.Value = 3
 			end
 		end
 	)

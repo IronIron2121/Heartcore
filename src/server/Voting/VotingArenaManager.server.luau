@@ -392,6 +392,16 @@ onVote = function(player: Player, winnerSide: "left" | "right", isAutoVote: bool
 	state.voteLocked = true
 	cancelTimer(player)
 
+	-- Destroy click detectors on both models (handles the auto-vote path where
+	-- destroyBoth() inside attachVoteHandlers was never called)
+	local function destroyDetector(model: Model?)
+		if not model then return end
+		local cd = model:FindFirstChild("voteHandler")
+		if cd then cd:Destroy() end
+	end
+	destroyDetector(state.championModel)
+	destroyDetector(state.challengerModel)
+
 	local winnerModel:   Model?
 	local winnerId:      string?
 	local loserModel:    Model?
