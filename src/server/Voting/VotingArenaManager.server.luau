@@ -92,7 +92,7 @@ ArenaActivateRE.Parent = Remotes
 
 -- ─── Forward declarations (cyclic call graph) ───────────────────────────────
 
-local onVote: (player: Player, winnerSide: "left" | "right") -> ()
+local onVote: (player: Player, winnerSide: "left" | "right", isAutoVote: boolean?) -> ()
 local attachVoteHandlers: (player: Player) -> ()
 local advanceQueue: (player: Player) -> ()
 
@@ -249,7 +249,7 @@ local function startMatchupTimer(player: Player)
 	task.delay(VOTE_TIMER, function()
 		local currentState = playerStates[player.UserId]
 		if currentState and currentState.timerToken == token then
-			onVote(player, "left")
+			onVote(player, "left", true)   -- auto-vote: champion wins, no score recorded
 		end
 	end)
 end
@@ -376,7 +376,7 @@ end
 
 -- Handles a vote: records it, runs animations, slides the winner if needed,
 -- then calls advanceQueue to bring in the next challenger.
-onVote = function(player: Player, winnerSide: "left" | "right")
+onVote = function(player: Player, winnerSide: "left" | "right", isAutoVote: boolean?)
 	local state = playerStates[player.UserId]
 	if not state or state.voteLocked then return end
 	state.voteLocked = true
@@ -396,9 +396,11 @@ onVote = function(player: Player, winnerSide: "left" | "right")
 
 	if not winnerModel or not winnerId or not loserModel then return end
 
-	-- Record the vote server-side
-	GameOutfitManager.addVote(player, winnerId)
-	DataManager.AddExp(player, ExpConfig.Rewards.VOTE_CAST)
+	-- Record the vote server-side (skipped for auto-votes on timeout)
+	if not isAutoVote then
+		GameOutfitManager.addVote(player, winnerId)
+		DataManager.AddExp(player, ExpConfig.Rewards.VOTE_CAST)
+	end
 	playAnimationOnce(winnerModel, 3994127840)
 
 	task.spawn(function()
