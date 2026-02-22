@@ -319,10 +319,8 @@ function GuiManager.DisplayConfiguration(configurationName: string): ()
     currentConfiguration = newConfiguration
     currentConfigurationName:set(configurationName)
     assert(currentConfiguration, "Configuration should not be nil") -- type checker unfortunately redlines if we don't put this here
-    if not peek(CentreActive) then
-        currentConfiguration:Enable()
-    end
-end 
+    currentConfiguration:Enable(peek(CentreActive))
+end
  
 function GuiManager.HideCurrentConfiguration(): ()
     if currentConfiguration then

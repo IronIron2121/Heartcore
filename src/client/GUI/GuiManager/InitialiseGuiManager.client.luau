@@ -238,6 +238,9 @@ local function InitialiseHuds()
 
     hudScope:Observer(GameStateValues.isVoting):onChange(function()
         if peek(GameStateValues.isVoting) then
+            while GuiManager.IsCentreActive() do
+                GuiManager.PopCentre()
+            end
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
         else
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)

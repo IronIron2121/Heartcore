@@ -98,7 +98,7 @@ export type GuiConfiguration = {
 
     -- Methods
     Disable: (self: GuiConfiguration) -> (),
-    Enable: (self: GuiConfiguration) -> (),
+    Enable: (self: GuiConfiguration, startHidden: boolean?) -> (),
     HideForModal: (self: GuiConfiguration) -> (),
     ShowFromModal: (self: GuiConfiguration) -> (),
 }
@@ -248,14 +248,14 @@ function GuiConfiguration:Disable()
     self.Enabled:set(false)
 end
 
-function GuiConfiguration:Enable()
+function GuiConfiguration:Enable(startHidden: boolean?)
     task.spawn(function()
         if self._elements.topMiddle then self._elements.topMiddle.Parent = self.TopMiddle end
         if self._elements.topRight then self._elements.topRight.Parent = self.TopRight end
         if self._elements.bottomLeft then self._elements.bottomLeft.Parent = self.BottomLeft end
         if self._elements.bottomMiddle then self._elements.bottomMiddle.Parent = self.BottomMiddle end
         if self._elements.bottomRight then self._elements.bottomRight.Parent = self.BottomRight end
-        self.ModalVisible:set(true)
+        self.ModalVisible:set(not startHidden)
         self.Enabled:set(true)
     end)
 end
