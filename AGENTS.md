@@ -66,6 +66,9 @@ aftman install
 - `DataManager` (`src/server/Data/`) — Player XP, levels, ranks via ProfileService; also handles billboard display updates (level/rank text above player heads)
 - `RemotesInit` (`src/server/Init/`) — Server-side remote function/event handlers for voting, outfit fetching, and voting-finished detection
 - `SubmissionServer` (`src/server/GameLoop/`) — Handles outfit submissions, triggers hurry-round checks
+- `VotingArenaManager` (`src/server/Voting/`) — Per-player 3D arena: matchup queues, ClickDetectors, auto-vote timer, victory/death animations, fires `ArenaActivateRE` and `ArenaVotingCompleteRE`
+- `VotingArenaClient` (`src/client/Voting/`) — Arena client: listens for `ArenaActivateRE`, locks camera, spawns mannequins in workspace (local-only), drives countdown via `ArenaTimerHud`
+- `ArenaTimerHud` (`src/repstore/UI/FusionComponents/`) — Shared Fusion module owning timer reactive state; exports `{ frame, setTimer, setWaiting }`. Required by both InitialiseGuiManager and VotingArenaClient — Roblox's require() cache means both scripts share the same Values
 - `Inspector` (`src/client/Mannequins/Inspector/`) — Mannequin/player inspection with loading state
 - `LoadingScreenManager` (`src/repstore/Libraries/`) — Centralized loading screen management
 - `ClientOutfitService` (`src/repstore/Utility/`) — Client-side outfit save/delete operations
@@ -83,6 +86,15 @@ aftman install
 - `_checkHurry()` calls `checkAllSubmitted()` during Dressing or `checkAllFinishedVoting()` during Voting
 - `markFinishedVoting(player)` is called from `RemotesInit` when `getUnseenOutfit` returns nil or `getUnseenCount` returns 0
 - `finishedVotingPlayers` is reset on Voting state entry
+
+**3D Colosseum Voting Arena:**
+- Each voting player gets a private per-player arena managed server-side by `VotingArenaManager`
+- Server maintains per-player state: `championModel`, `challengerModel`, matchup queue, `timerToken` (incremented to cancel pending auto-vote `task.delay` calls)
+- `ArenaActivateRE` fires from server → client once models are spawned and ClickDetectors attached; client then locks camera and starts HUD countdown
+- `ArenaVotingCompleteRE` fires from server → client when a player exhausts their entire outfit queue (last matchup done); client shows "Waiting..." text via `ArenaTimerHud.setWaiting()`
+- Auto-votes (per-matchup timer expiry) do NOT record a vote or award XP (`isAutoVote: boolean?` parameter on `onVote`)
+- ClickDetectors (`voteHandler` named) are destroyed on both vote paths (click and auto)
+- Players are unanchored in `cleanupPlayer` (called when state leaves Voting), not at vote-complete time
 
 **Podium Outfit Persistence:**
 - `GameOutfitManager` has a separate `podiumOutfits` table that survives `reset()`
@@ -111,11 +123,13 @@ aftman install
 - Manages HUD layouts with 5 slots: TopMiddle, TopRight, BottomLeft, BottomMiddle, BottomRight
 - Each slot is a Frame with position animated via Fusion Tweens (slides in/out)
 - `GuiConfiguration.new(props)` accepts SlotInfo tables: `{ Object: Frame, AlwaysOn: boolean }`
-- Two configs remain: `GameLoopConfig` (main gameplay HUD) and `FtueConfig` (first-time user experience)
+- Three configs: `GameLoopConfig` (main gameplay HUD), `FtueConfig` (first-time user experience), `VotingConfig` (arena timer HUD — topMiddle only, AlwaysOn)
 - Two independent visibility states:
   - `Enabled` — is this the active configuration?
   - `ModalVisible` — is the config hidden because a modal is open?
 - `AlwaysOn = true` means the slot stays visible when a modal opens (ignores `ModalVisible`)
+- `Enable(startHidden: boolean?)` — when `true`, sets `ModalVisible` to false immediately (used when switching config while a modal is open)
+- `DisplayConfiguration` always calls `Enable(peek(CentreActive))` — config switching works even with modals open. When voting starts, InitialiseGuiManager explicitly pops all modals first, then calls `DisplayConfiguration`
 
 **LoadingScreenManager** (`src/repstore/Libraries/LoadingScreenManager.luau`):
 - Centralized loading screen management — avoids repeating LoadingScreen boilerplate across components
@@ -276,6 +290,11 @@ Position = scope:Tween(
 - Pattern: server loads the asset, caches it to a ReplicatedStorage folder (e.g. `ReplicatedStorage.Emotes`), client reads from that folder
 - Expose a RemoteFunction so the client can request the server to load+cache on demand
 - Example: `ServerCustomisationService.LoadEmote(itemId)` caches to `Emotes` folder, client invokes `LoadEmoteRF` then reads from `Emotes:FindFirstChild(tostring(id))`
+
+**Sharing reactive state across two LocalScripts:**
+- Roblox caches module returns per VM — two LocalScripts `require()`-ing the same ModuleScript get the exact same table
+- Use this to share Fusion `Value` objects between scripts (e.g. `ArenaTimerHud` is required by both `InitialiseGuiManager` and `VotingArenaClient`, giving both access to the same `timerCount` and `waitingMode` Values)
+- Only works within the same Lua VM (same client); does not cross the client/server boundary
 
 **Async loading pattern:**
 - To make GUI feel responsive, show the frame immediately (e.g. via GuiManager modal push), then `task.spawn` the heavy async work (API calls, model creation)

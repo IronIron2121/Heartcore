@@ -41,3 +41,34 @@ local FtuePop = require(ClientGUI.FtuePop)
 - Anything below a folder that's already been `WaitForChild`-ed can be accessed with `.` notation (e.g. `UI.FusionComponents`, `FusionComponents.Widgets`)
 - Within each subcategory (`-- Folders`, `-- Modules`, `-- Remotes`, etc.), sort lines in descending order of length
 - Respect dependency ordering: a parent variable must appear before any variable that references it (e.g. `Libraries` before `GuiManagerLibrary = Libraries:WaitForChild("GuiManager")`)
+
+---
+
+## Extract Shared Fusion State into a Module
+
+**When to apply:** Two LocalScripts need to read or write the same reactive Fusion `Value` (e.g. a HUD counter driven by one script and displayed by another).
+
+**Pattern:**
+1. Create a ModuleScript in `ReplicatedStorage` (e.g. `ArenaTimerHud.luau`)
+2. Inside, create the Fusion scope and `Value` objects at module level
+3. Export the frame and any setter functions — do **not** export the raw `Value` (callers use setters)
+4. Both LocalScripts `require()` the module — Roblox's cache returns the same table, so both share the same Values
+
+```lua
+-- ArenaTimerHud.luau
+local scope = Fusion:scoped()
+local timerCount = scope:Value(0)
+local waitingMode = scope:Value(false)
+
+local frame = scope:New "Frame" { ... }
+
+local function setTimer(n: number) waitingMode:set(false); timerCount:set(n) end
+local function setWaiting() waitingMode:set(true) end
+
+return { frame = frame, setTimer = setTimer, setWaiting = setWaiting }
+```
+
+**Rules:**
+- Only works within the same Lua VM (LocalScripts on the same client) — does not cross client/server
+- Keep the raw `Value` objects private; expose typed setter functions so callers can't accidentally break invariants
+- The module must live in `ReplicatedStorage` (or another replicated location) so both scripts can reach it
