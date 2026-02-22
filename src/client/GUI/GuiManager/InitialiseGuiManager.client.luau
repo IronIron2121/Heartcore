@@ -19,12 +19,12 @@ local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
 local DailyChallengeFolder = UI.FusionComponents.DailyChallengeGui
 local FusionComponents = UI.FusionComponents
 local FusionWidgets = FusionComponents.Widgets
-local FusionUtility = Utility.Fusion
+local FusionUtility = Utility.Fusion 
 local GameState = StarterPlayerScripts.GameState
 local ClientGUI = StarterPlayerScripts.GUI
 
 -- Modules
-local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager) 
 local OpenDailyChallengeGuiButton = require(FusionComponents:WaitForChild("OpenDailyChallengeGuiButton"))
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
@@ -43,13 +43,14 @@ local GameStateValues = require(Libraries.GameStateValues)
 local GuiManager = require(GuiManagerLibrary.GuiManager)
 local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
 local VotingFrame = require(FusionComponents.VotingFrame)
+local ArenaTimerHud = require(FusionComponents.ArenaTimerHud)
 local UI_CONSTANTS = require(Utility.UI_CONSTANTS)
 local peek = require(FusionUtility.State.peek)
 local ImageUris = require(DataTables.ImageUris)
 local FtuePop = require(ClientGUI.FtuePop)
 local Fusion = require(FusionUtility)
 
-local VotingStage = workspace:WaitForChild("VotingStage")
+local VotingStages = workspace:WaitForChild("VotingStages")
 local lobby = workspace:WaitForChild("lobby")
 local mainStage = workspace:WaitForChild("mainStage")
 
@@ -74,10 +75,9 @@ task.spawn(function()
     } :: ScreenGui
 
     local assetGroups = {
-        VotingStage:GetDescendants(),
+        VotingStages:GetDescendants(),
         lobby:GetDescendants(),
         mainStage:GetDescendants(),
-
     }
     local loadingText = modalScope:Value("...")
     local skipped = false
@@ -151,13 +151,7 @@ local function InitialiseHuds()
                 layoutOrder = 1,
                 image = hudScope:Computed(function(use)
                     if use(GameStateValues.isDressing) then
-                        if use(PlayerSubmissionState.cooldown) then
-                            return ImageUris.Submit 
-                        else
-                            return ImageUris.Submit
-                        end
-                    elseif use(GameStateValues.isVoting) then
-                        return ImageUris.Vote
+                        return ImageUris.Submit
                     else
                         return ""
                     end
@@ -175,12 +169,10 @@ local function InitialiseHuds()
                     end
                 end),
                 onActivated = function()
-                    if (peek(GameStateValues.isDressing)) then
+                    if peek(GameStateValues.isDressing) then
                         if not peek(PlayerSubmissionState.cooldown) then
                             PlayerSubmittedOutfitRF:InvokeServer()
                         end
-                    elseif (peek(GameStateValues.isVoting)) then
-                        GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
                     end
                 end,
 
@@ -230,9 +222,27 @@ local function InitialiseHuds()
         bottomRight = nil,
     })
 
+    local VotingHudConfig = GuiConfiguration.new({
+        ConfigurationName = CONFIGURATION_NAMES.VotingConfig,
+        topMiddle = { Object = ArenaTimerHud.frame, AlwaysOn = true },
+        topRight = nil,
+        bottomLeft = nil,
+        bottomMiddle = nil,
+        bottomRight = nil,
+    })
+
     GuiManager.RegisterConfiguration(GameLoopConfig)
     GuiManager.RegisterConfiguration(FtueConfig)
+    GuiManager.RegisterConfiguration(VotingHudConfig)
     GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.FtueConfig)
+
+    hudScope:Observer(GameStateValues.isVoting):onChange(function()
+        if peek(GameStateValues.isVoting) then
+            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
+        else
+            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+        end
+    end)
 end
 
 local function InitialiseModals()

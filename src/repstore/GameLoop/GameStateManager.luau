@@ -15,7 +15,7 @@ local Values = ReplicatedStorage:WaitForChild("Values")
 -- Modules
 local GameStates = require(script.Parent.GameStates)
 local Constants = require(ReplicatedStorage.Constants)
-local teleportPlayer = require(ReplicatedStorage:WaitForChild("Utility").teleportPlayer)
+local randomTeleport = require(ReplicatedStorage:WaitForChild("Utility").randomTeleport)
 local WinnersManager = require(ServerScriptService.Voting.WinnersManager)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
@@ -154,12 +154,12 @@ Players.PlayerAdded:Connect(function(player)
 	participatingPlayers[player.UserId] = true
 
 	if currentState == "Waiting" then
-		task.spawn(teleportPlayer, player, STATE_SPAWNS.Intermission)
+		task.spawn(randomTeleport, player, STATE_SPAWNS.Intermission)
 		if getPlayerCount() >= MIN_PLAYERS then
 			GameStateManager.transitionTo("Dressing")
 		end
 	elseif currentState then
-		task.spawn(teleportPlayer, player, STATE_SPAWNS[currentState])
+		task.spawn(randomTeleport, player, STATE_SPAWNS[currentState])
 	end
 end)
 
@@ -171,7 +171,7 @@ end)
 
 local function teleportAllPlayers(destination: BasePart)
 	for _, player in Players:GetPlayers() do
-		task.spawn(teleportPlayer, player, destination)
+		task.spawn(randomTeleport, player, destination)
 	end
 end
 
@@ -234,6 +234,7 @@ function GameStateManager.checkAllFinishedVoting()
 	end
 
 	local hasParticipants = false
+
 	for userId in participatingPlayers do
 		hasParticipants = true
 		if not finishedVotingPlayers[userId] then
@@ -245,12 +246,14 @@ function GameStateManager.checkAllFinishedVoting()
 		print("No participants at checkAllFinishedVoting") 
 		return
 	end
-	print("All players have finished voting!")
+
+	print("All players have finished voting!", participatingPlayers)
 
 	GameStateManager.hurryRound()
 end 
 
 function GameStateManager.markFinishedVoting(player: Player)
+	warn("Marking finished voting")
 	finishedVotingPlayers[player.UserId] = true
 	GameStateManager.checkAllFinishedVoting()
 end
@@ -290,8 +293,15 @@ function GameStateManager.transitionTo(stateName: string)
 	startCountdown(config.duration)
 end
 
+-- Optional callback set by VotingArenaManager to handle Voting-phase teleportation.
+-- When set, it is called instead of teleportAllPlayers for the Voting state.
+GameStateManager.onVotingStart = nil :: (() -> ())?
+
 function GameStateManager._onStateEnter(stateName: string)
-	teleportAllPlayers(STATE_SPAWNS[stateName])
+	-- For Voting, onVotingStart handles teleportation; skip the generic teleport
+	if stateName ~= "Voting" or not GameStateManager.onVotingStart then
+		teleportAllPlayers(STATE_SPAWNS[stateName])
+	end
 
 	if stateName == "Dressing" then
 		-- Select new theme
@@ -313,6 +323,10 @@ function GameStateManager._onStateEnter(stateName: string)
 			end
 		end
 		finishedVotingPlayers = {}
+		-- Kick off the arena after all auto-submissions are complete
+		if GameStateManager.onVotingStart then
+			GameStateManager.onVotingStart()
+		end
 	elseif stateName == "Intermission" then
 		WinnersManager.reset()
 		WinnersManager.setNewWinners()

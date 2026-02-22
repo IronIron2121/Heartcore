@@ -37,6 +37,7 @@ GetNextOutfitRF.OnServerInvoke = function(player: Player)
 	local outfit = GameOutfitManager.getUnseenOutfit(player, currentChampionId)
 	
 	if not outfit then
+		warn("No more outfits at getnextoutfit")
 		GameStateManager.markFinishedVoting(player)
 		print(player.Name, "finished voting!")
 		return nil
@@ -64,6 +65,7 @@ end
 GetUnseenCountRF.OnServerInvoke = function(player: Player)
 	local count = GameOutfitManager.getUnseenCount(player)
 	if count == 0 then
+		warn("No more outfits at getunseencount")
 		GameStateManager.markFinishedVoting(player)
 	end
 	return count
