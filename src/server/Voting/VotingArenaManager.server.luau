@@ -39,9 +39,10 @@ local OOF_SOUND_ID     = "rbxassetid://79348298352567"  -- classic Roblox oof
 -- ─── Stage types ────────────────────────────────────────────────────────────
 
 type JudgePlatforms = Folder & {
-	JudgePlatform:   BasePart,
-	LeftChallenger:  BasePart,
-	RightChallenger: BasePart,
+	JudgePlatform:    BasePart,
+	TeleportPlatform: BasePart,
+	LeftChallenger:   BasePart,
+	RightChallenger:  BasePart,
 }
 
 type QueuePlatforms = Folder & {
@@ -434,19 +435,20 @@ local function initPlayerSession(player: Player)
 	end
 
 	-- Get the stage folder; the judge platform; the left and right platforms, and the queue playforms
-	local stage  = getStage(stageIndex)
-	local judgeP = stage.JudgePlatforms.JudgePlatform
-	local leftP  = stage.JudgePlatforms.LeftChallenger
-	local rightP = stage.JudgePlatforms.RightChallenger
-	local queueF = stage.QueuePlatforms
+	local stage       = getStage(stageIndex)
+	local judgeP      = stage.JudgePlatforms.JudgePlatform
+	local teleportP   = stage.JudgePlatforms.TeleportPlatform
+	local leftP       = stage.JudgePlatforms.LeftChallenger
+	local rightP      = stage.JudgePlatforms.RightChallenger
+	local queueF      = stage.QueuePlatforms
 
 	-- Tell the client to lock its camera before we move the character
 	ArenaActivateRE:FireClient(player, stageIndex)
 	task.wait(0.3)
 
-	-- Teleport player precisely to their judge platform (no scatter — camera is already locked)
+	-- Teleport the rig to TeleportPlatform; camera stays on JudgePlatform POV
 	local char = player.Character or player.CharacterAdded:Wait()
-	teleportPlayer(player, judgeP)
+	teleportPlayer(player, teleportP)
 
 	-- Anchor them in place
 	local hrp = char:FindFirstChild("HumanoidRootPart") :: BasePart?
