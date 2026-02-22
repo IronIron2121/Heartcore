@@ -90,6 +90,11 @@ local ArenaActivateRE = Instance.new("RemoteEvent")
 ArenaActivateRE.Name = "ArenaActivateRE"
 ArenaActivateRE.Parent = Remotes
 
+-- Fired when this player has voted on all outfits (queue exhausted)
+local ArenaVotingCompleteRE = Instance.new("RemoteEvent")
+ArenaVotingCompleteRE.Name = "ArenaVotingCompleteRE"
+ArenaVotingCompleteRE.Parent = Remotes
+
 -- ─── Forward declarations (cyclic call graph) ───────────────────────────────
 
 local onVote: (player: Player, winnerSide: "left" | "right", isAutoVote: boolean?) -> ()
@@ -265,6 +270,10 @@ local function cleanupPlayer(player: Player)
 	for _, m in ipairs(state.queueModels) do
 		if m then m:Destroy() end
 	end
+	-- Unanchor the player now that they're being returned to the intermission zone
+	local char = player.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if hrp then hrp.Anchored = false end
 	player:SetAttribute("VotingStageIndex", nil)
 	playerStates[player.UserId] = nil
 end
@@ -298,6 +307,7 @@ advanceQueue = function(player: Player)
 	if not newChallenger or not newChallengerId then
 		-- Queue empty — champion celebrates on the podium until the round ends
 		playVictoryAnimation(state.championModel :: Model, true)
+		ArenaVotingCompleteRE:FireClient(player)
 		GameStateManager.markFinishedVoting(player)
 		return
 	end
