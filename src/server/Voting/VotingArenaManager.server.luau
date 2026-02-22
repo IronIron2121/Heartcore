@@ -19,11 +19,12 @@ local Values       = ReplicatedStorage:WaitForChild("Values")
 local VotingStages = workspace:WaitForChild("VotingStages")
 
 -- Modules
-local DataManager       = require(ServerScriptService.Data.DataManager)
-local ExpConfig         = require(Libraries.ExpConfig)
-local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
-local GameStateManager  = require(GameLoop:WaitForChild("GameStateManager"))
-local teleportPlayer    = require(UtilityFolder.teleportPlayer)
+local DataManager              = require(ServerScriptService.Data.DataManager)
+local ExpConfig                = require(Libraries.ExpConfig)
+local GameOutfitManager        = require(GameLoop:WaitForChild("GameOutfitManager"))
+local GameStateManager         = require(GameLoop:WaitForChild("GameStateManager"))
+local ServerCustomisationService = require(UtilityFolder.ServerCustomisationService)
+local teleportPlayer           = require(UtilityFolder.teleportPlayer)
 
 -- Values
 local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
@@ -156,7 +157,7 @@ local function playDeathAnimation(model: Model)
 	if hrp then
 		local sound = Instance.new("Sound")
 		sound.SoundId = OOF_SOUND_ID
-		sound.Volume = 0.8
+		sound.Volume = 0.1
 		sound.Parent = hrp
 		sound:Play()
 		game:GetService("Debris"):AddItem(sound, 3)
@@ -176,7 +177,7 @@ local function playDeathAnimation(model: Model)
 end
 
 -- Plays the wave emote on the mannequin's Animator (non-blocking).
-local function playVictoryAnimation(model: Model)
+local function playVictoryAnimation(model: Model) 
 	local hum = model:FindFirstChildOfClass("Humanoid")
 	if not hum then return end
 	local animator = hum:FindFirstChildOfClass("Animator")
@@ -191,7 +192,24 @@ local function playVictoryAnimation(model: Model)
 	end)
 end
 
--- local function playDeathAnimation
+local function playAnimationOnce(model: Model, animationId: number)
+	local hum = model:FindFirstChildOfClass("Humanoid")
+	if not hum then return end
+	local animator = hum:FindFirstChildOfClass("Animator")
+	if not animator then return end
+	local emote = ServerCustomisationService.LoadEmote(animationId)
+	if not emote then
+		warn("VotingArenaManager: failed to load emote", animationId)
+		return
+	end
+	local ok, track = pcall(function() return animator:LoadAnimation(emote) end)
+	if not ok or not track then
+		warn("Failed to load animation track")
+		return
+	end
+	track.Looped = false
+	track:Play()
+end
 
 -- ─── Timer ──────────────────────────────────────────────────────────────────
 
@@ -366,6 +384,7 @@ onVote = function(player: Player, winnerSide: "left" | "right")
 	-- Record the vote server-side
 	GameOutfitManager.addVote(player, winnerId)
 	DataManager.AddExp(player, ExpConfig.Rewards.VOTE_CAST)
+	playAnimationOnce(winnerModel, 3994127840)
 
 	task.spawn(function()
 		-- Victory plays on the winner (non-blocking); death on loser (blocking ~2.3s)
