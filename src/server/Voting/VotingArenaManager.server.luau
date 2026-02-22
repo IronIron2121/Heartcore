@@ -153,7 +153,16 @@ end
 -- Plays the distorted oof sound, freezes the humanoid, then fades the model out
 -- and destroys it. Yields for the full animation (~2.3s).
 local function playDeathAnimation(model: Model)
-	local hrp = model:FindFirstChild("HumanoidRootPart")
+	-- Ragdoll: unanchor every part and sever all Motor6D joints so limbs scatter
+	for _, desc in model:GetDescendants() do
+		if desc:IsA("Motor6D") then
+			desc.Enabled = false
+		elseif desc:IsA("BasePart") then
+			desc.Anchored = false
+		end
+	end
+
+	local hrp = model:FindFirstChild("HumanoidRootPart") :: BasePart?
 	if hrp then
 		local sound = Instance.new("Sound")
 		sound.SoundId = OOF_SOUND_ID
@@ -162,7 +171,6 @@ local function playDeathAnimation(model: Model)
 		sound:Play()
 		game:GetService("Debris"):AddItem(sound, 3)
 	end
-	-- Freeze the humanoid (no Animate script, so it stays in place)
 	local hum = model:FindFirstChildOfClass("Humanoid")
 	if hum then hum.Health = 0 end
 	task.wait(1.5)
