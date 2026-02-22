@@ -84,6 +84,11 @@ local ArenaRoundStartedRE = Instance.new("RemoteEvent")
 ArenaRoundStartedRE.Name = "ArenaRoundStartedRE"
 ArenaRoundStartedRE.Parent = Remotes
 
+-- Fired before teleportation so the client can lock the camera first
+local ArenaActivateRE = Instance.new("RemoteEvent")
+ArenaActivateRE.Name = "ArenaActivateRE"
+ArenaActivateRE.Parent = Remotes
+
 -- ─── Forward declarations (cyclic call graph) ───────────────────────────────
 
 local onVote: (player: Player, winnerSide: "left" | "right") -> ()
@@ -185,7 +190,8 @@ local function playDeathAnimation(model: Model)
 end
 
 -- Plays the wave emote on the mannequin's Animator (non-blocking).
-local function playVictoryAnimation(model: Model) 
+-- Pass looped = true to keep the animation playing indefinitely (e.g. end-of-round celebration).
+local function playVictoryAnimation(model: Model, looped: boolean?)
 	local hum = model:FindFirstChildOfClass("Humanoid")
 	if not hum then return end
 	local animator = hum:FindFirstChildOfClass("Animator")
@@ -194,10 +200,13 @@ local function playVictoryAnimation(model: Model)
 	anim.AnimationId = VICTORY_ANIM_ID
 	local ok, track = pcall(function() return animator:LoadAnimation(anim) end)
 	if not ok or not track then return end
+	track.Looped = looped == true
 	track:Play()
-	task.delay(track.Length or 2, function()
-		if track.IsPlaying then track:Stop() end
-	end)
+	if not looped then
+		task.delay(track.Length or 2, function()
+			if track.IsPlaying then track:Stop() end
+		end)
+	end
 end
 
 local function playAnimationOnce(model: Model, animationId: number)
@@ -286,11 +295,8 @@ advanceQueue = function(player: Player)
 	local newChallengerId = state.queueOutfitIds[1]
 
 	if not newChallenger or not newChallengerId then
-		-- Queue empty — this player has voted on all outfits
-		playVictoryAnimation(state.championModel :: Model)
-		task.wait(2)
-		cleanupPlayer(player)
-		warn("Marking finished at advance queue")
+		-- Queue empty — champion celebrates on the podium until the round ends
+		playVictoryAnimation(state.championModel :: Model, true)
 		GameStateManager.markFinishedVoting(player)
 		return
 	end
@@ -434,9 +440,13 @@ local function initPlayerSession(player: Player)
 	local rightP = stage.JudgePlatforms.RightChallenger
 	local queueF = stage.QueuePlatforms
 
-	-- Teleport player to their judge platform (This is working)
+	-- Tell the client to lock its camera before we move the character
+	ArenaActivateRE:FireClient(player, stageIndex)
+	task.wait(0.3)
+
+	-- Teleport player precisely to their judge platform (no scatter — camera is already locked)
 	local char = player.Character or player.CharacterAdded:Wait()
-	teleportPlayer(player, judgeP, Vector3.new(0,0,50))
+	teleportPlayer(player, judgeP)
 
 	-- Anchor them in place
 	local hrp = char:FindFirstChild("HumanoidRootPart") :: BasePart?

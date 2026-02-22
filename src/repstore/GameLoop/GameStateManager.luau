@@ -15,7 +15,7 @@ local Values = ReplicatedStorage:WaitForChild("Values")
 -- Modules
 local GameStates = require(script.Parent.GameStates)
 local Constants = require(ReplicatedStorage.Constants)
-local teleportPlayer = require(ReplicatedStorage:WaitForChild("Utility").teleportPlayer)
+local randomTeleport = require(ReplicatedStorage:WaitForChild("Utility").randomTeleport)
 local WinnersManager = require(ServerScriptService.Voting.WinnersManager)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
@@ -154,12 +154,12 @@ Players.PlayerAdded:Connect(function(player)
 	participatingPlayers[player.UserId] = true
 
 	if currentState == "Waiting" then
-		task.spawn(teleportPlayer, player, STATE_SPAWNS.Intermission)
+		task.spawn(randomTeleport, player, STATE_SPAWNS.Intermission)
 		if getPlayerCount() >= MIN_PLAYERS then
 			GameStateManager.transitionTo("Dressing")
 		end
 	elseif currentState then
-		task.spawn(teleportPlayer, player, STATE_SPAWNS[currentState])
+		task.spawn(randomTeleport, player, STATE_SPAWNS[currentState])
 	end
 end)
 
@@ -171,7 +171,7 @@ end)
 
 local function teleportAllPlayers(destination: BasePart)
 	for _, player in Players:GetPlayers() do
-		task.spawn(teleportPlayer, player, destination)
+		task.spawn(randomTeleport, player, destination)
 	end
 end
 

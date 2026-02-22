@@ -23,6 +23,7 @@ local Children = Fusion.Children
 
 -- Remotes / Values
 local ArenaRoundStartedRE = Remotes:WaitForChild("ArenaRoundStartedRE")
+local ArenaActivateRE     = Remotes:WaitForChild("ArenaActivateRE")
 local CurrentStateName    = Values:WaitForChild("CurrentStateName") :: StringValue
 
 -- Instances
@@ -135,16 +136,16 @@ end
 
 -- ─── Activate / deactivate ──────────────────────────────────────────────────
 
-local function activate()
-	local stageIndex = LocalPlayer:GetAttribute("VotingStageIndex")
-	if not stageIndex then return end
+local function activate(stageIndex: number?)
+	local idx = stageIndex or LocalPlayer:GetAttribute("VotingStageIndex")
+	if not idx then return end
 
 	local camera = workspace.CurrentCamera
 	savedCameraType  = camera.CameraType
 	savedCameraCFrame = camera.CFrame
 
 	camera.CameraType = Enum.CameraType.Scriptable
-	camera.CFrame     = computeJudgeCFrame(stageIndex)
+	camera.CFrame     = computeJudgeCFrame(idx)
 
 	isArenaActive:set(true)
 end
@@ -163,21 +164,24 @@ end
 
 -- ─── Connections ────────────────────────────────────────────────────────────
 
+-- Server fires this just before teleporting — lock camera first
+ArenaActivateRE.OnClientEvent:Connect(function(stageIndex: number)
+	activate(stageIndex)
+end)
+
 -- Server fires this at the start of each matchup so the countdown resets
 ArenaRoundStartedRE.OnClientEvent:Connect(function(duration: number)
 	startCountdown(duration)
 end)
 
+-- Deactivate when the round ends
 CurrentStateName.Changed:Connect(function(newState: string)
-	if newState == "Voting" then
-		-- Small delay ensures the server has set the VotingStageIndex attribute
-		task.delay(0.5, activate)
-	else
+	if newState ~= "Voting" then
 		deactivate()
 	end
 end)
 
--- Handle the case where the script loads while Voting is already active
+-- Fallback: script loaded while Voting was already active (e.g. rejoin)
 if CurrentStateName.Value == "Voting" then
 	task.delay(0.5, activate)
 end

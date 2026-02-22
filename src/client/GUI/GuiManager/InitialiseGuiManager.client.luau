@@ -150,13 +150,7 @@ local function InitialiseHuds()
                 layoutOrder = 1,
                 image = hudScope:Computed(function(use)
                     if use(GameStateValues.isDressing) then
-                        if use(PlayerSubmissionState.cooldown) then
-                            return ImageUris.Submit 
-                        else
-                            return ImageUris.Submit
-                        end
-                    elseif use(GameStateValues.isVoting) then
-                        return ImageUris.Vote
+                        return ImageUris.Submit
                     else
                         return ""
                     end
@@ -174,14 +168,9 @@ local function InitialiseHuds()
                     end
                 end),
                 onActivated = function()
-                    if (peek(GameStateValues.isDressing)) then
+                    if peek(GameStateValues.isDressing) then
                         if not peek(PlayerSubmissionState.cooldown) then
                             PlayerSubmittedOutfitRF:InvokeServer()
-                        end
-                    elseif (peek(GameStateValues.isVoting)) then
-                        -- Suppress when the 3D arena is active (VotingStageIndex is set)
-                        if not game:GetService("Players").LocalPlayer:GetAttribute("VotingStageIndex") then
-                            GuiManager.PushCentreByName(MODAL_NAMES.VOTING_GUI)
                         end
                     end
                 end,
