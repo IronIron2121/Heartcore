@@ -220,6 +220,8 @@ export type GuiConfiguration = {
     ConfigurationContainer: Frame,
     TopMiddle: Frame,
     TopMiddlePosition: Value<UDim2>,
+    MiddleLeft: Frame,
+    MiddleLeftPosition: Value<UDim2>,
     BottomLeft: Frame,
     BottomLeftPosition: Value<UDim2>,
     BottomMiddle: Frame,

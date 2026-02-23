@@ -23,11 +23,15 @@ type SlotInfo = {
     AlwaysOn: boolean,
 }
 
+local Children = Fusion.Children
+
+local SLOT_PADDING = UDim.new(0.02, 0)
+
 local SLOT_CONSTANTS = {
     Colour = Color3.new(1, 1, 1),
     BackgroundTransparency = 1,
     Visible = true
-} 
+}
 
 local SLOT_LAYOUTS = {
     [Constants.GUI_SLOT_NAMES.TopMiddle] = {
@@ -44,6 +48,14 @@ local SLOT_LAYOUTS = {
         InPosition = UDim2.fromScale(1, 0),
         OutPosition = UDim2.fromScale(2, 0),
         Size = UDim2.fromScale(0.3, 0.4)
+    },
+
+    [Constants.GUI_SLOT_NAMES.MiddleLeft] = {
+        Name = Constants.GUI_SLOT_NAMES.MiddleLeft,
+        AnchorPoint = Vector2.new(0, 0.5),
+        InPosition = UDim2.fromScale(0, 0.5),
+        OutPosition = UDim2.fromScale(-0.15, 0.5),
+        Size = UDim2.fromScale(0.1, 0.6),
     },
 
     [Constants.GUI_SLOT_NAMES.BottomLeft] = {
@@ -79,6 +91,8 @@ export type GuiConfiguration = {
     TopMiddlePosition: Value<UDim2>,
     TopRight: Frame,
     TopRightPosition: Value<UDim2>,
+    MiddleLeft: Frame,
+    MiddleLeftPosition: Value<UDim2>,
     BottomLeft: Frame,
     BottomLeftPosition: Value<UDim2>,
     BottomMiddle: Frame,
@@ -91,6 +105,7 @@ export type GuiConfiguration = {
     _elements: {
         topMiddle: GuiObject?,
         topRight: GuiObject?,
+        middleLeft: GuiObject?,
         bottomLeft: GuiObject?,
         bottomMiddle: GuiObject?,
         bottomRight: GuiObject?,
@@ -111,6 +126,7 @@ function GuiConfiguration.new(props: {
     color: Color3?,
     topMiddle: SlotInfo?,
     topRight: SlotInfo?,
+    middleLeft: SlotInfo?,
     bottomLeft: SlotInfo?,
     bottomMiddle: SlotInfo?,
     bottomRight: SlotInfo?,
@@ -129,6 +145,7 @@ function GuiConfiguration.new(props: {
     -- Extract AlwaysOn flags
     local topMiddleAlwaysOn = props.topMiddle and props.topMiddle.AlwaysOn or false
     local topRightAlwaysOn = props.topRight and props.topRight.AlwaysOn or false
+    local middleLeftAlwaysOn = props.middleLeft and props.middleLeft.AlwaysOn or false
     local bottomLeftAlwaysOn = props.bottomLeft and props.bottomLeft.AlwaysOn or false
     local bottomMiddleAlwaysOn = props.bottomMiddle and props.bottomMiddle.AlwaysOn or false
     local bottomRightAlwaysOn = props.bottomRight and props.bottomRight.AlwaysOn or false
@@ -137,6 +154,7 @@ function GuiConfiguration.new(props: {
     self._elements = {
         topMiddle = props.topMiddle and props.topMiddle.Object or nil,
         topRight = props.topRight and props.topRight.Object or nil,
+        middleLeft = props.middleLeft and props.middleLeft.Object or nil,
         bottomLeft = props.bottomLeft and props.bottomLeft.Object or nil,
         bottomMiddle = props.bottomMiddle and props.bottomMiddle.Object or nil,
         bottomRight = props.bottomRight and props.bottomRight.Object or nil,
@@ -167,6 +185,12 @@ function GuiConfiguration.new(props: {
         Visible     = SLOT_CONSTANTS.Visible,
         Parent      = self.ConfigurationContainer,
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
+        [Children] = {
+            self.scope:New "UIPadding" {
+                PaddingTop = SLOT_PADDING, PaddingBottom = SLOT_PADDING,
+                PaddingLeft = SLOT_PADDING, PaddingRight = SLOT_PADDING,
+            },
+        },
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopMiddle] = self.TopMiddlePosition
 
@@ -183,8 +207,36 @@ function GuiConfiguration.new(props: {
         Visible     = SLOT_CONSTANTS.Visible,
         Parent      = self.ConfigurationContainer,
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
+        [Children] = {
+            self.scope:New "UIPadding" {
+                PaddingTop = SLOT_PADDING, PaddingBottom = SLOT_PADDING,
+                PaddingLeft = SLOT_PADDING, PaddingRight = SLOT_PADDING,
+            },
+        },
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopRight] = self.TopRightPosition
+
+    self.MiddleLeftPosition = self.scope:Computed(function(use)
+        local visible = if middleLeftAlwaysOn then use(self.Enabled) else (use(self.Enabled) and use(self.ModalVisible))
+        return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleLeft].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleLeft].OutPosition
+    end)
+    self.MiddleLeft = self.scope:New "Frame" {
+        Name        = SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleLeft].Name,
+        AnchorPoint = SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleLeft].AnchorPoint,
+        Position    = self.scope:Tween(self.MiddleLeftPosition, Constants.DEFAULT_TWEEN),
+        Size        = SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleLeft].Size,
+        BackgroundColor3      = props.color or SLOT_CONSTANTS.Colour,
+        Visible     = SLOT_CONSTANTS.Visible,
+        Parent      = self.ConfigurationContainer,
+        BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
+        [Children] = {
+            self.scope:New "UIPadding" {
+                PaddingTop = SLOT_PADDING, PaddingBottom = SLOT_PADDING,
+                PaddingLeft = SLOT_PADDING, PaddingRight = SLOT_PADDING,
+            },
+        },
+    } :: Frame
+    self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.MiddleLeft] = self.MiddleLeftPosition
 
     self.BottomLeftPosition = self.scope:Computed(function(use)
         local visible = if bottomLeftAlwaysOn then use(self.Enabled) else (use(self.Enabled) and use(self.ModalVisible))
@@ -199,6 +251,12 @@ function GuiConfiguration.new(props: {
         Visible     = SLOT_CONSTANTS.Visible,
         Parent      = self.ConfigurationContainer,
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
+        [Children] = {
+            self.scope:New "UIPadding" {
+                PaddingTop = SLOT_PADDING, PaddingBottom = SLOT_PADDING,
+                PaddingLeft = SLOT_PADDING, PaddingRight = SLOT_PADDING,
+            },
+        },
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.BottomLeft] = self.BottomLeftPosition
 
@@ -215,6 +273,12 @@ function GuiConfiguration.new(props: {
         Visible     = SLOT_CONSTANTS.Visible,
         Parent      = self.ConfigurationContainer,
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
+        [Children] = {
+            self.scope:New "UIPadding" {
+                PaddingTop = SLOT_PADDING, PaddingBottom = SLOT_PADDING,
+                PaddingLeft = SLOT_PADDING, PaddingRight = SLOT_PADDING,
+            },
+        },
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.BottomMiddle] = self.BottomMiddlePosition
 
@@ -231,12 +295,19 @@ function GuiConfiguration.new(props: {
         Visible     = SLOT_CONSTANTS.Visible,
         Parent      = self.ConfigurationContainer,
         BackgroundTransparency = SLOT_CONSTANTS.BackgroundTransparency,
+        [Children] = {
+            self.scope:New "UIPadding" {
+                PaddingTop = SLOT_PADDING, PaddingBottom = SLOT_PADDING,
+                PaddingLeft = SLOT_PADDING, PaddingRight = SLOT_PADDING,
+            },
+        },
     } :: Frame
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.BottomRight] = self.BottomRightPosition
 
     -- Immediately reparent AlwaysOn elements so they're visible before Enable()
     if topMiddleAlwaysOn and self._elements.topMiddle then self._elements.topMiddle.Parent = self.TopMiddle end
     if topRightAlwaysOn and self._elements.topRight then self._elements.topRight.Parent = self.TopRight end
+    if middleLeftAlwaysOn and self._elements.middleLeft then self._elements.middleLeft.Parent = self.MiddleLeft end
     if bottomLeftAlwaysOn and self._elements.bottomLeft then self._elements.bottomLeft.Parent = self.BottomLeft end
     if bottomMiddleAlwaysOn and self._elements.bottomMiddle then self._elements.bottomMiddle.Parent = self.BottomMiddle end
     if bottomRightAlwaysOn and self._elements.bottomRight then self._elements.bottomRight.Parent = self.BottomRight end
@@ -252,6 +323,7 @@ function GuiConfiguration:Enable(startHidden: boolean?)
     task.spawn(function()
         if self._elements.topMiddle then self._elements.topMiddle.Parent = self.TopMiddle end
         if self._elements.topRight then self._elements.topRight.Parent = self.TopRight end
+        if self._elements.middleLeft then self._elements.middleLeft.Parent = self.MiddleLeft end
         if self._elements.bottomLeft then self._elements.bottomLeft.Parent = self.BottomLeft end
         if self._elements.bottomMiddle then self._elements.bottomMiddle.Parent = self.BottomMiddle end
         if self._elements.bottomRight then self._elements.bottomRight.Parent = self.BottomRight end
