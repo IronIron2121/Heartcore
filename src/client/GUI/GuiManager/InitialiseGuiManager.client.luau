@@ -46,7 +46,7 @@ local VotingFrame = require(FusionComponents.VotingFrame)
 local ArenaTimerHud = require(FusionComponents.ArenaTimerHud)
 local UI_CONSTANTS = require(Utility.UI_CONSTANTS)
 local peek = require(FusionUtility.State.peek)
-local ImageUris = require(DataTables.ImageUris)
+local ImageUris = require(DataTables.ImageUris) 
 local FtuePop = require(ClientGUI.FtuePop)
 local Fusion = require(FusionUtility)
 

@@ -67,33 +67,33 @@ local function OutfitVoteTile(
 		1
 	)
 
-	-- Avatar model
-	local avatarModel = scope:Computed(function(use)
-		if not props.humanoidDescription then
-			return nil
-		end
+	-- Avatar model (loaded async — CreateHumanoidModelFromDescription yields)
+	local avatarModel = scope:Value(nil :: Model?)
+	if props.humanoidDescription then
+		task.spawn(function()
+			local success, model = pcall(function()
+				return Players:CreateHumanoidModelFromDescription(props.humanoidDescription, Enum.HumanoidRigType.R15)
+			end)
 
-		local success, model = pcall(function()
-			local model = Players:CreateHumanoidModelFromDescription(props.humanoidDescription, Enum.HumanoidRigType.R15)
-			for _, descendant in ipairs(model:GetDescendants()) do
-				if descendant:IsA("BaseScript") then
-					descendant:Destroy()
+			if success and model then
+				for _, descendant in ipairs(model:GetDescendants()) do
+					if descendant:IsA("BaseScript") then
+						descendant:Destroy()
+					end
 				end
+				model:PivotTo(CFrame.new(0, -2.5, 0))
+				avatarModel:set(model)
+			else
+				warn("Failed to create avatar model from HumanoidDescription")
 			end
-			return model
 		end)
+	end
 
-		if success and model then
-			model:PivotTo(CFrame.new(0, -2.5, 0))
-			return model
-		else
-			warn("Failed to create avatar model from HumanoidDescription")
-			return nil
-		end
-	end)
-
-	-- Viewport camera
-	local viewportCamera = scope:Value(nil)
+	-- Viewport camera (created eagerly so CurrentCamera binds immediately)
+	local viewportCamera = scope:New "Camera" {
+		Name = "ViewportCamera",
+		CFrame = CFrame.new(Vector3.new(0, 0, 5), Vector3.new(0, 0, 0))
+	} :: Camera
 
 	local tile = scope:New "Frame" {
 		Name = props.name or "OutfitVoteTile",
@@ -170,17 +170,10 @@ local function OutfitVoteTile(
 						end)
 					},
 
-					viewportCamera:set(
-						scope:New "Camera" {
-							Name = "ViewportCamera",
-							CFrame = CFrame.new(Vector3.new(0, 0, 5), Vector3.new(0, 0, 0))
-						}
-					)
+					viewportCamera,
 				},
 
-				CurrentCamera = scope:Computed(function(use)
-					return use(viewportCamera)
-				end)
+				CurrentCamera = viewportCamera
 			},
 		}
 	} :: Frame
@@ -188,8 +181,8 @@ local function OutfitVoteTile(
 	-- Camera positioning
 	local function updateCameraPosition()
 		local currentModel = peek(avatarModel)
-		local camera = peek(viewportCamera)
-		if not currentModel or not camera then return end
+		if not currentModel then return end
+		local camera = viewportCamera
 
 		local size = currentModel:GetExtentsSize()
 		local biggestSize = math.max(size.X, size.Y)

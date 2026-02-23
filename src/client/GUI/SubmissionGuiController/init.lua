@@ -51,7 +51,7 @@ function SubmissionGuiController.Initialise(
                     scope:New "TextLabel" {
                         Name = "SubmissionGui",
                         Text = scope:Computed(function(use)
-                            return "Current Fit Check theme: " .. (getCurrentTheme() or "Unknown")
+                            return "Theme: " .. (getCurrentTheme() or "Unknown")
                         end),
                         TextScaled = true,
                         Size = UDim2.fromScale(0.4, 1),

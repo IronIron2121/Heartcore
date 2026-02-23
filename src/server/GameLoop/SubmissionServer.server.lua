@@ -33,6 +33,8 @@ local function onOutfitSubmitted(player: Player)
         return
     end
 
+    -- Clone to snapshot at submission time; the live instance may mutate or be destroyed
+    humanoidDescription = humanoidDescription:Clone()
     GameOutfitManager.submitOutfit(player, humanoidDescription)
     GameStateManager.checkAllSubmitted()
 end

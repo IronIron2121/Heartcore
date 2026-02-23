@@ -128,11 +128,23 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 	local onLeftSelected: () -> ()
 	local onRightSelected: () -> ()
 
+	-- Maps each tile Frame to its current side so the click router picks the right callback
+	local tileSides: { [Frame]: string } = {}
+
+	local function onTileActivated(tile: Frame)
+		local side = tileSides[tile]
+		if side == "left" then
+			onLeftSelected()
+		elseif side == "right" then
+			onRightSelected()
+		end
+	end
+
 	local function spawnTile(
 		outfitData: { outfitId: string, humanoidDescription: HumanoidDescription },
 		initialPos: UDim2,
 		finalPos: UDim2,
-		onActivated: () -> ()
+		side: string
 	): (Frame, OutfitVoteTile.OutfitVoteTileControls, Value<UDim2>)
 		local positionValue = scope:Value(initialPos)
 		local positionTween = scope:Tween(positionValue, POSITION_TWEEN_INFO)
@@ -143,8 +155,12 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 			size = TILE_SIZE,
 			anchorPoint = Vector2.new(0.5, 0.5),
 			humanoidDescription = outfitData.humanoidDescription,
-			onActivated = onActivated,
+			onActivated = function()
+				onTileActivated(tile)
+			end,
 		})
+
+		tileSides[tile] = side
 
 		task.defer(function()
 			positionValue:set(finalPos)
@@ -173,7 +189,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 			newOutfit,
 			OFFSCREEN_RIGHT,
 			RIGHT_SLOT_POS,
-			function() onRightSelected() end
+			"right"
 		)
 		rightOutfitId = newOutfit.outfitId
 
@@ -191,6 +207,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 		rightControls.triggerLoss()
 
 		rightPositionValue:set(OFFSCREEN_DOWN)
+		if rightTile then tileSides[rightTile] = nil end
 		cleanupTile(rightTile)
 		rightTile = nil
 		rightControls = nil
@@ -211,9 +228,11 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 		leftControls.triggerLoss()
 
 		leftPositionValue:set(OFFSCREEN_DOWN)
+		if leftTile then tileSides[leftTile] = nil end
 		cleanupTile(leftTile)
 
 		rightPositionValue:set(LEFT_SLOT_POS)
+		tileSides[rightTile] = "left"
 
 		leftTile = rightTile
 		leftControls = rightControls
@@ -266,8 +285,8 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 			votingComplete:set(false)
 
 			-- Cleanup existing tiles
-			if leftTile then leftTile:Destroy() end
-			if rightTile then rightTile:Destroy() end
+			if leftTile then tileSides[leftTile] = nil; leftTile:Destroy() end
+			if rightTile then tileSides[rightTile] = nil; rightTile:Destroy() end
 			leftTile = nil
 			rightTile = nil
 			leftControls = nil
@@ -296,7 +315,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 				firstOutfit,
 				OFFSCREEN_LEFT,
 				LEFT_SLOT_POS,
-				function() onLeftSelected() end
+				"left"
 			)
 			leftOutfitId = firstOutfit.outfitId
 
@@ -305,7 +324,7 @@ local function VotingFrame(scope: Fusion.Scope): (Frame, () -> ())
 				secondOutfit,
 				OFFSCREEN_RIGHT,
 				RIGHT_SLOT_POS,
-				function() onRightSelected() end
+				"right"
 			)
 			rightOutfitId = secondOutfit.outfitId
 

@@ -27,6 +27,15 @@ local bodyPartDescriptionProperties = {
 	-- "Instance"
 }
 
+local BODY_COLOR_PROPERTIES = {
+	"HeadColor",
+	"TorsoColor",
+	"LeftArmColor",
+	"RightArmColor",
+	"LeftLegColor",
+	"RightLegColor",
+}
+
 local SerialisationService = {}
 
 function SerialisationService.serialiseVector3(thisVector: Vector3): {[string] : number}
@@ -155,6 +164,10 @@ function SerialisationService.SerialiseHumanoidDescription(humanoidDescription: 
 	serialisedHumanoidDescription.ProportionScale = humanoidDescription.ProportionScale
 	serialisedHumanoidDescription.WidthScale = humanoidDescription.WidthScale
 
+	for _, colorProp in ipairs(BODY_COLOR_PROPERTIES) do
+		serialisedHumanoidDescription[colorProp] = SerialisationService.serialiseColor3(humanoidDescription[colorProp])
+	end
+
 	return serialisedHumanoidDescription
 end
 
@@ -166,8 +179,9 @@ function SerialisationService.UnserialiseHumanoidDescription(serialisedHumanoidD
 	for assetIdOrType, description in pairs(serialisedHumanoidDescription) do
 		-- for the classic clothing items, the key / value pair is better described as "ClothingType" / "itemId"
 		if table.find(Constants.CLASSIC_HUMANOID_CLOTHING_ASSET_TYPES, assetIdOrType) or table.find(Constants.HUMANOID_SCALE_VARIABLES, assetIdOrType) then
-			-- This should be safe - if we run into any errors, we'll use an if-statement to validate here
 			humanoidDescription[assetIdOrType] = description
+		elseif table.find(BODY_COLOR_PROPERTIES, assetIdOrType) then
+			humanoidDescription[assetIdOrType] = SerialisationService.unserialiseColor3(description)
 		else
 			local newDescription = description.BodyPart and Instance.new("BodyPartDescription") or Instance.new("AccessoryDescription")
 

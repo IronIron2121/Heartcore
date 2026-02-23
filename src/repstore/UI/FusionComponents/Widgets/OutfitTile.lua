@@ -47,30 +47,27 @@ function OutfitTile(
 		onClick: () -> (),
 	}
 ): Frame
-	-- Create avatar model from HumanoidDescription
-	local avatarModel = scope:Computed(function(use)
-		if not props.humanoidDescription then return nil end
+	-- Create avatar model from HumanoidDescription (async — yields for asset loading)
+	local avatarModel = scope:Value(nil :: Model?)
+	if props.humanoidDescription then
+		task.spawn(function()
+			local success, model = pcall(function()
+				return Players:CreateHumanoidModelFromDescription(props.humanoidDescription, Enum.HumanoidRigType.R15)
+			end)
 
-		local success, model = pcall(function()
-			local model = Players:CreateHumanoidModelFromDescription(props.humanoidDescription, Enum.HumanoidRigType.R15)
-			-- destroy animations
-			for _, descendant in ipairs(model:GetDescendants()) do
-				if descendant:IsA("BaseScript") then
-					descendant:Destroy()
+			if success and model then
+				for _, descendant in ipairs(model:GetDescendants()) do
+					if descendant:IsA("BaseScript") then
+						descendant:Destroy()
+					end
 				end
+				model:PivotTo(CFrame.new(0, -2.5, 0))
+				avatarModel:set(model)
+			else
+				warn("Failed to create avatar model from HumanoidDescription")
 			end
-			return model
 		end)
-
-		if success and model then
-			-- Position the model at origin for viewport
-			model:PivotTo(CFrame.new(0, -2.5, 0))
-			return model
-		else
-			warn("Failed to create avatar model from HumanoidDescription")
-			return nil
-		end
-	end)
+	end
 
 		-- State management
 	local Toggled = scope:Value(false)
@@ -84,8 +81,11 @@ function OutfitTile(
 		return use(Toggled) == true
 	end)
 
-	-- Create viewport camera
-	local viewportCamera = scope:Value(nil)
+	-- Create viewport camera (eagerly so CurrentCamera binds immediately)
+	local viewportCamera = scope:New "Camera" {
+		Name = "ViewportCamera",
+		CFrame = CFrame.new(Vector3.new(0, 0, 5), Vector3.new(0, 0, 0))
+	} :: Camera
 
 	local isCurrentlyEquipping = scope:Value(false)
 	
@@ -210,19 +210,10 @@ function OutfitTile(
 								end)
 							},
 
-							-- Set up viewport camera
-							viewportCamera:set(
-								scope:New "Camera" {
-									Name = "ViewportCamera",
-									CFrame = CFrame.new(Vector3.new(0, 0, 5), Vector3.new(0, 0, 0))
-								}
-							)
+							viewportCamera,
 						},
 
-						-- Set camera when viewport is created
-						CurrentCamera = scope:Computed(function(use)
-							return use(viewportCamera)
-						end)
+						CurrentCamera = viewportCamera
 					},
 
 					-- Button frame
@@ -271,8 +262,8 @@ function OutfitTile(
 	-- Camera update function (copied from AvatarViewport)
 	local function updateCameraPosition()
 		local currentModel = Fusion.peek(avatarModel)
-		local camera = Fusion.peek(viewportCamera)
-		if not currentModel or not camera then return end
+		if not currentModel then return end
+		local camera = viewportCamera
 
 		local size = currentModel:GetExtentsSize()
 		local biggestSize = math.max(size.X, size.Y)
