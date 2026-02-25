@@ -11,6 +11,8 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 
 -- Modules
+local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
+local MODAL_NAMES = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local GameStateValues = require(Libraries:WaitForChild("GameStateValues"))
 local PlayerThumbnail = require(script:WaitForChild("PlayerThumbnail"))
@@ -112,7 +114,17 @@ local frame = scope:New "Frame" {
 
 	[Children] = {
 		scope:ForValues(sortedPlayers, function(use, innerScope, player)
-			return PlayerThumbnail(innerScope, player, dirtyCounter, rankMap)
+			return PlayerThumbnail(innerScope, {
+				player = player, 
+				dirtyCounter = dirtyCounter, 
+				rankMap = rankMap,
+				onClickCb = function()
+		            GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI, {
+						player = player, 
+						rig = nil
+					}
+				)
+			end})
 		end),
 
 	},
