@@ -96,6 +96,8 @@ local sortedPlayers = scope:Computed(function(use)
 	return list
 end)
 
+local THUMB_GAP = 0.1 -- scale of parent height; used as UIListLayout Padding
+
 -- Rank map: userId → 1-based rank
 local rankMap = scope:Computed(function(use)
 	local sorted = use(sortedPlayers)
@@ -106,27 +108,81 @@ local rankMap = scope:Computed(function(use)
 	return map
 end)
 
+-- Anchor layer: UIListLayout drives invisible per-player slot frames
+local anchorLayer = scope:New "Frame" {
+	Name = "AnchorLayer",
+	Size = UDim2.fromScale(1, 1),
+	BackgroundTransparency = 1,
+	[Children] = {
+		scope:New "UIListLayout" {
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			FillDirection = Enum.FillDirection.Vertical,
+			Padding = UDim.new(THUMB_GAP, 0),
+		},
+	},
+}
+
+-- ForValues: per player, create an invisible anchor (parented to anchorLayer)
+-- and return a thumbnail that springs toward the anchor's AbsolutePosition
+local thumbnailChildren = scope:ForValues(sortedPlayers, function(use, innerScope, player)
+	local anchorFrame = innerScope:New "Frame" {
+		Name = "Anchor_" .. player.Name,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = innerScope:Computed(function(use)
+			return use(rankMap)[player.UserId] or 999
+		end),
+		Parent = anchorLayer,
+	} :: Frame
+
+	(innerScope :: any):New "UIAspectRatioConstraint" {
+		AspectRatio = 1,
+		Parent = anchorFrame,
+	}
+
+	local targetY: Fusion.Value<number> = innerScope:Value(0) :: Fusion.Value<number>
+
+	local aLayer = anchorLayer :: Frame
+	local function readAnchorY()
+		if aLayer.AbsoluteSize.Y == 0 then return end
+		targetY:set(
+			(anchorFrame.AbsolutePosition.Y - aLayer.AbsolutePosition.Y)
+			/ aLayer.AbsoluteSize.Y
+		)
+	end
+
+	local conn = anchorFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(readAnchorY)
+	table.insert(innerScope :: any, function() conn:Disconnect() end)
+
+	task.defer(readAnchorY)
+
+	return PlayerThumbnail(innerScope, {
+		player = player,
+		dirtyCounter = dirtyCounter,
+		targetY = targetY,
+		onClickCb = function()
+			GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI, {
+				player = player,
+				rig = nil,
+			})
+		end,
+	})
+end)
+
 -- Build sidebar frame
 local frame = scope:New "Frame" {
 	Name = "PlayerSidebar",
 	Size = UDim2.fromScale(1, 1),
 	BackgroundTransparency = 1,
-
 	[Children] = {
-		scope:ForValues(sortedPlayers, function(use, innerScope, player)
-			return PlayerThumbnail(innerScope, {
-				player = player, 
-				dirtyCounter = dirtyCounter, 
-				rankMap = rankMap,
-				onClickCb = function()
-		            GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI, {
-						player = player, 
-						rig = nil
-					}
-				)
-			end})
-		end),
-
+		anchorLayer,
+		scope:New "Frame" {
+			Name = "ThumbnailLayer",
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			[Children] = { thumbnailChildren },
+		},
 	},
 }
 
