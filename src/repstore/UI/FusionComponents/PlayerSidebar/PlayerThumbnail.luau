@@ -38,6 +38,7 @@ local function PlayerThumbnail(
 		player: Player,
 		dirtyCounter: Fusion.Value<number>,
 		targetY: Fusion.Value<number>,
+		thumbScale: UsedAs<number>,
 		onClickCb: () -> ()
 	}
 
@@ -113,7 +114,9 @@ local function PlayerThumbnail(
 
 	return scope:New "Frame" {
 		Name = "Thumbnail_" .. props.player.Name,
-		Size = UDim2.fromScale(1, 0),
+		Size = scope:Computed(function(use)
+			return UDim2.fromScale(use(props.thumbScale), 0)
+		end),
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Position = position,
 		BackgroundTransparency = 1,

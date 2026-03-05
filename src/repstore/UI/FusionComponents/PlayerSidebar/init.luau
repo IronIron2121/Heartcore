@@ -96,7 +96,23 @@ local sortedPlayers = scope:Computed(function(use)
 	return list
 end)
 
-local THUMB_GAP = 0.1 -- scale of parent height; used as UIListLayout Padding
+local THUMB_GAP = 0.02 -- scale of parent height; used as UIListLayout Padding
+
+-- Slot aspect ratio (width/height), updated from AbsoluteSize
+-- Default assumes 16:9 screen; corrected once AbsoluteSize is known
+local slotAspectRatio = scope:Value((0.1 * 16) / (0.8 * 9))
+
+-- Dynamic thumb scale: shrinks thumbnails so they always fit in the slot
+-- Each thumbnail is square, so its height (in parent-height fraction) = thumbScale * aspectRatio
+-- Constraint: count * thumbScale * aspectRatio + (count-1) * THUMB_GAP <= 1
+local thumbScale = scope:Computed(function(use)
+	local count = #use(sortedPlayers)
+	if count <= 1 then return 1 end
+	local ar = use(slotAspectRatio)
+	if ar <= 0 then return 1 end
+	local size = (1 - (count - 1) * THUMB_GAP) / (count * ar)
+	return math.clamp(size, 0.05, 1)
+end)
 
 -- Rank map: userId → 1-based rank
 local rankMap = scope:Computed(function(use)
@@ -108,59 +124,23 @@ local rankMap = scope:Computed(function(use)
 	return map
 end)
 
--- Anchor layer: UIListLayout drives invisible per-player slot frames
-local anchorLayer = scope:New "Frame" {
-	Name = "AnchorLayer",
-	Size = UDim2.fromScale(1, 1),
-	BackgroundTransparency = 1,
-	[Children] = {
-		scope:New "UIListLayout" {
-			SortOrder = Enum.SortOrder.LayoutOrder,
-			FillDirection = Enum.FillDirection.Vertical,
-			Padding = UDim.new(THUMB_GAP, 0),
-		},
-	},
-}
-
--- ForValues: per player, create an invisible anchor (parented to anchorLayer)
--- and return a thumbnail that springs toward the anchor's AbsolutePosition
+-- Compute each thumbnail's Y position purely from rank, thumbScale, and aspect ratio
+-- thumbHeight (as fraction of parent height) = thumbScale * ar
+-- Y for rank i = (i-1) * (thumbHeight + THUMB_GAP)
 local thumbnailChildren = scope:ForValues(sortedPlayers, function(use, innerScope, player)
-	local anchorFrame = innerScope:New "Frame" {
-		Name = "Anchor_" .. player.Name,
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 0),
-		AutomaticSize = Enum.AutomaticSize.Y,
-		LayoutOrder = innerScope:Computed(function(use)
-			return use(rankMap)[player.UserId] or 999
-		end),
-		Parent = anchorLayer,
-	} :: Frame
-
-	(innerScope :: any):New "UIAspectRatioConstraint" {
-		AspectRatio = 1,
-		Parent = anchorFrame,
-	}
-
-	local targetY: Fusion.Value<number> = innerScope:Value(0) :: Fusion.Value<number>
-
-	local aLayer = anchorLayer :: Frame
-	local function readAnchorY()
-		if aLayer.AbsoluteSize.Y == 0 then return end
-		targetY:set(
-			(anchorFrame.AbsolutePosition.Y - aLayer.AbsolutePosition.Y)
-			/ aLayer.AbsoluteSize.Y
-		)
-	end
-
-	local conn = anchorFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(readAnchorY)
-	table.insert(innerScope :: any, function() conn:Disconnect() end)
-
-	task.defer(readAnchorY)
+	local targetY = innerScope:Computed(function(use)
+		local ranks = use(rankMap)
+		local rank = ranks[player.UserId] or 1
+		local ar = use(slotAspectRatio)
+		local thumbHeight = use(thumbScale) * ar
+		return (rank - 1) * (thumbHeight + THUMB_GAP)
+	end)
 
 	return PlayerThumbnail(innerScope, {
 		player = player,
 		dirtyCounter = dirtyCounter,
 		targetY = targetY,
+		thumbScale = thumbScale,
 		onClickCb = function()
 			GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI, {
 				player = player,
@@ -175,15 +155,15 @@ local frame = scope:New "Frame" {
 	Name = "PlayerSidebar",
 	Size = UDim2.fromScale(1, 1),
 	BackgroundTransparency = 1,
-	[Children] = {
-		anchorLayer,
-		scope:New "Frame" {
-			Name = "ThumbnailLayer",
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-			[Children] = { thumbnailChildren },
-		},
-	},
-}
+	[Children] = { thumbnailChildren },
+} :: Frame
+
+-- Update slot aspect ratio from actual rendered size
+frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+	local abs = frame.AbsoluteSize
+	if abs.X > 0 and abs.Y > 0 then
+		slotAspectRatio:set(abs.X / abs.Y)
+	end
+end)
 
 return frame
