@@ -11,7 +11,6 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 
 -- Modules
-local GameStates = require(ReplicatedStorage.GameLoop.GameStates)
 local OnEvent = require(ReplicatedStorage.Utility.Fusion.Instances.OnEvent)
 local UI_CONSTANTS = require(ReplicatedStorage.Utility.UI_CONSTANTS)
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -20,7 +19,6 @@ local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 
 -- Fusion
 local Children = Fusion.Children
-local peek = Fusion.peek
 type UsedAs<T> = Fusion.UsedAs<T>
 
 -- Colors
@@ -63,9 +61,6 @@ local function PlayerThumbnail(
 	--
 	local isHeldDown = scope:Value(false)
 	local isHovering = scope:Value(false)
-
-
-
 
 	-- Rim color
 	local rimColor = scope:Computed(function(use)
