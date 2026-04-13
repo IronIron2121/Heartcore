@@ -42,6 +42,7 @@ local ExpHud = require(FusionComponents:WaitForChild("ExpHud"))
 local GameStateValues = require(Libraries.GameStateValues)
 local GuiManager = require(GuiManagerLibrary.GuiManager)
 local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
+local PlayerSidebar = require(FusionComponents.PlayerSidebar)
 local VotingFrame = require(FusionComponents.VotingFrame)
 local ArenaTimerHud = require(FusionComponents.ArenaTimerHud)
 local UI_CONSTANTS = require(Utility.UI_CONSTANTS)
@@ -208,6 +209,7 @@ local function InitialiseHuds()
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
         topMiddle = { Object = submissionThemeBar, AlwaysOn = true },
         topRight = { Object = topRightContainer, AlwaysOn = true },
+        middleLeft = { Object = PlayerSidebar, AlwaysOn = true },
         bottomLeft = nil,
         bottomMiddle = { Object = buttonsFrame, AlwaysOn = false },
         bottomRight = { Object = GameOptionsFrame1, AlwaysOn = false },
@@ -226,6 +228,7 @@ local function InitialiseHuds()
         ConfigurationName = CONFIGURATION_NAMES.VotingConfig,
         topMiddle = { Object = ArenaTimerHud.frame, AlwaysOn = true },
         topRight = nil,
+        middleLeft = { Object = PlayerSidebar, AlwaysOn = true },
         bottomLeft = nil,
         bottomMiddle = nil,
         bottomRight = nil,

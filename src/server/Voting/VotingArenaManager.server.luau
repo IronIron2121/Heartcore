@@ -220,7 +220,7 @@ local function playAnimationOnce(model: Model, animationId: number)
 	if not hum then return end
 	local animator = hum:FindFirstChildOfClass("Animator")
 	if not animator then return end
-	local emote = ServerCustomisationService.LoadEmote(animationId)
+local emote = ServerCustomisationService.LoadEmote(animationId)
 	if not emote then
 		warn("VotingArenaManager: failed to load emote", animationId)
 		return

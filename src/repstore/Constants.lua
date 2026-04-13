@@ -186,6 +186,7 @@ local Constants = {
     GUI_SLOT_NAMES = {
         ["TopMiddle"] = "TopMiddle",
         ["TopRight"] = "TopRight",
+        ["MiddleLeft"] = "MiddleLeft",
         ["BottomLeft"] = "BottomLeft",
         ["BottomMiddle"] = "BottomMiddle",
         ["BottomRight"] = "BottomRight",

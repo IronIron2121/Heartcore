@@ -1,4 +1,4 @@
-local maxJumps = 3 -- amount of jumps in the air
+--[[ local maxJumps = 3 -- amount of jumps in the air
 local jumpCooldown = 0.1 -- how fast you can jump again while in the air
 local defaultJumpPower = 50 -- default jump power (Roblox default is 50)
 local extraJumpPower = 100 -- jump power for jumps 2 and 3
@@ -39,4 +39,4 @@ userInputService.JumpRequest:Connect(function()
 		end
 		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 	end
-end)
+end) ]]

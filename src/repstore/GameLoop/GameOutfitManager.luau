@@ -1,6 +1,7 @@
 --!strict
 
 -- Services
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
@@ -82,7 +83,8 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 	} 
 
 	submittedPlayers[userId] = true
-	
+	player:SetAttribute("HasSubmitted", true)
+
 	SubmissionResultRE:FireClient(player, {
 		ok = true,
 		msg = overwrite and "Outfit overwritten!" or "Outfit submitted successfully!"
@@ -138,7 +140,10 @@ function GameOutfitManager.addVote(player: Player, outfitId: string): boolean
 		ChallengeManager.OnOutfitVoted(player)
 	end)
 
-	warn("Just added vote to outfit", outfit)
+	local outfitOwner = Players:GetPlayerByUserId(outfit.userId)
+	if outfitOwner then
+		outfitOwner:SetAttribute("VoteScore", outfit.score)
+	end
 
 	return true
 end
@@ -162,8 +167,13 @@ function GameOutfitManager.showOutfitToPlayer(userId: number, outfitId: string):
 		if outfit.views > 0 then
 			outfit.score = outfit.votes / outfit.views
 		end
+
+		local outfitOwner = Players:GetPlayerByUserId(outfit.userId)
+		if outfitOwner then
+			outfitOwner:SetAttribute("VoteScore", outfit.score)
+		end
 	end
-	
+
 	return true
 end
 
@@ -256,6 +266,13 @@ function GameOutfitManager.getSubmissionCount(): number
 end
 
 function GameOutfitManager.reset()
+	for userId in submittedPlayers do
+		local player = Players:GetPlayerByUserId(userId)
+		if player then
+			player:SetAttribute("HasSubmitted", nil)
+			player:SetAttribute("VoteScore", nil)
+		end
+	end
 	outfits = {}
 	submittedPlayers = {}
 	playerViews = {}
