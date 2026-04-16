@@ -14,6 +14,7 @@ local Remotes          = ReplicatedStorage:WaitForChild("Remotes")
 local Utility          = ReplicatedStorage:WaitForChild("Utility")
 local Values           = ReplicatedStorage:WaitForChild("Values")
 local FusionComponents = ReplicatedStorage:WaitForChild("UI"):WaitForChild("FusionComponents")
+local VotingStages 	   = workspace:WaitForChild("VotingStages")
 
 -- Modules
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -26,7 +27,7 @@ local ArenaVotingCompleteRE  = Remotes:WaitForChild("ArenaVotingCompleteRE")
 local CurrentStateName       = Values:WaitForChild("CurrentStateName") :: StringValue
 
 -- Instances
-
+local stage = VotingStages.VotingStage1
 
 local LocalPlayer = Players.LocalPlayer
 local hoverHighlight = Instance.new("Highlight")
@@ -41,8 +42,7 @@ hoverHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_GREEN
 local savedCameraType:   Enum.CameraType = Enum.CameraType.Custom
 local savedCameraCFrame: CFrame          = CFrame.identity
 
-local function computeJudgeCFrame(stageIndex: number): CFrame
-	local stage  = workspace:WaitForChild("VotingStages"):FindFirstChild("VotingStage" .. stageIndex)
+local function computeJudgeCFrame(): CFrame
 	if not stage then return CFrame.identity end
 	local judgeP = (stage :: Folder):FindFirstChild("JudgePlatforms") :: Folder?
 	if not judgeP then return CFrame.identity end
@@ -85,16 +85,13 @@ end
 
 -- ─── Activate / deactivate ──────────────────────────────────────────────────
 
-local function activate(stageIndex: number?)
-	local idx = stageIndex or LocalPlayer:GetAttribute("VotingStageIndex")
-	if not idx then return end
-
+local function activate()
 	local camera = workspace.CurrentCamera
 	savedCameraType  = camera.CameraType
 	savedCameraCFrame = camera.CFrame
 
 	camera.CameraType = Enum.CameraType.Scriptable
-	camera.CFrame     = computeJudgeCFrame(idx)
+	camera.CFrame     = computeJudgeCFrame()
 end
 
 local function deactivate()
@@ -111,8 +108,8 @@ end
 -- ─── Connections ────────────────────────────────────────────────────────────
 
 -- Server fires this just before teleporting — lock camera first
-ArenaActivateRE.OnClientEvent:Connect(function(stageIndex: number)
-	activate(stageIndex)
+ArenaActivateRE.OnClientEvent:Connect(function()
+	activate()
 end)
 
 -- Server fires this at the start of each matchup so the countdown resets
@@ -138,7 +135,7 @@ if CurrentStateName.Value == "Voting" then
 	task.delay(0.5, activate)
 end
 
-CollectionService:GetInstanceAddedSignal("VoteHandler"):Connect(function(clickDetector: ClickDetector)
+local function connectClickDetector(clickDetector: ClickDetector)
 	local target = clickDetector.Parent
 
 	clickDetector.MouseHoverEnter:Connect(function()
@@ -148,7 +145,9 @@ CollectionService:GetInstanceAddedSignal("VoteHandler"):Connect(function(clickDe
 	clickDetector.MouseHoverLeave:Connect(function()
 		hoverHighlight.Adornee = nil
 	end)
-end)
+end
+
+CollectionService:GetInstanceAddedSignal("VoteHandler"):Connect(connectClickDetector)
 
 -- When detectors are destroyed (vote cast), clear any active highlight immediately
 CollectionService:GetInstanceRemovedSignal("VoteHandler"):Connect(function()

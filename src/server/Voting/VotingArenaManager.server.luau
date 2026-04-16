@@ -26,6 +26,9 @@ local GameStateManager         = require(GameLoop:WaitForChild("GameStateManager
 local ServerCustomisationService = require(UtilityFolder.ServerCustomisationService)
 local teleportPlayer           = require(UtilityFolder.teleportPlayer)
 
+-- Instances
+local VotingStage = VotingStages:WaitForChild("VotingStage1")
+
 -- Values
 local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
 
@@ -61,7 +64,6 @@ type VotingStageFolder = Folder & {
 -- ─── State ──────────────────────────────────────────────────────────────────
 
 type ArenaState = {
-	stageIndex:        number,
 	stage:             VotingStageFolder,
 	orderedOutfits:    { GameOutfitManager.Outfit },
 	nextQueueIndex:    number,       -- next orderedOutfits index to backfill slot 5
@@ -76,7 +78,6 @@ type ArenaState = {
 }
 
 local playerStates: { [number]: ArenaState } = {}   -- keyed by UserId
-local stageAssignments: { [number]: number }  = {}  -- UserId → stageIndex 1-8
 
 -- ─── ArenaRoundStartedRE ────────────────────────────────────────────────────
 -- Created here so the client can WaitForChild it.
@@ -103,9 +104,6 @@ local advanceQueue: (player: Player) -> ()
 
 -- ─── Helpers ────────────────────────────────────────────────────────────────
 
-local function getStage(index: number): VotingStageFolder
-	return VotingStages:FindFirstChild("VotingStage" .. index) :: VotingStageFolder
-end
 
 -- Compute the world CFrame for standing on top of a BasePart, facing facingPart.
 local function standCFrameOn(targetPart: BasePart, facingPart: BasePart): CFrame
@@ -117,23 +115,28 @@ end
 
 local function createMannequin(outfit: GameOutfitManager.Outfit, targetPart: BasePart, judgeP: BasePart): Model?
 	warn("Creating mannequin") 
+
 	local success, model = pcall(function()
 		return Players:CreateHumanoidModelFromDescription(
 			outfit.humanoidDescription,
 			Enum.HumanoidRigType.R15
 		)
 	end)
+
 	if not success or not model then
 		warn("VotingArenaManager: failed to create mannequin for outfit", outfit.outfitId)
 		return nil
 	end
+
 	-- Remove any auto-running scripts
 	for _, d in model:GetDescendants() do
 		if d:IsA("BaseScript") then d:Destroy() end
 	end
+
 	model:PivotTo(standCFrameOn(targetPart, judgeP))
 	model:FindFirstChild("HumanoidRootPart").Anchored = true
 	model.Parent = workspace
+
 	return model
 end
 
@@ -150,12 +153,16 @@ end
 
 local function makeDetector(model: Model): ClickDetector
 	local old = model:FindFirstChild("voteHandler")
-	if old then old:Destroy() end
+	if old then 
+		old:Destroy() 
+	end
+
 	local cd = Instance.new("ClickDetector")
 	cd.MaxActivationDistance = 500
 	cd.Name = "voteHandler"
 	cd:AddTag("VoteHandler")
 	cd.Parent = model
+
 	return cd
 end
 
@@ -260,7 +267,6 @@ local function startMatchupTimer(player: Player)
 end
 
 -- ─── Cleanup ────────────────────────────────────────────────────────────────
-
 local function cleanupPlayer(player: Player)
 	local state = playerStates[player.UserId]
 	if not state then return end
@@ -284,7 +290,6 @@ local function cleanupAll()
 		if player then cleanupPlayer(player) end
 	end
 	playerStates = {}
-	stageAssignments = {}
 end
 
 -- ─── Core voting loop ───────────────────────────────────────────────────────
@@ -445,19 +450,9 @@ end
 
 -- ─── Session initialisation ─────────────────────────────────────────────────
 
-local function initPlayerSession(player: Player)
-
-	print("Initialising player session")
-
-	-- Get the index of the player's assigned stage
-	local stageIndex = stageAssignments[player.UserId]
-	if not stageIndex then 
-		warn("no stage index for player" .. player.Name)
-		return 
-	end
-
+local function initPlayerSessions(player: Player)
 	-- Get the stage folder; the judge platform; the left and right platforms, and the queue playforms
-	local stage       = getStage(stageIndex)
+	local stage       = VotingStage
 	local judgeP      = stage.JudgePlatforms.JudgePlatform
 	local teleportP   = stage.JudgePlatforms.TeleportPlatform
 	local leftP       = stage.JudgePlatforms.LeftChallenger
@@ -465,7 +460,7 @@ local function initPlayerSession(player: Player)
 	local queueF      = stage.QueuePlatforms
 
 	-- Tell the client to lock its camera before we move the character
-	ArenaActivateRE:FireClient(player, stageIndex)
+	ArenaActivateRE:FireClient(player)
 	task.wait(0.3)
 
 	-- Teleport the rig to TeleportPlatform; camera stays on JudgePlatform POV
@@ -493,7 +488,6 @@ local function initPlayerSession(player: Player)
 	end
 
 	local state: ArenaState = {
-		stageIndex        = stageIndex,
 		stage             = stage,
 		orderedOutfits    = ordered,
 		nextQueueIndex    = 8,     -- indices 1-7 placed at init; 8 onwards are backfill
@@ -552,20 +546,7 @@ end
 -- ─── Voting start hook (registered with GameStateManager) ───────────────────
 
 GameStateManager.onVotingStart = function()
-	-- Assign each player to a stage (1-indexed, one-to-one)
-	stageAssignments = {}
-	local players = Players:GetPlayers()
-
-	-- Set stage assignments for every player (i.e. which stage they are going to be teleported to) and set an attribute in their player to relate to it
-	-- Each player ID is the key relating to a value representing their stage index
-	for i, player in ipairs(players) do
-		stageAssignments[player.UserId] = i
-		player:SetAttribute("VotingStageIndex", i)
-	end
-	-- Initialise each player's arena session in parallel
-	for _, player in ipairs(players) do
-		task.spawn(initPlayerSession, player)
-	end
+	initPlayerSessions()
 end
 
 -- ─── Lifecycle connections ───────────────────────────────────────────────────
@@ -577,9 +558,11 @@ CurrentStateName.Changed:Connect(function(newState: string)
 	end
 end)
 
+--[[
 -- Clean up a player's arena if they leave mid-voting
 Players.PlayerRemoving:Connect(function(player: Player)
 	if playerStates[player.UserId] then
 		cleanupPlayer(player)
 	end
 end)
+]]
