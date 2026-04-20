@@ -38,7 +38,6 @@ hoverHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_GREEN
 
 
 -- ─── Camera ─────────────────────────────────────────────────────────────────
-
 local savedCameraType:   Enum.CameraType = Enum.CameraType.Custom
 local savedCameraCFrame: CFrame          = CFrame.identity
 
@@ -59,7 +58,6 @@ local function computeJudgeCFrame(): CFrame
 end
 
 -- ─── Countdown thread ───────────────────────────────────────────────────────
-
 local countdownThread: thread? = nil
 
 local function startCountdown(duration: number)
@@ -84,7 +82,6 @@ local function stopCountdown()
 end
 
 -- ─── Activate / deactivate ──────────────────────────────────────────────────
-
 local function activate()
 	local camera = workspace.CurrentCamera
 	savedCameraType  = camera.CameraType

@@ -44,7 +44,7 @@ GetNextOutfitRF.OnServerInvoke = function(player: Player)
 	end
 	
 	-- Mark as seen and increment views
-	GameOutfitManager.showOutfitToPlayer(player.UserId, outfit.outfitId)
+	GameOutfitManager.showOutfitToPlayers(player.UserId, outfit.outfitId)
 	
 	return {
 		outfitId = outfit.outfitId,

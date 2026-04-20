@@ -28,6 +28,12 @@ local teleportPlayer           = require(UtilityFolder.teleportPlayer)
 
 -- Instances
 local VotingStage = VotingStages:WaitForChild("VotingStage1")
+local stage       = VotingStage
+local judgeP      = stage.JudgePlatforms.JudgePlatform
+local teleportP   = stage.JudgePlatforms.TeleportPlatform
+local leftP       = stage.JudgePlatforms.LeftChallenger
+local rightP      = stage.JudgePlatforms.RightChallenger
+local queueF      = stage.QueuePlatforms
 
 -- Values
 local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
@@ -96,11 +102,6 @@ local ArenaVotingCompleteRE = Instance.new("RemoteEvent")
 ArenaVotingCompleteRE.Name = "ArenaVotingCompleteRE"
 ArenaVotingCompleteRE.Parent = Remotes
 
--- ─── Forward declarations (cyclic call graph) ───────────────────────────────
-
-local onVote: (player: Player, winnerSide: "left" | "right", isAutoVote: boolean?) -> ()
-local attachVoteHandlers: (player: Player) -> ()
-local advanceQueue: (player: Player) -> ()
 
 -- ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -296,7 +297,7 @@ end
 
 -- Called after a vote resolves. Slides the next queue mannequin to RightChallenger,
 -- shifts the rest of the queue forward, and backfills slot 5 if more outfits exist.
-advanceQueue = function(player: Player)
+local function advanceQueue(player: Player)
 	warn("advancing queue")
 	local state = playerStates[player.UserId]
 	if not state then return end
@@ -322,7 +323,7 @@ advanceQueue = function(player: Player)
 	state.challengerModel    = newChallenger
 	state.challengerOutfitId = newChallengerId
 	-- Mark as seen now that it is in a challenger slot (not on queue entry)
-	GameOutfitManager.showOutfitToPlayer(player.UserId, newChallengerId)
+	GameOutfitManager.showOutfitToPlayers(player.UserId, newChallengerId)
 
 	-- Shift remaining queue models forward one slot simultaneously
 	for i = 1, 4 do
@@ -356,9 +357,8 @@ advanceQueue = function(player: Player)
 	startMatchupTimer(player)
 end
 
--- Wires ClickDetectors on the current champion and challenger mannequins.
--- Both detectors are destroyed together the moment either is clicked.
-attachVoteHandlers = function(player: Player)
+
+local function attachVoteHandlers(player: Player)
 	local state = playerStates[player.UserId]
 	if not state then return end
 
@@ -391,7 +391,7 @@ end
 
 -- Handles a vote: records it, runs animations, slides the winner if needed,
 -- then calls advanceQueue to bring in the next challenger.
-onVote = function(player: Player, winnerSide: "left" | "right", isAutoVote: boolean?)
+local function onVote(player: Player, winnerSide: "left" | "right", isAutoVote: boolean?)
 	local state = playerStates[player.UserId]
 	if not state or state.voteLocked then return end
 	state.voteLocked = true
@@ -450,38 +450,31 @@ end
 
 -- ─── Session initialisation ─────────────────────────────────────────────────
 
-local function initPlayerSessions(player: Player)
-	-- Get the stage folder; the judge platform; the left and right platforms, and the queue playforms
-	local stage       = VotingStage
-	local judgeP      = stage.JudgePlatforms.JudgePlatform
-	local teleportP   = stage.JudgePlatforms.TeleportPlatform
-	local leftP       = stage.JudgePlatforms.LeftChallenger
-	local rightP      = stage.JudgePlatforms.RightChallenger
-	local queueF      = stage.QueuePlatforms
-
+local function initialisePlayerVoting(player: Player)
+	-- Lock player movement
+	local char = player.Character or player.CharacterAdded:Wait()
+	local hrp = char:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if hrp then hrp.Anchored = true end
 	-- Tell the client to lock its camera before we move the character
 	ArenaActivateRE:FireClient(player)
 	task.wait(0.3)
-
 	-- Teleport the rig to TeleportPlatform; camera stays on JudgePlatform POV
-	local char = player.Character or player.CharacterAdded:Wait()
 	teleportPlayer(player, teleportP)
+end
 
-	-- Anchor them in place
-	local hrp = char:FindFirstChild("HumanoidRootPart") :: BasePart?
-	if hrp then hrp.Anchored = true end
+local function initVotingSession()
+	for _, player in Players:GetPlayers() do
+		initialisePlayerVoting(player)
+	end
 
 	-- Collect all outfits this player is eligible to vote on (everyone else's)
 	local ordered: { GameOutfitManager.Outfit } = {}
 	for _, outfit in GameOutfitManager.getOutfits() do
-		if outfit.userId ~= player.UserId then
-			table.insert(ordered, outfit)
-		end
+		table.insert(ordered, outfit)
 	end
 
 	if #ordered == 0 then
-		print("No  outfits to use!")
-		GameStateManager.markFinishedVoting(player)
+		warn("No  outfits to use!")
 		return
 	else
 		print("Got outfits", ordered)
@@ -501,13 +494,11 @@ local function initPlayerSessions(player: Player)
 		timerToken        = 0,
 	}
 
-	playerStates[player.UserId] = state
-
 	-- Place champion in the left challenger slot and mark as seen
 	local champOutfit = ordered[1]
 	state.championModel    = createMannequin(champOutfit, leftP, judgeP)
 	state.championOutfitId = champOutfit.outfitId
-	GameOutfitManager.showOutfitToPlayer(player.UserId, champOutfit.outfitId)
+	GameOutfitManager.showOutfitToPlayers(player.UserId, champOutfit.outfitId)
 
 	-- Place first challenger in the right slot and mark as seen
 	if ordered[2] then
@@ -519,7 +510,7 @@ local function initPlayerSessions(player: Player)
 
 	-- Populate the queue with outfits 3..7 (up to 5 slots)
 	for slotNum = 1, 5 do
-		local outfitIndex = slotNum + 2   -- ordered[3] → slot 1, ordered[7] → slot 5
+		local outfitIndex = slotNum + 2 -- ordered[3] → slot 1, ordered[7] → slot 5
 		local outfit = ordered[outfitIndex]
 		if not outfit then break end
 		local slotPart = queueF:FindFirstChild(tostring(slotNum)) :: BasePart?
@@ -546,7 +537,7 @@ end
 -- ─── Voting start hook (registered with GameStateManager) ───────────────────
 
 GameStateManager.onVotingStart = function()
-	initPlayerSessions()
+	initVotingSession()
 end
 
 -- ─── Lifecycle connections ───────────────────────────────────────────────────

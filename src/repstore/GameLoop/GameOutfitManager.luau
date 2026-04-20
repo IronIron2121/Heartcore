@@ -148,41 +148,27 @@ function GameOutfitManager.addVote(player: Player, outfitId: string): boolean
 	return true
 end
 
-function GameOutfitManager.showOutfitToPlayer(userId: number, outfitId: string): boolean
+function GameOutfitManager.showOutfitToPlayers(outfitId: string): boolean
 	local outfit = outfits[outfitId]
 	if not outfit then
 		return false
 	end
-	
-	if not playerViews[userId] then
-		playerViews[userId] = {}
-	end
+
 	
 	-- Only increment view if they haven't seen it before
-	if not playerViews[userId][outfitId] then
-		playerViews[userId][outfitId] = true
-		outfit.views += 1
-		
-		-- Recalculate score when views change
-		if outfit.views > 0 then
-			outfit.score = outfit.votes / outfit.views
-		end
+	outfit.views += 1
+	
+	-- Recalculate score when views change
+	if outfit.views > 0 then
+		outfit.score = outfit.votes / outfit.views
+	end
 
-		local outfitOwner = Players:GetPlayerByUserId(outfit.userId)
-		if outfitOwner then
-			outfitOwner:SetAttribute("VoteScore", outfit.score)
-		end
+	local outfitOwner = Players:GetPlayerByUserId(outfit.userId)
+	if outfitOwner then
+		outfitOwner:SetAttribute("VoteScore", outfit.score)
 	end
 
 	return true
-end
-
-function GameOutfitManager.hasSeen(userId: number, outfitId: string): boolean
-	if not playerViews[userId] then
-		return false
-	end
-	
-	return playerViews[userId][outfitId] == true
 end
 
 function GameOutfitManager.getUnseenOutfit(player: Player, excludeOutfitId: string?): Outfit?
