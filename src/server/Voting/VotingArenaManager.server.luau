@@ -89,7 +89,8 @@ type ArenaState = {
 local playerStates: { [number]: ArenaState } = {}   -- keyed by UserId
 
 -- ─── Forward declarations (cyclic call graph) ───────────────────────────────
-local onVote: (player: Player, winnerSide: "left" | "right", isAutoVote: boolean?) -> ()
+local onPlayerVoted: (player: Player, votedFor: "left" | "right", isAutoVote: boolean?) -> ()
+local onVotingEnded: () -> ()
 local attachVoteHandlers: (player: Player) -> ()
 local advanceQueue: (player: Player) -> ()
 
@@ -303,13 +304,16 @@ end
 
 -- ─── Core voting loop ───────────────────────────────────────────────────────
 
+onPlayerVoted = function(player: Player, votedFor: string)
+
+end
+
 -- Called after a vote resolves. Slides the next queue mannequin to RightChallenger,
 -- shifts the rest of the queue forward, and backfills slot 5 if more outfits exist.
-onVote = function(player: Player, winnerSide: "left" | "right", isAutoVote: boolean?)
-	local state = playerStates[player.UserId]
+onVotingEnded = function()
 	if not state or state.voteLocked then return end
 	state.voteLocked = true
-	cancelTimer(player)
+	cancelTimer()
 
 	-- Destroy click detectors on both models (handles the auto-vote path where
 	-- destroyBoth() inside attachVoteHandlers was never called)
@@ -324,6 +328,9 @@ onVote = function(player: Player, winnerSide: "left" | "right", isAutoVote: bool
 	local winnerModel:   Model?
 	local winnerId:      string?
 	local loserModel:    Model?
+
+	-- Count the votes
+	-- So first we need to tally them up
 
 	if winnerSide == "left" then
 		winnerModel = state.championModel;   winnerId = state.championOutfitId
