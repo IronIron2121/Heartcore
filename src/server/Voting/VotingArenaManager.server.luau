@@ -111,9 +111,6 @@ local ArenaVotingCompleteRE = Instance.new("RemoteEvent")
 ArenaVotingCompleteRE.Name = "ArenaVotingCompleteRE"
 ArenaVotingCompleteRE.Parent = Remotes
 
-
--- ─── Helpers ────────────────────────────────────────────────────────────────
-
 -- ─── Helpers ────────────────────────────────────────────────────────────────
 -- Compute the world CFrame for standing on top of a BasePart, facing facingPart.
 local function standCFrameOn(targetPart: BasePart, facingPart: BasePart): CFrame
@@ -137,7 +134,7 @@ local function createMannequin(outfit: GameOutfitManager.Outfit, targetPart: Bas
 		warn("VotingArenaManager: failed to create mannequin for outfit", outfit.outfitId)
 		return nil
 	end
-
+ 
 	-- Remove any auto-running scripts
 	for _, d in model:GetDescendants() do
 		if d:IsA("BaseScript") then d:Destroy() end
@@ -284,13 +281,22 @@ local function cleanupPlayer()
 end
 
 local function cleanupArena()
-	if not state then return end
+	if not state then 
+		warn("No state at clean-up arena")
+		return 
+	end
+
 	cancelTimer()
+
 	if state.championModel  then state.championModel:Destroy()  end
 	if state.challengerModel then state.challengerModel:Destroy() end
+
 	for _, m in ipairs(state.queueModels) do
-		if m then m:Destroy() end
+		if m then 
+			m:Destroy() 
+		end
 	end
+
 	-- Unanchor the player now that they're being returned to the intermission zone
 	for _, player in Players:GetPlayers() do
 		local char = player.Character
@@ -299,7 +305,7 @@ local function cleanupArena()
 		player:SetAttribute("VotingStageIndex", nil)
 		playerStates[player.UserId] = nil
 	end
-	state = {}
+	state = nil
 end
 
 -- ─── Core voting loop ───────────────────────────────────────────────────────
@@ -320,7 +326,9 @@ onVotingEnded = function()
 	local function destroyDetector(model: Model?)
 		if not model then return end
 		local cd = model:FindFirstChild("voteHandler")
-		if cd then cd:Destroy() end
+		if cd then 
+			cd:Destroy() 
+		end
 	end
 	destroyDetector(state.championModel)
 	destroyDetector(state.challengerModel)
@@ -395,7 +403,7 @@ local function initVotingSession()
 	end
 
 	if #ordered == 0 then
-		warn("No  outfits to use!")
+		warn("No outfits to use!")
 		return
 	else
 		print("Got outfits", ordered)
