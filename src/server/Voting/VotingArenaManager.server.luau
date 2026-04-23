@@ -37,9 +37,10 @@ local queueF      = stage.QueuePlatforms
 
 -- Values
 local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
+local ArenaTimerSeconds 	= Values:WaitForChild("ArenaTimerSeconds")
 
 -- Constants
-local VOTE_TIMER       = 10    -- seconds per matchup before auto-vote (champion wins)
+local TIME_PER_MATCHUP       = 10    -- seconds per voting matchup before winner is declared
 local HRP_STAND_OFFSET = 3.2   -- studs above platform surface to HumanoidRootPart
 local QUEUE_SHIFT_TIME = 0.4   -- seconds for queue mannequins to slide forward
 local VICTORY_ANIM_ID  = "rbxassetid://507770239"  -- Roblox "Wave" emote
@@ -83,7 +84,6 @@ type ArenaState = {
 	queueModels:       { Model? },   -- [1]=slot1 (next up) .. [5]=slot5 (furthest)
 	queueOutfitIds:    { string? },  -- parallel to queueModels
 	voteLocked:        boolean,
-	timerToken:        number,       -- incremented to invalidate any pending auto-vote
 }
 
 -- ─── Forward declarations (cyclic call graph) ───────────────────────────────
@@ -173,6 +173,8 @@ end
 
 -- ─── Animations ─────────────────────────────────────────────────────────────
 
+
+
 -- Plays the distorted oof sound, freezes the humanoid, then fades the model out
 -- and destroys it. Yields for the full animation (~2.3s).
 local function playDeathAnimation(model: Model)
@@ -247,30 +249,24 @@ local emote = ServerCustomisationService.LoadEmote(animationId)
 end
 
 -- ─── Timer ──────────────────────────────────────────────────────────────────
-
-local function cancelTimer()
-	if state then
-		state.timerToken += 1
-	end
-end
-
 local function startMatchupTimer()
 	if not state then 
 		warn("No state at start matchup!")
 		return 
 	end
-	
-	cancelTimer()
 
-	-- Tell client to reset visual countdown display
-	ArenaRoundStartedRE:FireAllClients(VOTE_TIMER)
-	-- Capture the token; if it changes before the delay fires, the vote is stale
-	local token = state.timerToken
-	task.delay(VOTE_TIMER, function()
-		local currentState = playerStates[player.UserId]
-		if currentState and currentState.timerToken == token then
-			onVote(player, "left", true)   -- auto-vote: champion wins, no score recorded
+	ArenaTimerSeconds.Value = TIME_PER_MATCHUP
+	task.spawn(function()
+		while ArenaTimerSeconds.Value > 0 do
+			ArenaTimerSeconds.Value -= 1
+			task.wait(1)
 		end
+
+		-- Count up the votes
+		-- Determine the winner and loser
+		-- Celebrate animation on winner
+		-- Death animation on loser
+		-- Advance the queue
 	end)
 end
 
@@ -285,7 +281,6 @@ local function cleanupArena()
 		return 
 	end
 
-	cancelTimer()
 
 	if state.championModel  then state.championModel:Destroy()  end
 	if state.challengerModel then state.challengerModel:Destroy() end
@@ -318,7 +313,6 @@ end
 onVotingEnded = function()
 	if not state or state.voteLocked then return end
 	state.voteLocked = true
-	cancelTimer()
 
 	-- Destroy click detectors on both models (handles the auto-vote path where
 	-- destroyBoth() inside attachVoteHandlers was never called)
@@ -420,7 +414,6 @@ local function initVotingSession()
 		queueModels       = {},
 		queueOutfitIds    = {},
 		voteLocked        = false,
-		timerToken        = 0,
 	}
 
 	-- Place champion in the left challenger slot and mark as seen
@@ -566,7 +559,6 @@ onVote = function(player: Player, winnerSide: "left" | "right", isAutoVote: bool
 	local state = playerStates[player.UserId]
 	if not state or state.voteLocked then return end
 	state.voteLocked = true
-	cancelTimer(player)
 
 	-- Destroy click detectors on both models (handles the auto-vote path where
 	-- destroyBoth() inside attachVoteHandlers was never called)
