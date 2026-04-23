@@ -21,10 +21,11 @@ local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local ArenaTimerHud = require(FusionComponents:WaitForChild("ArenaTimerHud"))
 
 -- Remotes / Values
-local ArenaRoundStartedRE    = Remotes:WaitForChild("ArenaRoundStartedRE")
+--local ArenaRoundStartedRE    = Remotes:WaitForChild("ArenaRoundStartedRE")
 local ArenaActivateRE        = Remotes:WaitForChild("ArenaActivateRE")
 local ArenaVotingCompleteRE  = Remotes:WaitForChild("ArenaVotingCompleteRE")
 local CurrentStateName       = Values:WaitForChild("CurrentStateName") :: StringValue
+local ArenaTimerSeconds 	= Values:WaitForChild("ArenaTimerSeconds")
 
 -- Instances
 local stage = VotingStages.VotingStage1
@@ -59,19 +60,6 @@ end
 
 -- ─── Countdown thread ───────────────────────────────────────────────────────
 local countdownThread: thread? = nil
-
-local function startCountdown(duration: number)
-	if countdownThread then task.cancel(countdownThread) end
-	ArenaTimerHud.setTimer(duration)
-	countdownThread = task.spawn(function()
-		local t = duration
-		while t > 0 do
-			task.wait(1)
-			t -= 1
-			ArenaTimerHud.setTimer(t)
-		end
-	end)
-end
 
 local function stopCountdown()
 	if countdownThread then
@@ -109,15 +97,9 @@ ArenaActivateRE.OnClientEvent:Connect(function()
 	activate()
 end)
 
--- Server fires this at the start of each matchup so the countdown resets
-ArenaRoundStartedRE.OnClientEvent:Connect(function(duration: number)
-	startCountdown(duration)
-end)
-
 -- Server fires this when all outfits have been voted on
 ArenaVotingCompleteRE.OnClientEvent:Connect(function()
 	stopCountdown()
-	ArenaTimerHud.setWaiting()
 end)
 
 -- Deactivate when the round ends
@@ -149,4 +131,8 @@ CollectionService:GetInstanceAddedSignal("VoteHandler"):Connect(connectClickDete
 -- When detectors are destroyed (vote cast), clear any active highlight immediately
 CollectionService:GetInstanceRemovedSignal("VoteHandler"):Connect(function()
 	hoverHighlight.Adornee = nil
+end)
+
+ArenaTimerSeconds.Changed:Connect(function(newValue: number)  
+	ArenaTimerHud.setTimer(newValue)
 end)

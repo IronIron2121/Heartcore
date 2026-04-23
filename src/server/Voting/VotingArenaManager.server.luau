@@ -86,8 +86,6 @@ type ArenaState = {
 	timerToken:        number,       -- incremented to invalidate any pending auto-vote
 }
 
-local playerStates: { [number]: ArenaState } = {}   -- keyed by UserId
-
 -- ─── Forward declarations (cyclic call graph) ───────────────────────────────
 local onPlayerVoted: (player: Player, votedFor: "left" | "right", isAutoVote: boolean?) -> ()
 local onVotingEnded: () -> ()
@@ -263,6 +261,7 @@ local function startMatchupTimer()
 	end
 	
 	cancelTimer()
+
 	-- Tell client to reset visual countdown display
 	ArenaRoundStartedRE:FireAllClients(VOTE_TIMER)
 	-- Capture the token; if it changes before the delay fires, the vote is stale
@@ -396,7 +395,7 @@ local function initVotingSession()
 		initialisePlayerVoting(player)
 	end
 
-	-- Collect all outfits this player is eligible to vote on (everyone else's)
+	-- Collect all outfits submitted this round
 	local ordered: { GameOutfitManager.Outfit } = {}
 	for _, outfit in GameOutfitManager.getOutfits() do
 		table.insert(ordered, outfit)
@@ -409,6 +408,7 @@ local function initVotingSession()
 		print("Got outfits", ordered)
 	end
 
+	-- 
 	state = {
 		stage             = stage,
 		orderedOutfits    = ordered,
@@ -451,7 +451,7 @@ local function initVotingSession()
 
 	-- Start the first matchup if both challenger slots are filled
 	if state.challengerModel then
-		attachVoteHandlers(player)
+		attachVoteHandlers(player) 
 		startMatchupTimer(player)
 	else
 		-- Only one outfit existed — player wins by default
@@ -467,9 +467,8 @@ end
 
 -- Called after a vote resolves. Slides the next queue mannequin to RightChallenger,
 -- shifts the rest of the queue forward, and backfills slot 5 if more outfits exist.
-advanceQueue = function(player: Player)
+advanceQueue = function()
 	warn("advancing queue")
-	local state = playerStates[player.UserId]
 	if not state then return end
 
 	local stage  = state.stage
@@ -479,11 +478,13 @@ advanceQueue = function(player: Player)
 
 	local newChallenger   = state.queueModels[1]
 	local newChallengerId = state.queueOutfitIds[1]
-
+	
+	-- If there's no new challenger, we've got a winner.
 	if not newChallenger or not newChallengerId then
 		-- Queue empty — champion celebrates on the podium until the round ends
 		playVictoryAnimation(state.championModel :: Model, true)
-		ArenaVotingCompleteRE:FireClient(player)
+		ArenaVotingCompleteRE:FireAllClients()
+		-- TODO - we need this to be per-vote-round
 		GameStateManager.markFinishedVoting(player)
 		return
 	end
