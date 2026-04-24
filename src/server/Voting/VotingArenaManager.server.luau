@@ -19,6 +19,7 @@ local Values       = ReplicatedStorage:WaitForChild("Values")
 local VotingStages = workspace:WaitForChild("VotingStages")
 
 -- Modules
+local GameStates = require(ReplicatedStorage.GameLoop.GameStates)
 local DataManager              = require(ServerScriptService.Data.DataManager)
 local ExpConfig                = require(Libraries.ExpConfig)
 local GameOutfitManager        = require(GameLoop:WaitForChild("GameOutfitManager"))
@@ -48,6 +49,7 @@ local OOF_SOUND_ID     = "rbxassetid://79348298352567"  -- classic Roblox oof
 
 -- Lists
 local state: ArenaState?
+local currentVotes: {[number] : string} = {} -- key : userIds | value : sideThatPlayerVotedFor
 
 -- ─── Stage types ────────────────────────────────────────────────────────────
 
@@ -87,10 +89,10 @@ type ArenaState = {
 }
 
 -- ─── Forward declarations (cyclic call graph) ───────────────────────────────
-local onPlayerVoted: (player: Player, votedFor: "left" | "right", isAutoVote: boolean?) -> ()
+local onVote: (player: Player, votedFor: "left" | "right") -> ()
 local onVotingEnded: () -> ()
-local attachVoteHandlers: (player: Player) -> ()
-local advanceQueue: (player: Player) -> ()
+local attachVoteHandlers: () -> ()
+local advanceQueue: () -> ()
 
 -- ─── ArenaRoundStartedRE ────────────────────────────────────────────────────
 -- Created here so the client can WaitForChild it.
@@ -262,17 +264,16 @@ local function startMatchupTimer()
 			task.wait(1)
 		end
 
-		-- Count up the votes
-		-- Determine the winner and loser
-		-- Celebrate animation on winner
-		-- Death animation on loser
-		-- Advance the queue
+		onVotingEnded()
 	end)
 end
 
 -- ─── Cleanup ────────────────────────────────────────────────────────────────
-local function cleanupPlayer()
-
+local function enablePlayerMovement(player)
+	local char = player.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if hrp then hrp.Anchored = false end
+	player:SetAttribute("VotingStageIndex", nil)
 end
 
 local function cleanupArena()
@@ -280,7 +281,6 @@ local function cleanupArena()
 		warn("No state at clean-up arena")
 		return 
 	end
-
 
 	if state.championModel  then state.championModel:Destroy()  end
 	if state.challengerModel then state.challengerModel:Destroy() end
@@ -296,26 +296,18 @@ local function cleanupArena()
 		local char = player.Character
 		local hrp = char and char:FindFirstChild("HumanoidRootPart") :: BasePart?
 		if hrp then hrp.Anchored = false end
-		player:SetAttribute("VotingStageIndex", nil)
-		playerStates[player.UserId] = nil
 	end
 	state = nil
 end
 
 -- ─── Core voting loop ───────────────────────────────────────────────────────
-
-onPlayerVoted = function(player: Player, votedFor: string)
-
-end
-
 -- Called after a vote resolves. Slides the next queue mannequin to RightChallenger,
 -- shifts the rest of the queue forward, and backfills slot 5 if more outfits exist.
 onVotingEnded = function()
 	if not state or state.voteLocked then return end
 	state.voteLocked = true
 
-	-- Destroy click detectors on both models (handles the auto-vote path where
-	-- destroyBoth() inside attachVoteHandlers was never called)
+	-- Destroy click detectors on both models
 	local function destroyDetector(model: Model?)
 		if not model then return end
 		local cd = model:FindFirstChild("voteHandler")
@@ -330,24 +322,37 @@ onVotingEnded = function()
 	local winnerId:      string?
 	local loserModel:    Model?
 
-	-- Count the votes
-	-- So first we need to tally them up
+	local leftVotes = 0
+	local rightVotes = 0
+
+	-- TODO: we can make this faster but so be it
+	for userId, voteSide in currentVotes do
+		if voteSide == 'left' then
+			leftVotes += 1
+		elseif voteSide == 'right' then
+			rightVotes += 1
+		else
+			warn("Unhandled voteSide value at onVotingEnded", voteSide)
+		end
+	end
+
+	local winnerSide = leftVotes < rightVotes and 'right' or 'left' 
 
 	if winnerSide == "left" then
-		winnerModel = state.championModel;   winnerId = state.championOutfitId
+		winnerModel = state.championModel
+		winnerId = state.championOutfitId
 		loserModel  = state.challengerModel
 	else
-		winnerModel = state.challengerModel; winnerId = state.challengerOutfitId
+		winnerModel = state.challengerModel 
+		winnerId = state.challengerOutfitId
 		loserModel  = state.championModel
 	end
 
-	if not winnerModel or not winnerId or not loserModel then return end
-
-	-- Record the vote server-side (skipped for auto-votes on timeout)
-	if not isAutoVote then
-		GameOutfitManager.addVote(player, winnerId)
-		DataManager.AddExp(player, ExpConfig.Rewards.VOTE_CAST)
+	if not winnerModel or not winnerId or not loserModel then
+		warn("No winner at onVotingEnded!", state)
+		return 
 	end
+
 	playAnimationOnce(winnerModel, 3994127840)
 
 	task.spawn(function()
@@ -366,7 +371,31 @@ onVotingEnded = function()
 		state.challengerModel    = nil
 		state.challengerOutfitId = nil
 
-		advanceQueue(player)
+		advanceQueue()
+	end)
+end
+
+-- Handles a vote: records it, runs animations, slides the winner if needed,
+-- then calls advanceQueue to bring in the next challenger.
+onVote = function(player: Player, votingSide: "left" | "right")
+	if not state or state.voteLocked then return end
+
+	-- Register player's votes in the table that holds them
+	currentVotes[player.UserId] = votingSide
+
+	-- Update GUIs and hurry round if all players have voted
+	task.spawn(function()
+		-- TODO:
+		-- do the GUI movements
+		-- check if all players have voted
+		for userId, voteSide in currentVotes do
+			if not voteSide then
+				return
+			end
+		end
+
+		onVotingEnded()
+
 	end)
 end
 
@@ -416,6 +445,9 @@ local function initVotingSession()
 		voteLocked        = false,
 	}
 
+	-- This is redundant but the linter needs it
+	if not state then return end
+
 	-- Place champion in the left challenger slot and mark as seen
 	local champOutfit = ordered[1]
 	state.championModel    = createMannequin(champOutfit, leftP, judgeP)
@@ -444,15 +476,16 @@ local function initVotingSession()
 
 	-- Start the first matchup if both challenger slots are filled
 	if state.challengerModel then
-		attachVoteHandlers(player) 
-		startMatchupTimer(player)
+		attachVoteHandlers() 
+		startMatchupTimer()
 	else
 		-- Only one outfit existed — player wins by default
 		playVictoryAnimation(state.championModel :: Model)
 		warn("Only one outfit; marking finished", state, state.challengerModel)
 		task.wait(2)
-		cleanupPlayer(player)
-		GameStateManager.markFinishedVoting(player)
+		for _, player in Players:GetPlayers() do
+			enablePlayerMovement(player)
+		end
 	end
 end
 
@@ -461,7 +494,6 @@ end
 -- Called after a vote resolves. Slides the next queue mannequin to RightChallenger,
 -- shifts the rest of the queue forward, and backfills slot 5 if more outfits exist.
 advanceQueue = function()
-	warn("advancing queue")
 	if not state then return end
 
 	local stage  = state.stage
@@ -477,8 +509,10 @@ advanceQueue = function()
 		-- Queue empty — champion celebrates on the podium until the round ends
 		playVictoryAnimation(state.championModel :: Model, true)
 		ArenaVotingCompleteRE:FireAllClients()
-		-- TODO - we need this to be per-vote-round
-		GameStateManager.markFinishedVoting(player)
+		task.spawn(function()
+			task.wait(5)
+			GameStateManager.transitionTo(GameStates.Intermission.name)	
+		end)
 		return
 	end
 
@@ -494,7 +528,7 @@ advanceQueue = function()
 		state.queueModels[i]    = state.queueModels[i + 1]
 		state.queueOutfitIds[i] = state.queueOutfitIds[i + 1]
 		if state.queueModels[i] then
-			local slotPart = queueF:FindFirstChild(tostring(i))
+			local slotPart = queueF:FindFirstChild(tostring(i)) :: BasePart
 			if slotPart then
 				tweenMannequinTo(state.queueModels[i] :: Model, slotPart, judgeP)
 			end
@@ -507,18 +541,20 @@ advanceQueue = function()
 	-- Backfill slot 5 if there are more outfits beyond what was pre-loaded
 	local nextOutfit = state.orderedOutfits[state.nextQueueIndex]
 	if nextOutfit then
-		local slotPart = queueF:FindFirstChild("5")
+		local slotPart = queueF:FindFirstChild("5") :: BasePart
+
 		if slotPart then
 			state.queueModels[5]    = createMannequin(nextOutfit, slotPart, judgeP)
 			state.queueOutfitIds[5] = nextOutfit.outfitId
 		end
+
 		state.nextQueueIndex += 1
 	end
 
 	-- Reattach click handlers for the new matchup and start the per-vote timer
 	state.voteLocked = false
-	attachVoteHandlers(player)
-	startMatchupTimer(player)
+	attachVoteHandlers()
+	startMatchupTimer()
 end
 
 -- Wires ClickDetectors on the current champion and challenger mannequins.
@@ -529,86 +565,21 @@ attachVoteHandlers = function()
 	local champCD = state.championModel  and makeDetector(state.championModel)
 	local challCD = state.challengerModel and makeDetector(state.challengerModel)
 
-	local function destroyBoth()
-		if champCD and champCD.Parent then champCD:Destroy() end
-		if challCD and challCD.Parent then challCD:Destroy() end
-	end
-
 	if champCD then
 		champCD.MouseClick:Connect(function(clicker: Player)
 			if clicker then
-				destroyBoth()
-				onVote(player, "left")
+				onVote(clicker, "left")
 			end
 		end)
 	end
 
 	if challCD then
 		challCD.MouseClick:Connect(function(clicker: Player)
-			if clicker == player then
-				destroyBoth()
-				onVote(player, "right")
+			if clicker then
+				onVote(clicker, "right")
 			end
 		end)
 	end
-end
-
--- Handles a vote: records it, runs animations, slides the winner if needed,
--- then calls advanceQueue to bring in the next challenger.
-onVote = function(player: Player, winnerSide: "left" | "right", isAutoVote: boolean?)
-	local state = playerStates[player.UserId]
-	if not state or state.voteLocked then return end
-	state.voteLocked = true
-
-	-- Destroy click detectors on both models (handles the auto-vote path where
-	-- destroyBoth() inside attachVoteHandlers was never called)
-	local function destroyDetector(model: Model?)
-		if not model then return end
-		local cd = model:FindFirstChild("voteHandler")
-		if cd then cd:Destroy() end
-	end
-	destroyDetector(state.championModel)
-	destroyDetector(state.challengerModel)
-
-	local winnerModel:   Model?
-	local winnerId:      string?
-	local loserModel:    Model?
-
-	if winnerSide == "left" then
-		winnerModel = state.championModel;   winnerId = state.championOutfitId
-		loserModel  = state.challengerModel
-	else
-		winnerModel = state.challengerModel; winnerId = state.challengerOutfitId
-		loserModel  = state.championModel
-	end
-
-	if not winnerModel or not winnerId or not loserModel then return end
-
-	-- Record the vote server-side (skipped for auto-votes on timeout)
-	if not isAutoVote then
-		GameOutfitManager.addVote(player, winnerId)
-		DataManager.AddExp(player, ExpConfig.Rewards.VOTE_CAST)
-	end
-	playAnimationOnce(winnerModel, 3994127840)
-
-	task.spawn(function()
-		-- Victory plays on the winner (non-blocking); death on loser (blocking ~2.3s)
-		playVictoryAnimation(winnerModel :: Model)
-		playDeathAnimation(loserModel :: Model)   -- destroys loserModel at the end
-
-		if winnerSide == "right" then
-			-- Winner was on the right — slide them to the left (champion) slot
-			local leftP = state.stage.JudgePlatforms.LeftChallenger
-			local judgeP = state.stage.JudgePlatforms.JudgePlatform
-			tweenMannequinTo(winnerModel :: Model, leftP, judgeP)
-			state.championModel    = winnerModel
-			state.championOutfitId = winnerId
-		end
-		state.challengerModel    = nil
-		state.challengerOutfitId = nil
-
-		advanceQueue(player)
-	end)
 end
 
 -- ─── Voting start hook (registered with GameStateManager) ───────────────────
