@@ -43,7 +43,6 @@ local GameStateValues = require(Libraries.GameStateValues)
 local GuiManager = require(GuiManagerLibrary.GuiManager)
 local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
 local PlayerSidebar = require(FusionComponents.PlayerSidebar)
-local VotingFrame = require(FusionComponents.VotingFrame)
 local ArenaTimerHud = require(FusionComponents.ArenaTimerHud)
 local UI_CONSTANTS = require(Utility.UI_CONSTANTS)
 local peek = require(FusionUtility.State.peek)
@@ -254,7 +253,6 @@ end
 local function InitialiseModals()
     local dailyChallengeFrame = DailyChallengeFrame(modalScope)
     local wardrobeContainer, avatarContainer, catalogContainer = WardrobeContainer(modalScope)
-    local votingFrame, initialiseVoting = VotingFrame(modalScope)
     local playerClickFrame, onFrameOpened = PlayerClickFrame(modalScope)
     local ftuePop = FtuePop(modalScope)
 
@@ -269,7 +267,6 @@ local function InitialiseModals()
 
     GuiManager.RegisterModal(MODAL_NAMES.DAILY_CHALLENGE_GUI, dailyChallengeFrame)
     GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer) 
-    GuiManager.RegisterModal(MODAL_NAMES.VOTING_GUI, votingFrame, initialiseVoting)
     GuiManager.RegisterModal(MODAL_NAMES.PLAYER_INSPECT_GUI, playerClickFrame, onFrameOpened)
     GuiManager.RegisterModal(MODAL_NAMES.FTUE_GUI, ftuePop)
 end

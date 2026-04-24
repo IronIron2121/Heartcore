@@ -14,19 +14,21 @@ local Remotes          = ReplicatedStorage:WaitForChild("Remotes")
 local Utility          = ReplicatedStorage:WaitForChild("Utility")
 local Values           = ReplicatedStorage:WaitForChild("Values")
 local FusionComponents = ReplicatedStorage:WaitForChild("UI"):WaitForChild("FusionComponents")
+local VotingStages 	   = workspace:WaitForChild("VotingStages")
 
 -- Modules
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local ArenaTimerHud = require(FusionComponents:WaitForChild("ArenaTimerHud"))
 
 -- Remotes / Values
-local ArenaRoundStartedRE    = Remotes:WaitForChild("ArenaRoundStartedRE")
+--local ArenaRoundStartedRE    = Remotes:WaitForChild("ArenaRoundStartedRE")
 local ArenaActivateRE        = Remotes:WaitForChild("ArenaActivateRE")
 local ArenaVotingCompleteRE  = Remotes:WaitForChild("ArenaVotingCompleteRE")
 local CurrentStateName       = Values:WaitForChild("CurrentStateName") :: StringValue
+local ArenaTimerSeconds 	= Values:WaitForChild("ArenaTimerSeconds")
 
 -- Instances
-
+local stage = VotingStages.VotingStage1
 
 local LocalPlayer = Players.LocalPlayer
 local hoverHighlight = Instance.new("Highlight")
@@ -37,12 +39,10 @@ hoverHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_GREEN
 
 
 -- ─── Camera ─────────────────────────────────────────────────────────────────
-
 local savedCameraType:   Enum.CameraType = Enum.CameraType.Custom
 local savedCameraCFrame: CFrame          = CFrame.identity
 
-local function computeJudgeCFrame(stageIndex: number): CFrame
-	local stage  = workspace:WaitForChild("VotingStages"):FindFirstChild("VotingStage" .. stageIndex)
+local function computeJudgeCFrame(): CFrame
 	if not stage then return CFrame.identity end
 	local judgeP = (stage :: Folder):FindFirstChild("JudgePlatforms") :: Folder?
 	if not judgeP then return CFrame.identity end
@@ -59,21 +59,7 @@ local function computeJudgeCFrame(stageIndex: number): CFrame
 end
 
 -- ─── Countdown thread ───────────────────────────────────────────────────────
-
 local countdownThread: thread? = nil
-
-local function startCountdown(duration: number)
-	if countdownThread then task.cancel(countdownThread) end
-	ArenaTimerHud.setTimer(duration)
-	countdownThread = task.spawn(function()
-		local t = duration
-		while t > 0 do
-			task.wait(1)
-			t -= 1
-			ArenaTimerHud.setTimer(t)
-		end
-	end)
-end
 
 local function stopCountdown()
 	if countdownThread then
@@ -84,17 +70,13 @@ local function stopCountdown()
 end
 
 -- ─── Activate / deactivate ──────────────────────────────────────────────────
-
-local function activate(stageIndex: number?)
-	local idx = stageIndex or LocalPlayer:GetAttribute("VotingStageIndex")
-	if not idx then return end
-
+local function activate()
 	local camera = workspace.CurrentCamera
 	savedCameraType  = camera.CameraType
 	savedCameraCFrame = camera.CFrame
 
 	camera.CameraType = Enum.CameraType.Scriptable
-	camera.CFrame     = computeJudgeCFrame(idx)
+	camera.CFrame     = computeJudgeCFrame()
 end
 
 local function deactivate()
@@ -111,19 +93,13 @@ end
 -- ─── Connections ────────────────────────────────────────────────────────────
 
 -- Server fires this just before teleporting — lock camera first
-ArenaActivateRE.OnClientEvent:Connect(function(stageIndex: number)
-	activate(stageIndex)
-end)
-
--- Server fires this at the start of each matchup so the countdown resets
-ArenaRoundStartedRE.OnClientEvent:Connect(function(duration: number)
-	startCountdown(duration)
+ArenaActivateRE.OnClientEvent:Connect(function()
+	activate()
 end)
 
 -- Server fires this when all outfits have been voted on
 ArenaVotingCompleteRE.OnClientEvent:Connect(function()
 	stopCountdown()
-	ArenaTimerHud.setWaiting()
 end)
 
 -- Deactivate when the round ends
@@ -138,7 +114,7 @@ if CurrentStateName.Value == "Voting" then
 	task.delay(0.5, activate)
 end
 
-CollectionService:GetInstanceAddedSignal("VoteHandler"):Connect(function(clickDetector: ClickDetector)
+local function connectClickDetector(clickDetector: ClickDetector)
 	local target = clickDetector.Parent
 
 	clickDetector.MouseHoverEnter:Connect(function()
@@ -148,9 +124,15 @@ CollectionService:GetInstanceAddedSignal("VoteHandler"):Connect(function(clickDe
 	clickDetector.MouseHoverLeave:Connect(function()
 		hoverHighlight.Adornee = nil
 	end)
-end)
+end
+
+CollectionService:GetInstanceAddedSignal("VoteHandler"):Connect(connectClickDetector)
 
 -- When detectors are destroyed (vote cast), clear any active highlight immediately
 CollectionService:GetInstanceRemovedSignal("VoteHandler"):Connect(function()
 	hoverHighlight.Adornee = nil
+end)
+
+ArenaTimerSeconds.Changed:Connect(function(newValue: number)  
+	ArenaTimerHud.setTimer(newValue)
 end)
