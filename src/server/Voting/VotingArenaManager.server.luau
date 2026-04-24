@@ -388,14 +388,15 @@ onVote = function(player: Player, votingSide: "left" | "right")
 		-- TODO:
 		-- do the GUI movements
 		-- check if all players have voted
-		for userId, voteSide in currentVotes do
-			if not voteSide then
+		for player, voteSide in Players:GetPlayers() do
+			if not currentVotes[player.userId] then
 				return
 			end
 		end
 
-		onVotingEnded()
+		print(currentVotes)
 
+		onVotingEnded()
 	end)
 end
 
