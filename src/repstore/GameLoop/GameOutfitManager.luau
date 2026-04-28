@@ -140,11 +140,6 @@ function GameOutfitManager.addVote(player: Player, outfitId: string): boolean
 		ChallengeManager.OnOutfitVoted(player)
 	end)
 
-	local outfitOwner = Players:GetPlayerByUserId(outfit.userId)
-	if outfitOwner then
-		outfitOwner:SetAttribute("VoteScore", outfit.score)
-	end
-
 	return true
 end
 
@@ -161,11 +156,6 @@ function GameOutfitManager.showOutfitToPlayers(outfitId: string): boolean
 	-- Recalculate score when views change
 	if outfit.views > 0 then
 		outfit.score = outfit.votes / outfit.views
-	end
-
-	local outfitOwner = Players:GetPlayerByUserId(outfit.userId)
-	if outfitOwner then
-		outfitOwner:SetAttribute("VoteScore", outfit.score)
 	end
 
 	return true
@@ -256,7 +246,6 @@ function GameOutfitManager.reset()
 		local player = Players:GetPlayerByUserId(userId)
 		if player then
 			player:SetAttribute("HasSubmitted", nil)
-			player:SetAttribute("VoteScore", nil)
 		end
 	end
 	outfits = {}

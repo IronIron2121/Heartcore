@@ -34,8 +34,8 @@ local function PlayerThumbnail(
 	scope: Fusion.Scope,
 	props: {
 		player: Player,
-		dirtyCounter: Fusion.Value<number>,
-		targetY: Fusion.Value<number>,
+		hasSubmitted: Fusion.Value<boolean>,
+		targetX: Fusion.Value<number>,
 		thumbScale: UsedAs<number>,
 		onClickCb: () -> ()
 	}
@@ -59,12 +59,13 @@ local function PlayerThumbnail(
 	end)
 
 	--
+
 	local isHeldDown = scope:Value(false)
 	local isHovering = scope:Value(false)
 
 	-- Rim color
 	local rimColor = scope:Computed(function(use)
-		use(props.dirtyCounter)
+		use(props.hasSubmitted)
 		local currentColor 
 		local hasSubmitted = props.player:GetAttribute("HasSubmitted")
 
@@ -88,7 +89,7 @@ local function PlayerThumbnail(
 
 	-- Image transparency
 	local imageTransparency = scope:Computed(function(use)
-		use(props.dirtyCounter)
+		use(props.hasSubmitted)
 		if use(GameStateValues.isVoting) or use(isHeldDown) then
 			return 0
 		end
@@ -101,10 +102,10 @@ local function PlayerThumbnail(
 		return hasSubmitted and 0 or 0.5
 	end)
 
-	local springY = scope:Spring(props.targetY, 12, 0.8)
+	local springX = scope:Spring(props.targetX, 12, 0.8)
 
 	local position = scope:Computed(function(use)
-		return UDim2.fromScale(0, use(springY))
+		return UDim2.fromScale(use(springX), 0)
 	end)
 
 	return scope:New "Frame" {

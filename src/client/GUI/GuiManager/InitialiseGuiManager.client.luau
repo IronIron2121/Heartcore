@@ -42,7 +42,7 @@ local ExpHud = require(FusionComponents:WaitForChild("ExpHud"))
 local GameStateValues = require(Libraries.GameStateValues)
 local GuiManager = require(GuiManagerLibrary.GuiManager)
 local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
-local PlayerSidebar = require(FusionComponents.PlayerSidebar)
+local PlayerVoteBar = require(FusionComponents.PlayerVoteBar)
 local ArenaTimerHud = require(FusionComponents.ArenaTimerHud)
 local UI_CONSTANTS = require(Utility.UI_CONSTANTS)
 local peek = require(FusionUtility.State.peek)
@@ -156,9 +156,11 @@ local function InitialiseHuds()
                         return ""
                     end
                 end),
+
                 imageColor3 = hudScope:Computed(function(use)  
                     return use(PlayerSubmissionState.cooldown) and UI_CONSTANTS.COLOUR_GREY or UI_CONSTANTS.COLOUR_WHITE
                 end),
+
                 backgroundColor = hudScope:Computed(function(use)
                     if use(GameStateValues.isIntermission) then
                         return UI_CONSTANTS.COLOUR_GREY
@@ -168,6 +170,7 @@ local function InitialiseHuds()
                         return UI_CONSTANTS.COLOUR_WHITE
                     end
                 end),
+                
                 onActivated = function()
                     if peek(GameStateValues.isDressing) then
                         if not peek(PlayerSubmissionState.cooldown) then
@@ -208,7 +211,7 @@ local function InitialiseHuds()
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
         topMiddle = { Object = submissionThemeBar, AlwaysOn = true },
         topRight = { Object = topRightContainer, AlwaysOn = true },
-        middleLeft = { Object = PlayerSidebar, AlwaysOn = true },
+        middleRight = { Object = PlayerVoteBar, AlwaysOn = true },
         bottomLeft = nil,
         bottomMiddle = { Object = buttonsFrame, AlwaysOn = false },
         bottomRight = { Object = GameOptionsFrame1, AlwaysOn = false },
@@ -218,6 +221,7 @@ local function InitialiseHuds()
         ConfigurationName = CONFIGURATION_NAMES.FtueConfig,
         topMiddle = nil,
         topRight = nil,
+        middleRight = nil,
         bottomLeft = nil,
         bottomMiddle = nil,
         bottomRight = nil,
@@ -227,9 +231,10 @@ local function InitialiseHuds()
         ConfigurationName = CONFIGURATION_NAMES.VotingConfig,
         topMiddle = { Object = ArenaTimerHud.frame, AlwaysOn = true },
         topRight = nil,
-        middleLeft = { Object = PlayerSidebar, AlwaysOn = true },
+        middleRight = nil,
+        middleLeft = nil,
         bottomLeft = nil,
-        bottomMiddle = nil,
+        bottomMiddle = { Object = PlayerVoteBar, AlwaysOn = true },
         bottomRight = nil,
     })
 

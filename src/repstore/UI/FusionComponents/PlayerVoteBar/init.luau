@@ -1,5 +1,5 @@
 --!strict
--- PlayerSidebar/init.luau
+-- PlayerVoteBar/init.luau
 -- Right-side HUD panel showing circular player thumbnails with reactive status.
 
 -- Services
@@ -41,17 +41,16 @@ end)
 refreshPlayerMap()
 
 -- Dirty counter: incremented when any player attribute changes to force Fusion re-evaluation
-local dirtyCounter = scope:Value(0)
+local hasSubmitted = scope:Value(false)
 local attributeConnections: {[number]: {RBXScriptConnection}} = {}
 
 local function connectPlayerAttributes(player: Player)
 	local conns = {}
+
 	table.insert(conns, player:GetAttributeChangedSignal("HasSubmitted"):Connect(function()
-		dirtyCounter:set(peek(dirtyCounter) + 1)
+		hasSubmitted:set(player:GetAttribute("HasSubmitted"))
 	end))
-	table.insert(conns, player:GetAttributeChangedSignal("VoteScore"):Connect(function()
-		dirtyCounter:set(peek(dirtyCounter) + 1)
-	end))
+
 	attributeConnections[player.UserId] = conns
 end
 
@@ -73,25 +72,19 @@ end
 
 -- Sorted player list
 local sortedPlayers = scope:Computed(function(use)
-	use(dirtyCounter)
+	-- Get a map of all the players in game
 	local map = use(playerMap)
 	local list: {Player} = {}
-	for _, player in map do
+
+	-- Turn our dictionary of players into a simple array
+	for _id, player in map do
 		table.insert(list, player)
 	end
 
-	if use(GameStateValues.isVoting) then
-		table.sort(list, function(a, b)
-			local scoreA = a:GetAttribute("VoteScore") or 0
-			local scoreB = b:GetAttribute("VoteScore") or 0
-			if scoreA ~= scoreB then return scoreA > scoreB end
-			return a.UserId < b.UserId
-		end)
-	else
-		table.sort(list, function(a, b)
-			return a.UserId < b.UserId
-		end)
-	end
+	-- Sort in order of userId (arbitrary, we can do anything here)
+	table.sort(list, function(a, b)
+		return a.UserId < b.UserId
+	end)
 
 	return list
 end)
@@ -128,18 +121,20 @@ end)
 -- thumbHeight (as fraction of parent height) = thumbScale * ar
 -- Y for rank i = (i-1) * (thumbHeight + THUMB_GAP)
 local thumbnailChildren = scope:ForValues(sortedPlayers, function(use, innerScope, player)
-	local targetY = innerScope:Computed(function(use)
+
+	-- For each player in sortedPlayers, create a thumbnail whose position is based on 
+	local targetX = innerScope:Computed(function(use)
 		local ranks = use(rankMap)
 		local rank = ranks[player.UserId] or 1
 		local ar = use(slotAspectRatio)
-		local thumbHeight = use(thumbScale) * ar
-		return (rank - 1) * (thumbHeight + THUMB_GAP)
+		local thumbWidth = use(thumbScale) * ar
+		return (rank - 1) * (thumbWidth + THUMB_GAP)
 	end)
 
 	return PlayerThumbnail(innerScope, {
 		player = player,
-		dirtyCounter = dirtyCounter,
-		targetY = targetY,
+		hasSubmitted = hasSubmitted,
+		targetX = targetX,
 		thumbScale = thumbScale,
 		onClickCb = function()
 			GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI, {
@@ -152,7 +147,7 @@ end)
 
 -- Build sidebar frame
 local frame = scope:New "Frame" {
-	Name = "PlayerSidebar",
+	Name = "PlayerVoteBar",
 	Size = UDim2.fromScale(1, 1),
 	BackgroundTransparency = 1,
 	[Children] = { thumbnailChildren },
