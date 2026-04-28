@@ -38,7 +38,7 @@ local RestoreVoteIconsRE = Remotes.RestoreVoteIconsRE
 
 -- Values
 local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
-local ArenaTimerSeconds 	= Values:WaitForChild("ArenaTimerSeconds")
+local ArenaTimerSeconds = Values:WaitForChild("ArenaTimerSeconds")
 
 -- Constants
 local TIME_PER_MATCHUP       = 10    -- seconds per voting matchup before winner is declared
@@ -305,6 +305,7 @@ end
 -- shifts the rest of the queue forward, and backfills slot 5 if more outfits exist.
 onVotingEnded = function()
 	if not state or state.voteLocked then return end
+	-- Lock voting
 	state.voteLocked = true
 
 	-- Destroy click detectors on both models
@@ -318,6 +319,7 @@ onVotingEnded = function()
 	destroyDetector(state.championModel)
 	destroyDetector(state.challengerModel)
 
+	
 	local winnerModel:   Model?
 	local winnerId:      string?
 	local loserModel:    Model?
@@ -325,7 +327,7 @@ onVotingEnded = function()
 	local leftVotes = 0
 	local rightVotes = 0
 
-	-- TODO: we can make this faster but so be it
+	-- Count up votes for both outfits
 	for userId, voteSide in currentVotes do
 		if voteSide == 'left' then
 			leftVotes += 1
@@ -336,6 +338,8 @@ onVotingEnded = function()
 		end
 	end
 
+	-- Calculate winner; tiebreaker wins the current champion by default
+	-- TODO: Figure out what to do on first round for tiebreaker
 	local winnerSide = leftVotes < rightVotes and 'right' or 'left' 
 
 	if winnerSide == "left" then
@@ -356,8 +360,8 @@ onVotingEnded = function()
 	playAnimationOnce(winnerModel, 3994127840)
 
 	task.spawn(function()
-		-- Move the icons 
-		SplitVoteIconsRE:FireAllClients()
+		-- Tell clients to split icons to left and right (show who voted for what)
+		SplitVoteIconsRE:FireAllClients(currentVotes)
 		task.wait(2)
 
 		-- Victory plays on the winner (non-blocking); death on loser (blocking ~2.3s)
@@ -376,6 +380,7 @@ onVotingEnded = function()
 		state.challengerOutfitId = nil
 
 		task.wait(3)
+		-- Tell clients to bring vote icons back into the middle, and start the next round of voting
 		RestoreVoteIconsRE:FireAllClients()
 		advanceQueue()
 	end)
@@ -392,15 +397,12 @@ onVote = function(player: Player, votingSide: "left" | "right")
 	-- Update GUIs and hurry round if all players have voted
 	task.spawn(function()
 		-- TODO:
-		-- do the GUI movements
 		-- check if all players have voted
 		for player, voteSide in Players:GetPlayers() do
 			if not currentVotes[player.userId] then
 				return
 			end
 		end
-
-		print(currentVotes)
 
 		onVotingEnded()
 	end)
