@@ -7,12 +7,10 @@
 -- Services
 local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
 local TweenService      = game:GetService("TweenService")
 
 -- Folders
 local GameLoop     = ReplicatedStorage:WaitForChild("GameLoop")
-local Libraries    = ReplicatedStorage:WaitForChild("Libraries")
 local Remotes      = ReplicatedStorage:WaitForChild("Remotes")
 local UtilityFolder = ReplicatedStorage:WaitForChild("Utility")
 local Values       = ReplicatedStorage:WaitForChild("Values")
@@ -20,8 +18,6 @@ local VotingStages = workspace:WaitForChild("VotingStages")
 
 -- Modules
 local GameStates = require(ReplicatedStorage.GameLoop.GameStates)
-local DataManager              = require(ServerScriptService.Data.DataManager)
-local ExpConfig                = require(Libraries.ExpConfig)
 local GameOutfitManager        = require(GameLoop:WaitForChild("GameOutfitManager"))
 local GameStateManager         = require(GameLoop:WaitForChild("GameStateManager"))
 local ServerCustomisationService = require(UtilityFolder.ServerCustomisationService)
@@ -35,6 +31,10 @@ local teleportP   = stage.JudgePlatforms.TeleportPlatform
 local leftP       = stage.JudgePlatforms.LeftChallenger
 local rightP      = stage.JudgePlatforms.RightChallenger
 local queueF      = stage.QueuePlatforms
+
+-- Remotes
+local SplitVoteIconsRE = Remotes.SplitVoteIconsRE
+local RestoreVoteIconsRE = Remotes.RestoreVoteIconsRE
 
 -- Values
 local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
@@ -356,6 +356,10 @@ onVotingEnded = function()
 	playAnimationOnce(winnerModel, 3994127840)
 
 	task.spawn(function()
+		-- Move the icons 
+		SplitVoteIconsRE:FireAllClients()
+		task.wait(2)
+
 		-- Victory plays on the winner (non-blocking); death on loser (blocking ~2.3s)
 		playVictoryAnimation(winnerModel :: Model)
 		playDeathAnimation(loserModel :: Model)   -- destroys loserModel at the end
@@ -371,6 +375,8 @@ onVotingEnded = function()
 		state.challengerModel    = nil
 		state.challengerOutfitId = nil
 
+		task.wait(3)
+		RestoreVoteIconsRE:FireAllClients()
 		advanceQueue()
 	end)
 end
