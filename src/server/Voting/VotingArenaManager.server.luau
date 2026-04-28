@@ -380,6 +380,8 @@ onVotingEnded = function()
 		state.challengerOutfitId = nil
 
 		task.wait(3)
+		-- Reset votes
+		currentVotes = {}
 		-- Tell clients to bring vote icons back into the middle, and start the next round of voting
 		RestoreVoteIconsRE:FireAllClients()
 		advanceQueue()
