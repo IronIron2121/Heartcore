@@ -17,6 +17,7 @@ local Values       = ReplicatedStorage:WaitForChild("Values")
 local VotingStages = workspace:WaitForChild("VotingStages")
 
 -- Modules
+local Constants = require(ReplicatedStorage.Constants)
 local GameStates = require(ReplicatedStorage.GameLoop.GameStates)
 local GameOutfitManager        = require(GameLoop:WaitForChild("GameOutfitManager"))
 local GameStateManager         = require(GameLoop:WaitForChild("GameStateManager"))
@@ -89,7 +90,7 @@ type ArenaState = {
 }
 
 -- ─── Forward declarations (cyclic call graph) ───────────────────────────────
-local onVote: (player: Player, votedFor: "left" | "right") -> ()
+local onVote: (player: Player, votedFor: string) -> ()
 local onVotingEnded: () -> ()
 local attachVoteHandlers: () -> ()
 local advanceQueue: () -> ()
@@ -316,9 +317,9 @@ onVotingEnded = function()
 			cd:Destroy() 
 		end
 	end
+
 	destroyDetector(state.championModel)
 	destroyDetector(state.challengerModel)
-
 	
 	local winnerModel:   Model?
 	local winnerId:      string?
@@ -390,7 +391,7 @@ end
 
 -- Handles a vote: records it, runs animations, slides the winner if needed,
 -- then calls advanceQueue to bring in the next challenger.
-onVote = function(player: Player, votingSide: "left" | "right")
+onVote = function(player: Player, votingSide: string)
 	if not state or state.voteLocked then return end
 
 	-- Register player's votes in the table that holds them
@@ -398,7 +399,6 @@ onVote = function(player: Player, votingSide: "left" | "right")
 
 	-- Update GUIs and hurry round if all players have voted
 	task.spawn(function()
-		-- TODO:
 		-- check if all players have voted
 		for player, voteSide in Players:GetPlayers() do
 			if not currentVotes[player.userId] then
@@ -411,7 +411,6 @@ onVote = function(player: Player, votingSide: "left" | "right")
 end
 
 -- ─── Session initialisation ─────────────────────────────────────────────────
-
 local function initialisePlayerVoting(player: Player)
 	-- Lock player movement
 	local char = player.Character or player.CharacterAdded:Wait()
@@ -579,7 +578,7 @@ attachVoteHandlers = function()
 	if champCD then
 		champCD.MouseClick:Connect(function(clicker: Player)
 			if clicker then
-				onVote(clicker, "left")
+				onVote(clicker, Constants.VOTE_SIDES.LEFT)
 			end
 		end)
 	end
@@ -587,7 +586,7 @@ attachVoteHandlers = function()
 	if challCD then
 		challCD.MouseClick:Connect(function(clicker: Player)
 			if clicker then
-				onVote(clicker, "right")
+				onVote(clicker, Constants.VOTE_SIDES.RIGHT)
 			end
 		end)
 	end

@@ -203,6 +203,11 @@ local Constants = {
 
 	SEARCH_PLACEHOLDER = "Search for items...",
 
+	VOTE_SIDES = {
+		['LEFT'] = "leftSide",
+		['RIGHT'] = "rightSide"
+	},
+
 	DEBUG_MODE = true
 
 

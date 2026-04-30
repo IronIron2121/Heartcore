@@ -8,39 +8,32 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 
 -- Modules
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local MODAL_NAMES = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
 local Fusion = require(Utility:WaitForChild("Fusion"))
-local GameStateValues = require(Libraries:WaitForChild("GameStateValues"))
 local PlayerThumbnail = require(script:WaitForChild("PlayerThumbnail"))
 
 -- Fusion
 local Children = Fusion.Children
-local peek = Fusion.peek
-
 local scope = Fusion:scoped()
 
--- Reactive player map: { [userId]: Player }
-local playerMap = scope:Value({} :: {[number]: Player})
+local playerMap = scope:Value({} :: {
+	[number]: Player}
+)
 
+-- Go through all players, create a new dictionary assigning their userId to their player object, and then set that as new playerMap fusion value
 local function refreshPlayerMap()
-	local map: {[number]: Player} = {}
+	local map: {
+		[number]: Player
+	} = {}
 	for _, player in Players:GetPlayers() do
 		map[player.UserId] = player
 	end
 	playerMap:set(map)
 end
 
-Players.PlayerAdded:Connect(refreshPlayerMap)
-Players.PlayerRemoving:Connect(function()
-	task.defer(refreshPlayerMap)
-end)
-refreshPlayerMap()
-
--- Dirty counter: incremented when any player attribute changes to force Fusion re-evaluation
 local hasSubmitted = scope:Value(false)
 local attributeConnections: {[number]: {RBXScriptConnection}} = {}
 
@@ -64,8 +57,18 @@ local function disconnectPlayerAttributes(player: Player)
 	attributeConnections[player.UserId] = nil
 end
 
-Players.PlayerAdded:Connect(connectPlayerAttributes)
-Players.PlayerRemoving:Connect(disconnectPlayerAttributes)
+Players.PlayerAdded:Connect(function(player: Player)  
+	connectPlayerAttributes(player)
+	task.defer(refreshPlayerMap)
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+	disconnectPlayerAttributes(player)
+	task.defer(refreshPlayerMap)
+end)
+
+refreshPlayerMap()
+
 for _, player in Players:GetPlayers() do
 	connectPlayerAttributes(player)
 end

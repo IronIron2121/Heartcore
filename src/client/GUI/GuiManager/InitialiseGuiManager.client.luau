@@ -65,7 +65,6 @@ local modalScope = Fusion:scoped()
 --
 
 -- ### --- INITIAL LOADING SCREEN --- ### -- 
-
 task.spawn(function()
     local initialLoadGui = modalScope:New "ScreenGui" {
         Parent = Players.LocalPlayer.PlayerGui,

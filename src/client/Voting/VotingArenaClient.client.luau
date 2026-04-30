@@ -17,6 +17,7 @@ local FusionComponents = ReplicatedStorage:WaitForChild("UI"):WaitForChild("Fusi
 local VotingStages 	   = workspace:WaitForChild("VotingStages")
 
 -- Modules
+local Constants = require(ReplicatedStorage.Constants)
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local ArenaTimerHud = require(FusionComponents:WaitForChild("ArenaTimerHud"))
 
@@ -26,6 +27,8 @@ local ArenaActivateRE        = Remotes:WaitForChild("ArenaActivateRE")
 local ArenaVotingCompleteRE  = Remotes:WaitForChild("ArenaVotingCompleteRE")
 local CurrentStateName       = Values:WaitForChild("CurrentStateName") :: StringValue
 local ArenaTimerSeconds 	= Values:WaitForChild("ArenaTimerSeconds")
+local SplitVoteIconsRE 		= Remotes:WaitForChild("SplitVoteIconsRE")
+local RestoreVoteIconsRE	= Remotes:WaitForChild("RestoreVoteIconsRE")
 
 -- Instances
 local stage = VotingStages.VotingStage1
@@ -91,6 +94,34 @@ local function deactivate()
 end
 
 -- ─── Connections ────────────────────────────────────────────────────────────
+
+SplitVoteIconsRE.OnClientEvent:Connect(function(currentVotes: {[number] : string})  
+	local leftIndex = 0
+	local rightIndex = 0
+	for userId, voteSide in currentVotes do
+		if voteSide == Constants.VOTE_SIDES.LEFT then
+			-- Move to the left box
+			--[[
+			local voteIcon = middleVoteBox.getIcon(userId)
+			local leftSlotPosition = leftVoteBox.getSlotPosition(leftIndex)
+			voteIcon.updateSpring(leftSlotPosition)
+			]]
+			leftIndex += 1
+		elseif voteSide == Constants.VOTE_SIDES.RIGHT then
+			--[[
+			local voteIcon = middleVoteBox.getIcon(userId)
+			local rightSlotPosition = rightVoteBox.getSlotPosition(rightIndex)
+			voteIcon.updateSpring(rightSlotPosition)
+			]]
+			rightIndex += 1
+			-- Move to the right box
+		end
+	end
+end)
+
+RestoreVoteIconsRE.OnClientEvent:Connect(function()  
+	-- Move all of the icons back to the middle
+end)
 
 -- Server fires this just before teleporting — lock camera first
 ArenaActivateRE.OnClientEvent:Connect(function()
