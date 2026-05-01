@@ -25,6 +25,7 @@ local ClientGUI = StarterPlayerScripts.GUI
 
 -- Modules
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager) 
+local WardrobeGuiState = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.WardrobeGuiState)
 local OpenDailyChallengeGuiButton = require(FusionComponents:WaitForChild("OpenDailyChallengeGuiButton"))
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
@@ -105,19 +106,31 @@ local function InitialiseHuds()
     local hudScope = Fusion:scoped()
     local expHud = ExpHud(hudScope, { Size = UDim2.fromScale(1, 0.5) })
     local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
-    local openWardrobeButton = OpenWardrobeButton(hudScope)
+    
+    local openWardrobeButton = OpenWardrobeButton(hudScope, {
+        onClick = function()
+            if GuiManager.IsCentreActive() then
+			    GuiManager.PopCentre()
+            else
+                -- We do this here rather than in the close button because otherwise players see the view change for a split second before the closing animation finishes
+                WardrobeGuiState.ResetView()
+                GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
+            end
+        end
+    })
+
     local submissionThemeBar = SubmissionThemeBar()
 
     local buttonsFrame = hudScope:New "Frame" {
         Size = UDim2.fromScale(1, 1),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(1, 0.5),
+        Position = UDim2.fromScale(1, 0.5),
         BackgroundTransparency = 1,
 
         [Children] = {
             hudScope:New "UIListLayout" {
                 Padding = UDim.new(0.15, 0),
-                FillDirection = Enum.FillDirection.Horizontal,
+                FillDirection = Enum.FillDirection.Vertical,
                 SortOrder = Enum.SortOrder.LayoutOrder,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
                 VerticalAlignment = Enum.VerticalAlignment.Center
@@ -210,9 +223,9 @@ local function InitialiseHuds()
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
         topMiddle = { Object = submissionThemeBar, AlwaysOn = true },
         topRight = { Object = topRightContainer, AlwaysOn = true },
-        middleRight = { Object = PlayerVoteBar, AlwaysOn = true },
+        middleRight = { Object = buttonsFrame, AlwaysOn = false },
         bottomLeft = nil,
-        bottomMiddle = { Object = buttonsFrame, AlwaysOn = false },
+        bottomMiddle = { Object = PlayerVoteBar, AlwaysOn = true },
         bottomRight = { Object = GameOptionsFrame1, AlwaysOn = false },
     })
 

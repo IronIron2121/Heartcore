@@ -232,7 +232,7 @@ function GuiConfiguration.new(props: {
 
     self.MiddleRightPosition = self.scope:Computed(function(use)
         local visible = if middleRightAlwaysOn then use(self.Enabled) else (use(self.Enabled) and use(self.ModalVisible))
-        return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].OutPosition
+        return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleRight].OutPosition
     end)
     self.MiddleRight = self.scope:New "Frame" {
         Name        = SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleRight].Name,
@@ -348,6 +348,7 @@ function GuiConfiguration.new(props: {
     if bottomLeftAlwaysOn and self._elements.bottomLeft then self._elements.bottomLeft.Parent = self.BottomLeft end
     if bottomMiddleAlwaysOn and self._elements.bottomMiddle then self._elements.bottomMiddle.Parent = self.BottomMiddle end
     if bottomRightAlwaysOn and self._elements.bottomRight then self._elements.bottomRight.Parent = self.BottomRight end
+
 
     return (self :: any) :: GuiConfiguration
 end

@@ -153,7 +153,9 @@ local frame = scope:New "Frame" {
 	Name = "PlayerVoteBar",
 	Size = UDim2.fromScale(1, 1),
 	BackgroundTransparency = 1,
-	[Children] = { thumbnailChildren },
+	[Children] = { 
+		thumbnailChildren 
+	},
 } :: Frame
 
 -- Update slot aspect ratio from actual rendered size

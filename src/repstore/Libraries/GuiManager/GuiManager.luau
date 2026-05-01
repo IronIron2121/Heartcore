@@ -89,7 +89,6 @@ local ModalGui = guiScope:New "ScreenGui" {
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 } :: ScreenGui
 
-
 local blurSize: Computed<number> = guiScope:Computed(function(use) 
     return use(CentreActive) and 24 or 0
 end)
@@ -421,12 +420,15 @@ function GuiManager.PopCentre(guiObject: GuiObject?): ()
     local topModal = modals[#modals]
     table.remove(modals, #modals)
 
-    -- Show previous modal if exists
+    -- Show previous modal if there is one
     if #modals > 0 then
         modals[#modals].Visible = true
         topModal.Visible = false 
+
+    -- Otherwise, return to the HUD configuration
     else
         GuiManager.ShowCurrentConfiguration()
+        
         -- Only show HUD when stack is empty
         -- Hide the popped modal after it slides off-screen
         task.delay(TWEEN_LENGTH, function()
@@ -435,8 +437,10 @@ function GuiManager.PopCentre(guiObject: GuiObject?): ()
         end)
     end
 
-    modalStack:set(modals)
+    -- Show all player name/level labels
     PlayerDisplayManager.ShowAllDisplays()
+    -- Update modal stack after changes 
+    modalStack:set(modals)
 end
 
 return GuiManager

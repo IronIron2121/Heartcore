@@ -121,6 +121,18 @@ end)
 
 RestoreVoteIconsRE.OnClientEvent:Connect(function()  
 	-- Move all of the icons back to the middle
+	--[[
+	index = 0
+	for voteIcon in rightVoteBox.getIcons() do
+		voteIcon.updateSpring(middleVoteBox.getSlotPosition(index))
+		index += 1
+	end
+
+	for voteIcon in rightVoteBox.getIcons() do
+		voteIcon.updateSpring(middleVoteBox.getSlotPosition(index))
+		index += 1
+	end
+	]]
 end)
 
 -- Server fires this just before teleporting — lock camera first
