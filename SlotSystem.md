@@ -1,4 +1,4 @@
-# PlayerVoteBar — Slot System Design
+# VoteBarManager — Slot System Design
 
 ## Overview
 

@@ -27,7 +27,11 @@ local COLOR_SUBMITTED = Color3.fromRGB(0, 200, 80)
 local COLOR_VOTING = Color3.fromRGB(255, 215, 0)
 
 local _success, DEFAULT_THUMBNAIL = callWithRetry(function()
-	return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
+	return Players:GetUserThumbnailAsync(
+		1640373, 
+		Enum.ThumbnailType.AvatarBust, 
+		Enum.ThumbnailSize.Size100x100
+	)
 end)
 
 local function PlayerThumbnail(
@@ -36,13 +40,13 @@ local function PlayerThumbnail(
 		player: Player,
 		hasSubmitted: Fusion.Value<boolean>,
 		targetX: Fusion.Value<number>,
-		thumbScale: UsedAs<number>,
 		onClickCb: () -> ()
 	}
+): {thumbnail: Frame, updateSpring: () -> ()}
 
-): Frame
 	-- Fetch thumbnail async
 	local thumbnailUrl = scope:Value(DEFAULT_THUMBNAIL)
+	
 	task.spawn(function()
 		local success, url = callWithRetry(function()
 			return Players:GetUserThumbnailAsync(
@@ -51,6 +55,7 @@ local function PlayerThumbnail(
 				Enum.ThumbnailSize.Size100x100
 			)
 		end)
+
 		if success and url then
 			thumbnailUrl:set(url)
 		else
@@ -66,6 +71,7 @@ local function PlayerThumbnail(
 	-- Rim color
 	local rimColor = scope:Computed(function(use)
 		use(props.hasSubmitted)
+
 		local currentColor 
 		local hasSubmitted = props.player:GetAttribute("HasSubmitted")
 
@@ -108,7 +114,11 @@ local function PlayerThumbnail(
 		return UDim2.fromScale(use(springX), 0)
 	end)
 
-	return scope:New "Frame" {
+	function updateSpring(newPosition: UDim2)
+
+	end
+
+	local thumbnail = scope:New "Frame" {
 		Name = "Thumbnail_" .. props.player.Name,
 		Size = scope:Computed(function(use)
 			return UDim2.fromScale(use(props.thumbScale), 0)
@@ -177,6 +187,11 @@ local function PlayerThumbnail(
 			},
 		},
 	} :: Frame
+
+	return {
+		thumbnail = thumbnail,
+		updateSpring = updateSpring
+	}
 end
 
 
