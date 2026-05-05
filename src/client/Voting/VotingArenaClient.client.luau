@@ -96,27 +96,63 @@ end
 -- ─── Connections ────────────────────────────────────────────────────────────
 
 SplitVoteIconsRE.OnClientEvent:Connect(function(currentVotes: {[number] : string})  
+	local leftVotes = {}
+	local rightVotes = {}
+
+	for userId, voteSide in currentVotes do
+		if voteSide == Constants.VOTE_SIDES.LEFT then
+			table.insert(leftVotes, userId)
+		elseif voteSide == Constants.VOTE_SIDES.RIGHT then
+			table.insert(rightVotes, userId)
+		else
+			warn("Unhandled vote at SplitVoteIcons", userId, voteSide)
+		end
+	end
+
+	for idex, userId in ipairs(leftVotes) do
+		--[[
+		local thumbnail = voteThumbnails.get(userId)
+		if not thumbnail then return end
+
+		thumbnail.shiftLeft()		
+		]]
+	end
+
+	for index, userId in ipairs(rightVotes) do
+		--[[
+		local thumbnail = voteThumbnails.get(userId)
+		if not thumbnail then return end
+
+		thumbnail.shiftRight()		
+		]]
+	end
+
+
+		--[[
+		
+
+		]]
+
+
+	--[[
 	local leftIndex = 0
 	local rightIndex = 0
 	for userId, voteSide in currentVotes do
 		if voteSide == Constants.VOTE_SIDES.LEFT then
 			-- Move to the left box
-			--[[
 			local voteIcon = middleVoteBox.getIcon(userId)
 			local leftSlotPosition = leftVoteBox.getSlotPosition(leftIndex)
 			voteIcon.updateSpring(leftSlotPosition)
-			]]
 			leftIndex += 1
 		elseif voteSide == Constants.VOTE_SIDES.RIGHT then
-			--[[
 			local voteIcon = middleVoteBox.getIcon(userId)
 			local rightSlotPosition = rightVoteBox.getSlotPosition(rightIndex)
 			voteIcon.updateSpring(rightSlotPosition)
-			]]
 			rightIndex += 1
 			-- Move to the right box
 		end
 	end
+	]]
 end)
 
 RestoreVoteIconsRE.OnClientEvent:Connect(function()  
