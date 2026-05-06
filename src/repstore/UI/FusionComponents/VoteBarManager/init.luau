@@ -74,6 +74,8 @@ end
 
 --
 
+local maxPlayers = scope:Value(8)
+
 local playerThumbnails: {[number] : any} = {}
 local VoteBarManager = {}
 
@@ -88,8 +90,13 @@ function VoteBarManager.initialise()
 		Name = "LeftVoteBar",
 		Size = UDim2.fromScale(0.2, 0.2),
 		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.fromScale(0, 1)
+		Position = UDim2.fromScale(0, 1),
+		Children = {
+
+		}
 	}
+
+	VoteBarManager.
 
 	VoteBarManager.rightVoteBar = scope:New "Frame" {
 		Name = "RightVoteBar",
@@ -138,8 +145,12 @@ function VoteBarManager.splitVotes(listOfVotes: {[number] : string})
 		local thumbnail = playerThumbnails[userId]
 		if not thumbnail then return end
 
-		thumbnail.updateSpring() -- to middle vote box relevant index
+		--[[
+		local targetPos = leftVoteBar.getSlotPosition(index)
 
+		]]
+
+		thumbnail.updateSpring() -- to middle vote box relevant index
 	end
 
 	for index, userId in ipairs(rightVotes) do
