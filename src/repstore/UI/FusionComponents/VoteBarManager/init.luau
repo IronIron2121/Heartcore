@@ -10,7 +10,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local VoteBar = require(script.VoteBar)
 local Constants = require(ReplicatedStorage.Constants)
+local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
+local MODAL_NAMES = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local PlayerThumbnail = require(script:WaitForChild("PlayerThumbnail")) 
 
@@ -18,21 +21,7 @@ local PlayerThumbnail = require(script:WaitForChild("PlayerThumbnail"))
 local Children = Fusion.Children
 local scope = Fusion:scoped()
 
-local playerMap = scope:Value({} :: {
-	[number]: Player}
-)
-
--- Go through all players, create a new dictionary assigning their userId to their player object, and then set that as new playerMap fusion value
-local function refreshPlayerMap()
-	local map: {
-		[number]: Player
-	} = {}
-	for _, player in Players:GetPlayers() do
-		map[player.UserId] = player
-	end
-	playerMap:set(map)
-end
-
+-- Values
 local hasSubmitted = scope:Value(false)
 local attributeConnections: {[number]: {RBXScriptConnection}} = {}
 
@@ -56,75 +45,72 @@ local function disconnectPlayerAttributes(player: Player)
 	attributeConnections[player.UserId] = nil
 end
 
-Players.PlayerAdded:Connect(function(player: Player)  
-	connectPlayerAttributes(player)
-	task.defer(refreshPlayerMap)
-end)
-
-Players.PlayerRemoving:Connect(function(player)
-	disconnectPlayerAttributes(player)
-	task.defer(refreshPlayerMap)
-end)
-
-refreshPlayerMap()
-
 for _, player in Players:GetPlayers() do
 	connectPlayerAttributes(player)
 end
 
 --
 
-local maxPlayers = scope:Value(8)
-
+local maxPlayers = 8
 local playerThumbnails: {[number] : any} = {}
+
 local VoteBarManager = {}
 
---[[
-VoteBarManager.leftVoteBar: Frame = nil
-VoteBarManager.middleVoteBar = nil
-VoteBarManager.rightVoteBar = nil
-]]
 
 function VoteBarManager.initialise()
-	VoteBarManager.leftVoteBar = scope:New "Frame" {
-		Name = "LeftVoteBar",
-		Size = UDim2.fromScale(0.2, 0.2),
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.fromScale(0, 1),
-		Children = {
+	local slotSize = UDim2.fromScale(1 / (maxPlayers + 2), 10)
 
-		}
-	}
+	VoteBarManager.leftVoteBar = VoteBar(scope, {
+		name = "LeftVoteBar",
+		position = UDim2.fromScale(0, 1),
+		backgroundColor = Color3.new(0,0,255),
+		size = UDim2.fromScale(0.25, 1),
+		anchorPoint = Vector2.new(0, 1),
+		justification = 'left',
+		maxSlots = maxPlayers,
+		slotSize = slotSize,
+		padding = 0.05
+	})
 
-	VoteBarManager.
+	VoteBarManager.rightVoteBar = VoteBar(scope, {
+		name = "RightVoteBar",
+		backgroundColor = Color3.new(255,0,0),
+		position = UDim2.fromScale(1, 1),
+		size = UDim2.fromScale(0.25, 1),
+		anchorPoint = Vector2.new(1, 1),
+		justification = 'right',
+		maxSlots = maxPlayers,
+		slotSize = slotSize,
+		padding = 0.05
+	})
 
-	VoteBarManager.rightVoteBar = scope:New "Frame" {
-		Name = "RightVoteBar",
-		Size = UDim2.fromScale(0.2, 0.2),
-		AnchorPoint = Vector2.new(1, 1),
-		Position = UDim2.fromScale(1, 1)
-	}
-
-	VoteBarManager.middleVoteBar = scope:New "Frame" {
-		Name = "MiddleVoteBar",
-		Size = UDim2.fromScale(0.6, 0.2),
-		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.fromScale(0.5, 1)
-	}
+	VoteBarManager.middleVoteBar = VoteBar(scope, {
+		name = "RightVoteBar",
+		backgroundColor = Color3.new(0,255,0),
+		position = UDim2.fromScale(0.5, 1),
+		size = UDim2.fromScale(0.5, 1),
+		anchorPoint = Vector2.new(0.5, 1.0),
+		justification = 'middle',
+		maxSlots = maxPlayers,
+		slotSize = slotSize,
+		padding = 0.05
+	})
 
 	local voteBarContainer = scope:New "Frame" {
 		Name = "VoteBarContainer",
-		Size = UDim2.fromScale(1, 0.2),
-		Position = UDim2.new(0.5, 1),
+		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromScale(0.5, 1),
 		AnchorPoint = Vector2.new(0.5, 1),
+		BackgroundTransparency = 1,
 
 		[Children] = {
-			VoteBarManager.leftVoteBar,
-			VoteBarManager.rightVoteBar,
-			VoteBarManager.middleVoteBar,
+			VoteBarManager.leftVoteBar.voteBarFrame,
+			VoteBarManager.rightVoteBar.voteBarFrame,
+			VoteBarManager.middleVoteBar.voteBarFrame,
 		}
-		
-	}
+	} :: Frame
+
+	return voteBarContainer
 end
 
 function VoteBarManager.splitVotes(listOfVotes: {[number] : string})
@@ -145,21 +131,16 @@ function VoteBarManager.splitVotes(listOfVotes: {[number] : string})
 		local thumbnail = playerThumbnails[userId]
 		if not thumbnail then return end
 
-		--[[
-		local targetPos = leftVoteBar.getSlotPosition(index)
-
-		]]
-
-		thumbnail.updateSpring() -- to middle vote box relevant index
+		local targetPos = VoteBarManager.leftVoteBar.getSlotPosition(index)
+		thumbnail.updateSpring(targetPos) -- to middle vote box relevant index
 	end
 
 	for index, userId in ipairs(rightVotes) do
-		--[[
-		local thumbnail = voteThumbnails.get(userId)
+		local thumbnail = playerThumbnails[userId]
 		if not thumbnail then return end
 
-		thumbnail.shiftRight()		
-		]]
+		local targetPos = VoteBarManager.rightVoteBar.getSlotPosition(index)
+		thumbnail.updateSpring(targetPos) -- to middle vote box relevant index	
 	end
 
 end
@@ -173,22 +154,39 @@ function VoteBarManager.restoreVotes()
 end
 
 function VoteBarManager.addThumbnail(player: Player)
+	--[[
+		if in splitting:
+			wait for splitting to end
+		else	
+	]]
+	local numPlayers = #Players:GetPlayers()
 	playerThumbnails[player.UserId] = PlayerThumbnail(scope, {
 		player = player,
 		hasSubmitted = hasSubmitted,
-		targetX = nil,
-		onClickCb = nil,
+		targetPos = VoteBarManager.middleVoteBar.getSlotPosition(numPlayers),
+		onClickCb = function()
+			GuiManager.PushCentreByName(MODAL_NAMES.PLAYER_INSPECT_GUI, {
+				player = player,
+				rig = nil
+			})
+		end, 
 	})
 end
 
 -- Add a thumbnail when a new player joins
 function VoteBarManager.onPlayerAdded(player: Player)
 	VoteBarManager.addThumbnail(player)
+	connectPlayerAttributes(player)
 end
 
 -- Remove a thumbnail when a player leaves
-function VoteBarManager.onPlayerLeft()
-
+function VoteBarManager.onPlayerRemoved(player: Player)
+	disconnectPlayerAttributes(player)
 end
+
+
+Players.PlayerAdded:Connect(VoteBarManager.onPlayerAdded)
+
+Players.PlayerRemoving:Connect(VoteBarManager.onPlayerRemoved)
 
 return VoteBarManager

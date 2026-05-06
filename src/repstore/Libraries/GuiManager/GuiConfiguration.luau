@@ -79,7 +79,7 @@ local SLOT_LAYOUTS = {
         AnchorPoint = Vector2.new(0.5, 1),
         InPosition = UDim2.fromScale(0.5, 1),
         OutPosition = UDim2.fromScale(0.5, 2),
-        Size = UDim2.fromScale(0.3, 0.2)
+        Size = UDim2.fromScale(1, 0.2)
     },
 
     [Constants.GUI_SLOT_NAMES.BottomRight] = {

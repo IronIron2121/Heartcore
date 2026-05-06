@@ -219,7 +219,7 @@ local function InitialiseHuds()
         }
     } :: Frame
 
-    local voteBar = VoteBarManager.new()
+    local voteBar = VoteBarManager.initialise()
 
     local GameLoopConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
@@ -227,7 +227,7 @@ local function InitialiseHuds()
         topRight = { Object = topRightContainer, AlwaysOn = true },
         middleRight = { Object = buttonsFrame, AlwaysOn = false },
         bottomLeft = nil,
-        bottomMiddle = { Object = VoteBarManager, AlwaysOn = true },
+        bottomMiddle = { Object = voteBar, AlwaysOn = true },
         bottomRight = { Object = GameOptionsFrame1, AlwaysOn = false },
     })
 
@@ -248,7 +248,7 @@ local function InitialiseHuds()
         middleRight = nil,
         middleLeft = nil,
         bottomLeft = nil,
-        bottomMiddle = { Object = VoteBarManager, AlwaysOn = true },
+        bottomMiddle = { Object = voteBar, AlwaysOn = true },
         bottomRight = nil,
     })
 

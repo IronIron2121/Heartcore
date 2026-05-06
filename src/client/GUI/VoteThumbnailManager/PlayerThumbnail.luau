@@ -34,9 +34,8 @@ local function PlayerThumbnail(
 	scope: Fusion.Scope,
 	props: {
 		player: Player,
-		hasSubmitted: Fusion.Value<boolean>,
-		targetX: Fusion.Value<number>,
-		thumbScale: UsedAs<number>,
+		hasSubmitted: UsedAs<boolean>,
+		targetPos: UsedAs<UDim2>,
 		onClickCb: () -> ()
 	}
 
@@ -102,10 +101,10 @@ local function PlayerThumbnail(
 		return hasSubmitted and 0 or 0.5
 	end)
 
-	local springX = scope:Spring(props.targetX, 12, 0.8)
+	local spring = scope:Spring(props.targetPos, 12, 0.8)
 
 	local position = scope:Computed(function(use)
-		return UDim2.fromScale(use(springX), 0)
+		return UDim2.fromScale(use(spring), 0)
 	end)
 
 	return scope:New "Frame" {

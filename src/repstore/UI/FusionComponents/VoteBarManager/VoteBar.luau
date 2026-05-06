@@ -12,12 +12,16 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 local function VoteBar(scope: Fusion.Scope, props: {
     name: string,
+    backgroundColor: UsedAs<Color3>,
     position: UsedAs<UDim2>,
-    slotSize: Value<UDim2>,
+    size: UsedAs<UDim2>,
+    anchorPoint: UsedAs<Vector2>,
+    slotSize: UDim2,
     justification: string,
     maxSlots: number,
     padding: number
 }): {voteBarFrame: Frame, getSlotPosition: (number) -> (any)}
+
     local anchorPoint
     if props.justification == 'left' then
         anchorPoint = scope:Value(Vector2.new(1, 0.5))
@@ -29,25 +33,27 @@ local function VoteBar(scope: Fusion.Scope, props: {
 
     local slotPositions = {}
 
-
     for i = 0, props.maxSlots, 1 do
+        local x
         if props.justification == 'left' then
+            x = 1 - (props.slotSize.X.Scale * i) - props.padding
             table.insert(slotPositions, {
                 anchorPoint = anchorPoint,
-                position = UDim2.fromScale(1 - (peek(props.slotSize).X.Scale * i) - props.padding, 0.5) 
+                position = UDim2.fromScale(x, 0.5) 
             })
         elseif props.justification == 'right' then
+            x = (peek(props.slotSize).X.Scale * i)
             table.insert(slotPositions, {
                 anchorPoint = anchorPoint,
-                position = UDim2.fromScale((peek(props.slotSize).X.Scale * i) + props.padding, 0.5) 
+                position = UDim2.fromScale(x + props.padding, 0.5) 
             })
         elseif props.justification == 'middle' then
+            x = (i + 1) / (props.maxSlots + 1)
             table.insert(slotPositions, {
                 anchorPoint = anchorPoint,
-                position = UDim2.fromScale((peek(props.slotSize).X.Scale * i) + props.padding, 0.5) 
+                position = UDim2.fromScale(x + props.padding, 0.5) 
             })
         end
-
     end
 
     local function getSlotPosition(index: number)
@@ -55,7 +61,12 @@ local function VoteBar(scope: Fusion.Scope, props: {
     end
 
     local voteBarFrame = scope:New "Frame" {
-
+        Name = props.name,
+        AnchorPoint = props.anchorPoint, 
+        BackgroundTransparency = 0.6,
+        Position = props.position,
+        BackgroundColor3 = props.backgroundColor or Color3.new(255,255,255),
+        Size = props.size
     } :: Frame
 
     return {
@@ -66,3 +77,4 @@ end
 
 
 
+return VoteBar
