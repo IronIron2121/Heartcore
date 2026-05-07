@@ -227,7 +227,7 @@ local function InitialiseHuds()
         topRight = { Object = topRightContainer, AlwaysOn = true },
         middleRight = { Object = buttonsFrame, AlwaysOn = false },
         bottomLeft = nil,
-        bottomMiddle = { Object = voteBar, AlwaysOn = true },
+        bottomMiddle = { Object = voteBar, AlwaysOn = false },
         bottomRight = { Object = GameOptionsFrame1, AlwaysOn = false },
     })
 

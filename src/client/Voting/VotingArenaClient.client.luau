@@ -19,6 +19,7 @@ local VotingStages 	   = workspace:WaitForChild("VotingStages")
 -- Modules
 local Constants = require(ReplicatedStorage.Constants)
 local VoteBarManager = require(ReplicatedStorage.UI.FusionComponents.VoteBarManager)
+local VoteBar = require(ReplicatedStorage.UI.FusionComponents.VoteBarManager.VoteBar)
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local ArenaTimerHud = require(FusionComponents:WaitForChild("ArenaTimerHud"))
 
@@ -101,19 +102,7 @@ SplitVoteIconsRE.OnClientEvent:Connect(function(currentVotes: {[number] : string
 end)
 
 RestoreVoteIconsRE.OnClientEvent:Connect(function()  
-	-- Move all of the icons back to the middle
-	--[[
-	index = 0
-	for voteIcon in rightVoteBox.getIcons() do
-		voteIcon.updateSpring(middleVoteBox.getSlotPosition(index))
-		index += 1
-	end
-
-	for voteIcon in rightVoteBox.getIcons() do
-		voteIcon.updateSpring(middleVoteBox.getSlotPosition(index))
-		index += 1
-	end
-	]]
+	VoteBarManager.restoreVotes()
 end)
 
 -- Server fires this just before teleporting — lock camera first
