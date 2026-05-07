@@ -189,6 +189,7 @@ local function PlayerThumbnail(
 	} :: Frame
 
 	local function updateSpring(slot: VoteSlot)
+		print("Updating spring to ", slot, targetPosition, targetAnchorPoint)
 		targetPosition:set(slot.position)
 		targetAnchorPoint:set(slot.anchorPoint)
 	end

@@ -27,7 +27,7 @@ local SLOT_SIZE = UDim2.fromScale(1 / (MAX_PLAYERS + 2), 1)
 local THUMBNAIL_SIZE = UDim2.fromScale(0.045, 0.45)
 local VOTE_BAR_PADDING = 0.02
 
-local playerThumbnails: {[number]: any} = {}
+local playerThumbnails: {[string]: any} = {}
 
 local VoteBarManager = {}
 
@@ -59,7 +59,7 @@ local function getPlayerSlotIndex(player: Player): number
 end
 
 local function createThumbnail(player: Player, slotIndex: number)
-	if playerThumbnails[player.UserId] then
+	if playerThumbnails[tostring(player.UserId)] then
 		return
 	end
 
@@ -67,7 +67,7 @@ local function createThumbnail(player: Player, slotIndex: number)
 		return
 	end
 
-	playerThumbnails[player.UserId] = PlayerThumbnail(scope, {
+	playerThumbnails[tostring(player.UserId)] = PlayerThumbnail(scope, {
 		player = player,
 		targetSlot = VoteBarManager.middleVoteBar.getSlotPosition(slotIndex),
 		size = THUMBNAIL_SIZE,
@@ -146,6 +146,8 @@ function VoteBarManager.splitVotes(listOfVotes: {[number]: string})
 	local leftVotes = {}
 	local rightVotes = {}
 
+	print("Splitting vote icons", listOfVotes)
+
 	for userId, voteSide in listOfVotes do
 		if voteSide == Constants.VOTE_SIDES.LEFT then
 			table.insert(leftVotes, userId)
@@ -160,8 +162,10 @@ function VoteBarManager.splitVotes(listOfVotes: {[number]: string})
 	table.sort(rightVotes)
 
 	for index, userId in ipairs(leftVotes) do
-		local thumbnail = playerThumbnails[userId]
+		local thumbnail = playerThumbnails[tostring(userId)]
 		if not thumbnail then
+			warn("No thumbnail for player ", userId, "!")
+			print(playerThumbnails)
 			continue
 		end
 
@@ -169,8 +173,9 @@ function VoteBarManager.splitVotes(listOfVotes: {[number]: string})
 	end
 
 	for index, userId in ipairs(rightVotes) do
-		local thumbnail = playerThumbnails[userId]
+		local thumbnail = playerThumbnails[tostring(userId)]
 		if not thumbnail then
+			warn("No thumbnail for player ", userId, "!")
 			continue
 		end
 
@@ -184,7 +189,7 @@ function VoteBarManager.restoreVotes()
 	end
 
 	for index, player in ipairs(getSortedPlayers()) do
-		local thumbnail = playerThumbnails[player.UserId]
+		local thumbnail = playerThumbnails[tostring(player.UserId)]
 		if not thumbnail then
 			continue
 		end
@@ -203,10 +208,10 @@ function VoteBarManager.onPlayerAdded(player: Player)
 end
 
 function VoteBarManager.onPlayerRemoved(player: Player)
-	local thumbnail = playerThumbnails[player.UserId]
+	local thumbnail = playerThumbnails[tostring(player.UserId)]
 	if thumbnail then
 		thumbnail.destroy()
-		playerThumbnails[player.UserId] = nil
+		playerThumbnails[tostring(player.UserId)] = nil
 	end
 
 	task.defer(VoteBarManager.restoreVotes)
