@@ -330,9 +330,9 @@ onVotingEnded = function()
 
 	-- Count up votes for both outfits
 	for userId, voteSide in currentVotes do
-		if voteSide == 'left' then
+		if voteSide == Constants.VOTE_SIDES.LEFT then
 			leftVotes += 1
-		elseif voteSide == 'right' then
+		elseif voteSide == Constants.VOTE_SIDES.RIGHT then
 			rightVotes += 1
 		else
 			warn("Unhandled voteSide value at onVotingEnded", voteSide)
@@ -341,9 +341,9 @@ onVotingEnded = function()
 
 	-- Calculate winner; tiebreaker wins the current champion by default
 	-- TODO: Figure out what to do on first round for tiebreaker
-	local winnerSide = leftVotes < rightVotes and 'right' or 'left' 
+	local winnerSide = leftVotes < rightVotes and Constants.VOTE_SIDES.RIGHT or Constants.VOTE_SIDES.LEFT 
 
-	if winnerSide == "left" then
+	if winnerSide == Constants.VOTE_SIDES.LEFT then
 		winnerModel = state.championModel
 		winnerId = state.championOutfitId
 		loserModel  = state.challengerModel
@@ -369,7 +369,7 @@ onVotingEnded = function()
 		playVictoryAnimation(winnerModel :: Model)
 		playDeathAnimation(loserModel :: Model)   -- destroys loserModel at the end
 
-		if winnerSide == "right" then
+		if winnerSide == Constants.VOTE_SIDES.RIGHT then
 			-- Winner was on the right — slide them to the left (champion) slot
 			local leftP = state.stage.JudgePlatforms.LeftChallenger
 			local judgeP = state.stage.JudgePlatforms.JudgePlatform
