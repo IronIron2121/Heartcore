@@ -393,6 +393,7 @@ end
 -- then calls advanceQueue to bring in the next challenger.
 onVote = function(player: Player, votingSide: string)
 	if not state or state.voteLocked then return end
+	print(player, votingSide)
 
 	-- Register player's votes in the table that holds them
 	currentVotes[player.UserId] = votingSide
@@ -400,8 +401,8 @@ onVote = function(player: Player, votingSide: string)
 	-- Update GUIs and hurry round if all players have voted
 	task.spawn(function()
 		-- check if all players have voted
-		for player, voteSide in Players:GetPlayers() do
-			if not currentVotes[player.userId] then
+		for index, listedPlayer in Players:GetPlayers() do
+			if not currentVotes[listedPlayer.userId] then
 				return
 			end
 		end
@@ -577,6 +578,7 @@ attachVoteHandlers = function()
 
 	if champCD then
 		champCD.MouseClick:Connect(function(clicker: Player)
+			print(clicker)
 			if clicker then
 				onVote(clicker, Constants.VOTE_SIDES.LEFT)
 			end
@@ -585,6 +587,7 @@ attachVoteHandlers = function()
 
 	if challCD then
 		challCD.MouseClick:Connect(function(clicker: Player)
+			print(clicker)
 			if clicker then
 				onVote(clicker, Constants.VOTE_SIDES.RIGHT)
 			end
