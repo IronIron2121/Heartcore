@@ -385,6 +385,9 @@ onVotingEnded = function()
 		currentVotes = {}
 		-- Tell clients to bring vote icons back into the middle, and start the next round of voting
 		RestoreVoteIconsRE:FireAllClients()
+		for _, player in Players:GetPlayers() do
+			player:SetAttribute("HasVoted", false)			
+		end
 		advanceQueue()
 	end)
 end
@@ -397,6 +400,8 @@ onVote = function(player: Player, votingSide: string)
 
 	-- Register player's votes in the table that holds them
 	currentVotes[player.UserId] = votingSide
+
+	player:SetAttribute("HasVoted", true)
 
 	-- Update GUIs and hurry round if all players have voted
 	task.spawn(function()

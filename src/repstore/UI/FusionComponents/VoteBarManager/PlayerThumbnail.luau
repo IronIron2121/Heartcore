@@ -54,7 +54,13 @@ local function PlayerThumbnail(
 		onClickCb: (() -> ())?,
 	}
 ): PlayerThumbnailController
+	local hasVoted = scope:Value(props.player:GetAttribute("HasVoted") == true)
+	local hasVotedConnection = props.player:GetAttributeChangedSignal("HasVoted"):Connect(function(...)  
+		hasVoted:set(props.player:GetAttribute("HasVoted") == true)
+	end)
+
 	local hasSubmitted = scope:Value(props.player:GetAttribute("HasSubmitted") == true)
+
 	local hasSubmittedConnection = props.player:GetAttributeChangedSignal("HasSubmitted"):Connect(function()
 		hasSubmitted:set(props.player:GetAttribute("HasSubmitted") == true)
 	end)
@@ -86,7 +92,7 @@ local function PlayerThumbnail(
 	local rimColor = scope:Computed(function(use)
 		local currentColor: Color3
 		if use(GameStateValues.isVoting) then
-			currentColor = COLOR_VOTING
+			currentColor = use(hasVoted) and COLOR_SUBMITTED or COLOR_NOT_SUBMITTED
 		elseif use(hasSubmitted) then
 			currentColor = COLOR_SUBMITTED
 		else
@@ -189,6 +195,7 @@ local function PlayerThumbnail(
 
 	local function destroy()
 		hasSubmittedConnection:Disconnect()
+		hasVotedConnection:Disconnect()
 		frame:Destroy()
 	end
 

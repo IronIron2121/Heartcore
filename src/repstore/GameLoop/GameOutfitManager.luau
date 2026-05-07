@@ -245,7 +245,7 @@ function GameOutfitManager.reset()
 	for userId in submittedPlayers do
 		local player = Players:GetPlayerByUserId(userId)
 		if player then
-			player:SetAttribute("HasSubmitted", nil)
+			player:SetAttribute("HasSubmitted", false)
 		end
 	end
 	outfits = {}
