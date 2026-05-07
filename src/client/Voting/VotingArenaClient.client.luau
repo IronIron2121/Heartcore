@@ -17,9 +17,7 @@ local FusionComponents = ReplicatedStorage:WaitForChild("UI"):WaitForChild("Fusi
 local VotingStages 	   = workspace:WaitForChild("VotingStages")
 
 -- Modules
-local Constants = require(ReplicatedStorage.Constants)
 local VoteBarManager = require(ReplicatedStorage.UI.FusionComponents.VoteBarManager)
-local VoteBar = require(ReplicatedStorage.UI.FusionComponents.VoteBarManager.VoteBar)
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local ArenaTimerHud = require(FusionComponents:WaitForChild("ArenaTimerHud"))
 
@@ -98,6 +96,7 @@ end
 -- ─── Connections ────────────────────────────────────────────────────────────
 
 SplitVoteIconsRE.OnClientEvent:Connect(function(currentVotes: {[number] : string})  
+	print("Splitting vote icons", currentVotes)
 	VoteBarManager.splitVotes(currentVotes)
 end)
 
