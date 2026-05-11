@@ -21,27 +21,54 @@ local callWithRetry = require(Utility:WaitForChild("callWithRetry"))
 local Children = Fusion.Children
 type UsedAs<T> = Fusion.UsedAs<T>
 
+-- Types
+type VoteSlot = {
+	anchorPoint: Vector2,
+	position: UDim2,
+}
+
+export type PlayerThumbnailController = {
+	frame: Frame,
+	updateSpring: (VoteSlot) -> (),
+	destroy: () -> (),
+}
+
 -- Colors
 local COLOR_NOT_SUBMITTED = Color3.fromRGB(200, 50, 50)
 local COLOR_SUBMITTED = Color3.fromRGB(0, 200, 80)
 local COLOR_VOTING = Color3.fromRGB(255, 215, 0)
 
-local _success, DEFAULT_THUMBNAIL = callWithRetry(function()
+local defaultThumbnailSuccess, defaultThumbnail = callWithRetry(function()
 	return Players:GetUserThumbnailAsync(1640373, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size100x100)
 end)
+
+local DEFAULT_THUMBNAIL = if defaultThumbnailSuccess and defaultThumbnail then defaultThumbnail else ""
 
 local function PlayerThumbnail(
 	scope: Fusion.Scope,
 	props: {
 		player: Player,
-		dirtyCounter: Fusion.Value<number>,
-		targetY: Fusion.Value<number>,
-		thumbScale: UsedAs<number>,
-		onClickCb: () -> ()
+		targetSlot: VoteSlot,
+		size: UsedAs<UDim2>?,
+		parent: GuiObject,
+		onClickCb: (() -> ())?,
 	}
+): PlayerThumbnailController
+	local hasVoted = scope:Value(props.player:GetAttribute("HasVoted") == true)
+	local hasVotedConnection = props.player:GetAttributeChangedSignal("HasVoted"):Connect(function(...)  
+		hasVoted:set(props.player:GetAttribute("HasVoted") == true)
+	end)
 
-): Frame
-	-- Fetch thumbnail async
+	local hasSubmitted = scope:Value(props.player:GetAttribute("HasSubmitted") == true)
+
+	local hasSubmittedConnection = props.player:GetAttributeChangedSignal("HasSubmitted"):Connect(function()
+		hasSubmitted:set(props.player:GetAttribute("HasSubmitted") == true)
+	end)
+
+	local targetPosition = scope:Value(props.targetSlot.position)
+	local targetAnchorPoint = scope:Value(props.targetSlot.anchorPoint)
+	local positionSpring = scope:Spring(targetPosition, 12, 0.8)
+
 	local thumbnailUrl = scope:Value(DEFAULT_THUMBNAIL)
 	task.spawn(function()
 		local success, url = callWithRetry(function()
@@ -51,77 +78,61 @@ local function PlayerThumbnail(
 				Enum.ThumbnailSize.Size100x100
 			)
 		end)
+
 		if success and url then
 			thumbnailUrl:set(url)
 		else
-			thumbnailUrl:set()
+			thumbnailUrl:set(DEFAULT_THUMBNAIL)
 		end
 	end)
 
-	--
 	local isHeldDown = scope:Value(false)
 	local isHovering = scope:Value(false)
 
-	-- Rim color
 	local rimColor = scope:Computed(function(use)
-		use(props.dirtyCounter)
-		local currentColor 
-		local hasSubmitted = props.player:GetAttribute("HasSubmitted")
-
+		local currentColor: Color3
 		if use(GameStateValues.isVoting) then
-			currentColor = COLOR_VOTING
-		elseif hasSubmitted then
+			currentColor = use(hasVoted) and COLOR_SUBMITTED or COLOR_NOT_SUBMITTED
+		elseif use(hasSubmitted) then
 			currentColor = COLOR_SUBMITTED
 		else
 			currentColor = COLOR_NOT_SUBMITTED
-		end 
-			
+		end
+
 		if use(isHeldDown) then
 			return currentColor:Lerp(UI_CONSTANTS.COLOUR_BLACK, 0.8)
 		elseif use(isHovering) then
 			return currentColor:Lerp(UI_CONSTANTS.COLOUR_BLACK, 0.25)
-		else 
+		else
 			return currentColor
 		end
 	end)
 
-
-	-- Image transparency
 	local imageTransparency = scope:Computed(function(use)
-		use(props.dirtyCounter)
 		if use(GameStateValues.isVoting) or use(isHeldDown) then
 			return 0
 		end
-		
-		if (use(isHovering)) then
+
+		if use(isHovering) then
 			return 0.25
 		end
 
-		local hasSubmitted = props.player:GetAttribute("HasSubmitted")
-		return hasSubmitted and 0 or 0.5
+		return if use(hasSubmitted) then 0 else 0.5
 	end)
 
-	local springY = scope:Spring(props.targetY, 12, 0.8)
-
-	local position = scope:Computed(function(use)
-		return UDim2.fromScale(0, use(springY))
-	end)
-
-	return scope:New "Frame" {
+	local frame = scope:New "Frame" {
 		Name = "Thumbnail_" .. props.player.Name,
-		Size = scope:Computed(function(use)
-			return UDim2.fromScale(use(props.thumbScale), 0)
-		end),
-		AutomaticSize = Enum.AutomaticSize.Y,
-		Position = position,
+		Size = props.size or UDim2.fromScale(0.045, 0.45),
+		AnchorPoint = targetAnchorPoint,
+		Position = positionSpring,
 		BackgroundTransparency = 1,
+		Parent = props.parent,
 
 		[Children] = {
 			scope:New "UIAspectRatioConstraint" {
 				AspectRatio = 1,
 			},
 
-			-- Rim
 			scope:New "Frame" {
 				Name = "Rim",
 				Size = UDim2.fromScale(1, 1),
@@ -132,7 +143,6 @@ local function PlayerThumbnail(
 						CornerRadius = UDim.new(1, 0),
 					},
 
-					-- Avatar image
 					scope:New "ImageButton" {
 						Name = "Avatar",
 						Image = thumbnailUrl,
@@ -141,6 +151,7 @@ local function PlayerThumbnail(
 						Position = UDim2.fromScale(0.5, 0.5),
 						BackgroundTransparency = 1,
 						ImageTransparency = scope:Spring(imageTransparency, 10),
+
 						[OnEvent "Activated"] = function()
 							if props.onClickCb then
 								props.onClickCb()
@@ -176,7 +187,24 @@ local function PlayerThumbnail(
 			},
 		},
 	} :: Frame
-end
 
+	local function updateSpring(slot: VoteSlot)
+		print("Updating spring to ", slot, targetPosition, targetAnchorPoint)
+		targetPosition:set(slot.position)
+		targetAnchorPoint:set(slot.anchorPoint)
+	end
+
+	local function destroy()
+		hasSubmittedConnection:Disconnect()
+		hasVotedConnection:Disconnect()
+		frame:Destroy()
+	end
+
+	return {
+		frame = frame,
+		updateSpring = updateSpring,
+		destroy = destroy,
+	}
+end
 
 return PlayerThumbnail

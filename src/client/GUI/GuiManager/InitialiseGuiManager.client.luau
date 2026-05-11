@@ -25,6 +25,7 @@ local ClientGUI = StarterPlayerScripts.GUI
 
 -- Modules
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager) 
+local WardrobeGuiState = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.WardrobeGuiState)
 local OpenDailyChallengeGuiButton = require(FusionComponents:WaitForChild("OpenDailyChallengeGuiButton"))
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
@@ -42,7 +43,7 @@ local ExpHud = require(FusionComponents:WaitForChild("ExpHud"))
 local GameStateValues = require(Libraries.GameStateValues)
 local GuiManager = require(GuiManagerLibrary.GuiManager)
 local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
-local PlayerSidebar = require(FusionComponents.PlayerSidebar)
+local VoteBarManager = require(FusionComponents.VoteBarManager) 
 local ArenaTimerHud = require(FusionComponents.ArenaTimerHud)
 local UI_CONSTANTS = require(Utility.UI_CONSTANTS)
 local peek = require(FusionUtility.State.peek)
@@ -65,7 +66,6 @@ local modalScope = Fusion:scoped()
 --
 
 -- ### --- INITIAL LOADING SCREEN --- ### -- 
-
 task.spawn(function()
     local initialLoadGui = modalScope:New "ScreenGui" {
         Parent = Players.LocalPlayer.PlayerGui,
@@ -106,19 +106,31 @@ local function InitialiseHuds()
     local hudScope = Fusion:scoped()
     local expHud = ExpHud(hudScope, { Size = UDim2.fromScale(1, 0.5) })
     local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
-    local openWardrobeButton = OpenWardrobeButton(hudScope)
+    
+    local openWardrobeButton = OpenWardrobeButton(hudScope, {
+        onClick = function()
+            if GuiManager.IsCentreActive() then
+			    GuiManager.PopCentre()
+            else
+                -- We do this here rather than in the close button because otherwise players see the view change for a split second before the closing animation finishes
+                WardrobeGuiState.ResetView()
+                GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
+            end
+        end
+    })
+
     local submissionThemeBar = SubmissionThemeBar()
 
     local buttonsFrame = hudScope:New "Frame" {
         Size = UDim2.fromScale(1, 1),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(1, 0.5),
+        Position = UDim2.fromScale(1, 0.5),
         BackgroundTransparency = 1,
 
         [Children] = {
             hudScope:New "UIListLayout" {
                 Padding = UDim.new(0.15, 0),
-                FillDirection = Enum.FillDirection.Horizontal,
+                FillDirection = Enum.FillDirection.Vertical,
                 SortOrder = Enum.SortOrder.LayoutOrder,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
                 VerticalAlignment = Enum.VerticalAlignment.Center
@@ -156,9 +168,11 @@ local function InitialiseHuds()
                         return ""
                     end
                 end),
+
                 imageColor3 = hudScope:Computed(function(use)  
                     return use(PlayerSubmissionState.cooldown) and UI_CONSTANTS.COLOUR_GREY or UI_CONSTANTS.COLOUR_WHITE
                 end),
+
                 backgroundColor = hudScope:Computed(function(use)
                     if use(GameStateValues.isIntermission) then
                         return UI_CONSTANTS.COLOUR_GREY
@@ -168,6 +182,7 @@ local function InitialiseHuds()
                         return UI_CONSTANTS.COLOUR_WHITE
                     end
                 end),
+                
                 onActivated = function()
                     if peek(GameStateValues.isDressing) then
                         if not peek(PlayerSubmissionState.cooldown) then
@@ -204,13 +219,15 @@ local function InitialiseHuds()
         }
     } :: Frame
 
+    local voteBar = VoteBarManager.initialise()
+
     local GameLoopConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
         topMiddle = { Object = submissionThemeBar, AlwaysOn = true },
         topRight = { Object = topRightContainer, AlwaysOn = true },
-        middleLeft = { Object = PlayerSidebar, AlwaysOn = true },
+        middleRight = { Object = buttonsFrame, AlwaysOn = false },
         bottomLeft = nil,
-        bottomMiddle = { Object = buttonsFrame, AlwaysOn = false },
+        bottomMiddle = { Object = voteBar, AlwaysOn = false },
         bottomRight = { Object = GameOptionsFrame1, AlwaysOn = false },
     })
 
@@ -218,6 +235,7 @@ local function InitialiseHuds()
         ConfigurationName = CONFIGURATION_NAMES.FtueConfig,
         topMiddle = nil,
         topRight = nil,
+        middleRight = nil,
         bottomLeft = nil,
         bottomMiddle = nil,
         bottomRight = nil,
@@ -227,9 +245,10 @@ local function InitialiseHuds()
         ConfigurationName = CONFIGURATION_NAMES.VotingConfig,
         topMiddle = { Object = ArenaTimerHud.frame, AlwaysOn = true },
         topRight = nil,
-        middleLeft = { Object = PlayerSidebar, AlwaysOn = true },
+        middleRight = nil,
+        middleLeft = nil,
         bottomLeft = nil,
-        bottomMiddle = nil,
+        bottomMiddle = { Object = voteBar, AlwaysOn = true },
         bottomRight = nil,
     })
 

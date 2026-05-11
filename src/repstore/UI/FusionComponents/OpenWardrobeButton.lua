@@ -6,7 +6,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Folders
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
 local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
@@ -31,19 +30,12 @@ local BG_FADE_SPEED = 20 -- spring speed units
 --
 
 local function OpenWardrobeButton(
-	scope: Fusion.Scope
+	scope: Fusion.Scope,
+	props: {
+		onClick: () -> ()
+	}
 )
 	local Toggled = scope:Value(false) 
-
-	local OnClick = function()
-		if GuiManager.IsCentreActive() then
-			GuiManager.PopCentre()
-		else
-			-- We do this here rather than in the close button because otherwise players see the view change for a split second before the closing animation finishes
-			WardrobeGuiState.ResetView()
-			GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
-		end
-	end
 
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
@@ -71,8 +63,8 @@ local function OpenWardrobeButton(
 		end),
 		
 		[OnEvent "Activated"] = function()
-			if OnClick ~= nil then
-				OnClick()
+			if props.onClick ~= nil then
+				props.onClick()
 			end
 		end,
 		

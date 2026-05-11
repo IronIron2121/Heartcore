@@ -17,6 +17,7 @@ local FusionComponents = ReplicatedStorage:WaitForChild("UI"):WaitForChild("Fusi
 local VotingStages 	   = workspace:WaitForChild("VotingStages")
 
 -- Modules
+local VoteBarManager = require(ReplicatedStorage.UI.FusionComponents.VoteBarManager)
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local ArenaTimerHud = require(FusionComponents:WaitForChild("ArenaTimerHud"))
 
@@ -26,6 +27,8 @@ local ArenaActivateRE        = Remotes:WaitForChild("ArenaActivateRE")
 local ArenaVotingCompleteRE  = Remotes:WaitForChild("ArenaVotingCompleteRE")
 local CurrentStateName       = Values:WaitForChild("CurrentStateName") :: StringValue
 local ArenaTimerSeconds 	= Values:WaitForChild("ArenaTimerSeconds")
+local SplitVoteIconsRE 		= Remotes:WaitForChild("SplitVoteIconsRE")
+local RestoreVoteIconsRE	= Remotes:WaitForChild("RestoreVoteIconsRE")
 
 -- Instances
 local stage = VotingStages.VotingStage1
@@ -91,6 +94,15 @@ local function deactivate()
 end
 
 -- ─── Connections ────────────────────────────────────────────────────────────
+
+SplitVoteIconsRE.OnClientEvent:Connect(function(currentVotes: {[number] : string})  
+	print("Splitting vote icons", currentVotes)
+	VoteBarManager.splitVotes(currentVotes)
+end)
+
+RestoreVoteIconsRE.OnClientEvent:Connect(function()  
+	VoteBarManager.restoreVotes()
+end)
 
 -- Server fires this just before teleporting — lock camera first
 ArenaActivateRE.OnClientEvent:Connect(function()

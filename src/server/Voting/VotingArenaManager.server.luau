@@ -7,21 +7,18 @@
 -- Services
 local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
 local TweenService      = game:GetService("TweenService")
 
 -- Folders
 local GameLoop     = ReplicatedStorage:WaitForChild("GameLoop")
-local Libraries    = ReplicatedStorage:WaitForChild("Libraries")
 local Remotes      = ReplicatedStorage:WaitForChild("Remotes")
 local UtilityFolder = ReplicatedStorage:WaitForChild("Utility")
 local Values       = ReplicatedStorage:WaitForChild("Values")
 local VotingStages = workspace:WaitForChild("VotingStages")
 
 -- Modules
+local Constants = require(ReplicatedStorage.Constants)
 local GameStates = require(ReplicatedStorage.GameLoop.GameStates)
-local DataManager              = require(ServerScriptService.Data.DataManager)
-local ExpConfig                = require(Libraries.ExpConfig)
 local GameOutfitManager        = require(GameLoop:WaitForChild("GameOutfitManager"))
 local GameStateManager         = require(GameLoop:WaitForChild("GameStateManager"))
 local ServerCustomisationService = require(UtilityFolder.ServerCustomisationService)
@@ -36,9 +33,13 @@ local leftP       = stage.JudgePlatforms.LeftChallenger
 local rightP      = stage.JudgePlatforms.RightChallenger
 local queueF      = stage.QueuePlatforms
 
+-- Remotes
+local SplitVoteIconsRE = Remotes.SplitVoteIconsRE
+local RestoreVoteIconsRE = Remotes.RestoreVoteIconsRE
+
 -- Values
 local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
-local ArenaTimerSeconds 	= Values:WaitForChild("ArenaTimerSeconds")
+local ArenaTimerSeconds = Values:WaitForChild("ArenaTimerSeconds")
 
 -- Constants
 local TIME_PER_MATCHUP       = 10    -- seconds per voting matchup before winner is declared
@@ -89,7 +90,7 @@ type ArenaState = {
 }
 
 -- ─── Forward declarations (cyclic call graph) ───────────────────────────────
-local onVote: (player: Player, votedFor: "left" | "right") -> ()
+local onVote: (player: Player, votedFor: string) -> ()
 local onVotingEnded: () -> ()
 local attachVoteHandlers: () -> ()
 local advanceQueue: () -> ()
@@ -305,6 +306,7 @@ end
 -- shifts the rest of the queue forward, and backfills slot 5 if more outfits exist.
 onVotingEnded = function()
 	if not state or state.voteLocked then return end
+	-- Lock voting
 	state.voteLocked = true
 
 	-- Destroy click detectors on both models
@@ -315,9 +317,10 @@ onVotingEnded = function()
 			cd:Destroy() 
 		end
 	end
+
 	destroyDetector(state.championModel)
 	destroyDetector(state.challengerModel)
-
+	
 	local winnerModel:   Model?
 	local winnerId:      string?
 	local loserModel:    Model?
@@ -325,20 +328,22 @@ onVotingEnded = function()
 	local leftVotes = 0
 	local rightVotes = 0
 
-	-- TODO: we can make this faster but so be it
+	-- Count up votes for both outfits
 	for userId, voteSide in currentVotes do
-		if voteSide == 'left' then
+		if voteSide == Constants.VOTE_SIDES.LEFT then
 			leftVotes += 1
-		elseif voteSide == 'right' then
+		elseif voteSide == Constants.VOTE_SIDES.RIGHT then
 			rightVotes += 1
 		else
 			warn("Unhandled voteSide value at onVotingEnded", voteSide)
 		end
 	end
 
-	local winnerSide = leftVotes < rightVotes and 'right' or 'left' 
+	-- Calculate winner; tiebreaker wins the current champion by default
+	-- TODO: Figure out what to do on first round for tiebreaker
+	local winnerSide = leftVotes < rightVotes and Constants.VOTE_SIDES.RIGHT or Constants.VOTE_SIDES.LEFT 
 
-	if winnerSide == "left" then
+	if winnerSide == Constants.VOTE_SIDES.LEFT then
 		winnerModel = state.championModel
 		winnerId = state.championOutfitId
 		loserModel  = state.challengerModel
@@ -356,11 +361,15 @@ onVotingEnded = function()
 	playAnimationOnce(winnerModel, 3994127840)
 
 	task.spawn(function()
+		-- Tell clients to split icons to left and right (show who voted for what)
+		SplitVoteIconsRE:FireAllClients(currentVotes)
+		task.wait(2)
+
 		-- Victory plays on the winner (non-blocking); death on loser (blocking ~2.3s)
 		playVictoryAnimation(winnerModel :: Model)
 		playDeathAnimation(loserModel :: Model)   -- destroys loserModel at the end
 
-		if winnerSide == "right" then
+		if winnerSide == Constants.VOTE_SIDES.RIGHT then
 			-- Winner was on the right — slide them to the left (champion) slot
 			local leftP = state.stage.JudgePlatforms.LeftChallenger
 			local judgeP = state.stage.JudgePlatforms.JudgePlatform
@@ -371,37 +380,43 @@ onVotingEnded = function()
 		state.challengerModel    = nil
 		state.challengerOutfitId = nil
 
+		task.wait(3)
+		-- Reset votes
+		currentVotes = {}
+		-- Tell clients to bring vote icons back into the middle, and start the next round of voting
+		RestoreVoteIconsRE:FireAllClients()
+		for _, player in Players:GetPlayers() do
+			player:SetAttribute("HasVoted", false)			
+		end
 		advanceQueue()
 	end)
 end
 
 -- Handles a vote: records it, runs animations, slides the winner if needed,
 -- then calls advanceQueue to bring in the next challenger.
-onVote = function(player: Player, votingSide: "left" | "right")
+onVote = function(player: Player, votingSide: string)
 	if not state or state.voteLocked then return end
+	print(player, votingSide)
 
 	-- Register player's votes in the table that holds them
 	currentVotes[player.UserId] = votingSide
 
+	player:SetAttribute("HasVoted", true)
+
 	-- Update GUIs and hurry round if all players have voted
 	task.spawn(function()
-		-- TODO:
-		-- do the GUI movements
 		-- check if all players have voted
-		for player, voteSide in Players:GetPlayers() do
-			if not currentVotes[player.userId] then
+		for index, listedPlayer in Players:GetPlayers() do
+			if not currentVotes[listedPlayer.userId] then
 				return
 			end
 		end
-
-		print(currentVotes)
 
 		onVotingEnded()
 	end)
 end
 
 -- ─── Session initialisation ─────────────────────────────────────────────────
-
 local function initialisePlayerVoting(player: Player)
 	-- Lock player movement
 	local char = player.Character or player.CharacterAdded:Wait()
@@ -568,16 +583,18 @@ attachVoteHandlers = function()
 
 	if champCD then
 		champCD.MouseClick:Connect(function(clicker: Player)
+			print(clicker)
 			if clicker then
-				onVote(clicker, "left")
+				onVote(clicker, Constants.VOTE_SIDES.LEFT)
 			end
 		end)
 	end
 
 	if challCD then
 		challCD.MouseClick:Connect(function(clicker: Player)
+			print(clicker)
 			if clicker then
-				onVote(clicker, "right")
+				onVote(clicker, Constants.VOTE_SIDES.RIGHT)
 			end
 		end)
 	end

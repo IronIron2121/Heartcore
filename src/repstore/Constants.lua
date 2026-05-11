@@ -186,6 +186,7 @@ local Constants = {
     GUI_SLOT_NAMES = {
         ["TopMiddle"] = "TopMiddle",
         ["TopRight"] = "TopRight",
+        ["MiddleRight"] = "MiddleRight",
         ["MiddleLeft"] = "MiddleLeft",
         ["BottomLeft"] = "BottomLeft",
         ["BottomMiddle"] = "BottomMiddle",
@@ -201,6 +202,11 @@ local Constants = {
 	CLASSIC_ITEMS = {"GraphicTShirt", "Shirt", "Pants", "Face"},
 
 	SEARCH_PLACEHOLDER = "Search for items...",
+
+	VOTE_SIDES = {
+		['LEFT'] = "leftSide",
+		['RIGHT'] = "rightSide"
+	},
 
 	DEBUG_MODE = true
 
