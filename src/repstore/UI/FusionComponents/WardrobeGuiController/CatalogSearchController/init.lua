@@ -79,7 +79,7 @@ end
 function CatalogSearchController:_initialiseCategoryFrame()
 	-- Category frame doesn't need positioning props typically
 	local categoryFrame = CategoryFrame(self.scope, {
-		size = UDim2.fromScale(0.15, 1),
+		size = UDim2.fromScale(0.6, 1),
 		position = UDim2.fromScale(0.5, 0.5),
 		backgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 		anchorPoint = Vector2.new(0.5, 0.5),
@@ -93,7 +93,7 @@ function CatalogSearchController:_initialiseCategoryFrame()
 		editorsPickSelected = self.editorsPickSelected
 	})
 	 
-	categoryFrame.Parent = self.parentFrame
+	categoryFrame.Parent = self.searchFrame
 end
 
 function CatalogSearchController:_initialiseSearchFrame()

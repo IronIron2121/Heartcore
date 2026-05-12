@@ -172,7 +172,7 @@ function FusionDropdown<T>(
 		anchorPoint: UsedAs<Vector2>?,
 		placeholder: UsedAs<string>?,
 		searchCallback: () -> (),
-		isOpen: UsedAs<boolean>
+		isOpen: UsedAs<boolean>?
 	}
 ): Frame
 	local isHovering = scope:Value(false)

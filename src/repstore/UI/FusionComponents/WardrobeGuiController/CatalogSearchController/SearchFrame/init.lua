@@ -24,7 +24,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local SearchBox = require(script:WaitForChild("SearchBox"))
 local SearchResultsFrame = require(script:WaitForChild("SearchResultsFrame"))
 local FusionDropdown = require(Widgets:WaitForChild("FusionDropdown"))
-
+local SEARCH_SORT_BOX_SIZE = UDim2.fromScale(.4, .5)
 local options = {
 	"Relevance",
 	"Bestselling",
@@ -108,7 +108,7 @@ function SearchFrame(
 					-- Spacer
 					scope:New "Frame" {
 						Name = "LeftSpacer",
-						Size = UDim2.fromScale(0.1, 1),
+						Size = UDim2.fromScale(0.02, 1),
 						BackgroundTransparency = 1,
 						LayoutOrder = 1
 					},
@@ -116,7 +116,7 @@ function SearchFrame(
 					-- Search box
 					SearchBox(scope, {
 						name = "CatalogSearch",
-						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
+						size = SEARCH_SORT_BOX_SIZE,
 						layoutOrder = 2,
 						placeholder = Constants.SEARCH_PLACEHOLDER,
 						searchText = props.searchText,
@@ -129,7 +129,7 @@ function SearchFrame(
 						name = "SortDropdown",
 						options = options,
 						selectedValue = props.searchSort,
-						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
+						size = UDim2.fromScale(0.08, 0.5),
 						layoutOrder = 3,
 						placeholder = "Sort by...",
 						searchCallback = props.searchCallback
@@ -146,4 +146,3 @@ function SearchFrame(
 end
 
 return SearchFrame
-

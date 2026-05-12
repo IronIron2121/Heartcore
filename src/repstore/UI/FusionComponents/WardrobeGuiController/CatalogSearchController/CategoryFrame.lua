@@ -12,6 +12,7 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
+local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
@@ -139,17 +140,24 @@ function CategoryFrame(
 		end),
 
 		[Children] = {
+			scope:New "UICorner" {
+				CornerRadius = UDim.new(0.2, 0)
+			},
 			scope:New "UIListLayout" {
 				Padding = UDim.new(0.02, 0),
-				FillDirection = Enum.FillDirection.Vertical,
+				FillDirection = Enum.FillDirection.Horizontal,
 				HorizontalAlignment = Enum.HorizontalAlignment.Center,
 				SortOrder = Enum.SortOrder.LayoutOrder,
 				VerticalAlignment = Enum.VerticalAlignment.Center,
 			},
-			
-			scope:New "UICorner" {
-				CornerRadius = UDim.new(0.2, 0)
-			},
+
+
+		}
+	}
+		
+		--[[
+		[Children] = {
+
 			
 			-- Inner scrolling frame
 			scope:New "ScrollingFrame" {
@@ -449,6 +457,7 @@ function CategoryFrame(
 			}
 		}
 	} :: Frame
+	]]
 
 	return categoryFrame
 end
