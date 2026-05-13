@@ -4,6 +4,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
+local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
@@ -12,6 +13,7 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
+local TopCategories = require(DataTables:WaitForChild("TopCategories"))
 
 -- Fusion
 local Children = Fusion.Children
@@ -22,73 +24,6 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local TopCategoryButton = require(Widgets:WaitForChild("TopCategoryButton"))
 local SubCategoryButton = require(Widgets:WaitForChild("SubCategoryButton"))
 local CategoryButton    = require(Widgets:WaitForChild("CategoryButton"))
-
--- ─── Category data ───────────────────────────────────────────────────────────
-
-type SubCategoryEntry = {
-	name: string,
-	assetType: Enum.AvatarAssetType?,
-	bundleType: Enum.BundleType?,
-}
-
-type TopCategoryEntry = {
-	name: string,
-	subCategories: { SubCategoryEntry },
-	-- For direct-filter top categories (no subcategories), list the types to apply
-	assetTypes: { Enum.AvatarAssetType },
-	bundleTypes: { Enum.BundleType },
-}
-
-local TOP_CATEGORIES: { TopCategoryEntry } = {
-	{
-		name = "Tops",
-		assetTypes = {
-			Enum.AvatarAssetType.TShirtAccessory,
-			Enum.AvatarAssetType.ShirtAccessory,
-			Enum.AvatarAssetType.JacketAccessory,
-			Enum.AvatarAssetType.SweaterAccessory,
-		},
-		bundleTypes = {},
-		subCategories = {
-			{ name = "T-Shirts", assetType = Enum.AvatarAssetType.TShirtAccessory },
-			{ name = "Shirts",   assetType = Enum.AvatarAssetType.ShirtAccessory   },
-			{ name = "Jackets",  assetType = Enum.AvatarAssetType.JacketAccessory  },
-			{ name = "Sweaters", assetType = Enum.AvatarAssetType.SweaterAccessory },
-		},
-	},
-	{
-		name = "Bottoms",
-		assetTypes = {
-			Enum.AvatarAssetType.PantsAccessory,
-			Enum.AvatarAssetType.ShortsAccessory,
-			Enum.AvatarAssetType.DressSkirtAccessory,
-		},
-		bundleTypes = {},
-		subCategories = {
-			{ name = "Pants",           assetType = Enum.AvatarAssetType.PantsAccessory       },
-			{ name = "Shorts",          assetType = Enum.AvatarAssetType.ShortsAccessory      },
-			{ name = "Dresses & Skirts",assetType = Enum.AvatarAssetType.DressSkirtAccessory  },
-		},
-	},
-	{
-		name = "Hair",
-		assetTypes = { Enum.AvatarAssetType.HairAccessory },
-		bundleTypes = {},
-		subCategories = {},  -- direct filter; no subcategory row
-	},
-	{
-		name = "Body",
-		assetTypes = {},
-		bundleTypes = {
-			Enum.BundleType.BodyParts,
-			Enum.BundleType.DynamicHead,
-		},
-		subCategories = {
-			{ name = "Body Parts",    bundleType = Enum.BundleType.BodyParts    },
-			{ name = "Dynamic Heads", bundleType = Enum.BundleType.DynamicHead  },
-		},
-	},
-}
 
 -- ─── Component ───────────────────────────────────────────────────────────────
 
@@ -106,6 +41,7 @@ function CategoryFrame(
 		searchCallback: () -> (),
 		editorsPickCallback: () -> (),
 		editorsPickSelected: Fusion.Value<boolean>,
+		allowedTopCategories: Fusion.Value<{string}?>?,
 	}
 ): Frame
 
@@ -113,7 +49,7 @@ function CategoryFrame(
 
 	local selectedTopCategory  = scope:Value(nil :: string?)
 	local selectedSubCategory  = scope:Value(nil :: string?)
-	local currentSubCategories = scope:Value({} :: { SubCategoryEntry })
+	local currentSubCategories = scope:Value({} :: { TopCategories.SubCategoryEntry })
 
 	local allSelected = scope:Computed(function(use)
 		return use(selectedTopCategory) == nil and not use(props.editorsPickSelected)
@@ -130,7 +66,7 @@ function CategoryFrame(
 		props.searchCallback()
 	end
 
-	local function selectTopCategory(entry: TopCategoryEntry)
+	local function selectTopCategory(entry: TopCategories.TopCategoryEntry)
 		selectedTopCategory:set(entry.name)
 		selectedSubCategory:set(nil)
 		currentSubCategories:set(entry.subCategories)
@@ -140,12 +76,25 @@ function CategoryFrame(
 		props.searchCallback()
 	end
 
-	local function selectSubCategory(entry: SubCategoryEntry)
+	local function selectSubCategory(entry: TopCategories.SubCategoryEntry)
 		selectedSubCategory:set(entry.name)
 		props.searchAssetCategories:set(entry.assetType and { entry.assetType } or {})
 		props.searchBundleCategories:set(entry.bundleType and { entry.bundleType } or {})
 		props.searchCallback()
 	end
+
+	-- Reactive filtered list of top categories (all four, or restricted set)
+	local visibleTopCategories = scope:Computed(function(use)
+		local allowed = props.allowedTopCategories and use(props.allowedTopCategories)
+		if not allowed then return TopCategories end
+		local filtered: { TopCategories.TopCategoryEntry } = {}
+		for _, entry in TopCategories do
+			if table.find(allowed, entry.name) then
+				table.insert(filtered, entry)
+			end
+		end
+		return filtered
+	end)
 
 	-- ─── SubCategory buttons (reactive) ──────────────────────────────────
 
@@ -187,7 +136,7 @@ function CategoryFrame(
 				VerticalAlignment = Enum.VerticalAlignment.Center,
 			},
 
-			-- Top category row: All, Editor's Pick, Tops, Bottoms, Hair, Body
+			-- Top category row
 			scope:New "ScrollingFrame" {
 				Name = "TopCategoryFrame",
 				LayoutOrder = 1,
@@ -236,7 +185,7 @@ function CategoryFrame(
 						end,
 					}),
 
-					scope:ForValues(scope:Value(TOP_CATEGORIES), function(use, innerScope, entry)
+					scope:ForValues(visibleTopCategories, function(use, innerScope, entry)
 						local isSelected = innerScope:Computed(function(use)
 							return use(selectedTopCategory) == entry.name
 						end)
@@ -253,7 +202,7 @@ function CategoryFrame(
 				},
 			},
 
-			-- Sub category row: repopulates when a top category is selected
+			-- Sub category row
 			scope:New "ScrollingFrame" {
 				Name = "SubCategoryFrame",
 				LayoutOrder = 2,
