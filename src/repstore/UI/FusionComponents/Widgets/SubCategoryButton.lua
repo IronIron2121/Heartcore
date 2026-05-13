@@ -128,4 +128,4 @@ function SubCategoryButton(
 	return categoryButton
 end
 
-return CategoryButton
+return SubCategoryButton
