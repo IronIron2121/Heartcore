@@ -12,10 +12,10 @@ local UI_CONSTANTS = {
 	COLOUR_DEEP_PURPLE = Color3.fromRGB(44, 0, 202),
 	COLOUR_ORANGE = Color3.new(0.901961, 0.380392, 0.078431),
 	DEFAULT_FONT = "rbxasset://fonts/families/FredokaOne.json",
-	SEARCH_SORT_BOX_SIZE = UDim2.fromScale(.4, .5),
 	ROBOTO = "rbxasset://fonts/families/Roboto.json",
 	SECONDARY_FONT = "rbxasset://fonts/families/SonoMonospace.json",
-	CATEGORY_BUTTON_SIZE = UDim2.new(0.95, 0, 0, 60), 
+	--CATEGORY_BUTTON_SIZE = UDim2.new(0, 60, 0, 0.95), 
+	CATEGORY_BUTTON_SIZE = UDim2.fromScale(0, 1), 
 }
 
 return UI_CONSTANTS

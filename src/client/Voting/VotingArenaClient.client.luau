@@ -96,7 +96,6 @@ end
 -- ─── Connections ────────────────────────────────────────────────────────────
 
 SplitVoteIconsRE.OnClientEvent:Connect(function(currentVotes: {[number] : string})  
-	print("Splitting vote icons", currentVotes)
 	VoteBarManager.splitVotes(currentVotes)
 end)
 
