@@ -14,7 +14,8 @@ local UI_CONSTANTS = {
 	DEFAULT_FONT = "rbxasset://fonts/families/FredokaOne.json",
 	ROBOTO = "rbxasset://fonts/families/Roboto.json",
 	SECONDARY_FONT = "rbxasset://fonts/families/SonoMonospace.json",
-	CATEGORY_BUTTON_SIZE = UDim2.new(0, 60, 0, 0.95), 
+	--CATEGORY_BUTTON_SIZE = UDim2.new(0, 60, 0, 0.95), 
+	CATEGORY_BUTTON_SIZE = UDim2.fromScale(0, 1), 
 }
 
 return UI_CONSTANTS

@@ -92,8 +92,8 @@ function CatalogSearchController:_initialiseCategoryFrame()
 		editorsPickCallback = self.editorsPickCallback,
 		editorsPickSelected = self.editorsPickSelected
 	})
-	 
-	categoryFrame.Parent = self.searchFrame
+	categoryFrame.Parent = self.searchTopBar
+	print(self.searchFrame or 'no search frame')
 end
 
 function CatalogSearchController:_initialiseSearchFrame()
@@ -243,8 +243,8 @@ function CatalogSearchController:_initialiseSearchFrame()
 	end
 
 	-- NOW create SearchFrame with the callbacks defined
-	local searchFrame, searchResultsFrame = SearchFrame(self.scope, {
-		size = UDim2.fromScale(0.84, 1),
+	local searchFrame, searchResultsFrame, topBar = SearchFrame(self.scope, {
+		size = UDim2.fromScale(1, 1),
 		position = UDim2.fromScale(0.5, 0.5),
 		anchorPoint = Vector2.new(0.5, 0.5),
 		layoutOrder = 2,
@@ -261,6 +261,8 @@ function CatalogSearchController:_initialiseSearchFrame()
 	
 	searchFrame.Parent = self.parentFrame
 	self.SearchResultsFrame = searchResultsFrame
+	self.searchFrame = searchFrame
+	self.searchTopBar = topBar
 
 	return searchFrame, searchResultsFrame
 end
