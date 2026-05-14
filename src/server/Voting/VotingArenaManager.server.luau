@@ -433,7 +433,6 @@ end
 local function initVotingSession()
 	print("Initialising voting session")
 	for _, player in Players:GetPlayers() do
-		print("Init for player", player.Name)
 		initialisePlayerVoting(player)
 	end
 
@@ -444,10 +443,7 @@ local function initVotingSession()
 	end
 
 	if #ordered == 0 then
-		warn("No outfits to use!")
 		return
-	else
-		print("Got outfits", ordered)
 	end
 
 	-- 

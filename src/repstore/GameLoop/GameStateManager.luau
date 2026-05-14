@@ -28,6 +28,9 @@ local STATE_SPAWNS = {
 
 local STATES = require(GameLoop.GameStates)
 
+local timerThread
+local threadIsRunning = false
+
 local THEMES = {
 	"Y2K",
 	"Cottagecore",
@@ -253,7 +256,6 @@ function GameStateManager.checkAllFinishedVoting()
 end 
 
 function GameStateManager.markFinishedVoting(player: Player)
-	warn("Marking finished voting")
 	finishedVotingPlayers[player.UserId] = true
 	GameStateManager.checkAllFinishedVoting()
 end
@@ -269,24 +271,31 @@ function GameStateManager.hurryRound()
 end
 
 local function startCountdown(duration: number)
+	print("Starting countdown")
 	secondsRemaining.Value = duration
 	
-	timerThread = task.spawn(function()
+	timerThread = coroutine.create(function()
 		while secondsRemaining.Value > 0 do
 			task.wait(1)
 			task.defer(function()
 				secondsRemaining.Value -= 1
 			end)
 		end
+		
 		GameStateManager.transitionTo(STATES[currentState].next)
 	end)
 end
 
 function GameStateManager.transitionTo(stateName: string)
-	print("Transitioning to...", stateName)
 	local config = STATES[stateName]
-	timerThread = nil
 
+	if timerThread then
+		timerThread.yield()
+		coroutine.close(timerThread)
+		timerThread = nil
+	end
+
+	print("Thread cancelled")
 	currentState = stateName
 	currentStateName.Value = stateName
 
@@ -348,7 +357,7 @@ end
 
 function GameStateManager.start()
 	if getPlayerCount() >= MIN_PLAYERS or Constants.DEBUG_MODE == true then
-		print('Starting from adequate players')
+		print('Transitioning from adequate players')
 		GameStateManager.transitionTo(GameStates.Intermission.name)
 	else
 		currentState = "Waiting"
