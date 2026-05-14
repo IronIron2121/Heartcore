@@ -20,6 +20,7 @@ local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenMa
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 local AssetFilterCategories = require(DataTables:WaitForChild("AssetFilterCategories"))
 local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCategories"))
+local TopCategories = require(DataTables:WaitForChild("TopCategories"))
 local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGuiState"))
 local FusionItemTile = require(Widgets:WaitForChild("FusionItemTile"))
 local EditorsPick = require(DataTables:WaitForChild("EditorsPick"))
@@ -62,6 +63,7 @@ function CatalogSearchController.new(parentFrame: Frame, controllers: {any}, war
 	self.searchText = self.scope:Value("")
 	self.currentView = WardrobeGuiState.currentView
 	self.controllers = controllers
+	self.allowedTopCategories = self.scope:Value(nil :: {string}?)
 
 	return self
 end
@@ -79,7 +81,7 @@ end
 function CatalogSearchController:_initialiseCategoryFrame()
 	-- Category frame doesn't need positioning props typically
 	local categoryFrame = CategoryFrame(self.scope, {
-		size = UDim2.fromScale(0.15, 1),
+		size = UDim2.fromScale(0.6, 1),
 		position = UDim2.fromScale(0.5, 0.5),
 		backgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 		anchorPoint = Vector2.new(0.5, 0.5),
@@ -90,10 +92,11 @@ function CatalogSearchController:_initialiseCategoryFrame()
 		searchBundleCategories = self.searchBundleCategories, 
 		searchCallback = self.searchCallback,
 		editorsPickCallback = self.editorsPickCallback,
-		editorsPickSelected = self.editorsPickSelected
+		editorsPickSelected = self.editorsPickSelected,
+		allowedTopCategories = self.allowedTopCategories,
 	})
-	 
-	categoryFrame.Parent = self.parentFrame
+	categoryFrame.Parent = self.searchTopBar
+	print(self.searchFrame or 'no search frame')
 end
 
 function CatalogSearchController:_initialiseSearchFrame()
@@ -243,8 +246,8 @@ function CatalogSearchController:_initialiseSearchFrame()
 	end
 
 	-- NOW create SearchFrame with the callbacks defined
-	local searchFrame, searchResultsFrame = SearchFrame(self.scope, {
-		size = UDim2.fromScale(0.84, 1),
+	local searchFrame, searchResultsFrame, topBar = SearchFrame(self.scope, {
+		size = UDim2.fromScale(1, 1),
 		position = UDim2.fromScale(0.5, 0.5),
 		anchorPoint = Vector2.new(0.5, 0.5),
 		layoutOrder = 2,
@@ -261,6 +264,8 @@ function CatalogSearchController:_initialiseSearchFrame()
 	
 	searchFrame.Parent = self.parentFrame
 	self.SearchResultsFrame = searchResultsFrame
+	self.searchFrame = searchFrame
+	self.searchTopBar = topBar
 
 	return searchFrame, searchResultsFrame
 end
@@ -279,6 +284,23 @@ function CatalogSearchController:_initialiseInspectFrame()
 	})
 
 	inspectFrame.Parent = self.parentFrame
+end
+
+function CatalogSearchController:OpenToTopCategory(categoryName: string?)
+	self.allowedTopCategories:set(categoryName and {categoryName} or nil)
+	if categoryName then
+		for _, entry in TopCategories do
+			if entry.name == categoryName then
+				self.searchAssetCategories:set(entry.assetTypes)
+				self.searchBundleCategories:set(entry.bundleTypes)
+				break
+			end
+		end
+	else
+		self.searchAssetCategories:set(AssetFilterCategories.getAllAssetTypes())
+		self.searchBundleCategories:set(BundleFilterCategories.getAllRobloxBundleTypes())
+	end
+	self.searchCallback()
 end
 
 function CatalogSearchController:Cleanup()

@@ -12,7 +12,6 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
 local Constants = require(ReplicatedStorage.Constants)
-local ForValues = require(ReplicatedStorage.Utility.Fusion.State.ForValues)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
@@ -24,7 +23,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local SearchBox = require(script:WaitForChild("SearchBox"))
 local SearchResultsFrame = require(script:WaitForChild("SearchResultsFrame"))
 local FusionDropdown = require(Widgets:WaitForChild("FusionDropdown"))
-
+local SEARCH_SORT_BOX_SIZE = UDim2.fromScale(.15, .5)
 local options = {
 	"Relevance",
 	"Bestselling",
@@ -44,14 +43,14 @@ function SearchFrame(
 		backgroundTransparency: UsedAs<number>?,
 		currentView: UsedAs<string>,
 		searchAssetCategories: UsedAs<{Enum.AvatarAssetType}>, 
-		searchBundleCategories: UsedAs<Enum.BundleType>,
+		searchBundleCategories: UsedAs<{Enum.BundleType}>,
 		searchSort: UsedAs<Enum.CatalogSortType>,
 		searchResults: UsedAs<CatalogPages>,
 		searchText: UsedAs<string>,
 		searchCallback: () -> (),
 		loadMoreCallback: () -> ()
 	}
-): (Frame, ScrollingFrame)
+): (Frame, ScrollingFrame, Frame)
 	local searchResultsFrame = SearchResultsFrame(scope) :: ScrollingFrame
 	local canvasPositionObserver = searchResultsFrame:GetPropertyChangedSignal("CanvasPosition")
 
@@ -64,6 +63,53 @@ function SearchFrame(
             props.loadMoreCallback()
         end
     end)
+
+	local topBar = scope:New "Frame" {
+		Name = "TopBar",
+		Size = UDim2.fromScale(1, 0.1),
+		BackgroundTransparency = 1,
+		LayoutOrder = 1,
+
+		[Children] = {
+			scope:New "UIListLayout" {
+				Padding = UDim.new(0, 10),
+				FillDirection = Enum.FillDirection.Horizontal,
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				HorizontalAlignment = Enum.HorizontalAlignment.Left,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+			},
+
+			-- Spacer
+			scope:New "Frame" {
+				Name = "LeftSpacer",
+				Size = UDim2.fromScale(0.02, 1),
+				BackgroundTransparency = 1,
+				LayoutOrder = 1
+			},
+
+			-- Search box
+			SearchBox(scope, {
+				name = "CatalogSearch",
+				size = SEARCH_SORT_BOX_SIZE,
+				layoutOrder = 2,
+				placeholder = Constants.SEARCH_PLACEHOLDER,
+				searchText = props.searchText,
+				searchCallback = props.searchCallback,
+				TextXAlignment = Enum.TextXAlignment.Left,
+			}),
+
+			-- Sort dropdown
+			FusionDropdown(scope, {
+				name = "SortDropdown",
+				options = options,
+				selectedValue = props.searchSort,
+				size = UDim2.fromScale(0.08, 0.5),
+				layoutOrder = 3,
+				placeholder = "Sort by...",
+				searchCallback = props.searchCallback
+			})
+		}
+	}
 
 	local searchFrame = scope:New "Frame" {
 		Name = "SearchFrame",
@@ -90,60 +136,14 @@ function SearchFrame(
 			},
 
 			-- Top bar with search controls
-			scope:New "Frame" {
-				Name = "TopBar",
-				Size = UDim2.fromScale(1, 0.1),
-				BackgroundTransparency = 1,
-				LayoutOrder = 1,
-
-				[Children] = {
-					scope:New "UIListLayout" {
-						Padding = UDim.new(0, 10),
-						FillDirection = Enum.FillDirection.Horizontal,
-						SortOrder = Enum.SortOrder.LayoutOrder,
-						HorizontalAlignment = Enum.HorizontalAlignment.Left,
-						VerticalAlignment = Enum.VerticalAlignment.Center,
-					},
-
-					-- Spacer
-					scope:New "Frame" {
-						Name = "LeftSpacer",
-						Size = UDim2.fromScale(0.1, 1),
-						BackgroundTransparency = 1,
-						LayoutOrder = 1
-					},
-
-					-- Search box
-					SearchBox(scope, {
-						name = "CatalogSearch",
-						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
-						layoutOrder = 2,
-						placeholder = Constants.SEARCH_PLACEHOLDER,
-						searchText = props.searchText,
-						searchCallback = props.searchCallback,
-						TextXAlignment = Enum.TextXAlignment.Left,
-					}),
-
-					-- Sort dropdown
-					FusionDropdown(scope, {
-						name = "SortDropdown",
-						options = options,
-						selectedValue = props.searchSort,
-						size = UI_CONSTANTS.SEARCH_SORT_BOX_SIZE,
-						layoutOrder = 3,
-						placeholder = "Sort by...",
-						searchCallback = props.searchCallback
-					})
-				}
-			},
+			topBar,
  
 			-- Search results
 			searchResultsFrame
 		}
 	} :: Frame
 
-	return searchFrame, searchResultsFrame
+	return searchFrame, searchResultsFrame, topBar
 end
 
 return SearchFrame
-

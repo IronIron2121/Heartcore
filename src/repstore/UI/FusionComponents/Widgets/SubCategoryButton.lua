@@ -1,5 +1,5 @@
 --!strict
--- CategoryButton.lua
+-- SubCategoryButton.lua
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -24,7 +24,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 
 
 
-function CategoryButton(
+function SubCategoryButton(
 	scope: Fusion.Scope, 
 	props: {
 		onActivated: () -> (),
@@ -128,4 +128,4 @@ function CategoryButton(
 	return categoryButton
 end
 
-return CategoryButton
+return SubCategoryButton

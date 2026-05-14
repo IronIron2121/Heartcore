@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
+local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
@@ -285,9 +286,18 @@ local function InitialiseModals()
 	controllers["CatalogSearchController"]:Initialise()
 
     GuiManager.RegisterModal(MODAL_NAMES.DAILY_CHALLENGE_GUI, dailyChallengeFrame)
-    GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer) 
+    GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer)
     GuiManager.RegisterModal(MODAL_NAMES.PLAYER_INSPECT_GUI, playerClickFrame, onFrameOpened)
     GuiManager.RegisterModal(MODAL_NAMES.FTUE_GUI, ftuePop)
+
+    local PlayerTriggeredCatalogConsole = Bindables:WaitForChild("PlayerTriggeredCatalogConsole")
+    PlayerTriggeredCatalogConsole.Event:Connect(function(categoryName: string)
+        WardrobeGuiState.ResetView()
+        controllers["CatalogSearchController"]:OpenToTopCategory(categoryName)
+        if not GuiManager.IsCentreActive() then
+            GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
+        end
+    end)
 end
 
 local function initialiseGuiManager()

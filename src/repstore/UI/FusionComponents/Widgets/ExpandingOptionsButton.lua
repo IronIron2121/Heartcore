@@ -87,8 +87,8 @@ function ExpandingOptionsButton(
 
 	local expandingOptionsButton = scope:New "Frame" {
 		Name = "ExpandingOptionsButton",
-		Size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,  -- Width in scale, height auto
-		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,  -- Width auto, height in scale
+		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundTransparency = 1,
 		LayoutOrder = props.layoutOrder or 1,
 		
