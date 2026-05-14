@@ -46,9 +46,11 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: BasePar
 	prompt.ObjectText = ""
 
 	-- Prevent duplicates
-	if consoleBase:FindFirstChild("CustomCatalogPrompt") then
+	if consoleBase:FindFirstChild("CustomCatalogPrompt") or not consoleBase.Parent then
 		return
 	end 
+
+	local consoleType = consoleBase.Parent.Name
 
 	local billboard = Instance.new("BillboardGui", allPrompts)
 	billboard.Name = "CustomCatalogPrompt"
@@ -111,7 +113,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: BasePar
 	end)
 
 	button.Activated:Connect(function()
-		PlayerTriggeredCatalogConsole:Fire(consoleBase.Name)
+		PlayerTriggeredCatalogConsole:Fire(consoleType)
 	end)
 
 	-- Update the text key prompt dynamically
@@ -170,6 +172,9 @@ local function onCatalogConsoleActivated(player: Player, consoleName: string)
 end
 
 local function initialiseCatalogConsole(ConsoleBase: BasePart)
+	if not ConsoleBase.Parent then return end
+	local consoleType = ConsoleBase.Parent.Name
+
     if not ConsoleBase:FindFirstChildOfClass("ProximityPrompt") then
         local consolePrompt = Instance.new("ProximityPrompt", ConsoleBase)
         consolePrompt.Name = Constants.CATALOG_CONSOLE_PROMPT_NAME
@@ -185,7 +190,7 @@ local function initialiseCatalogConsole(ConsoleBase: BasePart)
         consolePrompt.RequiresLineOfSight = false
         
         consolePrompt.Triggered:Connect(function(player)
-            onCatalogConsoleActivated(player, ConsoleBase.Name)
+            onCatalogConsoleActivated(player, consoleType)
         end)
         
         -- Setup custom UI for this prompt

@@ -42,7 +42,7 @@ function ClientOutfitService.PurchasePlayerOutfit(): boolean
 			})
 		elseif description:IsA("BodyPartDescription") and description.AssetId ~= 0 and not MarketplaceService:PlayerOwnsAsset(localPlayer, description.AssetId) then
 			local success, assetDetails = callWithRetry(function()
-				return MarketplaceService:GetProductInfo(description.AssetId, Enum.MarketplaceProductType.AvatarAsset)
+				return MarketplaceService:GetProductInfo(description.AssetId, Enum.InfoType.Asset)
 			end)
 
 			if not success or not assetDetails then
