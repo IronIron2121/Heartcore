@@ -283,6 +283,7 @@ local function startCountdown(duration: number)
 end
 
 function GameStateManager.transitionTo(stateName: string)
+	print("Transitioning to...", stateName)
 	local config = STATES[stateName]
 	timerThread = nil
 
@@ -347,6 +348,7 @@ end
 
 function GameStateManager.start()
 	if getPlayerCount() >= MIN_PLAYERS or Constants.DEBUG_MODE == true then
+		print('Starting from adequate players')
 		GameStateManager.transitionTo(GameStates.Intermission.name)
 	else
 		currentState = "Waiting"

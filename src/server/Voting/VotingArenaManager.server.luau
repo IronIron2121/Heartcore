@@ -274,7 +274,6 @@ local function enablePlayerMovement(player)
 	local char = player.Character
 	local hrp = char and char:FindFirstChild("HumanoidRootPart") :: BasePart?
 	if hrp then hrp.Anchored = false end
-	player:SetAttribute("VotingStageIndex", nil)
 end
 
 local function cleanupArena()
@@ -305,7 +304,10 @@ end
 -- Called after a vote resolves. Slides the next queue mannequin to RightChallenger,
 -- shifts the rest of the queue forward, and backfills slot 5 if more outfits exist.
 onVotingEnded = function()
-	if not state or state.voteLocked then return end
+	if not state or state.voteLocked then 
+		warn("No state or vote locked!", state, state and state.voteLocked)
+		return 
+	end
 	-- Lock voting
 	state.voteLocked = true
 
@@ -396,7 +398,6 @@ end
 -- then calls advanceQueue to bring in the next challenger.
 onVote = function(player: Player, votingSide: string)
 	if not state or state.voteLocked then return end
-	print(player, votingSide)
 
 	-- Register player's votes in the table that holds them
 	currentVotes[player.UserId] = votingSide
@@ -430,7 +431,9 @@ local function initialisePlayerVoting(player: Player)
 end
 
 local function initVotingSession()
+	print("Initialising voting session")
 	for _, player in Players:GetPlayers() do
+		print("Init for player", player.Name)
 		initialisePlayerVoting(player)
 	end
 
@@ -462,7 +465,10 @@ local function initVotingSession()
 	}
 
 	-- This is redundant but the linter needs it
-	if not state then return end
+	if not state then 
+		warn("No state! returning")
+		return 
+	end
 
 	-- Place champion in the left challenger slot and mark as seen
 	local champOutfit = ordered[1]
@@ -497,7 +503,7 @@ local function initVotingSession()
 	else
 		-- Only one outfit existed — player wins by default
 		playVictoryAnimation(state.championModel :: Model)
-		warn("Only one outfit; marking finished", state, state.challengerModel)
+		warn("No challenger model; marking finished", state, state.challengerModel)
 		task.wait(2)
 		for _, player in Players:GetPlayers() do
 			enablePlayerMovement(player)
@@ -522,6 +528,10 @@ advanceQueue = function()
 	
 	-- If there's no new challenger, we've got a winner.
 	if not newChallenger or not newChallengerId then
+		print("####################################################################################################################################################################")
+		print("No new challenger at advance queue!")
+		print(state, newChallenger)
+		print("####################################################################################################################################################################")
 		-- Queue empty — champion celebrates on the podium until the round ends
 		playVictoryAnimation(state.championModel :: Model, true)
 		ArenaVotingCompleteRE:FireAllClients()
@@ -592,7 +602,6 @@ attachVoteHandlers = function()
 
 	if challCD then
 		challCD.MouseClick:Connect(function(clicker: Player)
-			print(clicker)
 			if clicker then
 				onVote(clicker, Constants.VOTE_SIDES.RIGHT)
 			end
@@ -603,6 +612,7 @@ end
 -- ─── Voting start hook (registered with GameStateManager) ───────────────────
 
 GameStateManager.onVotingStart = function()
+	print("Voting starting")
 	initVotingSession()
 end
 
