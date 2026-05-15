@@ -268,29 +268,22 @@ function GameStateManager.hurryRound()
 end
 
 local function startCountdown(duration: number)
-	print("Starting countdown")
 	secondsRemaining.Value = duration
+
 	while secondsRemaining.Value > 0 do
-		print(secondsRemaining.Value % 2 == 0 and 'Tik' or 'Tok')
 		task.wait(1)
-		task.spawn(function()
-			secondsRemaining.Value -= 1
-		end)
+		secondsRemaining.Value -= 1
 	end
+
 	GameStateManager.transitionTo(STATES[currentState].next)
-
-		--[[
-	timerThread = coroutine.create(function()
-
-		
-	end)
-	]]
 end
 
 function GameStateManager.transitionTo(stateName: string)
 	local config = STATES[stateName]
 
+	-- Pause and close existing timer if one exists
 	if timerThread then
+		coroutine.yield(timerThread)
 		coroutine.close(timerThread)
 		timerThread = nil
 	end
@@ -299,8 +292,12 @@ function GameStateManager.transitionTo(stateName: string)
 	currentStateName.Value = stateName
 
 	GameStateManager._onStateEnter(stateName)
-	timerThread = coroutine.create(startCountdown(config.duration)
-)
+	print(currentState)
+	if currentState ~= "Voting" then
+		timerThread = coroutine.create(
+			startCountdown(config.duration)
+		)
+	end
 end
 
 -- Optional callback set by VotingArenaManager to handle Voting-phase teleportation.
@@ -317,7 +314,7 @@ function GameStateManager._onStateEnter(stateName: string)
 		-- Select new theme
 		currentTheme = selectNewTheme()
 		currentThemeName.Value = currentTheme
-
+		
 		GameOutfitManager.reset()
 	elseif stateName == "Voting" then
 		-- Auto-submit for players who didn't submit during Dressing
