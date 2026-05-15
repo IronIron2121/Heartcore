@@ -28,6 +28,9 @@ local STATE_SPAWNS = {
 
 local STATES = require(GameLoop.GameStates)
 
+local timerThread
+local threadIsRunning = false
+
 local THEMES = {
 	"Y2K",
 	"Cottagecore",
@@ -243,17 +246,13 @@ function GameStateManager.checkAllFinishedVoting()
 	end
 
 	if not hasParticipants then 
-		print("No participants at checkAllFinishedVoting") 
 		return
 	end
-
-	print("All players have finished voting!", participatingPlayers)
 
 	GameStateManager.hurryRound()
 end 
 
 function GameStateManager.markFinishedVoting(player: Player)
-	warn("Marking finished voting")
 	finishedVotingPlayers[player.UserId] = true
 	GameStateManager.checkAllFinishedVoting()
 end
@@ -270,27 +269,35 @@ end
 
 local function startCountdown(duration: number)
 	secondsRemaining.Value = duration
-	
-	timerThread = task.spawn(function()
-		while secondsRemaining.Value > 0 do
-			task.wait(1)
-			task.defer(function()
-				secondsRemaining.Value -= 1
-			end)
-		end
-		GameStateManager.transitionTo(STATES[currentState].next)
-	end)
+
+	while secondsRemaining.Value > 0 do
+		task.wait(1)
+		secondsRemaining.Value -= 1
+	end
+
+	GameStateManager.transitionTo(STATES[currentState].next)
 end
 
 function GameStateManager.transitionTo(stateName: string)
 	local config = STATES[stateName]
-	timerThread = nil
+
+	-- Pause and close existing timer if one exists
+	if timerThread then
+		coroutine.yield(timerThread)
+		coroutine.close(timerThread)
+		timerThread = nil
+	end
 
 	currentState = stateName
 	currentStateName.Value = stateName
 
 	GameStateManager._onStateEnter(stateName)
-	startCountdown(config.duration)
+	print(currentState)
+	if currentState ~= "Voting" then
+		timerThread = coroutine.create(
+			startCountdown(config.duration)
+		)
+	end
 end
 
 -- Optional callback set by VotingArenaManager to handle Voting-phase teleportation.
@@ -307,7 +314,7 @@ function GameStateManager._onStateEnter(stateName: string)
 		-- Select new theme
 		currentTheme = selectNewTheme()
 		currentThemeName.Value = currentTheme
-
+		
 		GameOutfitManager.reset()
 	elseif stateName == "Voting" then
 		-- Auto-submit for players who didn't submit during Dressing
