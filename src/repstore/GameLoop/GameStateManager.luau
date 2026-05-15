@@ -246,11 +246,8 @@ function GameStateManager.checkAllFinishedVoting()
 	end
 
 	if not hasParticipants then 
-		print("No participants at checkAllFinishedVoting") 
 		return
 	end
-
-	print("All players have finished voting!", participatingPlayers)
 
 	GameStateManager.hurryRound()
 end 
@@ -273,34 +270,37 @@ end
 local function startCountdown(duration: number)
 	print("Starting countdown")
 	secondsRemaining.Value = duration
-	
+	while secondsRemaining.Value > 0 do
+		print(secondsRemaining.Value % 2 == 0 and 'Tik' or 'Tok')
+		task.wait(1)
+		task.spawn(function()
+			secondsRemaining.Value -= 1
+		end)
+	end
+	GameStateManager.transitionTo(STATES[currentState].next)
+
+		--[[
 	timerThread = coroutine.create(function()
-		while secondsRemaining.Value > 0 do
-			task.wait(1)
-			task.defer(function()
-				secondsRemaining.Value -= 1
-			end)
-		end
+
 		
-		GameStateManager.transitionTo(STATES[currentState].next)
 	end)
+	]]
 end
 
 function GameStateManager.transitionTo(stateName: string)
 	local config = STATES[stateName]
 
 	if timerThread then
-		timerThread.yield()
 		coroutine.close(timerThread)
 		timerThread = nil
 	end
 
-	print("Thread cancelled")
 	currentState = stateName
 	currentStateName.Value = stateName
 
 	GameStateManager._onStateEnter(stateName)
-	startCountdown(config.duration)
+	timerThread = coroutine.create(startCountdown(config.duration)
+)
 end
 
 -- Optional callback set by VotingArenaManager to handle Voting-phase teleportation.
@@ -357,7 +357,6 @@ end
 
 function GameStateManager.start()
 	if getPlayerCount() >= MIN_PLAYERS or Constants.DEBUG_MODE == true then
-		print('Transitioning from adequate players')
 		GameStateManager.transitionTo(GameStates.Intermission.name)
 	else
 		currentState = "Waiting"
