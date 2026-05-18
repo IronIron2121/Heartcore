@@ -32,6 +32,7 @@ function CategoryButton(
 		size: UsedAs<UDim2>?,
 		layoutOrder: UsedAs<number>?,
 		isSelected: UsedAs<boolean>?,
+		visible: UsedAs<boolean>?,
 		textSize: UsedAs<number>?,
 		textColor3: UsedAs<Color3>?,
 	}
@@ -93,6 +94,7 @@ function CategoryButton(
 		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
 		BackgroundColor3 = backgroundColorSpring,
 		BackgroundTransparency = 1,
+		Visible = if props.visible ~= nil then props.visible else true,
 		BorderSizePixel = 0,
 		TextSize = props.textSize or 20,
 		TextXAlignment = Enum.TextXAlignment.Left,

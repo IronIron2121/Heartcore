@@ -1,5 +1,4 @@
 --!strict
-
 -- CatalogSearchController.lua
 
 -- Services
@@ -29,7 +28,7 @@ local EditorsPick = require(DataTables:WaitForChild("EditorsPick"))
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local peek = Fusion.peek
 
--- GUI Components
+-- GUI Componentsd
 local CategoryFrame = require(script:WaitForChild("CategoryFrame"))
 local OutfitsFrame = require(script:WaitForChild("OutfitsFrame"))
 local SearchFrame = require(script:WaitForChild("SearchFrame"))
@@ -63,7 +62,9 @@ function CatalogSearchController.new(parentFrame: Frame, controllers: {any}, war
 	self.searchText = self.scope:Value("")
 	self.currentView = WardrobeGuiState.currentView
 	self.controllers = controllers
-	self.allowedTopCategories = self.scope:Value(nil :: {string}?)
+	self.allowedTopCategories    = self.scope:Value(nil :: {string}?)
+	self.selectedTopCategory     = (self.scope:Value(nil) :: any) :: Fusion.Value<string?>
+	self.currentSubCategories    = self.scope:Value({} :: { TopCategories.SubCategoryEntry })
 
 	return self
 end
@@ -92,8 +93,10 @@ function CatalogSearchController:_initialiseCategoryFrame()
 		searchBundleCategories = self.searchBundleCategories, 
 		searchCallback = self.searchCallback,
 		editorsPickCallback = self.editorsPickCallback,
-		editorsPickSelected = self.editorsPickSelected,
-		allowedTopCategories = self.allowedTopCategories,
+		editorsPickSelected   = self.editorsPickSelected,
+		allowedTopCategories  = self.allowedTopCategories,
+		selectedTopCategory   = self.selectedTopCategory,
+		currentSubCategories  = self.currentSubCategories,
 	})
 	categoryFrame.Parent = self.searchTopBar
 	print(self.searchFrame or 'no search frame')
@@ -291,16 +294,20 @@ function CatalogSearchController:OpenToTopCategory(categoryName: string?)
 	if categoryName then
 		for _, entry in TopCategories do
 			if entry.name == categoryName then
+				self.selectedTopCategory:set(entry.name)
+				self.currentSubCategories:set(entry.subCategories)
 				self.searchAssetCategories:set(entry.assetTypes)
 				self.searchBundleCategories:set(entry.bundleTypes)
 				break
 			end
 		end
 	else
+		self.selectedTopCategory:set(nil)
+		self.currentSubCategories:set({})
 		self.searchAssetCategories:set(AssetFilterCategories.getAllAssetTypes())
 		self.searchBundleCategories:set(BundleFilterCategories.getAllRobloxBundleTypes())
 	end
-	self.searchCallback()
+	task.spawn(self.searchCallback)
 end
 
 function CatalogSearchController:Cleanup()

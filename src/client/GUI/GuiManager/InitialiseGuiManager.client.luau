@@ -292,11 +292,12 @@ local function InitialiseModals()
 
     local PlayerTriggeredCatalogConsole = Bindables:WaitForChild("PlayerTriggeredCatalogConsole")
     PlayerTriggeredCatalogConsole.Event:Connect(function(categoryName: string)
+        print("Resetting GUI state")
         WardrobeGuiState.ResetView()
+        print("Opening to top category")
         controllers["CatalogSearchController"]:OpenToTopCategory(categoryName)
-        if not GuiManager.IsCentreActive() then
-            GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
-        end
+        print("Pushing to modal manager top category")
+        GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
     end)
 end
 
