@@ -115,15 +115,9 @@ function GameOutfitManager.setPodiumOutfits(outfitList: {Outfit})
 	end
 end
 
-function GameOutfitManager.addVote(player: Player, outfitId: string): boolean
+function GameOutfitManager.addVote(outfitId: string): boolean
 	local outfit = outfits[outfitId]
-	local voterUserId = player.UserId
 	if not outfit then
-		return false
-	end
-	
-	if outfit.userId == voterUserId then
-		warn("Player voted for own outfit!")
 		return false
 	end
 
@@ -136,8 +130,11 @@ function GameOutfitManager.addVote(player: Player, outfitId: string): boolean
 
 	-- Award XP asynchronously
 	task.spawn(function()
-		DataManager.AddExp(player, ExpConfig.Rewards.VOTE_RECEIVED)
-		ChallengeManager.OnOutfitVoted(player)
+		local votedPlayer = Players:GetPlayerByUserId(outfit.userId)
+		if votedPlayer then 
+			DataManager.AddExp(votedPlayer, ExpConfig.Rewards.VOTE_RECEIVED)
+			ChallengeManager.OnOutfitVoted(votedPlayer)
+		end
 	end)
 
 	return true

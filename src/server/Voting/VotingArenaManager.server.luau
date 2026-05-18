@@ -354,6 +354,7 @@ onVotingEnded = function()
 		loserModel  = state.championModel
 	end
 
+	GameOutfitManager.addVote(player, outfitId)
 	if not winnerModel or not winnerId or not loserModel then
 		warn("No winner at onVotingEnded!", state)
 		return 
