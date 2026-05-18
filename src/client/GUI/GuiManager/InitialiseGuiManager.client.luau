@@ -226,10 +226,20 @@ local function InitialiseHuds()
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
         topMiddle = { Object = submissionThemeBar, AlwaysOn = true },
         topRight = { Object = topRightContainer, AlwaysOn = true },
-        middleRight = { Object = buttonsFrame, AlwaysOn = false },
+        middleRight = nil,
         bottomLeft = nil,
         bottomMiddle = { Object = voteBar, AlwaysOn = false },
         bottomRight = { Object = GameOptionsFrame1, AlwaysOn = false },
+    })
+
+    local IntermissionConfig = GuiConfiguration.new({
+        ConfigurationName = CONFIGURATION_NAMES.IntermissionConfig,
+        topMiddle = { Object = submissionThemeBar, AlwaysOn = true },
+        topRight = { Object = topRightContainer, AlwaysOn = true },
+        middleRight = { Object = buttonsFrame, AlwaysOn = false },
+        bottomLeft = nil,
+        bottomMiddle = { Object = voteBar, AlwaysOn = false },
+        bottomRight = nil,
     })
 
     local FtueConfig = GuiConfiguration.new({
@@ -256,16 +266,27 @@ local function InitialiseHuds()
     GuiManager.RegisterConfiguration(GameLoopConfig)
     GuiManager.RegisterConfiguration(FtueConfig)
     GuiManager.RegisterConfiguration(VotingHudConfig)
-    GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.FtueConfig)
+    GuiManager.RegisterConfiguration(IntermissionConfig)
 
-    hudScope:Observer(GameStateValues.isVoting):onChange(function()
+    if peek(GameStateValues.isIntermission) then
+        GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.IntermissionConfig)
+    elseif peek(GameStateValues.isDressing) then
+        GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+    elseif peek(GameStateValues.isVoting) then
+        GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
+    end
+
+    hudScope:Observer(GameStateValues.stateName):onChange(function()
+        print("State changed", GameStateValues.stateName)
         if peek(GameStateValues.isVoting) then
             while GuiManager.IsCentreActive() do
                 GuiManager.PopCentre()
             end
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
-        else
+        elseif GameStateValues.isDressing then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+        elseif GameStateValues.isIntermission then
+            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.IntermissionConfig)
         end
     end)
 end
