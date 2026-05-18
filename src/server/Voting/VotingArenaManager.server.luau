@@ -518,7 +518,7 @@ end
 -- Called after a vote resolves. Slides the next queue mannequin to RightChallenger,
 -- shifts the rest of the queue forward, and backfills slot 5 if more outfits exist.
 advanceQueue = function()
-	if not state then return end
+	if not state or not state.championOutfitId then return end
 
 	local stage  = state.stage
 	local judgeP = stage.JudgePlatforms.JudgePlatform
@@ -530,10 +530,6 @@ advanceQueue = function()
 	
 	-- If there's no new challenger, we've got a winner.
 	if not newChallenger or not newChallengerId then
-		print("####################################################################################################################################################################")
-		print("No new challenger at advance queue!")
-		print(state, newChallenger)
-		print("####################################################################################################################################################################")
 		-- Queue empty — champion celebrates on the podium until the round ends
 		playVictoryAnimation(state.championModel :: Model, true)
 		ArenaVotingCompleteRE:FireAllClients()
@@ -550,6 +546,8 @@ advanceQueue = function()
 	state.challengerOutfitId = newChallengerId
 	-- Mark as seen now that it is in a challenger slot (not on queue entry)
 	GameOutfitManager.showOutfitToPlayers(newChallengerId)
+	-- Add another view to the current champion outfit
+	GameOutfitManager.showOutfitToPlayers(state.championOutfitId)
 
 	-- Shift remaining queue models forward one slot simultaneously
 	for i = 1, 4 do
@@ -614,7 +612,6 @@ end
 -- ─── Voting start hook (registered with GameStateManager) ───────────────────
 
 GameStateManager.onVotingStart = function()
-	print("Voting starting")
 	initVotingSession()
 end
 
@@ -622,7 +619,7 @@ end
 
 -- Clean up all arenas when the game leaves the Voting state
 CurrentStateName.Changed:Connect(function(newState: string)
-	if newState ~= "Voting" then
+	if newState == GameStates.Intermission.name then
 		cleanupArena()
 	end
 end)
