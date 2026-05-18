@@ -42,34 +42,34 @@ function CategoryFrame(
 		editorsPickCallback: () -> (),
 		editorsPickSelected: Fusion.Value<boolean>,
 		allowedTopCategories: Fusion.Value<{string}?>?,
+		selectedTopCategory: Fusion.Value<string?>,
+		currentSubCategories: Fusion.Value<{ TopCategories.SubCategoryEntry }>,
 	}
 ): Frame
 
 	-- ─── State ───────────────────────────────────────────────────────────
 
-	local selectedTopCategory  = scope:Value(nil :: string?)
 	local selectedSubCategory  = scope:Value(nil :: string?)
-	local currentSubCategories = scope:Value({} :: { TopCategories.SubCategoryEntry })
 
 	local allSelected = scope:Computed(function(use)
-		return use(selectedTopCategory) == nil and not use(props.editorsPickSelected)
+		return use(props.selectedTopCategory) == nil and not use(props.editorsPickSelected)
 	end)
 
 	-- ─── Helpers ─────────────────────────────────────────────────────────
 
 	local function selectAll()
-		selectedTopCategory:set(nil)
+		props.selectedTopCategory:set(nil)
 		selectedSubCategory:set(nil)
-		currentSubCategories:set({})
+		props.currentSubCategories:set({})
 		props.searchAssetCategories:set({})
 		props.searchBundleCategories:set({})
 		props.searchCallback()
 	end
 
 	local function selectTopCategory(entry: TopCategories.TopCategoryEntry)
-		selectedTopCategory:set(entry.name)
+		props.selectedTopCategory:set(entry.name)
 		selectedSubCategory:set(nil)
-		currentSubCategories:set(entry.subCategories)
+		props.currentSubCategories:set(entry.subCategories)
 		props.editorsPickSelected:set(false)
 		props.searchAssetCategories:set(entry.assetTypes)
 		props.searchBundleCategories:set(entry.bundleTypes)
@@ -98,7 +98,7 @@ function CategoryFrame(
 
 	-- ─── SubCategory buttons (reactive) ──────────────────────────────────
 
-	local subCategoryButtons = scope:ForValues(currentSubCategories, function(use, innerScope, entry)
+	local subCategoryButtons = scope:ForValues(props.currentSubCategories, function(use, innerScope, entry)
 		local isSelected = innerScope:Computed(function(use)
 			return use(selectedSubCategory) == entry.name
 		end)
@@ -166,6 +166,9 @@ function CategoryFrame(
 						layoutOrder = 1,
 						isSelected = allSelected,
 						onActivated = selectAll,
+						visible = scope:Computed(function(use)
+							return not (props.allowedTopCategories and use(props.allowedTopCategories))
+						end),
 					}),
 
 					CategoryButton(scope, {
@@ -173,13 +176,16 @@ function CategoryFrame(
 						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
 						layoutOrder = 2,
 						isSelected = props.editorsPickSelected,
+						visible = scope:Computed(function(use)
+							return not (props.allowedTopCategories and use(props.allowedTopCategories))
+						end),
 						onActivated = function()
 							if peek(props.editorsPickSelected) then
 								selectAll()
 							else
-								selectedTopCategory:set(nil)
+								props.selectedTopCategory:set(nil)
 								selectedSubCategory:set(nil)
-								currentSubCategories:set({})
+								props.currentSubCategories:set({})
 								props.editorsPickCallback()
 							end
 						end,
@@ -187,7 +193,7 @@ function CategoryFrame(
 
 					scope:ForValues(visibleTopCategories, function(use, innerScope, entry)
 						local isSelected = innerScope:Computed(function(use)
-							return use(selectedTopCategory) == entry.name
+							return use(props.selectedTopCategory) == entry.name
 						end)
 						return TopCategoryButton(innerScope, {
 							text = entry.name,

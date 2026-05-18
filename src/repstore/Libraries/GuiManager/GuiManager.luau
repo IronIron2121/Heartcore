@@ -314,6 +314,8 @@ function GuiManager.DisplayConfiguration(configurationName: string): ()
         currentConfiguration:Disable()
     end
 
+    print("Displaying config ", configurationName)
+
     local newConfiguration = registeredConfigurations[configurationName]
     currentConfiguration = newConfiguration
     currentConfigurationName:set(configurationName)

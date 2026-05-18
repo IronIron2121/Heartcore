@@ -134,7 +134,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: BasePar
 	end
 
 	local function updateLabel()
-		local action = "Browse the catalog"
+		local action = consoleBase.Parent.Name
 		local keyText = ""
 
 		if UserInputService.GamepadEnabled then
@@ -167,14 +167,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: BasePar
 	end)
 end
 
-local function onCatalogConsoleActivated(player: Player, consoleName: string)
-    PlayerTriggeredCatalogConsole:Fire(consoleName)
-end
-
 local function initialiseCatalogConsole(ConsoleBase: BasePart)
-	if not ConsoleBase.Parent then return end
-	local consoleType = ConsoleBase.Parent.Name
-
     if not ConsoleBase:FindFirstChildOfClass("ProximityPrompt") then
         local consolePrompt = Instance.new("ProximityPrompt", ConsoleBase)
         consolePrompt.Name = Constants.CATALOG_CONSOLE_PROMPT_NAME
@@ -184,14 +177,8 @@ local function initialiseCatalogConsole(ConsoleBase: BasePart)
         consolePrompt.Exclusivity = Enum.ProximityPromptExclusivity.AlwaysShow
         consolePrompt.GamepadKeyCode = Enum.KeyCode.ButtonX
         consolePrompt.KeyboardKeyCode = Enum.KeyCode.E
-        consolePrompt.ActionText = ""
-        consolePrompt.ObjectText = ""
         consolePrompt.MaxActivationDistance = 10
         consolePrompt.RequiresLineOfSight = false
-        
-        consolePrompt.Triggered:Connect(function(player)
-            onCatalogConsoleActivated(player, consoleType)
-        end)
         
         -- Setup custom UI for this prompt
         setupCustomPromptUI(consolePrompt, ConsoleBase)
