@@ -14,7 +14,6 @@ local GameLoop     = ReplicatedStorage:WaitForChild("GameLoop")
 local Remotes      = ReplicatedStorage:WaitForChild("Remotes")
 local UtilityFolder = ReplicatedStorage:WaitForChild("Utility")
 local Values       = ReplicatedStorage:WaitForChild("Values")
-local VotingStages = workspace:WaitForChild("VotingStages")
 
 -- Modules
 local Constants = require(ReplicatedStorage.Constants)
@@ -25,13 +24,13 @@ local ServerCustomisationService = require(UtilityFolder.ServerCustomisationServ
 local teleportPlayer           = require(UtilityFolder.teleportPlayer)
 
 -- Instances
-local VotingStage = VotingStages:WaitForChild("VotingStage1")
-local stage       = VotingStage
-local judgeP      = stage.JudgePlatforms.JudgePlatform
-local teleportP   = stage.JudgePlatforms.TeleportPlatform
-local leftP       = stage.JudgePlatforms.LeftChallenger
-local rightP      = stage.JudgePlatforms.RightChallenger
-local queueF      = stage.QueuePlatforms
+local VotingZone = workspace:WaitForChild("VOTING_ZONE")
+local judgeP      = VotingZone.JudgePlatforms.JudgePlatform
+local teleportP   = VotingZone.JudgePlatforms.TeleportPlatform
+local leftP       = VotingZone.JudgePlatforms.LeftChallenger
+local rightP      = VotingZone.JudgePlatforms.RightChallenger
+local queueF      = VotingZone.QueuePlatforms
+
 
 -- Remotes
 local SplitVoteIconsRE = Remotes.SplitVoteIconsRE

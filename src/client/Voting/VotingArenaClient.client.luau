@@ -14,12 +14,14 @@ local Remotes          = ReplicatedStorage:WaitForChild("Remotes")
 local Utility          = ReplicatedStorage:WaitForChild("Utility")
 local Values           = ReplicatedStorage:WaitForChild("Values")
 local FusionComponents = ReplicatedStorage:WaitForChild("UI"):WaitForChild("FusionComponents")
-local VotingStages 	   = workspace:WaitForChild("VotingStages")
 
 -- Modules
 local VoteBarManager = require(ReplicatedStorage.UI.FusionComponents.VoteBarManager)
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
 local ArenaTimerHud = require(FusionComponents:WaitForChild("ArenaTimerHud"))
+
+-- Models
+local VotingZone 	   = workspace:WaitForChild("VOTING_ZONE")
 
 -- Remotes / Values
 --local ArenaRoundStartedRE    = Remotes:WaitForChild("ArenaRoundStartedRE")
@@ -29,9 +31,6 @@ local CurrentStateName       = Values:WaitForChild("CurrentStateName") :: String
 local ArenaTimerSeconds 	= Values:WaitForChild("ArenaTimerSeconds")
 local SplitVoteIconsRE 		= Remotes:WaitForChild("SplitVoteIconsRE")
 local RestoreVoteIconsRE	= Remotes:WaitForChild("RestoreVoteIconsRE")
-
--- Instances
-local stage = VotingStages.VotingStage1
 
 local LocalPlayer = Players.LocalPlayer
 local hoverHighlight = Instance.new("Highlight")
@@ -46,8 +45,8 @@ local savedCameraType:   Enum.CameraType = Enum.CameraType.Custom
 local savedCameraCFrame: CFrame          = CFrame.identity
 
 local function computeJudgeCFrame(): CFrame
-	if not stage then return CFrame.identity end
-	local judgeP = (stage :: Folder):FindFirstChild("JudgePlatforms") :: Folder?
+	if not VotingZone then return CFrame.identity end
+	local judgeP = (VotingZone :: Model):FindFirstChild("JudgePlatforms") :: Folder?
 	if not judgeP then return CFrame.identity end
 	local judge  = judgeP:FindFirstChild("JudgePlatform") :: BasePart?
 	local leftC  = judgeP:FindFirstChild("LeftChallenger") :: BasePart?
