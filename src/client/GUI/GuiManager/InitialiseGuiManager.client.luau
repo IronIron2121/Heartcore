@@ -52,9 +52,9 @@ local ImageUris = require(DataTables.ImageUris)
 local FtuePop = require(ClientGUI.FtuePop)
 local Fusion = require(FusionUtility)
 
-local VotingStages = workspace:WaitForChild("VotingStages")
-local lobby = workspace:WaitForChild("lobby")
-local mainStage = workspace:WaitForChild("mainStage")
+local VotingZone = workspace:WaitForChild("VOTING_ZONE")
+local IntermissionZone = workspace:WaitForChild("INTERMISSION_ZONE")
+local DressingZone = workspace:WaitForChild("DRESSING_ZONE")
 
 
 -- Remotes
@@ -76,10 +76,11 @@ task.spawn(function()
     } :: ScreenGui
 
     local assetGroups = {
-        VotingStages:GetDescendants(),
-        lobby:GetDescendants(),
-        mainStage:GetDescendants(),
+        VotingZone:GetDescendants(),
+        IntermissionZone:GetDescendants(),
+        DressingZone:GetDescendants()
     }
+    
     local loadingText = modalScope:Value("...")
     local skipped = false
 

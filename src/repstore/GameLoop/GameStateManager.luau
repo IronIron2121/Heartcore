@@ -6,7 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Folders
-local GeneralWorld = workspace:WaitForChild("GeneralWorld")
+local Spawns = workspace:WaitForChild("Spawns")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Values = ReplicatedStorage:WaitForChild("Values")
@@ -20,9 +20,9 @@ local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 
 -- Spawn destinations
 local STATE_SPAWNS = {
-	Dressing = GeneralWorld.GameSpawn,
-	Voting = GeneralWorld.VoteSpawn,
-	Intermission = GeneralWorld.IntermissionSpawn,
+	Intermission = Spawns.IntermissionSpawn,
+	Dressing = Spawns.DressSpawn,
+	Voting = Spawns.VoteSpawn,
 }
 
 local STATES = require(GameLoop.GameStates)
