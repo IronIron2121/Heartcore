@@ -354,11 +354,12 @@ onVotingEnded = function()
 		loserModel  = state.championModel
 	end
 
-	GameOutfitManager.addVote(player, outfitId)
 	if not winnerModel or not winnerId or not loserModel then
 		warn("No winner at onVotingEnded!", state)
 		return 
 	end
+
+	GameOutfitManager.addVote(winnerId)
 
 	playAnimationOnce(winnerModel, 3994127840)
 
@@ -379,17 +380,23 @@ onVotingEnded = function()
 			state.championModel    = winnerModel
 			state.championOutfitId = winnerId
 		end
+
 		state.challengerModel    = nil
 		state.challengerOutfitId = nil
 
 		task.wait(3)
 		-- Reset votes
 		currentVotes = {}
-		-- Tell clients to bring vote icons back into the middle, and start the next round of voting
+
+		-- Tell clients to bring vote icons back into the middle
 		RestoreVoteIconsRE:FireAllClients()
+
+		-- Reset attributes for thumbnail colouring
 		for _, player in Players:GetPlayers() do
 			player:SetAttribute("HasVoted", false)			
 		end
+
+		 -- Start the next round of voting
 		advanceQueue()
 	end)
 end
@@ -431,7 +438,6 @@ local function initialisePlayerVoting(player: Player)
 end
 
 local function initVotingSession()
-	print("Initialising voting session")
 	for _, player in Players:GetPlayers() do
 		initialisePlayerVoting(player)
 	end
@@ -448,7 +454,7 @@ local function initVotingSession()
 
 	-- 
 	state = {
-		stage             = stage,
+		stage             = VotingZone,
 		orderedOutfits    = ordered,
 		nextQueueIndex    = 8,     -- indices 1-7 placed at init; 8 onwards are backfill
 		championModel     = nil,
