@@ -359,6 +359,8 @@ onVotingEnded = function()
 		return 
 	end
 
+	GameOutfitManager.addVote(winnerId)
+
 	playAnimationOnce(winnerModel, 3994127840)
 
 	task.spawn(function()
@@ -378,17 +380,23 @@ onVotingEnded = function()
 			state.championModel    = winnerModel
 			state.championOutfitId = winnerId
 		end
+
 		state.challengerModel    = nil
 		state.challengerOutfitId = nil
 
 		task.wait(3)
 		-- Reset votes
 		currentVotes = {}
-		-- Tell clients to bring vote icons back into the middle, and start the next round of voting
+
+		-- Tell clients to bring vote icons back into the middle
 		RestoreVoteIconsRE:FireAllClients()
+
+		-- Reset attributes for thumbnail colouring
 		for _, player in Players:GetPlayers() do
 			player:SetAttribute("HasVoted", false)			
 		end
+
+		 -- Start the next round of voting
 		advanceQueue()
 	end)
 end
@@ -430,7 +438,6 @@ local function initialisePlayerVoting(player: Player)
 end
 
 local function initVotingSession()
-	print("Initialising voting session")
 	for _, player in Players:GetPlayers() do
 		initialisePlayerVoting(player)
 	end
@@ -447,7 +454,7 @@ local function initVotingSession()
 
 	-- 
 	state = {
-		stage             = stage,
+		stage             = VotingZone,
 		orderedOutfits    = ordered,
 		nextQueueIndex    = 8,     -- indices 1-7 placed at init; 8 onwards are backfill
 		championModel     = nil,
@@ -511,7 +518,7 @@ end
 -- Called after a vote resolves. Slides the next queue mannequin to RightChallenger,
 -- shifts the rest of the queue forward, and backfills slot 5 if more outfits exist.
 advanceQueue = function()
-	if not state then return end
+	if not state or not state.championOutfitId then return end
 
 	local stage  = state.stage
 	local judgeP = stage.JudgePlatforms.JudgePlatform
@@ -523,10 +530,6 @@ advanceQueue = function()
 	
 	-- If there's no new challenger, we've got a winner.
 	if not newChallenger or not newChallengerId then
-		print("####################################################################################################################################################################")
-		print("No new challenger at advance queue!")
-		print(state, newChallenger)
-		print("####################################################################################################################################################################")
 		-- Queue empty — champion celebrates on the podium until the round ends
 		playVictoryAnimation(state.championModel :: Model, true)
 		ArenaVotingCompleteRE:FireAllClients()
@@ -543,6 +546,8 @@ advanceQueue = function()
 	state.challengerOutfitId = newChallengerId
 	-- Mark as seen now that it is in a challenger slot (not on queue entry)
 	GameOutfitManager.showOutfitToPlayers(newChallengerId)
+	-- Add another view to the current champion outfit
+	GameOutfitManager.showOutfitToPlayers(state.championOutfitId)
 
 	-- Shift remaining queue models forward one slot simultaneously
 	for i = 1, 4 do
@@ -607,7 +612,6 @@ end
 -- ─── Voting start hook (registered with GameStateManager) ───────────────────
 
 GameStateManager.onVotingStart = function()
-	print("Voting starting")
 	initVotingSession()
 end
 
@@ -615,7 +619,7 @@ end
 
 -- Clean up all arenas when the game leaves the Voting state
 CurrentStateName.Changed:Connect(function(newState: string)
-	if newState ~= "Voting" then
+	if newState == GameStates.Intermission.name then
 		cleanupArena()
 	end
 end)
