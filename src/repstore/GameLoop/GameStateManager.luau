@@ -11,7 +11,6 @@ local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local Values = ReplicatedStorage:WaitForChild("Values")
 
-
 -- Modules
 local GameStates = require(script.Parent.GameStates)
 local Constants = require(ReplicatedStorage.Constants)
@@ -29,7 +28,6 @@ local STATE_SPAWNS = {
 local STATES = require(GameLoop.GameStates)
 
 local timerThread
-local threadIsRunning = false
 
 local THEMES = {
 	"Y2K",

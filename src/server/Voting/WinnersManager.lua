@@ -7,11 +7,13 @@ local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Folders
-local lobby = workspace:WaitForChild("lobby")
-local dailyWinners = lobby:WaitForChild("dailyWinners")
 local descriptions = ReplicatedStorage:WaitForChild("Descriptions")
 local GameLoop = ReplicatedStorage:WaitForChild("GameLoop")
 local Values = ReplicatedStorage.Values
+
+-- Models
+local IntermissionZone = workspace:WaitForChild("INTERMISSION_ZONE")
+local winnerRigs = IntermissionZone:WaitForChild("winnerRigs")
 
 -- Modules
 local ExpConfig = require(ReplicatedStorage.Libraries.ExpConfig)
@@ -24,7 +26,7 @@ local ChallengeManager = require(ServerScriptService:WaitForChild("DailyChalleng
 local CurrentThemeName = Values:WaitForChild("CurrentThemeName") :: StringValue 
 
 -- Instances
-local leaderboard = dailyWinners:WaitForChild("leaderboard")
+local leaderboard = IntermissionZone:WaitForChild("leaderboard")
 local leaderboardScreen = leaderboard:WaitForChild("leaderboardScreen")
 local WinnersThemeGui = leaderboardScreen:WaitForChild("WinnersThemeGui")
 local WinnersThemeFrame = WinnersThemeGui:WaitForChild("WinnersThemeFrame")
@@ -35,7 +37,7 @@ local leaderboardGui = leaderboardScreen:WaitForChild("LeaderboardGui")
 local leaderboardFrame = leaderboardGui:WaitForChild("LeaderboardFrame")
 
 -- Constants
-local winnersRigScale = 3.547
+local winnersRigScale = 1
 
 -- Types
 type RigModel = Model & {
@@ -43,9 +45,9 @@ type RigModel = Model & {
 }
 
 local podiumRigs = {
-	[1] = dailyWinners:WaitForChild("FirstPlace") :: RigModel,
-	[2] = dailyWinners:WaitForChild("SecondPlace") :: RigModel,
-	[3] = dailyWinners:WaitForChild("ThirdPlace") :: RigModel,
+	[1] = winnerRigs:WaitForChild("FirstPlace") :: RigModel,
+	[2] = winnerRigs:WaitForChild("SecondPlace") :: RigModel,
+	[3] = winnerRigs:WaitForChild("ThirdPlace") :: RigModel,
 }
 
 local defaultWinnerIds = {
