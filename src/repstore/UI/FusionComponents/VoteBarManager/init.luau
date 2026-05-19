@@ -85,6 +85,7 @@ function VoteBarManager.initialise()
 		name = "LeftVoteBar",
 		position = UDim2.fromScale(0, 1),
 		backgroundColor = Color3.fromRGB(0, 0, 255),
+		backgroundTransparency = 1,
 		size = UDim2.fromScale(0.25, 1),
 		anchorPoint = Vector2.new(0, 1),
 		justification = "left",
@@ -96,6 +97,7 @@ function VoteBarManager.initialise()
 	VoteBarManager.rightVoteBar = VoteBar(scope, {
 		name = "RightVoteBar",
 		backgroundColor = Color3.fromRGB(255, 0, 0),
+		backgroundTransparency = 1,
 		position = UDim2.fromScale(1, 1),
 		size = UDim2.fromScale(0.25, 1),
 		anchorPoint = Vector2.new(1, 1),
@@ -108,6 +110,7 @@ function VoteBarManager.initialise()
 	VoteBarManager.middleVoteBar = VoteBar(scope, {
 		name = "MiddleVoteBar",
 		backgroundColor = Color3.fromRGB(0, 255, 0),
+		backgroundTransparency = 1,
 		position = UDim2.fromScale(0.5, 1),
 		size = UDim2.fromScale(0.5, 1),
 		anchorPoint = Vector2.new(0.5, 1),
