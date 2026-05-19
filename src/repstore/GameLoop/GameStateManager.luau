@@ -27,7 +27,7 @@ local STATE_SPAWNS = {
 
 local STATES = require(GameLoop.GameStates)
 
-local timerThread
+local timerThread: thread? = nil
 
 local THEMES = {
 	"Y2K",
@@ -265,36 +265,51 @@ function GameStateManager.hurryRound()
 	)
 end
 
+local function cancelTimerThread()
+	if not timerThread then
+		return
+	end
+
+	local threadToCancel = timerThread
+	timerThread = nil
+
+	task.cancel(threadToCancel)
+end
+
 local function startCountdown(duration: number)
+	local runningThread = coroutine.running()
 	secondsRemaining.Value = duration
 
 	while secondsRemaining.Value > 0 do
 		task.wait(1)
+
+		if timerThread ~= runningThread then
+			return
+		end
+
 		secondsRemaining.Value -= 1
 	end
 
-	GameStateManager.transitionTo(STATES[currentState].next)
+	if timerThread ~= runningThread then
+		return
+	end
+
+	local nextState = STATES[currentState].next
+	timerThread = nil
+	task.defer(GameStateManager.transitionTo, nextState)
 end
 
 function GameStateManager.transitionTo(stateName: string)
 	local config = STATES[stateName]
 
-	-- Pause and close existing timer if one exists
-	if timerThread then
-		coroutine.yield(timerThread)
-		coroutine.close(timerThread)
-		timerThread = nil
-	end
+	cancelTimerThread()
 
 	currentState = stateName
-	currentStateName.Value = stateName
+	currentStateName.Value = stateName 
 
 	GameStateManager._onStateEnter(stateName)
-	print(currentState)
 	if currentState ~= "Voting" then
-		timerThread = coroutine.create(
-			startCountdown(config.duration)
-		)
+		timerThread = task.spawn(startCountdown, config.duration)
 	end
 end
 
