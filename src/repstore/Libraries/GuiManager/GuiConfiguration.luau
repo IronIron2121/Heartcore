@@ -153,6 +153,7 @@ function GuiConfiguration.new(props: {
 
     self.Enabled = self.scope:Value(false)
     self.ModalVisible = self.scope:Value(true)
+    self.ForceHidden = self.scope:Value(false)
 
     -- Extract AlwaysOn flags
     local topMiddleAlwaysOn = props.topMiddle and props.topMiddle.AlwaysOn or false
@@ -209,7 +210,7 @@ function GuiConfiguration.new(props: {
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopMiddle] = self.TopMiddlePosition
 
     self.TopRightPosition = self.scope:Computed(function(use)
-        local visible = if topRightAlwaysOn then use(self.Enabled) else (use(self.Enabled) and use(self.ModalVisible))
+        local visible = if topRightAlwaysOn then use(self.Enabled) and not use(self.ForceHidden) else (use(self.Enabled) and use(self.ModalVisible))
         return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].OutPosition
     end)
     self.TopRight = self.scope:New "Frame" {

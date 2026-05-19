@@ -278,12 +278,12 @@ local function InitialiseHuds()
     end
 
     hudScope:Observer(GameStateValues.stateName):onChange(function()
-        GuiManager.doTransition()
-        print("State changed", GameStateValues.stateName)
+        while GuiManager.IsCentreActive() do
+            GuiManager.PopCentre()
+        end
+        GuiManager.HideCurrentConfiguration()
+        GuiManager.doTransition(peek(GameStateValues.stateName))
         if peek(GameStateValues.isVoting) then
-            while GuiManager.IsCentreActive() do
-                GuiManager.PopCentre()
-            end
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
         elseif GameStateValues.isDressing then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
