@@ -307,6 +307,10 @@ Position = scope:Tween(
 - Use this to share Fusion `Value` objects between scripts (e.g. `ArenaTimerHud` is required by both `InitialiseGuiManager` and `VotingArenaClient`, giving both access to the same `timerCount` and `waitingMode` Values)
 - Only works within the same Lua VM (same client); does not cross the client/server boundary
 
+**Timer thread cancellation:**
+- `coroutine.yield(timerThread)` does not pause another coroutine; it only yields the currently running thread
+- For countdown timers that transition game state on completion, defer the follow-up `transitionTo()` onto a new task before replacing/canceling the timer; otherwise the transition logic can end up trying to cancel the currently executing timer thread
+
 **Async loading pattern:**
 - To make GUI feel responsive, show the frame immediately (e.g. via GuiManager modal push), then `task.spawn` the heavy async work (API calls, model creation)
 - Show a loading screen via `LoadingScreenManager.show(container)` while loading, hide when done

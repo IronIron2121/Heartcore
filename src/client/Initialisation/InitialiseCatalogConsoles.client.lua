@@ -40,17 +40,17 @@ local function showAllPrompts()
 end
 
 -- Create custom GUI when proximity prompt appears
-local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: BasePart)
+local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
 	prompt.Style = Enum.ProximityPromptStyle.Custom
 	prompt.ActionText = "" -- hide Roblox default
 	prompt.ObjectText = ""
 
 	-- Prevent duplicates
-	if consoleBase:FindFirstChild("CustomCatalogPrompt") or not consoleBase.Parent then
+	if consoleBase:FindFirstChild("CustomCatalogPrompt") then
 		return
 	end 
 
-	local consoleType = consoleBase.Parent.Name
+	local consoleType = consoleBase.Name
 
 	local billboard = Instance.new("BillboardGui", allPrompts)
 	billboard.Name = "CustomCatalogPrompt"
@@ -134,7 +134,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: BasePar
 	end
 
 	local function updateLabel()
-		local action = consoleBase.Parent.Name
+		local action = consoleBase.Name
 		local keyText = ""
 
 		if UserInputService.GamepadEnabled then
