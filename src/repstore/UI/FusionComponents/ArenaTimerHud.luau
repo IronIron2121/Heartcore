@@ -50,9 +50,9 @@ local frame = scope:New "Frame" {
 		scope:New "UIGradient" {
 			Transparency = NumberSequence.new{
 				NumberSequenceKeypoint.new(0, 1),
-				NumberSequenceKeypoint.new(0.2, 0.25),
-				NumberSequenceKeypoint.new(0.5, 0.1),
-				NumberSequenceKeypoint.new(0.8, 0.25),
+				NumberSequenceKeypoint.new(0.2, 0.35),
+				NumberSequenceKeypoint.new(0.5, 0.2),
+				NumberSequenceKeypoint.new(0.8, 0.35),
 				NumberSequenceKeypoint.new(1, 1)
 			}
 		},

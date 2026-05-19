@@ -89,8 +89,8 @@ end)
 local function SubmissionThemeBar()
 	local submissionThemeBar = scope:New "Frame" {
         Name = "Container",
-        Size = UDim2.fromScale(1, 0.5),
-        Position = UDim2.fromScale(0,0),
+        Size = UDim2.fromScale(1, 0.4),
+        Position = UDim2.fromScale(0,0.01),
         BackgroundTransparency = 0,
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 
@@ -99,9 +99,9 @@ local function SubmissionThemeBar()
             scope:New "UIGradient" {
 			Transparency = NumberSequence.new{
 				NumberSequenceKeypoint.new(0, 1),
-				NumberSequenceKeypoint.new(0.2, 0.25),
-				NumberSequenceKeypoint.new(0.5, 0.1),
-				NumberSequenceKeypoint.new(0.8, 0.25),
+				NumberSequenceKeypoint.new(0.2, 0.35),
+				NumberSequenceKeypoint.new(0.5, 0.2),
+				NumberSequenceKeypoint.new(0.8, 0.35),
 				NumberSequenceKeypoint.new(1, 1)
 			}
 		},
