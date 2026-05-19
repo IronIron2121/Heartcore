@@ -20,6 +20,7 @@ local Widgets       = UI.FusionComponents.Widgets
 local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Modules
+local Constants = require(ReplicatedStorage.Constants)
 local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
 local parseError = require(ReplicatedStorage.Utility.Fusion.Logging.parseError)
 local PlayerDisplayManager = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
@@ -109,8 +110,8 @@ local modalContainer = guiScope:New "Frame" {
 }
 
 -- —— Transitions ————————————————————————————————————————————————————————————————
-local tweenTime = 2
-local transitionTime = tweenTime * 4
+local tweenTime = Constants.TransitionTweenTime
+local transitionTime = Constants.TransitionTotalTime
 
 local messageValue = guiScope:Value("INITIAL_TEXT")
 local messageLabel = guiScope:New "TextLabel" {
@@ -145,7 +146,7 @@ local veilFrame = guiScope:New "Frame" {
     Name = "veilFrame",
     Size = guiScope:Tween(
         veilSize,
-        TweenInfo.new(transitionTime/3)
+        TweenInfo.new(tweenTime)
     ),
     AnchorPoint = Vector2.new(1, 0.5),
     Position = UDim2.fromScale(1, 0.5),
@@ -169,7 +170,7 @@ local messageContainer = guiScope:New "Frame" {
     AnchorPoint = Vector2.new(0.5, 0.5),
     Position = guiScope:Tween(
         messagePosition, 
-        TweenInfo.new(transitionTime/3)
+        TweenInfo.new(0.5)
     ),
     Size = UDim2.fromScale(0.8, 0.25),
     Visible = messageVisible,
@@ -516,12 +517,11 @@ function GuiManager.doTransition(message: string?)
     messagePosition:set(messagePositions.IN)
     leftWingPos:set(leftWingPositions.IN)
     rightWingPos:set(rightWingPositions.IN)
-    task.wait(transitionTime/2)
+    task.wait(transitionTime * 0.35)
 
     veilSize:set(veilSizes.OUT)
-
     messageVisible:set(true)
-    task.wait(transitionTime/2)
+    task.wait(transitionTime * 0.65)
 
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
