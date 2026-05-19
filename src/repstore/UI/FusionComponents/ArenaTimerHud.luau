@@ -64,7 +64,7 @@ local frame = scope:New "Frame" {
 
 		scope:New "TextLabel" {
 			Name					= "Text",
-			Text					= "Time left to vote:",
+			Text					= "Time to vote!",
 			Size                 	= UDim2.fromScale(1, 0.5),
 			BackgroundTransparency	= 1,
 			TextScaled             	= true,
