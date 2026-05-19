@@ -34,8 +34,8 @@ export type PlayerThumbnailController = {
 }
 
 -- Colors
-local COLOR_NOT_SUBMITTED = Color3.fromRGB(200, 50, 50)
-local COLOR_SUBMITTED = Color3.fromRGB(0, 200, 80)
+local COLOR_NOT_SUBMITTED = Color3.fromRGB(161, 161, 161)
+local COLOR_SUBMITTED = Color3.fromRGB(76, 224, 135)
 local COLOR_VOTING = Color3.fromRGB(255, 215, 0)
 
 local defaultThumbnailSuccess, defaultThumbnail = callWithRetry(function()
@@ -141,6 +141,11 @@ local function PlayerThumbnail(
 				[Children] = {
 					scope:New "UICorner" {
 						CornerRadius = UDim.new(1, 0),
+					},
+
+					scope:New "UIStroke" {
+						Color = Color3.fromRGB(255,255,255),
+						Thickness = 4,
 					},
 
 					scope:New "ImageButton" {
