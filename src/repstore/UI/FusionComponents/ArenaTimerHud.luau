@@ -26,7 +26,7 @@ local timerText = scope:Computed(function(use)
 	return tostring(use(timerCount))
 end)
 
-local frameSize = scope:Value(UDim2.fromScale(0.25, 0.8))
+local frameSize = scope:Value(UDim2.fromScale(0.5, 0.7))
 
 -- ─── Timer Frame ─────────────────────────────────────────────────────────────
 
@@ -57,18 +57,43 @@ local frame = scope:New "Frame" {
 			}
 		},
 
+		scope:New "UIListLayout" {
+			FillDirection 	= Enum.FillDirection.Vertical,
+			SortOrder 		= Enum.SortOrder.LayoutOrder
+		},
+
 		scope:New "TextLabel" {
-			Size                   = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-			Text                   = timerText,
-			TextScaled             = true,
-			TextColor3             = timerColor,
-			FontFace               = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+			Name					= "Text",
+			Text					= "Time left to vote:",
+			Size                 	= UDim2.fromScale(1, 0.5),
+			BackgroundTransparency	= 1,
+			TextScaled             	= true,
+			TextColor3				= UI_CONSTANTS.TASTEMAKER_PURPLE,
+			FontFace               	= Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+			LayoutOrder				= 0,
 
 			[Children] = {
 				scope:New "UIStroke" {
-					Color = Color3.fromRGB(255, 255, 255),
-					Thickness = 4,
+					Color 			= Color3.fromRGB(255, 255, 255),
+					Thickness 		= 4,
+				}
+			}
+		},
+
+		scope:New "TextLabel" {
+			Name					= "TimerText",
+			Size                 	= UDim2.fromScale(1, 0.5),
+			BackgroundTransparency	= 1,
+			Text                 	= timerText,
+			TextScaled             	= true,
+			TextColor3             	= timerColor,
+			FontFace               	= Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+			LayoutOrder				= 1,
+
+			[Children] = {
+				scope:New "UIStroke" {
+					Color 			= Color3.fromRGB(255, 255, 255),
+					Thickness 		= 4,
 				}
 			}
 		},
