@@ -278,6 +278,7 @@ local function InitialiseHuds()
     end
 
     hudScope:Observer(GameStateValues.stateName):onChange(function()
+        GuiManager.doTransition()
         print("State changed", GameStateValues.stateName)
         if peek(GameStateValues.isVoting) then
             while GuiManager.IsCentreActive() do
@@ -327,7 +328,6 @@ local function initialiseGuiManager()
     InitialiseModals()
     InitialiseHuds()
     GuiManager.SetLoaded()
-
     GuiManager.PushCentreByName(MODAL_NAMES.FTUE_GUI)
 end
 

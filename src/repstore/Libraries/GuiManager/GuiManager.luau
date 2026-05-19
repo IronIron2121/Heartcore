@@ -20,6 +20,7 @@ local Widgets       = UI.FusionComponents.Widgets
 local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Modules
+local parseError = require(ReplicatedStorage.Utility.Fusion.Logging.parseError)
 local PlayerDisplayManager = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
 local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -65,6 +66,7 @@ local HudContainer = guiScope:New "ScreenGui" {
     Enabled = true,
     Parent = PlayerGui,
     ZIndexBehavior = Enum.ZIndexBehavior.Global,
+    DisplayOrder = 3
 }
 
 local registeredModals: {[string]: {guiObject: GuiObject, callback: (any?) -> (any?)?}} = {}
@@ -75,11 +77,13 @@ local CentreActive = guiScope:Computed(function(use)
     end
 )
 
+-- —— Modal ——————————————————————————————————————————————————————————————————————
+
 local modalPosition = guiScope:Computed(function(use) : Fusion.UsedAs<UDim2>
     return use(CentreActive) and ON_SCREEN_POSITION or OFF_SCREEN_POSITION 
 end)
 
-local modalTween = guiScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
+local modalTween = guiScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad)) 
 
 local ModalGui = guiScope:New "ScreenGui" {
     Name = "ModalGui",
@@ -87,6 +91,8 @@ local ModalGui = guiScope:New "ScreenGui" {
     Parent = PlayerGui,
     IgnoreGuiInset = false,
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    DisplayOrder = 2
+
 } :: ScreenGui
 
 local blurSize: Computed<number> = guiScope:Computed(function(use) 
@@ -101,6 +107,63 @@ local modalContainer = guiScope:New "Frame" {
     BackgroundTransparency = 1,
     Parent = ModalGui,
 }
+
+-- —— Transitions ————————————————————————————————————————————————————————————————
+local transitionTime = 2
+
+
+local leftWingPositions = {
+    ['IN'] = UDim2.fromScale(0.5, 0.5),
+    ['OUT'] = UDim2.fromScale(-0.5, 0.5)
+}
+local leftWingPos = guiScope:Value(
+    leftWingPositions.OUT
+)
+local leftWingTween = guiScope:Tween(
+    leftWingPos,
+    TweenInfo.new(transitionTime)
+)
+local leftTransitionWing = guiScope:New "Frame" {
+    Name = "leftTransitionWing",
+    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    BackgroundTransparency = 0,
+    AnchorPoint = Vector2.new(1, 0.5),
+    Size = UDim2.fromScale(0.5, 1),
+    Position = leftWingTween
+}
+
+local rightWingPositions = {
+    ['IN'] = UDim2.fromScale(0.5, 0.5),
+    ['OUT'] = UDim2.fromScale(1.5, 0.5)
+}
+local rightWingPos = guiScope:Value(
+    rightWingPositions.OUT
+)
+local rightWingTween = guiScope:Tween(
+    rightWingPos,
+    TweenInfo.new(transitionTime)
+)
+local rightTransitionWing = guiScope:New "Frame" {
+    Name = "rightTransitionWing",
+    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    BackgroundTransparency = 0,
+    AnchorPoint = Vector2.new(0, 0.5),
+    Size = UDim2.fromScale(0.5, 1),
+    Position = rightWingTween
+}
+local transitionGui = guiScope:New "ScreenGui" {
+    Name = "TransitionGui",
+    Enabled = true,
+    Parent = PlayerGui,
+    IgnoreGuiInset = true,
+    DisplayOrder = 209,
+    [Children] = {
+        leftTransitionWing,
+        rightTransitionWing
+    }
+}
+
+-- —— Modal ——————————————————————————————————————————————————————————————————————
 
 local BackgroundBlur = guiScope:New "BlurEffect" {
     Archivable = true,
@@ -372,6 +435,15 @@ end
 
 function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject, callback: () -> ()?}
     return registeredModals[modalName]
+end
+
+function GuiManager.doTransition()
+    print("Doing transition")
+    leftWingPos:set(leftWingPositions.IN)
+    rightWingPos:set(rightWingPositions.IN)
+    task.wait(transitionTime * 2)
+    leftWingPos:set(leftWingPositions.OUT)
+    rightWingPos:set(rightWingPositions.OUT)
 end
 
 function GuiManager.PushCentreByName(modalName: string, params: any?): ()
