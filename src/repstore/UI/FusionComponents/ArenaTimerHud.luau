@@ -51,7 +51,7 @@ local frame = scope:New "Frame" {
 			Transparency = NumberSequence.new{
 				NumberSequenceKeypoint.new(0, 1),
 				NumberSequenceKeypoint.new(0.2, 0.25),
-				NumberSequenceKeypoint.new(0.5, 0),
+				NumberSequenceKeypoint.new(0.5, 0.1),
 				NumberSequenceKeypoint.new(0.8, 0.25),
 				NumberSequenceKeypoint.new(1, 1)
 			}
