@@ -20,6 +20,9 @@ local Widgets       = UI.FusionComponents.Widgets
 local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Modules
+local Constants = require(ReplicatedStorage.Constants)
+local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
+local parseError = require(ReplicatedStorage.Utility.Fusion.Logging.parseError)
 local PlayerDisplayManager = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
 local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -31,7 +34,6 @@ local FusionImageButton = require(Widgets.FusionImageButton)
 -- Fusion
 local Fusion        = require(Utility.Fusion)
 local guiScope      = Fusion:scoped()
-local Children      = Fusion.Children
 local peek          = Fusion.peek
 type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
@@ -65,6 +67,7 @@ local HudContainer = guiScope:New "ScreenGui" {
     Enabled = true,
     Parent = PlayerGui,
     ZIndexBehavior = Enum.ZIndexBehavior.Global,
+    DisplayOrder = 3
 }
 
 local registeredModals: {[string]: {guiObject: GuiObject, callback: (any?) -> (any?)?}} = {}
@@ -75,11 +78,13 @@ local CentreActive = guiScope:Computed(function(use)
     end
 )
 
+-- —— Modal ——————————————————————————————————————————————————————————————————————
+
 local modalPosition = guiScope:Computed(function(use) : Fusion.UsedAs<UDim2>
     return use(CentreActive) and ON_SCREEN_POSITION or OFF_SCREEN_POSITION 
 end)
 
-local modalTween = guiScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
+local modalTween = guiScope:Tween(modalPosition, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad)) 
 
 local ModalGui = guiScope:New "ScreenGui" {
     Name = "ModalGui",
@@ -87,6 +92,8 @@ local ModalGui = guiScope:New "ScreenGui" {
     Parent = PlayerGui,
     IgnoreGuiInset = false,
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    DisplayOrder = 2
+
 } :: ScreenGui
 
 local blurSize: Computed<number> = guiScope:Computed(function(use) 
@@ -102,6 +109,131 @@ local modalContainer = guiScope:New "Frame" {
     Parent = ModalGui,
 }
 
+-- —— Transitions ————————————————————————————————————————————————————————————————
+local tweenTime = Constants.TransitionTweenTime
+local transitionTime = Constants.TransitionTotalTime
+
+local messageValue = guiScope:Value("INITIAL_TEXT")
+local messageLabel = guiScope:New "TextLabel" {
+    Name = "textLabel",
+    Size = UDim2.fromScale(1, 1),
+    BackgroundTransparency = 1,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Position = UDim2.fromScale(0.5, 0.5),
+    TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
+    Text = messageValue,
+    TextScaled = true,
+    ZIndex = 1,
+    [Children] = {
+        guiScope:New "UIStroke" {
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+            LineJoinMode = Enum.LineJoinMode.Round,
+            Transparency = 0,
+            Thickness = 6.5,
+        }
+    }
+}
+
+local veilSizes = {
+    ['IN'] = UDim2.fromScale(1, 1),
+    ['OUT'] = UDim2.fromScale(0, 1)
+}
+
+local veilSize = guiScope:Value(
+    veilSizes.IN
+)
+local veilFrame = guiScope:New "Frame" {
+    Name = "veilFrame",
+    Size = guiScope:Tween(
+        veilSize,
+        TweenInfo.new(tweenTime)
+    ),
+    AnchorPoint = Vector2.new(1, 0.5),
+    Position = UDim2.fromScale(1, 0.5),
+    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    BackgroundTransparency = 0,
+    ZIndex = 2
+}
+
+
+local messageVisible = guiScope:Value(false)
+local messagePositions = {
+    ['IN'] = UDim2.fromScale(0.5, 0.5),
+    ['OUT'] = UDim2.fromScale(0.5, -0.5)
+}
+local messagePosition = guiScope:Value(
+    messagePositions.OUT
+)
+local messageContainer = guiScope:New "Frame" {
+    Name = "messageContainer",
+    BackgroundTransparency = 1,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Position = guiScope:Tween(
+        messagePosition, 
+        TweenInfo.new(0.5)
+    ),
+    Size = UDim2.fromScale(0.8, 0.25),
+    Visible = messageVisible,
+    [Children] = {
+        veilFrame,
+        messageLabel
+    }
+}
+
+local leftWingPositions = {
+    ['IN'] = UDim2.fromScale(0.5, 0.5),
+    ['OUT'] = UDim2.fromScale(-0.5, 0.5)
+}
+local leftWingPos = guiScope:Value(
+    leftWingPositions.OUT
+)
+local leftWingTween = guiScope:Tween(
+    leftWingPos,
+    TweenInfo.new(tweenTime)
+)
+local leftTransitionWing = guiScope:New "Frame" {
+    Name = "leftTransitionWing",
+    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    BackgroundTransparency = 0,
+    AnchorPoint = Vector2.new(1, 0.5),
+    Size = UDim2.fromScale(0.5, 1),
+    Position = leftWingTween
+}
+
+local rightWingPositions = {
+    ['IN'] = UDim2.fromScale(0.5, 0.5),
+    ['OUT'] = UDim2.fromScale(1.5, 0.5)
+}
+local rightWingPos = guiScope:Value(
+    rightWingPositions.OUT
+)
+local rightWingTween = guiScope:Tween(
+    rightWingPos,
+    TweenInfo.new(tweenTime)
+)
+local rightTransitionWing = guiScope:New "Frame" {
+    Name = "rightTransitionWing",
+    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    BackgroundTransparency = 0,
+    AnchorPoint = Vector2.new(0, 0.5),
+    Size = UDim2.fromScale(0.5, 1),
+    Position = rightWingTween
+}
+local transitionGui = guiScope:New "ScreenGui" {
+    Name = "TransitionGui",
+    Enabled = true,
+    Parent = PlayerGui,
+    IgnoreGuiInset = true,
+    DisplayOrder = 209,
+    [Children] = {
+        leftTransitionWing,
+        rightTransitionWing,
+        messageContainer
+    }
+}
+
+-- —— Modal ——————————————————————————————————————————————————————————————————————
+
 local BackgroundBlur = guiScope:New "BlurEffect" {
     Archivable = true,
     Name = "ModalBackgroundBlur",
@@ -110,7 +242,9 @@ local BackgroundBlur = guiScope:New "BlurEffect" {
     Size = guiScope:Tween(blurSize, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad))
 } :: BlurEffect
 
--- ## NOTIFICATION MANAGER BEGIN -- ##
+
+-- —— Notification Manager————————————————————————————————————————————————————————
+
 local notificationActive = guiScope:Value(false)
 
 local notificationPosition = guiScope:Computed(function(use)
@@ -372,6 +506,33 @@ end
 
 function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject, callback: () -> ()?}
     return registeredModals[modalName]
+end
+
+function GuiManager.doTransition(message: string?)
+    if message then
+        messageValue:set(message)
+    else
+        messageValue:set("")
+    end
+    messagePosition:set(messagePositions.IN)
+    leftWingPos:set(leftWingPositions.IN)
+    rightWingPos:set(rightWingPositions.IN)
+    task.wait(transitionTime * 0.35)
+
+    veilSize:set(veilSizes.OUT)
+    messageVisible:set(true)
+    task.wait(transitionTime * 0.65)
+
+    leftWingPos:set(leftWingPositions.OUT)
+    rightWingPos:set(rightWingPositions.OUT)
+    messagePosition:set(messagePositions.OUT)
+
+    task.defer(function()
+        task.wait(transitionTime)
+        veilSize:set(veilSizes.IN)
+        messageVisible:set(false)
+        messagePosition:set(messagePositions.IN)
+    end)
 end
 
 function GuiManager.PushCentreByName(modalName: string, params: any?): ()
