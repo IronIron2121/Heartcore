@@ -307,7 +307,7 @@ function GameStateManager.transitionTo(stateName: string)
 	currentState = stateName
 	currentStateName.Value = stateName 
 
-	task.wait(Constants.TransitionTotalTime)
+	task.wait(Constants.TransitionTotalTime * 0.5)
 	GameStateManager._onStateEnter(stateName)
 	if currentState ~= "Voting" then
 		timerThread = task.spawn(startCountdown, config.duration)
