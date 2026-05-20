@@ -154,6 +154,17 @@ end
 Players.PlayerAdded:Connect(function(player)
 	participatingPlayers[player.UserId] = true
 
+	player.CharacterAdded:Connect(function(rig: Model)
+	if currentState == "Waiting" then
+		task.spawn(randomTeleport, player, STATE_SPAWNS.Intermission)
+		if getPlayerCount() >= MIN_PLAYERS then
+			GameStateManager.transitionTo("Dressing")
+		end
+	elseif currentState then
+		task.spawn(randomTeleport, player, STATE_SPAWNS[currentState])
+	end
+	end)
+
 	if currentState == "Waiting" then
 		task.spawn(randomTeleport, player, STATE_SPAWNS.Intermission)
 		if getPlayerCount() >= MIN_PLAYERS then

@@ -508,26 +508,24 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
     return registeredModals[modalName]
 end
 
-function GuiManager.doTransition(message: string?)
-    if message then
-        messageValue:set(message)
-    else
-        messageValue:set("")
-    end
+function GuiManager.doTransition(messages: {string})
     -- Hide top bar
-
     messagePosition:set(messagePositions.IN)
     leftWingPos:set(leftWingPositions.IN)
     rightWingPos:set(rightWingPositions.IN)
-    task.wait(tweenTime)
 
-    veilSize:set(veilSizes.OUT)
-    messageVisible:set(true)
-    task.wait(tweenTime)
+    for index, message in messages do 
+        veilSize:set(veilSizes.IN)
+        task.wait(tweenTime)
+        messageVisible:set(true)
+        messageValue:set(message)
+        veilSize:set(veilSizes.OUT)
+        task.wait(tweenTime)
+    end
 
+    messagePosition:set(messagePositions.OUT)
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
-    messagePosition:set(messagePositions.OUT)
 
     task.defer(function()
         task.wait(tweenTime)

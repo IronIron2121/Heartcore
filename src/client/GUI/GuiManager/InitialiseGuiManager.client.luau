@@ -282,12 +282,16 @@ local function InitialiseHuds()
             GuiManager.PopCentre()
         end
         GuiManager.HideCurrentConfiguration()
-        GuiManager.doTransition(peek(GameStateValues.stateName))
 
+        GuiManager.doTransition({
+            peek(GameStateValues.stateName),
+        })
+        
         if peek(GameStateValues.isVoting) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
         elseif GameStateValues.isDressing then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+
         elseif GameStateValues.isIntermission then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.IntermissionConfig)
         end
@@ -316,11 +320,8 @@ local function InitialiseModals()
 
     local PlayerTriggeredCatalogConsole = Bindables:WaitForChild("PlayerTriggeredCatalogConsole")
     PlayerTriggeredCatalogConsole.Event:Connect(function(categoryName: string)
-        print("Resetting GUI state")
         WardrobeGuiState.ResetView()
-        print("Opening to top category")
         controllers["CatalogSearchController"]:OpenToTopCategory(categoryName)
-        print("Pushing to modal manager top category")
         GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
     end)
 end
