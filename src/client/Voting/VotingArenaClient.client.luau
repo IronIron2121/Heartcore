@@ -54,9 +54,9 @@ local function computeJudgeCFrame(): CFrame
 	if not judge or not leftC or not rightC then return CFrame.identity end
 
 	-- Camera sits 8 studs above JudgePlatform, looking at chest height of the challengers
-	local camPos = judge.Position + Vector3.new(0, 8, 0)
+	local camPos = judge.Position + Vector3.new(0, 10, 12)
 	local midpoint = (leftC.Position + rightC.Position) / 2
-	local lookAt = midpoint + Vector3.new(0, 5, 0)
+	local lookAt = midpoint + Vector3.new(0, 10, 0)
 	return CFrame.lookAt(camPos, lookAt)
 end
 

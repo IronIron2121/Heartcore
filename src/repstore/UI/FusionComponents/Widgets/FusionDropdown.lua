@@ -280,8 +280,8 @@ function FusionDropdown<T>(
 
 			scope:New "TextLabel" {
 				Name = "SortBy",
-				Size = UDim2.fromScale(0.25,1),
-				Text = "Sort by: ",
+				Size = UDim2.fromScale(0.15,1),
+				Text = "▼",
 				BackgroundTransparency = 1,
 				TextColor3 = Color3.new(1, 1, 1),
 				TextScaled = true,

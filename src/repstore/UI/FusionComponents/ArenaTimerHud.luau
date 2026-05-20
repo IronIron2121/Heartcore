@@ -19,14 +19,14 @@ local timerCount  = scope:Value(0)
 local timerColor = scope:Computed(function(use)
 	return use(timerCount) <= 3
 		and Color3.fromRGB(255, 80, 80)
-		or  Color3.fromRGB(255, 255, 255)
+		or  UI_CONSTANTS.TASTEMAKER_PURPLE
 end)
 
 local timerText = scope:Computed(function(use)
 	return tostring(use(timerCount))
 end)
 
-local frameSize = scope:Value(UDim2.fromScale(0.25, 0.8))
+local frameSize = scope:Value(UDim2.fromScale(0.5, 0.7))
 
 -- ─── Timer Frame ─────────────────────────────────────────────────────────────
 
@@ -35,7 +35,8 @@ local frame = scope:New "Frame" {
 	Size                   = frameSize,
 	AnchorPoint            = Vector2.new(0.5, 0.5),
 	Position               = UDim2.fromScale(0.5, 0.5),
-	BackgroundColor3       = Color3.fromRGB(20, 20, 20),
+	BackgroundColor3       = Color3.fromRGB(255,255,255)
+,
 	BackgroundTransparency = 0.35,
 
 	[Children] = {
@@ -46,13 +47,55 @@ local frame = scope:New "Frame" {
 			PaddingLeft  = UDim.new(0.04, 0),
 			PaddingRight = UDim.new(0.04, 0),
 		},
+		scope:New "UIGradient" {
+			Transparency = NumberSequence.new{
+				NumberSequenceKeypoint.new(0, 1),
+				NumberSequenceKeypoint.new(0.2, 0.35),
+				NumberSequenceKeypoint.new(0.5, 0.2),
+				NumberSequenceKeypoint.new(0.8, 0.35),
+				NumberSequenceKeypoint.new(1, 1)
+			}
+		},
+
+		scope:New "UIListLayout" {
+			FillDirection 	= Enum.FillDirection.Vertical,
+			SortOrder 		= Enum.SortOrder.LayoutOrder
+		},
+
 		scope:New "TextLabel" {
-			Size                   = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-			Text                   = timerText,
-			TextScaled             = true,
-			TextColor3             = timerColor,
-			FontFace               = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+			Name					= "Text",
+			Text					= "Time to vote!",
+			Size                 	= UDim2.fromScale(1, 0.5),
+			BackgroundTransparency	= 1,
+			TextScaled             	= true,
+			TextColor3				= UI_CONSTANTS.TASTEMAKER_PURPLE,
+			FontFace               	= Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+			LayoutOrder				= 0,
+
+			[Children] = {
+				scope:New "UIStroke" {
+					Color 			= Color3.fromRGB(255, 255, 255),
+					Thickness 		= 4,
+				}
+			}
+		},
+
+		scope:New "TextLabel" {
+			Name					= "TimerText",
+			Size                 	= UDim2.fromScale(1, 0.5),
+			BackgroundTransparency	= 1,
+			Text                 	= timerText,
+			TextScaled             	= true,
+			TextColor3             	= timerColor,
+			FontFace               	= Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+			LayoutOrder				= 1,
+
+			[Children] = {
+				scope:New "UIStroke" {
+					Color 			= Color3.fromRGB(255, 255, 255),
+					Thickness 		= 4,
+				}
+			}
 		},
 	},
 } :: Frame
