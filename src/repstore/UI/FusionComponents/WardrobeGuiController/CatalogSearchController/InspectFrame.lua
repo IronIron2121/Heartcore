@@ -17,6 +17,7 @@ local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local BaseButton = require(ReplicatedStorage.UI.FusionComponents.Widgets.BaseButton)
+local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion
 local Children = Fusion.Children
@@ -65,7 +66,8 @@ function InspectFrame(
 		CanvasSize = UDim2.fromScale(0, 0),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
-		ScrollBarThickness = 8,
+		ScrollBarThickness = 4,
+		ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 
 		[Children] = {
 			gridLayout,
