@@ -33,7 +33,7 @@ local queueF      = VotingZone.QueuePlatforms
 
 
 -- Remotes
-local SplitVoteIconsRE = Remotes.SplitVoteIconsRE
+local VoteSubRoundCompleteRE = Remotes.VoteSubRoundCompleteRE
 local RestoreVoteIconsRE = Remotes.RestoreVoteIconsRE
 
 -- Values
@@ -365,7 +365,7 @@ onVotingEnded = function()
 
 	task.spawn(function()
 		-- Tell clients to split icons to left and right (show who voted for what)
-		SplitVoteIconsRE:FireAllClients(currentVotes)
+		VoteSubRoundCompleteRE:FireAllClients(currentVotes)
 		task.wait(2)
 
 		-- Victory plays on the winner (non-blocking); death on loser (blocking ~2.3s)
