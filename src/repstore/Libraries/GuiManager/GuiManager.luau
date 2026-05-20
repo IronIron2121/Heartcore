@@ -514,6 +514,8 @@ function GuiManager.doTransition(message: string?)
     else
         messageValue:set("")
     end
+    -- Hide top bar
+
     messagePosition:set(messagePositions.IN)
     leftWingPos:set(leftWingPositions.IN)
     rightWingPos:set(rightWingPositions.IN)
