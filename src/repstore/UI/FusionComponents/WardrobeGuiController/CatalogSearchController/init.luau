@@ -99,7 +99,6 @@ function CatalogSearchController:_initialiseCategoryFrame()
 		currentSubCategories  = self.currentSubCategories,
 	})
 	categoryFrame.Parent = self.searchTopBar
-	print(self.searchFrame or 'no search frame')
 end
 
 function CatalogSearchController:_initialiseSearchFrame()

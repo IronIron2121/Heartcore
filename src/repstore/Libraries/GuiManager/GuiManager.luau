@@ -448,12 +448,9 @@ function GuiManager.DisplayConfiguration(configurationName: string): ()
         currentConfiguration:Disable()
     end
 
-    print("Displaying config ", configurationName)
-
     local newConfiguration = registeredConfigurations[configurationName]
     currentConfiguration = newConfiguration
     currentConfigurationName:set(configurationName)
-    assert(currentConfiguration, "Configuration should not be nil") -- type checker unfortunately redlines if we don't put this here
     currentConfiguration:Enable(peek(CentreActive))
 end
  
