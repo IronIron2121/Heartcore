@@ -120,7 +120,8 @@ local messageLabel = guiScope:New "TextLabel" {
     BackgroundTransparency = 1,
     AnchorPoint = Vector2.new(0.5, 0.5),
     Position = UDim2.fromScale(0.5, 0.5),
-    TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
+    TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
     Text = messageValue,
     TextScaled = true,
     ZIndex = 1,
@@ -129,7 +130,8 @@ local messageLabel = guiScope:New "TextLabel" {
             ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
             LineJoinMode = Enum.LineJoinMode.Round,
             Transparency = 0,
-            Thickness = 6.5,
+            Color = UI_CONSTANTS.COLOUR_WHITE,
+            Thickness = 2,
         }
     }
 }
@@ -175,7 +177,7 @@ local messageContainer = guiScope:New "Frame" {
     Size = UDim2.fromScale(0.8, 0.25),
     Visible = messageVisible,
     [Children] = {
-        veilFrame,
+        --veilFrame,
         messageLabel
     }
 }
