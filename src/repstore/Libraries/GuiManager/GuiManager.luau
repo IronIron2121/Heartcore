@@ -556,17 +556,17 @@ function GuiManager.doTransition(message: string?)
     else
         messageValue:set("")
     end
+    -- Hide top bar
+
     messagePosition:set(messagePositions.IN)
     leftWingPos:set(leftWingPositions.IN)
     rightWingPos:set(rightWingPositions.IN)
-    task.wait(transitionTime * 0.35)
+    task.wait(tweenTime)
 
     veilSize:set(veilSizes.OUT)
     messageSize:set(messageSizes.OUT)
     messageVisible:set(true)
-    task.wait(0)
-    messageSize:set(messageSizes.IN)
-    task.wait(transitionTime * 0.65)
+    task.wait(tweenTime)
 
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
@@ -574,7 +574,7 @@ function GuiManager.doTransition(message: string?)
     messageSize:set(messageSizes.OUT)
 
     task.defer(function()
-        task.wait(transitionTime)
+        task.wait(tweenTime)
         veilSize:set(veilSizes.IN)
         messageVisible:set(false)
         messagePosition:set(messagePositions.IN)

@@ -307,7 +307,8 @@ function GameStateManager.transitionTo(stateName: string)
 	currentState = stateName
 	currentStateName.Value = stateName 
 
-	task.wait(Constants.TransitionTotalTime)
+	-- Teleport players just after the first transition tween has finished
+	task.wait(Constants.TransitionTweenTime * 1.05)
 	GameStateManager._onStateEnter(stateName)
 	if currentState ~= "Voting" then
 		timerThread = task.spawn(startCountdown, config.duration)
