@@ -86,10 +86,13 @@ local function activate()
 
 	camera.CameraType = Enum.CameraType.Scriptable
 	camera.CFrame     = computeJudgeCFrame()
+
 end
 
 local function deactivate()
 	stopCountdown()
+	print("Deactivating voting arena client")
+	ArenaTimerHud.setVisible(false)
 
 	local camera = workspace.CurrentCamera
 	camera.CameraType = savedCameraType
@@ -120,13 +123,8 @@ end)
 -- Server fires this when all outfits have been voted on
 ArenaVotingCompleteRE.OnClientEvent:Connect(function()
 	stopCountdown()
-end)
+	deactivate()
 
--- Deactivate when the round ends
-CurrentStateName.Changed:Connect(function(newState: string)
-	if newState ~= "Voting" then
-		deactivate()
-	end
 end)
 
 -- Fallback: script loaded while Voting was already active (e.g. rejoin)
@@ -164,5 +162,7 @@ CollectionService:GetInstanceRemovedSignal("VoteHandler"):Connect(function()
 end)
 
 ArenaTimerSeconds.Changed:Connect(function(newValue: number)  
+	print("Arena timer seconds changed")
 	ArenaTimerHud.setTimer(newValue)
+	ArenaTimerHud.setVisible(true)
 end)
