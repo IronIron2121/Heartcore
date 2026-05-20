@@ -70,6 +70,24 @@ local TopCategories: { TopCategoryEntry } = {
 		},
 	},
 	{
+		name = "Accessories",
+		assetTypes = {
+			Enum.AvatarAssetType.NeckAccessory,
+			Enum.AvatarAssetType.WaistAccessory,
+			Enum.AvatarAssetType.ShoulderAccessory,
+			Enum.AvatarAssetType.BackAccessory,
+		},
+		bundleTypes = {},
+		subCategories = {
+			{ name = "Neck",		assetType = Enum.AvatarAssetType.NeckAccessory   	},
+			{ name = "Waist", 		assetType = Enum.AvatarAssetType.WaistAccessory 	},
+			{ name = "Shoulder", 	assetType = Enum.AvatarAssetType.ShoulderAccessory 	},
+			{ name = "Back", 		assetType = Enum.AvatarAssetType.BackAccessory 		},
+			{ name = "Face", 		assetType = Enum.AvatarAssetType.FaceAccessory 		},
+			{ name = "Shoes", 		bundleType = Enum.BundleType.Shoes 					},
+		},
+	},
+	{
 		name = "Dresses & Skirts",
 		assetTypes = { 
 			Enum.AvatarAssetType.DressSkirtAccessory 
