@@ -193,11 +193,19 @@ local leftWingTween = guiScope:Tween(
 )
 local leftTransitionWing = guiScope:New "Frame" {
     Name = "leftTransitionWing",
-    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    BackgroundColor3 = UI_CONSTANTS.COLOUR_WHITE,
     BackgroundTransparency = 0,
     AnchorPoint = Vector2.new(1, 0.5),
     Size = UDim2.fromScale(0.5, 1),
-    Position = leftWingTween
+    Position = leftWingTween,
+
+    [Children] = {
+        guiScope:New "UIGradient" {
+            Color = ColorSequence.new(
+                UI_CONSTANTS.COLOUR_WHITE,
+                UI_CONSTANTS.TASTEMAKER_PURPLE)
+        }
+    }
 }
 
 local rightWingPositions = {
@@ -213,11 +221,19 @@ local rightWingTween = guiScope:Tween(
 )
 local rightTransitionWing = guiScope:New "Frame" {
     Name = "rightTransitionWing",
-    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    BackgroundColor3 = UI_CONSTANTS.COLOUR_WHITE,
     BackgroundTransparency = 0,
     AnchorPoint = Vector2.new(0, 0.5),
     Size = UDim2.fromScale(0.5, 1),
-    Position = rightWingTween
+    Position = rightWingTween,
+    [Children] = {
+        guiScope:New "UIGradient" {
+            Color = ColorSequence.new(
+                UI_CONSTANTS.TASTEMAKER_PURPLE,
+                UI_CONSTANTS.COLOUR_WHITE
+            ),
+        }
+    }
 }
 local transitionGui = guiScope:New "ScreenGui" {
     Name = "TransitionGui",
