@@ -38,13 +38,11 @@ local TopCategories: { TopCategoryEntry } = {
 		assetTypes = {
 			Enum.AvatarAssetType.PantsAccessory,
 			Enum.AvatarAssetType.ShortsAccessory,
-			Enum.AvatarAssetType.DressSkirtAccessory,
 		},
 		bundleTypes = {},
 		subCategories = {
 			{ name = "Pants",            assetType = Enum.AvatarAssetType.PantsAccessory      },
 			{ name = "Shorts",           assetType = Enum.AvatarAssetType.ShortsAccessory     },
-			{ name = "Dresses & Skirts", assetType = Enum.AvatarAssetType.DressSkirtAccessory },
 		},
 	},
 	{
@@ -65,6 +63,15 @@ local TopCategories: { TopCategoryEntry } = {
 			{ name = "Dynamic Heads", bundleType = Enum.BundleType.DynamicHead },
 		},
 	},
+	{
+		name = "Dresses & Skirts",
+		assetTypes = { 
+			Enum.AvatarAssetType.DressSkirtAccessory 
+		},
+		bundleTypes = {},
+		subCategories = {},
+	},
+
 }
 
 return TopCategories
