@@ -166,6 +166,23 @@ local messagePositions = {
 local messagePosition = guiScope:Value(
     messagePositions.OUT
 )
+local messageSizes = {
+    ['IN'] = UDim2.fromScale(0.8, 0.25),
+    ['OUT'] = UDim2.fromScale(0, 0)
+}
+local messageSize = guiScope:Value(messageSizes.OUT)
+
+local messageRotation = guiScope:Value(0)
+
+task.spawn(function()
+    while true do
+        messageRotation:set(10)
+        task.wait(0.5)
+        messageRotation:set(-10)
+        task.wait(0.5)
+    end
+end)
+
 local messageContainer = guiScope:New "Frame" {
     Name = "messageContainer",
     BackgroundTransparency = 1,
@@ -174,7 +191,14 @@ local messageContainer = guiScope:New "Frame" {
         messagePosition, 
         TweenInfo.new(0.5)
     ),
-    Size = UDim2.fromScale(0.8, 0.25),
+    Size = guiScope:Tween(
+        messageSize,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+    ),
+    Rotation = guiScope:Tween(
+        messageRotation,
+        TweenInfo.new(2, Enum.EasingStyle.Quad)
+    ),
     Visible = messageVisible,
     [Children] = {
         --veilFrame,
@@ -538,18 +562,23 @@ function GuiManager.doTransition(message: string?)
     task.wait(transitionTime * 0.35)
 
     veilSize:set(veilSizes.OUT)
+    messageSize:set(messageSizes.OUT)
     messageVisible:set(true)
+    task.wait(0)
+    messageSize:set(messageSizes.IN)
     task.wait(transitionTime * 0.65)
 
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
     messagePosition:set(messagePositions.OUT)
+    messageSize:set(messageSizes.OUT)
 
     task.defer(function()
         task.wait(transitionTime)
         veilSize:set(veilSizes.IN)
         messageVisible:set(false)
         messagePosition:set(messagePositions.IN)
+        messageSize:set(messageSizes.OUT)
     end)
 end
 
