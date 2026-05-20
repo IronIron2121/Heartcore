@@ -43,6 +43,7 @@ local voteHighlight = Instance.new("Highlight")
 voteHighlight.Name = "voteHighlight"
 voteHighlight.Parent = LocalPlayer
 voteHighlight.Adornee = nil
+voteHighlight.OutlineColor = UI_CONSTANTS.TASTEMAKER_PURPLE
 voteHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_PURPLE
 
 
