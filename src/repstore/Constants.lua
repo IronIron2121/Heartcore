@@ -202,6 +202,8 @@ local Constants = {
 	CLASSIC_ITEMS = {"GraphicTShirt", "Shirt", "Pants", "Face"},
 
 	SEARCH_PLACEHOLDER = "Search for items...",
+	TransitionTweenTime = 2,
+	TransitionTotalTime = 6, -- tween time * 3
 
 	VOTE_SIDES = {
 		['LEFT'] = "leftSide",
