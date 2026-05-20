@@ -110,7 +110,6 @@ local function setVisible(visible: boolean)
 end
 
 local function setTimer(duration: number)
-	print("setting timer!", peek(timerVisible))
 	setVisible(true)
 	timerCount:set(duration)
 end
