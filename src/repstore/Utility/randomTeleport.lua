@@ -8,7 +8,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local teleportPlayer    = require(ReplicatedStorage:WaitForChild("Utility").teleportPlayer)
 
-local RANDOM_SPREAD = 20  -- studs of scatter in each axis
+local RANDOM_SPREAD = 10  -- studs of scatter in each axis
 
 local function randomTeleport(player: Player, destination: BasePart, offSet: Vector3?)
 	local randOffset = Vector3.new(

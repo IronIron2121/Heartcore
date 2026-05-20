@@ -45,7 +45,7 @@ Each thumbnail has a reactive `targetX` and `targetY`. A spring drives the thumb
 
 | Remote | Direction | Purpose |
 |--------|-----------|---------|
-| `SplitVoteIconsRE` | Server → All Clients | Fires when matchup ends; carries `{[userId]: "left"\|"right"}` mapping so clients can animate thumbnails to their vote side |
+| `VoteSubRoundCompleteRE` | Server → All Clients | Fires when matchup ends; carries `{[userId]: "left"\|"right"}` mapping so clients can animate thumbnails to their vote side |
 | `RestoreVoteIconsRE` | Server → All Clients | Fires when the new challenger is ready; clients reset all thumbnails back to the bottom bar |
 
 ---
@@ -54,7 +54,7 @@ Each thumbnail has a reactive `targetX` and `targetY`. A spring drives the thumb
 
 1. Matchup ends (timer or all voted)
 2. Server builds `{[userId]: side}` from `currentVotes` — map each `outfitId` to `"left"` (champion) or `"right"` (challenger)
-3. Server fires `SplitVoteIconsRE` with that mapping
+3. Server fires `VoteSubRoundCompleteRE` with that mapping
 4. Client iterates the mapping **sorted by userId** (guarantees consistent slot assignment across all clients) and sets each thumbnail's `targetX`/`targetY` to the next available slot on the appropriate side
 5. Short hold so players can read the result
 6. Death animation plays
@@ -63,7 +63,7 @@ Each thumbnail has a reactive `targetX` and `targetY`. A spring drives the thumb
 9. Client resets all thumbnails back to their bottom bar slots
 
 ```lua
--- Pseudocode (client-side, on SplitVoteIconsRE)
+-- Pseudocode (client-side, on VoteSubRoundCompleteRE)
 local sorted = -- voteMap entries sorted by userId
 local numLeft, numRight = 0, 0
 
@@ -85,7 +85,7 @@ end
 ## Sequence of Events (per matchup)
 
 1. Voting timer expires or all players vote
-2. Server fires `SplitVoteIconsRE` with vote mapping
+2. Server fires `VoteSubRoundCompleteRE` with vote mapping
 3. Client springs thumbnails to left/right slots
 4. Short hold (~1s)
 5. Death animation plays on losing mannequin
@@ -99,6 +99,6 @@ end
 
 | Case | Handling |
 |------|----------|
-| Player did not vote | Thumbnail stays in bottom bar; omit from the mapping sent via `SplitVoteIconsRE` |
+| Player did not vote | Thumbnail stays in bottom bar; omit from the mapping sent via `VoteSubRoundCompleteRE` |
 | Fewer players than slots | Unused slots are never assigned |
 | Player disconnects mid-matchup | Their thumbnail is removed; remaining slots re-pack |
