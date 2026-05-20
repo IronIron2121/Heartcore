@@ -8,6 +8,7 @@ local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local UI_CONSTANTS 		= require(Utility:WaitForChild("UI_CONSTANTS"))
 
 -- Fusion
 local Children = Fusion.Children
@@ -47,7 +48,8 @@ function SearchResultsFrame(
 		CanvasSize = UDim2.fromScale(0, 0),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
-		ScrollBarThickness = 8,
+		ScrollBarThickness = 4,
+		ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 
 		[Children] = {
 			gridLayout,

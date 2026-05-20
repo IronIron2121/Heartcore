@@ -376,7 +376,8 @@ local function PlayerClickFrame(scope: Fusion.Scope): (Frame, () -> ())
                                 BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
                                 BackgroundTransparency = 1,
                                 BorderSizePixel = 0,
-                                ScrollBarThickness = 6,
+                                ScrollBarThickness = 4,
+                                ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
                                 ScrollingDirection = Enum.ScrollingDirection.Y,
                                 AutomaticCanvasSize = Enum.AutomaticSize.Y,
 
