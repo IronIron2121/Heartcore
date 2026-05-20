@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local peek = require(ReplicatedStorage.Utility.Fusion.State.peek)
 local Fusion       = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
@@ -15,6 +16,7 @@ local Children = Fusion.Children
 
 -- ─── Reactive state ──────────────────────────────────────────────────────────
 local timerCount  = scope:Value(0)
+local timerVisible = scope:Value(false)
 
 local timerColor = scope:Computed(function(use)
 	return use(timerCount) <= 3
@@ -31,11 +33,12 @@ local frameSize = scope:Value(UDim2.fromScale(0.5, 0.7))
 -- ─── Timer Frame ─────────────────────────────────────────────────────────────
 
 local frame = scope:New "Frame" {
-	Name                   = "ArenaTimerHud",
-	Size                   = frameSize,
-	AnchorPoint            = Vector2.new(0.5, 0.5),
-	Position               = UDim2.fromScale(0.5, 0.5),
-	BackgroundColor3       = Color3.fromRGB(255,255,255)
+	Name				= "ArenaTimerHud",
+	Size				= frameSize,
+	Visible 			= timerVisible,	
+	AnchorPoint			= Vector2.new(0.5, 0.5),
+	Position			= UDim2.fromScale(0.5, 0.5),
+	BackgroundColor3	= Color3.fromRGB(255,255,255)
 ,
 	BackgroundTransparency = 0.35,
 
@@ -102,11 +105,19 @@ local frame = scope:New "Frame" {
 
 -- ─── Public API ──────────────────────────────────────────────────────────────
 
+local function setVisible(visible: boolean)
+	timerVisible:set(visible)
+end
+
 local function setTimer(duration: number)
+	print("setting timer!", peek(timerVisible))
+	setVisible(true)
 	timerCount:set(duration)
 end
 
+
 return {
 	frame      = frame,
+	setVisible = setVisible,
 	setTimer   = setTimer,
 }
