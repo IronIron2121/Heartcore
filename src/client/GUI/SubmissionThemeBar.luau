@@ -46,11 +46,11 @@ local labelSize = scope:Computed(function(use)
     local state = use(GameStateValues.stateName)
 
     if state == "Dressing" or state == "Waiting" then
-        return UDim2.fromScale(1, 0.5)
+        return UDim2.fromScale(1, 0.7)
     elseif state == "Voting" or state == "Intermission" then
-        return UDim2.fromScale(1, 0.3)
+        return UDim2.fromScale(1, 0.5)
     else
-        return UDim2.fromScale(1, 0.5) -- default
+        return UDim2.fromScale(1, 0.7) -- default
     end
 end)
 
@@ -58,11 +58,11 @@ local labelPosition = scope:Computed(function(use)
     local state = use(GameStateValues.stateName)
     
     if state == "Dressing" then
-        return UDim2.fromScale(0, 0.1)
+        return UDim2.fromScale(0.5, 0.5)
     elseif state == "Voting" or state == "Intermission" then
-        return UDim2.fromScale(0, 0.2)
+        return UDim2.fromScale(0.5, 0.5)
     else
-        return UDim2.fromScale(0, 0.1) -- default
+        return UDim2.fromScale(0.5, 0.5) -- default
     end
 end)
 
@@ -89,21 +89,29 @@ end)
 local function SubmissionThemeBar()
 	local submissionThemeBar = scope:New "Frame" {
         Name = "Container",
-        Size = UDim2.fromScale(1, 0.7),
-        Position = UDim2.fromScale(0,0),
-        BackgroundTransparency = 1,
-        BackgroundColor3 = Color3.fromRGB(218, 35, 35),
+        Size = UDim2.fromScale(1, 0.4),
+        Position = UDim2.fromScale(0,0.01),
+        BackgroundTransparency = 0,
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 
         [Children] = {
-            scope:New "UIPadding" {
-                PaddingTop = UDim.new(0.07, 0),
-            },
+
+            scope:New "UIGradient" {
+			Transparency = NumberSequence.new{
+				NumberSequenceKeypoint.new(0, 1),
+				NumberSequenceKeypoint.new(0.2, 0.35),
+				NumberSequenceKeypoint.new(0.5, 0.2),
+				NumberSequenceKeypoint.new(0.8, 0.35),
+				NumberSequenceKeypoint.new(1, 1)
+			}
+		},
             
             scope:New "TextLabel" {
                 Name = "ThemeText",
                 FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT,Enum.FontWeight.Bold),
                 RichText = true,
                 Text = ThemeText,
+                AnchorPoint = Vector2.new(0.5,0.5),
                 Size = labelSize,
                 Position = labelPosition,
                 TextScaled = true,
@@ -118,15 +126,6 @@ local function SubmissionThemeBar()
                     }
                 }
             },
-            
-            scope:New "ImageLabel" {
-                Name = "topBarBG",
-                Image = ImageUris.TopBarBG,
-                Size = UDim2.fromScale(0.8,0.6),
-                Position = UDim2.fromScale(0.1,0.05),
-                BackgroundTransparency = 1,
-                ZIndex = 0
-            }
         }   
     } :: Frame
 

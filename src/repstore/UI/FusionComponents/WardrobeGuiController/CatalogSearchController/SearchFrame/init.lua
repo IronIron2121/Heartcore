@@ -23,7 +23,7 @@ type UsedAs<T> = Fusion.UsedAs<T>
 local SearchBox = require(script:WaitForChild("SearchBox"))
 local SearchResultsFrame = require(script:WaitForChild("SearchResultsFrame"))
 local FusionDropdown = require(Widgets:WaitForChild("FusionDropdown"))
-local SEARCH_SORT_BOX_SIZE = UDim2.fromScale(.15, .5)
+local SEARCH_SORT_BOX_SIZE = UDim2.fromScale(.2, .5)
 local options = {
 	"Relevance",
 	"Bestselling",
@@ -77,15 +77,16 @@ function SearchFrame(
 				SortOrder = Enum.SortOrder.LayoutOrder,
 				HorizontalAlignment = Enum.HorizontalAlignment.Left,
 				VerticalAlignment = Enum.VerticalAlignment.Center,
+				HorizontalFlex = Enum.UIFlexAlignment.SpaceEvenly,
 			},
 
-			-- Spacer
-			scope:New "Frame" {
-				Name = "LeftSpacer",
-				Size = UDim2.fromScale(0.02, 1),
-				BackgroundTransparency = 1,
-				LayoutOrder = 1
-			},
+			-- -- Spacer
+			-- scope:New "Frame" {
+			-- 	Name = "LeftSpacer",
+			-- 	Size = UDim2.fromScale(0.02, 1),
+			-- 	BackgroundTransparency = 1,
+			-- 	LayoutOrder = 1
+			-- },
 
 			-- Search box
 			SearchBox(scope, {
@@ -103,7 +104,7 @@ function SearchFrame(
 				name = "SortDropdown",
 				options = options,
 				selectedValue = props.searchSort,
-				size = UDim2.fromScale(0.08, 0.5),
+				size = UDim2.fromScale(0.15, 0.5),
 				layoutOrder = 3,
 				placeholder = "Sort by...",
 				searchCallback = props.searchCallback

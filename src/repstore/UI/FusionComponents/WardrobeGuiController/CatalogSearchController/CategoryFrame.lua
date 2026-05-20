@@ -121,7 +121,7 @@ function CategoryFrame(
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		LayoutOrder = props.layoutOrder or 1,
 		BackgroundColor3 = UI_CONSTANTS.COLOUR_WHITE,
-		BackgroundTransparency = props.backgroundTransparency or UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
+		BackgroundTransparency = 1,
 		Visible = scope:Computed(function(use)
 			return use(props.currentView) == "Catalog"
 		end),

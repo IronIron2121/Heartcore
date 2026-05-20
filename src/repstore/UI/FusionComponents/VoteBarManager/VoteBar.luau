@@ -13,6 +13,7 @@ export type VoteSlot = {
 type VoteBarProps = {
 	name: string,
 	backgroundColor: UsedAs<Color3>,
+	backgroundTransparency: number,
 	position: UsedAs<UDim2>,
 	size: UsedAs<UDim2>,
 	anchorPoint: UsedAs<Vector2>,
@@ -81,7 +82,7 @@ local function VoteBar(scope: Fusion.Scope, props: VoteBarProps): VoteBarControl
 	local voteBarFrame = scope:New "Frame" {
 		Name = props.name,
 		AnchorPoint = props.anchorPoint,
-		BackgroundTransparency = 0.6,
+		BackgroundTransparency = 1,
 		Position = props.position,
 		BackgroundColor3 = props.backgroundColor or Color3.fromRGB(255, 255, 255),
 		Size = props.size,
