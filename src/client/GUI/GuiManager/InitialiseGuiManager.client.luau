@@ -282,6 +282,8 @@ local function InitialiseHuds()
             GuiManager.PopCentre()
         end
         GuiManager.HideCurrentConfiguration()
+        print(peek(GameStateValues.stateName))
+        print("YOOGOOO")
         GuiManager.doTransition(peek(GameStateValues.stateName))
 
         if peek(GameStateValues.isVoting) then
