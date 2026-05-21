@@ -167,7 +167,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
 	end)
 end
 
-local function initialiseCatalogConsole(ConsoleBase: BasePart)
+local function initialiseCatalogConsole(ConsoleBase: Part)
     if not ConsoleBase:FindFirstChildOfClass("ProximityPrompt") then
         local consolePrompt = Instance.new("ProximityPrompt", ConsoleBase)
         consolePrompt.Name = Constants.CATALOG_CONSOLE_PROMPT_NAME

@@ -24,13 +24,17 @@ local TopCategories: { TopCategoryEntry } = {
 			Enum.AvatarAssetType.ShirtAccessory,
 			Enum.AvatarAssetType.JacketAccessory,
 			Enum.AvatarAssetType.SweaterAccessory,
+			Enum.AvatarAssetType.TShirt,
+			Enum.AvatarAssetType.Shirt,
 		},
 		bundleTypes = {},
 		subCategories = {
-			{ name = "T-Shirts", assetType = Enum.AvatarAssetType.TShirtAccessory },
-			{ name = "Shirts",   assetType = Enum.AvatarAssetType.ShirtAccessory   },
-			{ name = "Jackets",  assetType = Enum.AvatarAssetType.JacketAccessory  },
-			{ name = "Sweaters", assetType = Enum.AvatarAssetType.SweaterAccessory },
+			{ name = "Classic T-Shirts", assetType = Enum.AvatarAssetType.TShirt 	},
+			{ name = "Classic Shirts", assetType = Enum.AvatarAssetType.Shirt 		},
+			{ name = "T-Shirts", assetType = Enum.AvatarAssetType.TShirtAccessory 	},
+			{ name = "Shirts",   assetType = Enum.AvatarAssetType.ShirtAccessory	},
+			{ name = "Jackets",  assetType = Enum.AvatarAssetType.JacketAccessory  	},
+			{ name = "Sweaters", assetType = Enum.AvatarAssetType.SweaterAccessory	},
 		},
 	},
 	{
@@ -38,13 +42,13 @@ local TopCategories: { TopCategoryEntry } = {
 		assetTypes = {
 			Enum.AvatarAssetType.PantsAccessory,
 			Enum.AvatarAssetType.ShortsAccessory,
-			Enum.AvatarAssetType.DressSkirtAccessory,
+			Enum.AvatarAssetType.Pants
 		},
 		bundleTypes = {},
 		subCategories = {
-			{ name = "Pants",            assetType = Enum.AvatarAssetType.PantsAccessory      },
-			{ name = "Shorts",           assetType = Enum.AvatarAssetType.ShortsAccessory     },
-			{ name = "Dresses & Skirts", assetType = Enum.AvatarAssetType.DressSkirtAccessory },
+			{ name = "Pants",			assetType = Enum.AvatarAssetType.PantsAccessory	},
+			{ name = "Shorts",			assetType = Enum.AvatarAssetType.ShortsAccessory},
+			{ name = "Classic Pants",	assetType = Enum.AvatarAssetType.Pants     		},
 		},
 	},
 	{
@@ -65,6 +69,33 @@ local TopCategories: { TopCategoryEntry } = {
 			{ name = "Dynamic Heads", bundleType = Enum.BundleType.DynamicHead },
 		},
 	},
+	{
+		name = "Accessories",
+		assetTypes = {
+			Enum.AvatarAssetType.NeckAccessory,
+			Enum.AvatarAssetType.WaistAccessory,
+			Enum.AvatarAssetType.ShoulderAccessory,
+			Enum.AvatarAssetType.BackAccessory,
+		},
+		bundleTypes = {},
+		subCategories = {
+			{ name = "Neck",		assetType = Enum.AvatarAssetType.NeckAccessory   	},
+			{ name = "Waist", 		assetType = Enum.AvatarAssetType.WaistAccessory 	},
+			{ name = "Shoulder", 	assetType = Enum.AvatarAssetType.ShoulderAccessory 	},
+			{ name = "Back", 		assetType = Enum.AvatarAssetType.BackAccessory 		},
+			{ name = "Face", 		assetType = Enum.AvatarAssetType.FaceAccessory 		},
+			{ name = "Shoes", 		bundleType = Enum.BundleType.Shoes 					},
+		},
+	},
+	{
+		name = "Dresses & Skirts",
+		assetTypes = { 
+			Enum.AvatarAssetType.DressSkirtAccessory 
+		},
+		bundleTypes = {},
+		subCategories = {},
+	},
+
 }
 
 return TopCategories

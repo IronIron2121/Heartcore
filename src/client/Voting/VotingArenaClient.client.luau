@@ -29,15 +29,22 @@ local ArenaActivateRE        = Remotes:WaitForChild("ArenaActivateRE")
 local ArenaVotingCompleteRE  = Remotes:WaitForChild("ArenaVotingCompleteRE")
 local CurrentStateName       = Values:WaitForChild("CurrentStateName") :: StringValue
 local ArenaTimerSeconds 	= Values:WaitForChild("ArenaTimerSeconds")
-local SplitVoteIconsRE 		= Remotes:WaitForChild("SplitVoteIconsRE")
+local VoteSubRoundCompleteRE 		= Remotes:WaitForChild("VoteSubRoundCompleteRE")
 local RestoreVoteIconsRE	= Remotes:WaitForChild("RestoreVoteIconsRE")
 
 local LocalPlayer = Players.LocalPlayer
 local hoverHighlight = Instance.new("Highlight")
-hoverHighlight.Name = "VoteHighlight"
+hoverHighlight.Name = "VoteHoverHighlight"
 hoverHighlight.Parent = LocalPlayer
 hoverHighlight.Adornee = nil
 hoverHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_GREEN
+
+local voteHighlight = Instance.new("Highlight")
+voteHighlight.Name = "voteHighlight"
+voteHighlight.Parent = LocalPlayer
+voteHighlight.Adornee = nil
+voteHighlight.OutlineColor = UI_CONSTANTS.TASTEMAKER_PURPLE
+voteHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_PURPLE
 
 
 -- ─── Camera ─────────────────────────────────────────────────────────────────
@@ -79,10 +86,13 @@ local function activate()
 
 	camera.CameraType = Enum.CameraType.Scriptable
 	camera.CFrame     = computeJudgeCFrame()
+
 end
 
 local function deactivate()
 	stopCountdown()
+	print("Deactivating voting arena client")
+	ArenaTimerHud.setVisible(false)
 
 	local camera = workspace.CurrentCamera
 	camera.CameraType = savedCameraType
@@ -94,9 +104,12 @@ end
 
 -- ─── Connections ────────────────────────────────────────────────────────────
 
-SplitVoteIconsRE.OnClientEvent:Connect(function(currentVotes: {[number] : string})  
-	VoteBarManager.splitVotes(currentVotes)
-end)
+VoteSubRoundCompleteRE.OnClientEvent:Connect(
+	function(currentVotes: {[number] : string})
+		voteHighlight.Adornee = nil  
+		VoteBarManager.splitVotes(currentVotes)
+	end
+)
 
 RestoreVoteIconsRE.OnClientEvent:Connect(function()  
 	VoteBarManager.restoreVotes()
@@ -110,13 +123,8 @@ end)
 -- Server fires this when all outfits have been voted on
 ArenaVotingCompleteRE.OnClientEvent:Connect(function()
 	stopCountdown()
-end)
+	deactivate()
 
--- Deactivate when the round ends
-CurrentStateName.Changed:Connect(function(newState: string)
-	if newState ~= "Voting" then
-		deactivate()
-	end
 end)
 
 -- Fallback: script loaded while Voting was already active (e.g. rejoin)
@@ -127,13 +135,23 @@ end
 local function connectClickDetector(clickDetector: ClickDetector)
 	local target = clickDetector.Parent
 
-	clickDetector.MouseHoverEnter:Connect(function()
-		hoverHighlight.Adornee = target
-	end)
+	clickDetector.MouseClick:Connect(
+		function(player: Player)
+			voteHighlight.Adornee = clickDetector.Parent	
+		end
+	)
 
-	clickDetector.MouseHoverLeave:Connect(function()
-		hoverHighlight.Adornee = nil
-	end)
+	clickDetector.MouseHoverEnter:Connect(
+		function()
+			hoverHighlight.Adornee = target
+		end
+	)
+
+	clickDetector.MouseHoverLeave:Connect(
+		function()
+			hoverHighlight.Adornee = nil
+		end
+	)
 end
 
 CollectionService:GetInstanceAddedSignal("VoteHandler"):Connect(connectClickDetector)
@@ -144,5 +162,7 @@ CollectionService:GetInstanceRemovedSignal("VoteHandler"):Connect(function()
 end)
 
 ArenaTimerSeconds.Changed:Connect(function(newValue: number)  
+	print("Arena timer seconds changed")
 	ArenaTimerHud.setTimer(newValue)
+	ArenaTimerHud.setVisible(true)
 end)
