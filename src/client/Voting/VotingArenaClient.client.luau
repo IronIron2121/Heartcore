@@ -86,12 +86,10 @@ local function activate()
 
 	camera.CameraType = Enum.CameraType.Scriptable
 	camera.CFrame     = computeJudgeCFrame()
-
 end
 
 local function deactivate()
 	stopCountdown()
-	print("Deactivating voting arena client")
 	ArenaTimerHud.setVisible(false)
 
 	local camera = workspace.CurrentCamera
@@ -124,7 +122,6 @@ end)
 ArenaVotingCompleteRE.OnClientEvent:Connect(function()
 	stopCountdown()
 	deactivate()
-
 end)
 
 -- Fallback: script loaded while Voting was already active (e.g. rejoin)
