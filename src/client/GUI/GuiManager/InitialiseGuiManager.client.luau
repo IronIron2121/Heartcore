@@ -283,9 +283,7 @@ local function InitialiseHuds()
         end
         GuiManager.HideCurrentConfiguration()
 
-        GuiManager.doTransition({
-            peek(GameStateValues.stateName),
-        })
+        GuiManager.doTransition(peek(GameStateValues.stateName))
         
         if peek(GameStateValues.isVoting) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
