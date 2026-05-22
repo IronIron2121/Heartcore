@@ -39,9 +39,10 @@ type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
 type Computed<T>    = Fusion.Computed<T>
 
--- Bindables 
-local HideAllPromptsBindable = BindablesFolder:WaitForChild("HideAllPromptsBindable")
-local ShowAllPromptsBindable = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
+-- Bindables
+local HideAllPromptsBindable   = BindablesFolder:WaitForChild("HideAllPromptsBindable")
+local ShowAllPromptsBindable   = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
+local transitionCompletedEvent = BindablesFolder:WaitForChild("TransitionCompleted") :: BindableEvent
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -567,6 +568,8 @@ function GuiManager.doTransition(message: string)
     rightWingPos:set(rightWingPositions.OUT)
     messagePosition:set(messagePositions.OUT)
     messageSize:set(messageSizes.OUT)
+
+    transitionCompletedEvent:Fire(message)
 
     task.defer(function()
         task.wait(tweenTime)

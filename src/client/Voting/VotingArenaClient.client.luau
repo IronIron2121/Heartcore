@@ -85,7 +85,9 @@ end
 local function deactivate()
 	stopCountdown()
 	ArenaTimerHud.setVisible(false)
-	ClientCameraController.deactivate()
+	if CurrentStateName.Value ~= "Intermission" then
+		ClientCameraController.deactivate()
+	end
 end
 
 -- ─── Connections ────────────────────────────────────────────────────────────

@@ -4,13 +4,13 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders
-local Values = ReplicatedStorage:WaitForChild("Values")
+local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
 local ClientCameraController = require(script.Parent.Parent.Libraries.ClientCameraController)
 
--- Values
-local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
+-- Bindables / Values
+local TransitionCompleted = Bindables:WaitForChild("TransitionCompleted") :: BindableEvent
 
 -- World
 local INTERMISSION_ZONE = workspace:WaitForChild("INTERMISSION_ZONE")
@@ -26,6 +26,7 @@ local function computeResultsCFrame(): CFrame
 end
 
 local function activate()
+	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 	ClientCameraController.activate(computeResultsCFrame())
 end
 
@@ -35,19 +36,10 @@ end
 
 -- ─── Intermission flow ──────────────────────────────────────────────────────
 
-local function onIntermissionStarted()
-	activate()
-	-- TODO: push XP results GUI here
-	task.delay(5, deactivate)
-end
-
-CurrentStateName.Changed:Connect(function(newState: string)
-	if newState == "Intermission" then
-		onIntermissionStarted()
+TransitionCompleted.Event:Connect(function(stateName: string)
+	if stateName == "Intermission" then
+		activate()
+		-- TODO: push XP results GUI here
+		task.delay(5, deactivate)
 	end
 end)
-
--- Rejoin fallback
-if CurrentStateName.Value == "Intermission" then
-	task.delay(0.5, onIntermissionStarted)
-end
