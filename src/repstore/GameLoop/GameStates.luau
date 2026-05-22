@@ -14,7 +14,7 @@ local GameStates = {
     Intermission = { 
         name = "Intermission", 
         --duration = 1/2 * 60, -- Final: 90 secs
-        duration = 5,
+        duration = 2,
         next = "Dressing" 
     }, 
 } 

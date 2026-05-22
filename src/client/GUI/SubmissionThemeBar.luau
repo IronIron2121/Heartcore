@@ -46,7 +46,7 @@ local labelSize = scope:Computed(function(use)
     local state = use(GameStateValues.stateName)
 
     if state == "Dressing" or state == "Waiting" then
-        return UDim2.fromScale(1, 0.7)
+        return UDim2.fromScale(1, 0.9)
     elseif state == "Voting" or state == "Intermission" then
         return UDim2.fromScale(1, 0.5)
     else
@@ -75,7 +75,7 @@ local ThemeText = scope:Computed(function(use)
     if state == "Waiting" then
         return "Waiting for players... (" .. use(playerCount) .. "/3)"
     elseif state == "Dressing" then
-        return "Theme: " .. highlightColor .. strokeColor .. theme .. closeStroke .. closeFont .. ".<br>" .. timeColorStr .. seconds .. closeFont .. "</br>"
+        return "Go to each catalog station to build your fit.<br>Theme: " .. highlightColor .. strokeColor .. theme .. closeStroke .. closeFont .. "</br><br>Time left: " .. timeColorStr .. seconds .. closeFont .. "</br>"
     elseif state == "Voting" then
         return "Voting time! You have " .. timeColorStr .. seconds .. closeFont .. " seconds to vote."
     elseif state == "Intermission" then
@@ -122,7 +122,7 @@ local function SubmissionThemeBar()
                 [Children] = {
                     scope:New "UIStroke"{
                         Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                        Thickness = 2,
+                        Thickness = 1,
                     }
                 }
             },
