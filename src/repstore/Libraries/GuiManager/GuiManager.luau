@@ -120,7 +120,8 @@ local messageLabel = guiScope:New "TextLabel" {
     BackgroundTransparency = 1,
     AnchorPoint = Vector2.new(0.5, 0.5),
     Position = UDim2.fromScale(0.5, 0.5),
-    TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
+    TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
     Text = messageValue,
     TextScaled = true,
     ZIndex = 1,
@@ -129,7 +130,8 @@ local messageLabel = guiScope:New "TextLabel" {
             ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
             LineJoinMode = Enum.LineJoinMode.Round,
             Transparency = 0,
-            Thickness = 6.5,
+            Color = UI_CONSTANTS.COLOUR_WHITE,
+            Thickness = 2,
         }
     }
 }
@@ -164,6 +166,23 @@ local messagePositions = {
 local messagePosition = guiScope:Value(
     messagePositions.OUT
 )
+local messageSizes = {
+    ['IN'] = UDim2.fromScale(0.8, 0.25),
+    ['OUT'] = UDim2.fromScale(0, 0)
+}
+local messageSize = guiScope:Value(messageSizes.OUT)
+
+local messageRotation = guiScope:Value(0)
+
+task.spawn(function()
+    while true do
+        messageRotation:set(10)
+        task.wait(0.5)
+        messageRotation:set(-10)
+        task.wait(0.5)
+    end
+end)
+
 local messageContainer = guiScope:New "Frame" {
     Name = "messageContainer",
     BackgroundTransparency = 1,
@@ -172,10 +191,17 @@ local messageContainer = guiScope:New "Frame" {
         messagePosition, 
         TweenInfo.new(0.5)
     ),
-    Size = UDim2.fromScale(0.8, 0.25),
+    Size = guiScope:Tween(
+        messageSize,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+    ),
+    Rotation = guiScope:Tween(
+        messageRotation,
+        TweenInfo.new(2, Enum.EasingStyle.Quad)
+    ),
     Visible = messageVisible,
     [Children] = {
-        veilFrame,
+        --veilFrame,
         messageLabel
     }
 }
@@ -193,11 +219,19 @@ local leftWingTween = guiScope:Tween(
 )
 local leftTransitionWing = guiScope:New "Frame" {
     Name = "leftTransitionWing",
-    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    BackgroundColor3 = UI_CONSTANTS.COLOUR_WHITE,
     BackgroundTransparency = 0,
     AnchorPoint = Vector2.new(1, 0.5),
     Size = UDim2.fromScale(0.5, 1),
-    Position = leftWingTween
+    Position = leftWingTween,
+
+    [Children] = {
+        guiScope:New "UIGradient" {
+            Color = ColorSequence.new(
+                UI_CONSTANTS.COLOUR_WHITE,
+                UI_CONSTANTS.TASTEMAKER_PURPLE)
+        }
+    }
 }
 
 local rightWingPositions = {
@@ -213,11 +247,19 @@ local rightWingTween = guiScope:Tween(
 )
 local rightTransitionWing = guiScope:New "Frame" {
     Name = "rightTransitionWing",
-    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    BackgroundColor3 = UI_CONSTANTS.COLOUR_WHITE,
     BackgroundTransparency = 0,
     AnchorPoint = Vector2.new(0, 0.5),
     Size = UDim2.fromScale(0.5, 1),
-    Position = rightWingTween
+    Position = rightWingTween,
+    [Children] = {
+        guiScope:New "UIGradient" {
+            Color = ColorSequence.new(
+                UI_CONSTANTS.TASTEMAKER_PURPLE,
+                UI_CONSTANTS.COLOUR_WHITE
+            ),
+        }
+    }
 }
 local transitionGui = guiScope:New "ScreenGui" {
     Name = "TransitionGui",
@@ -505,30 +547,29 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
     return registeredModals[modalName]
 end
 
-function GuiManager.doTransition(messages: {string})
+function GuiManager.doTransition(message: string)
     -- Hide top bar
     messagePosition:set(messagePositions.IN)
     leftWingPos:set(leftWingPositions.IN)
     rightWingPos:set(rightWingPositions.IN)
 
-    for index, message in messages do 
-        veilSize:set(veilSizes.IN)
-        task.wait(tweenTime)
-        messageVisible:set(true)
-        messageValue:set(message)
-        veilSize:set(veilSizes.OUT)
-        task.wait(tweenTime)
-    end
+    veilSize:set(veilSizes.OUT)
+    messageSize:set(messageSizes.IN)
+    messageVisible:set(true)
+    task.wait(tweenTime * 60)
 
     messagePosition:set(messagePositions.OUT)
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
+    messagePosition:set(messagePositions.OUT)
+    messageSize:set(messageSizes.OUT)
 
     task.defer(function()
         task.wait(tweenTime)
         veilSize:set(veilSizes.IN)
         messageVisible:set(false)
         messagePosition:set(messagePositions.IN)
+        messageSize:set(messageSizes.OUT)
     end)
 end
 

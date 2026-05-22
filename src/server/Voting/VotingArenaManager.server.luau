@@ -14,6 +14,7 @@ local GameLoop     = ReplicatedStorage:WaitForChild("GameLoop")
 local Remotes      = ReplicatedStorage:WaitForChild("Remotes")
 local UtilityFolder = ReplicatedStorage:WaitForChild("Utility")
 local Values       = ReplicatedStorage:WaitForChild("Values")
+local Bindables 	= ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
 local Constants = require(ReplicatedStorage.Constants)
@@ -31,10 +32,10 @@ local leftP       = VotingZone.JudgePlatforms.LeftChallenger
 local rightP      = VotingZone.JudgePlatforms.RightChallenger
 local queueF      = VotingZone.QueuePlatforms
 
-
 -- Remotes
 local VoteSubRoundCompleteRE = Remotes.VoteSubRoundCompleteRE
 local RestoreVoteIconsRE = Remotes.RestoreVoteIconsRE
+local CleanArenaBindable = Bindables.CleanArenaBindable
 
 -- Values
 local CurrentStateName = Values:WaitForChild("CurrentStateName") :: StringValue
@@ -296,6 +297,7 @@ local function cleanupArena()
 		local hrp = char and char:FindFirstChild("HumanoidRootPart") :: BasePart?
 		if hrp then hrp.Anchored = false end
 	end
+
 	state = nil
 end
 
@@ -532,13 +534,15 @@ advanceQueue = function()
 	if not newChallenger or not newChallengerId then
 		-- Queue empty — champion celebrates on the podium until the round ends
 		playVictoryAnimation(state.championModel :: Model, true)
-		ArenaVotingCompleteRE:FireAllClients()
+		task.wait(Constants.TransitionTweenTime)
 		task.spawn(function()
-			task.wait(5)
-			GameStateManager.transitionTo(GameStates.Intermission.name)	
+			GameStateManager.transitionTo(GameStates.Intermission.name)
+			task.wait(Constants.TransitionTweenTime)
+			ArenaVotingCompleteRE:FireAllClients()
+			CleanArenaBindable:Fire()
 		end)
 		return
-	end
+	end 
 
 	-- Slide new challenger into the right slot
 	tweenMannequinTo(newChallenger, rightP, judgeP)
@@ -618,17 +622,9 @@ end
 -- ─── Lifecycle connections ───────────────────────────────────────────────────
 
 -- Clean up all arenas when the game leaves the Voting state
-CurrentStateName.Changed:Connect(function(newState: string)
-	if newState == GameStates.Intermission.name then
+
+CleanArenaBindable.Event:Connect(
+	function(...)
 		cleanupArena()
 	end
-end)
-
---[[
--- Clean up a player's arena if they leave mid-voting
-Players.PlayerRemoving:Connect(function(player: Player)
-	if playerStates[player.UserId] then
-		cleanupPlayer(player)
-	end
-end)
-]]
+)
