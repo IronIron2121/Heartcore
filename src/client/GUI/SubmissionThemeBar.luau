@@ -75,7 +75,7 @@ local ThemeText = scope:Computed(function(use)
     if state == "Waiting" then
         return "Waiting for players... (" .. use(playerCount) .. "/3)"
     elseif state == "Dressing" then
-        return "Theme: " .. highlightColor .. strokeColor .. theme .. closeStroke .. closeFont .. ".<br>You have " .. timeColorStr .. seconds .. closeFont .. " seconds to submit!</br>"
+        return "Theme: " .. highlightColor .. strokeColor .. theme .. closeStroke .. closeFont .. ".<br>" .. timeColorStr .. seconds .. closeFont .. "</br>"
     elseif state == "Voting" then
         return "Voting time! You have " .. timeColorStr .. seconds .. closeFont .. " seconds to vote."
     elseif state == "Intermission" then
