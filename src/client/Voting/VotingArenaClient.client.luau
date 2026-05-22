@@ -16,9 +16,10 @@ local Values           = ReplicatedStorage:WaitForChild("Values")
 local FusionComponents = ReplicatedStorage:WaitForChild("UI"):WaitForChild("FusionComponents")
 
 -- Modules
-local VoteBarManager = require(ReplicatedStorage.UI.FusionComponents.VoteBarManager)
-local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
-local ArenaTimerHud = require(FusionComponents:WaitForChild("ArenaTimerHud"))
+local VoteBarManager          = require(ReplicatedStorage.UI.FusionComponents.VoteBarManager)
+local UI_CONSTANTS            = require(Utility:WaitForChild("UI_CONSTANTS"))
+local ArenaTimerHud           = require(FusionComponents:WaitForChild("ArenaTimerHud"))
+local ClientCameraController  = require(script.Parent.Parent.Libraries.ClientCameraController)
 
 -- Models
 local VotingZone 	   = workspace:WaitForChild("VOTING_ZONE")
@@ -48,8 +49,6 @@ voteHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_PURPLE
 
 
 -- ─── Camera ─────────────────────────────────────────────────────────────────
-local savedCameraType:   Enum.CameraType = Enum.CameraType.Custom
-local savedCameraCFrame: CFrame          = CFrame.identity
 
 local function computeJudgeCFrame(): CFrame
 	if not VotingZone then return CFrame.identity end
@@ -80,24 +79,13 @@ end
 
 -- ─── Activate / deactivate ──────────────────────────────────────────────────
 local function activate()
-	local camera = workspace.CurrentCamera
-	savedCameraType  = camera.CameraType
-	savedCameraCFrame = camera.CFrame
-
-	camera.CameraType = Enum.CameraType.Scriptable
-	camera.CFrame     = computeJudgeCFrame()
+	ClientCameraController.activate(computeJudgeCFrame())
 end
 
 local function deactivate()
 	stopCountdown()
 	ArenaTimerHud.setVisible(false)
-
-	local camera = workspace.CurrentCamera
-	camera.CameraType = savedCameraType
-	-- Only restore CFrame when switching back to Scriptable; Custom manages itself
-	if savedCameraType == Enum.CameraType.Scriptable then
-		camera.CFrame = savedCameraCFrame
-	end
+	ClientCameraController.deactivate()
 end
 
 -- ─── Connections ────────────────────────────────────────────────────────────

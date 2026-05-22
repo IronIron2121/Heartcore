@@ -549,14 +549,18 @@ end
 
 function GuiManager.doTransition(message: string)
     -- Hide top bar
+    messageValue:set(message)
     messagePosition:set(messagePositions.IN)
     leftWingPos:set(leftWingPositions.IN)
     rightWingPos:set(rightWingPositions.IN)
 
+    task.wait(tweenTime)
+
     veilSize:set(veilSizes.OUT)
     messageSize:set(messageSizes.IN)
     messageVisible:set(true)
-    task.wait(tweenTime * 60)
+
+    task.wait(tweenTime)
 
     messagePosition:set(messagePositions.OUT)
     leftWingPos:set(leftWingPositions.OUT)
