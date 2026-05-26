@@ -7,7 +7,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
-local Bindables = ReplicatedStorage:WaitForChild("Bindables")
+local Bindables       = ReplicatedStorage:WaitForChild("Bindables")
+local PodiumViewEndedBindable = Bindables:WaitForChild("PodiumViewEndedBindable") :: BindableEvent
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
@@ -33,6 +34,8 @@ local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeCont
 local AvatarEditorController = require(WardrobeGuiController.AvatarEditorController)
 local OutfitViewController = require(WardrobeGuiController.OutfitViewController)
 local DailyChallengeFrame = require(DailyChallengeFolder.DailyChallengeFrame)
+local RoundSummaryGui = require(FusionComponents.RoundSummaryGui)
+local RoundSummaryStore = require(StarterPlayerScripts.Intermission.RoundSummaryStore)
 local CONFIGURATION_NAMES = require(GuiManagerLibrary.CONFIGURATION_NAMES)
 local OpenWardrobeButton = require(FusionComponents.OpenWardrobeButton)
 local PlayerSubmissionState = require(GameState.PlayerSubmissionState)
@@ -260,7 +263,7 @@ local function InitialiseHuds()
         middleRight = nil,
         middleLeft = nil,
         bottomLeft = nil,
-        bottomMiddle = { Object = voteBar, AlwaysOn = true },
+        bottomMiddle = { Object = voteBar, AlwaysOn = false },
         bottomRight = nil,
     })
 
@@ -278,20 +281,25 @@ local function InitialiseHuds()
     end
 
     hudScope:Observer(GameStateValues.stateName):onChange(function()
+        RoundSummaryGui.hide()
         while GuiManager.IsCentreActive() do
             GuiManager.PopCentre()
         end
-        GuiManager.HideCurrentConfiguration()
-        print(peek(GameStateValues.stateName))
-        print("YOOGOOO")
-        GuiManager.doTransition(peek(GameStateValues.stateName))
+        GuiManager.ForceHideCurrentConfiguration()
 
+        GuiManager.doTransition(peek(GameStateValues.stateName))
+        
         if peek(GameStateValues.isVoting) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
-        elseif GameStateValues.isDressing then
+        elseif peek(GameStateValues.isDressing) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
-        elseif GameStateValues.isIntermission then
-            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.IntermissionConfig)
+        end
+    end)
+
+    PodiumViewEndedBindable.Event:Connect(function()
+        GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.IntermissionConfig)
+        if RoundSummaryStore.latest then
+            RoundSummaryGui.show(RoundSummaryStore.latest)
         end
     end)
 end
@@ -318,11 +326,8 @@ local function InitialiseModals()
 
     local PlayerTriggeredCatalogConsole = Bindables:WaitForChild("PlayerTriggeredCatalogConsole")
     PlayerTriggeredCatalogConsole.Event:Connect(function(categoryName: string)
-        print("Resetting GUI state")
         WardrobeGuiState.ResetView()
-        print("Opening to top category")
         controllers["CatalogSearchController"]:OpenToTopCategory(categoryName)
-        print("Pushing to modal manager top category")
         GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
     end)
 end

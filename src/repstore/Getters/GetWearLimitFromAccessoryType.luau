@@ -10,11 +10,7 @@ local success, AvatarRules = callWithRetry(function()
     return AvatarEditorService:GetAvatarRules()
 end)
 
-warn(success)
-warn(AvatarRules)
-
 assert(success and AvatarRules, "Failed to get avatar rules!")
-
 
 local WearableAssetTypes = AvatarRules["WearableAssetTypes"]
 

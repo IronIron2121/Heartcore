@@ -17,6 +17,7 @@ local Constants = require(ReplicatedStorage.Constants)
 local randomTeleport = require(ReplicatedStorage:WaitForChild("Utility").randomTeleport)
 local WinnersManager = require(ServerScriptService.Voting.WinnersManager)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
+local RoundXpTracker = require(GameLoop:WaitForChild("RoundXpTracker"))
 
 -- Spawn destinations
 local STATE_SPAWNS = {
@@ -153,6 +154,17 @@ end
 
 Players.PlayerAdded:Connect(function(player)
 	participatingPlayers[player.UserId] = true
+
+	player.CharacterAdded:Connect(function(rig: Model)
+	if currentState == "Waiting" then
+		task.spawn(randomTeleport, player, STATE_SPAWNS.Intermission)
+		if getPlayerCount() >= MIN_PLAYERS then
+			GameStateManager.transitionTo("Dressing")
+		end
+	elseif currentState then
+		task.spawn(randomTeleport, player, STATE_SPAWNS[currentState])
+	end
+	end)
 
 	if currentState == "Waiting" then
 		task.spawn(randomTeleport, player, STATE_SPAWNS.Intermission)
@@ -329,7 +341,8 @@ function GameStateManager._onStateEnter(stateName: string)
 		-- Select new theme
 		currentTheme = selectNewTheme()
 		currentThemeName.Value = currentTheme
-		
+
+		RoundXpTracker.reset()
 		GameOutfitManager.reset()
 	elseif stateName == "Voting" then
 		-- Auto-submit for players who didn't submit during Dressing

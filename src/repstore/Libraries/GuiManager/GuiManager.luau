@@ -39,9 +39,10 @@ type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
 type Computed<T>    = Fusion.Computed<T>
 
--- Bindables 
-local HideAllPromptsBindable = BindablesFolder:WaitForChild("HideAllPromptsBindable")
-local ShowAllPromptsBindable = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
+-- Bindables
+local HideAllPromptsBindable   = BindablesFolder:WaitForChild("HideAllPromptsBindable")
+local ShowAllPromptsBindable   = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
+local transitionCompletedEvent = BindablesFolder:WaitForChild("TransitionCompleted") :: BindableEvent
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -490,12 +491,9 @@ function GuiManager.DisplayConfiguration(configurationName: string): ()
         currentConfiguration:Disable()
     end
 
-    print("Displaying config ", configurationName)
-
     local newConfiguration = registeredConfigurations[configurationName]
     currentConfiguration = newConfiguration
     currentConfigurationName:set(configurationName)
-    assert(currentConfiguration, "Configuration should not be nil") -- type checker unfortunately redlines if we don't put this here
     currentConfiguration:Enable(peek(CentreActive))
 end
  
@@ -508,6 +506,18 @@ end
 function GuiManager.ShowCurrentConfiguration(): ()
     if currentConfiguration then
         currentConfiguration:ShowFromModal()
+    end
+end
+
+function GuiManager.ForceHideCurrentConfiguration(): ()
+    if currentConfiguration then
+        currentConfiguration:HideAll()
+    end
+end
+
+function GuiManager.ForceShowCurrentConfiguration(): ()
+    if currentConfiguration then
+        currentConfiguration:ShowAll()
     end
 end
 
@@ -550,28 +560,28 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
     return registeredModals[modalName]
 end
 
-function GuiManager.doTransition(message: string?)
-    if message then
-        messageValue:set(message)
-    else
-        messageValue:set("")
-    end
+function GuiManager.doTransition(message: string)
     -- Hide top bar
-
+    messageValue:set(message)
     messagePosition:set(messagePositions.IN)
     leftWingPos:set(leftWingPositions.IN)
     rightWingPos:set(rightWingPositions.IN)
+
     task.wait(tweenTime)
 
     veilSize:set(veilSizes.OUT)
     messageSize:set(messageSizes.IN)
     messageVisible:set(true)
+
     task.wait(tweenTime)
 
+    messagePosition:set(messagePositions.OUT)
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
     messagePosition:set(messagePositions.OUT)
     messageSize:set(messageSizes.OUT)
+
+    transitionCompletedEvent:Fire(message)
 
     task.defer(function()
         task.wait(tweenTime)

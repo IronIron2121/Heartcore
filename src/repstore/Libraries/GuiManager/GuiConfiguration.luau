@@ -127,6 +127,8 @@ export type GuiConfiguration = {
     Enable: (self: GuiConfiguration, startHidden: boolean?) -> (),
     HideForModal: (self: GuiConfiguration) -> (),
     ShowFromModal: (self: GuiConfiguration) -> (),
+    HideAll: (self: GuiConfiguration) -> (),
+    ShowAll: (self: GuiConfiguration) -> (),
 }
 
 local GuiConfiguration = {}
@@ -188,7 +190,7 @@ function GuiConfiguration.new(props: {
     } :: Frame
     
     self.TopMiddlePosition = self.scope:Computed(function(use)
-        local visible = if topMiddleAlwaysOn then use(self.Enabled) else (use(self.Enabled) and use(self.ModalVisible))
+        local visible = use(self.Enabled) and not use(self.ForceHidden) and (topMiddleAlwaysOn or use(self.ModalVisible))
         return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].OutPosition
     end)
     self.TopMiddle = self.scope:New "Frame" {
@@ -210,7 +212,7 @@ function GuiConfiguration.new(props: {
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopMiddle] = self.TopMiddlePosition
 
     self.TopRightPosition = self.scope:Computed(function(use)
-        local visible = if topRightAlwaysOn then use(self.Enabled) and not use(self.ForceHidden) else (use(self.Enabled) and use(self.ModalVisible))
+        local visible = use(self.Enabled) and not use(self.ForceHidden) and (topRightAlwaysOn or use(self.ModalVisible))
         return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopRight].OutPosition
     end)
     self.TopRight = self.scope:New "Frame" {
@@ -232,7 +234,7 @@ function GuiConfiguration.new(props: {
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.TopRight] = self.TopRightPosition
 
     self.MiddleRightPosition = self.scope:Computed(function(use)
-        local visible = if middleRightAlwaysOn then use(self.Enabled) else (use(self.Enabled) and use(self.ModalVisible))
+        local visible = use(self.Enabled) and not use(self.ForceHidden) and (middleRightAlwaysOn or use(self.ModalVisible))
         return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleRight].OutPosition
     end)
     self.MiddleRight = self.scope:New "Frame" {
@@ -254,7 +256,7 @@ function GuiConfiguration.new(props: {
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.MiddleRight] = self.MiddleRightPosition
 
     self.MiddleLeftPosition = self.scope:Computed(function(use)
-        local visible = if middleLeftAlwaysOn then use(self.Enabled) else (use(self.Enabled) and use(self.ModalVisible))
+        local visible = use(self.Enabled) and not use(self.ForceHidden) and (middleLeftAlwaysOn or use(self.ModalVisible))
         return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleLeft].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.MiddleLeft].OutPosition
     end)
     self.MiddleLeft = self.scope:New "Frame" {
@@ -276,7 +278,7 @@ function GuiConfiguration.new(props: {
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.MiddleLeft] = self.MiddleLeftPosition
 
     self.BottomLeftPosition = self.scope:Computed(function(use)
-        local visible = if bottomLeftAlwaysOn then use(self.Enabled) else (use(self.Enabled) and use(self.ModalVisible))
+        local visible = use(self.Enabled) and not use(self.ForceHidden) and (bottomLeftAlwaysOn or use(self.ModalVisible))
         return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomLeft].OutPosition
     end)    
     self.BottomLeft = self.scope:New "Frame" {
@@ -298,7 +300,7 @@ function GuiConfiguration.new(props: {
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.BottomLeft] = self.BottomLeftPosition
 
     self.BottomMiddlePosition = self.scope:Computed(function(use)
-        local visible = if bottomMiddleAlwaysOn then use(self.Enabled) else (use(self.Enabled) and use(self.ModalVisible))
+        local visible = use(self.Enabled) and not use(self.ForceHidden) and (bottomMiddleAlwaysOn or use(self.ModalVisible))
         return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomMiddle].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomMiddle].OutPosition
     end)      
     self.BottomMiddle = self.scope:New "Frame" {
@@ -320,7 +322,7 @@ function GuiConfiguration.new(props: {
     self.GuiSlotPositions[Constants.GUI_SLOT_NAMES.BottomMiddle] = self.BottomMiddlePosition
 
     self.BottomRightPosition = self.scope:Computed(function(use)
-        local visible = if bottomRightAlwaysOn then use(self.Enabled) else (use(self.Enabled) and use(self.ModalVisible))
+        local visible = use(self.Enabled) and not use(self.ForceHidden) and (bottomRightAlwaysOn or use(self.ModalVisible))
         return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomRight].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.BottomRight].OutPosition
     end)      
     self.BottomRight = self.scope:New "Frame" {
@@ -368,6 +370,7 @@ function GuiConfiguration:Enable(startHidden: boolean?)
         if self._elements.bottomLeft then self._elements.bottomLeft.Parent = self.BottomLeft end
         if self._elements.bottomMiddle then self._elements.bottomMiddle.Parent = self.BottomMiddle end
         if self._elements.bottomRight then self._elements.bottomRight.Parent = self.BottomRight end
+        self.ForceHidden:set(false)
         self.ModalVisible:set(not startHidden)
         self.Enabled:set(true)
     end)
@@ -379,6 +382,14 @@ end
 
 function GuiConfiguration:ShowFromModal()
     self.ModalVisible:set(true)
+end
+
+function GuiConfiguration:HideAll()
+    self.ForceHidden:set(true)
+end
+
+function GuiConfiguration:ShowAll()
+    self.ForceHidden:set(false)
 end
 
 return GuiConfiguration

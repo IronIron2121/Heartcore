@@ -9,14 +9,13 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local DailyChallenges = ServerScriptService:WaitForChild("DailyChallenges")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
-local Data = ServerScriptService:WaitForChild("Data")
 
 -- Modules
 local GetNumAccessoriesInHumanoidDescription = require(Utility.GetNumAccessoriesInHumanoidDescription)
 local ServerCustomisationService = require(Utility.ServerCustomisationService)
 local ChallengeManager = require(DailyChallenges.ChallengeManager)
 local ExpConfig = require(Libraries.ExpConfig)
-local DataManager = require(Data.DataManager)
+local RoundXpTracker = require(ReplicatedStorage.GameLoop.RoundXpTracker)
 
 -- Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -92,9 +91,9 @@ function GameOutfitManager.submitOutfit(player: Player, humanoidDescription: Hum
 	
 	local numAccessories = GetNumAccessoriesInHumanoidDescription(humanoidDescription)
 	ChallengeManager.OnOutfitSubmitted(player, numAccessories)
-	DataManager.AddExp(player, ExpConfig.Rewards.OUTFIT_SUBMIT)
+	RoundXpTracker.accumulate(player.UserId, ExpConfig.Rewards.OUTFIT_SUBMIT, "OUTFIT SUBMITTED")
 	if ServerCustomisationService.getNumberOfItemsEquipped(player) > 3 then
-		DataManager.AddExp(player, ExpConfig.Rewards.OUTFIT_QUALITY_BONUS)
+		RoundXpTracker.accumulate(player.UserId, ExpConfig.Rewards.OUTFIT_QUALITY_BONUS, "QUALITY BONUS")
 	end
 	
 	return true
@@ -128,11 +127,11 @@ function GameOutfitManager.addVote(outfitId: string): boolean
 		outfit.score = outfit.votes / outfit.views
 	end
 
-	-- Award XP asynchronously
+	-- Accumulate vote-received XP (applied at round end)
+	RoundXpTracker.accumulate(outfit.userId, ExpConfig.Rewards.VOTE_RECEIVED, "VOTES RECEIVED")
 	task.spawn(function()
 		local votedPlayer = Players:GetPlayerByUserId(outfit.userId)
-		if votedPlayer then 
-			DataManager.AddExp(votedPlayer, ExpConfig.Rewards.VOTE_RECEIVED)
+		if votedPlayer then
 			ChallengeManager.OnOutfitVoted(votedPlayer)
 		end
 	end)

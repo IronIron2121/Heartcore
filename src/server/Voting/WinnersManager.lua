@@ -21,6 +21,14 @@ local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local DataManager = require(ServerScriptService.Data.DataManager)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
 local ChallengeManager = require(ServerScriptService:WaitForChild("DailyChallenges"):WaitForChild("ChallengeManager"))
+local ChallengeDefinitions = require(ServerScriptService:WaitForChild("DailyChallenges"):WaitForChild("ChallengeDefinitions"))
+local RoundXpTracker = require(GameLoop:WaitForChild("RoundXpTracker"))
+
+-- Remotes
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local RoundSummaryRE = Remotes:FindFirstChild("RoundSummaryRE") or Instance.new("RemoteEvent")
+RoundSummaryRE.Name = "RoundSummaryRE"
+RoundSummaryRE.Parent = Remotes
 
 -- Replicated Values
 local CurrentThemeName = Values:WaitForChild("CurrentThemeName") :: StringValue 
@@ -148,6 +156,8 @@ function WinnersManager.updateLeaderboard(rankings: { GameOutfitManager.Outfit }
 	ThemeLabel.Text = CurrentThemeName.Value
 end
 
+local PLACEMENT_LABELS = { "1ST PLACE", "2ND PLACE", "3RD PLACE" }
+
 function WinnersManager.setNewWinners()
 	local rankings = GameOutfitManager.getOutfitsByScore()
 
@@ -155,26 +165,22 @@ function WinnersManager.setNewWinners()
 		return false
 	end
 
-	local top3 = {}
-	for i = 1, math.min(3, #rankings) do
-		local submission = rankings[i]
-		table.insert(top3, submission)
-		task.spawn(function()
-			local success, player = callWithRetry(function()  
-				return Players:GetPlayerByUserId(submission.userId)
-			end)
-			if not success or not player then return end
-			if i <= 3 then
-				DataManager.AddExp(player, ExpConfig.Placements[i])
-			elseif i <= 20 then
-				DataManager.AddExp(player, ExpConfig.Rewards.TOP_20) 
-			end
-		end)
+	-- Build userId → placement index for all ranked players
+	local placementByUser: { [number]: number } = {}
+	for i, submission in ipairs(rankings) do
+		placementByUser[submission.userId] = i
 	end
 
-	-- Increment top 20 challenge for all ranked players in the top 20
-	for i = 1, math.min(20, #rankings) do
+	-- Accumulate placement XP and update top-20 challenge
+	local top3 = {}
+	for i = 1, math.min(#rankings, 20) do
 		local submission = rankings[i]
+		if i <= 3 then
+			table.insert(top3, submission)
+			RoundXpTracker.accumulate(submission.userId, ExpConfig.Placements[i], PLACEMENT_LABELS[i])
+		else
+			RoundXpTracker.accumulate(submission.userId, ExpConfig.Rewards.TOP_20, "TOP 20")
+		end
 		task.spawn(function()
 			local success, player = callWithRetry(function()
 				return Players:GetPlayerByUserId(submission.userId)
@@ -184,6 +190,39 @@ function WinnersManager.setNewWinners()
 			end
 		end)
 	end
+
+	-- Fire round summary to every player, then apply accumulated XP
+	local allPlayers = Players:GetPlayers()
+	local challengeDefs = ChallengeDefinitions.GetDailyChallengeSet()
+
+	for _, player in allPlayers do
+		local record = RoundXpTracker.getForPlayer(player.UserId)
+		local previousExp = (player:FindFirstChild("leaderstats") :: Folder?)
+			and (player.leaderstats:FindFirstChild("Exp") :: NumberValue?)
+			and player.leaderstats.Exp.Value
+			or 0
+
+		local challenges = {}
+		for _, def in ipairs(challengeDefs) do
+			table.insert(challenges, {
+				id = def.id,
+				label = def.name,
+				progress = ChallengeManager.getChallengeProgress(player, def.id),
+				target = def.targetAmount,
+				xpReward = def.reward.exp,
+			})
+		end
+
+		RoundSummaryRE:FireClient(player, {
+			placement   = placementByUser[player.UserId],
+			previousExp = previousExp,
+			xpBreakdown = record and record.breakdown or {},
+			totalXp     = record and record.total or 0,
+			challenges  = challenges,
+		})
+	end
+
+	RoundXpTracker.applyAll(allPlayers)
 
 	GameOutfitManager.setPodiumOutfits(top3)
 
