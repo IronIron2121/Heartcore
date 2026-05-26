@@ -29,7 +29,7 @@ end
 local function placementSubtext(placement: number?): string
 	if not placement then return "BETTER LUCK NEXT TIME!" end
 	if placement == 1 then return "TOP OF THE PODIUM!" end
-	if placement <= 3 then return "ON THE PODIUM!" end
+	if placement <= 3 then return "'ON THE PODIUM!'" end
 	if placement <= 20 then return "TOP 20!" end
 	return "BETTER LUCK NEXT TIME!"
 end
@@ -93,7 +93,7 @@ local function makeChallengeRow(scope: Fusion.Scope, entry: {
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.fromScale(0.6, 0.5),
 				Size = UDim2.fromScale(0.32, 0.4),
-				BackgroundColor3 = Color3.fromRGB(80, 80, 80),
+				BackgroundColor3 = Color3.fromRGB(176, 183, 253),
 				[Children] = {
 					scope:New "UICorner" { CornerRadius = UDim.new(0.5, 0) },
 					scope:New "Frame" {
@@ -239,9 +239,16 @@ scope:New "Frame" {
 	AnchorPoint = Vector2.new(0, 0),
 	Position = UDim2.fromScale(0, 0),
 	Size = UDim2.fromScale(1, 1),
-	BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+	BackgroundColor3 = UI_CONSTANTS.COLOUR_WHITE,
 	Parent = gui,
 	[Children] = {
+		scope:New "UIGradient" {
+			Color = ColorSequence.new(
+				UI_CONSTANTS.TASTEMAKER_PURPLE,
+				Color3.fromRGB(176, 183, 253)
+			),
+			Rotation = 90
+		},
 		scope:New "UIPadding" {
 			PaddingLeft   = UDim.new(0.05, 0), PaddingRight  = UDim.new(0.05, 0),
 			PaddingTop    = UDim.new(0.04, 0), PaddingBottom = UDim.new(0.04, 0),
@@ -292,7 +299,7 @@ scope:New "Frame" {
 		scope:New "Frame" {
 			LayoutOrder = 4,
 			Size = UDim2.new(1, 0, 0, 20),
-			BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+			BackgroundColor3 = Color3.fromRGB(176, 183, 253),
 			[Children] = {
 				scope:New "UICorner" { CornerRadius = UDim.new(0.5, 0) },
 				barFillFrame,
@@ -319,13 +326,20 @@ scope:New "Frame" {
 			[Children] = { xpBreakdownList },
 		},
 
+		scope:New "Frame" {
+			Name = "Buffer",
+			LayoutOrder = 7,
+			Size = UDim2.fromScale(1, 0.07),
+			BackgroundTransparency = 1
+		},
+
 		-- Challenge header
 		scope:New "TextLabel" {
 			LayoutOrder = 7,
 			Size = UDim2.new(1, 0, 0, 24),
 			BackgroundTransparency = 1,
 			Text = "DAILY CHALLENGES",
-			TextColor3 = Color3.new(0.8, 0.8, 0.8),
+			TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 			FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
 			TextScaled = true,
 			TextXAlignment = Enum.TextXAlignment.Left,
