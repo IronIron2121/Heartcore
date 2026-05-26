@@ -7,7 +7,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 -- Folders
-local Bindables = ReplicatedStorage:WaitForChild("Bindables")
+local Bindables       = ReplicatedStorage:WaitForChild("Bindables")
+local PodiumViewEndedBindable = Bindables:WaitForChild("PodiumViewEndedBindable") :: BindableEvent
 local DataTables = ReplicatedStorage:WaitForChild("DataTables")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
@@ -260,7 +261,7 @@ local function InitialiseHuds()
         middleRight = nil,
         middleLeft = nil,
         bottomLeft = nil,
-        bottomMiddle = { Object = voteBar, AlwaysOn = true },
+        bottomMiddle = { Object = voteBar, AlwaysOn = false },
         bottomRight = nil,
     })
 
@@ -281,18 +282,19 @@ local function InitialiseHuds()
         while GuiManager.IsCentreActive() do
             GuiManager.PopCentre()
         end
-        GuiManager.HideCurrentConfiguration()
+        GuiManager.ForceHideCurrentConfiguration()
 
         GuiManager.doTransition(peek(GameStateValues.stateName))
         
         if peek(GameStateValues.isVoting) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
-        elseif GameStateValues.isDressing then
+        elseif peek(GameStateValues.isDressing) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
-
-        elseif GameStateValues.isIntermission then
-            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.IntermissionConfig)
         end
+    end)
+
+    PodiumViewEndedBindable.Event:Connect(function()
+        GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.IntermissionConfig)
     end)
 end
 

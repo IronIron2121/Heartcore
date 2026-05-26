@@ -2,15 +2,18 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterPlayer     = game:GetService("StarterPlayer")
 
 -- Folders
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
 local ClientCameraController = require(script.Parent.Parent.Libraries.ClientCameraController)
+local PlayerDisplayManager   = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
 
 -- Bindables / Values
 local TransitionCompleted = Bindables:WaitForChild("TransitionCompleted") :: BindableEvent
+local PodiumViewEndedBindable     = Bindables:WaitForChild("PodiumViewEndedBindable")     :: BindableEvent
 
 -- World
 local INTERMISSION_ZONE = workspace:WaitForChild("INTERMISSION_ZONE")
@@ -28,10 +31,13 @@ end
 local function activate()
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 	ClientCameraController.activate(computeResultsCFrame())
+	PlayerDisplayManager.HideAllDisplays()
 end
 
 local function deactivate()
 	ClientCameraController.deactivate()
+	PlayerDisplayManager.ShowAllDisplays()
+	PodiumViewEndedBindable:Fire()
 end
 
 -- ─── Intermission flow ──────────────────────────────────────────────────────

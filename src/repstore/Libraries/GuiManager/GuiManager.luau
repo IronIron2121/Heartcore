@@ -509,6 +509,18 @@ function GuiManager.ShowCurrentConfiguration(): ()
     end
 end
 
+function GuiManager.ForceHideCurrentConfiguration(): ()
+    if currentConfiguration then
+        currentConfiguration:HideAll()
+    end
+end
+
+function GuiManager.ForceShowCurrentConfiguration(): ()
+    if currentConfiguration then
+        currentConfiguration:ShowAll()
+    end
+end
+
 function GuiManager.GetCurrentConfigurationNameValue(): Value<string?>
     return currentConfigurationName
 end
