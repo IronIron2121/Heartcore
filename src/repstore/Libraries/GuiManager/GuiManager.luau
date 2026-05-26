@@ -194,7 +194,7 @@ local messageContainer = guiScope:New "Frame" {
     ),
     Size = guiScope:Tween(
         messageSize,
-        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad)
     ),
     Rotation = guiScope:Tween(
         messageRotation,
@@ -263,7 +263,7 @@ local rightTransitionWing = guiScope:New "Frame" {
     }
 }
 local transitionGui = guiScope:New "ScreenGui" {
-    Name = "TransitionGui",
+    Name = "TransitionGui", 
     Enabled = true,
     Parent = PlayerGui,
     IgnoreGuiInset = true,

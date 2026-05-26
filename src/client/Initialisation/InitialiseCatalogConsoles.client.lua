@@ -179,6 +179,10 @@ local function initialiseCatalogConsole(ConsoleBase: Part)
         consolePrompt.KeyboardKeyCode = Enum.KeyCode.E
         consolePrompt.MaxActivationDistance = 10
         consolePrompt.RequiresLineOfSight = false
+		consolePrompt.Triggered:Connect(function(a0: Player)
+			PlayerTriggeredCatalogConsole:Fire(ConsoleBase.Name)
+
+		end)
         
         -- Setup custom UI for this prompt
         setupCustomPromptUI(consolePrompt, ConsoleBase)
