@@ -566,7 +566,7 @@ function GuiManager.doTransition(message: string?)
     veilSize:set(veilSizes.OUT)
     messageSize:set(messageSizes.IN)
     messageVisible:set(true)
-    task.wait(tweenTime * 60)
+    task.wait(tweenTime)
 
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
