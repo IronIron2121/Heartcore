@@ -17,6 +17,7 @@ local Constants = require(ReplicatedStorage.Constants)
 local randomTeleport = require(ReplicatedStorage:WaitForChild("Utility").randomTeleport)
 local WinnersManager = require(ServerScriptService.Voting.WinnersManager)
 local GameOutfitManager = require(GameLoop:WaitForChild("GameOutfitManager"))
+local RoundXpTracker = require(GameLoop:WaitForChild("RoundXpTracker"))
 
 -- Spawn destinations
 local STATE_SPAWNS = {
@@ -340,7 +341,8 @@ function GameStateManager._onStateEnter(stateName: string)
 		-- Select new theme
 		currentTheme = selectNewTheme()
 		currentThemeName.Value = currentTheme
-		
+
+		RoundXpTracker.reset()
 		GameOutfitManager.reset()
 	elseif stateName == "Voting" then
 		-- Auto-submit for players who didn't submit during Dressing

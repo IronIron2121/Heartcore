@@ -34,6 +34,8 @@ local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeCont
 local AvatarEditorController = require(WardrobeGuiController.AvatarEditorController)
 local OutfitViewController = require(WardrobeGuiController.OutfitViewController)
 local DailyChallengeFrame = require(DailyChallengeFolder.DailyChallengeFrame)
+local RoundSummaryGui = require(FusionComponents.RoundSummaryGui)
+local RoundSummaryStore = require(StarterPlayerScripts.Intermission.RoundSummaryStore)
 local CONFIGURATION_NAMES = require(GuiManagerLibrary.CONFIGURATION_NAMES)
 local OpenWardrobeButton = require(FusionComponents.OpenWardrobeButton)
 local PlayerSubmissionState = require(GameState.PlayerSubmissionState)
@@ -279,6 +281,7 @@ local function InitialiseHuds()
     end
 
     hudScope:Observer(GameStateValues.stateName):onChange(function()
+        RoundSummaryGui.hide()
         while GuiManager.IsCentreActive() do
             GuiManager.PopCentre()
         end
@@ -295,6 +298,9 @@ local function InitialiseHuds()
 
     PodiumViewEndedBindable.Event:Connect(function()
         GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.IntermissionConfig)
+        if RoundSummaryStore.latest then
+            RoundSummaryGui.show(RoundSummaryStore.latest)
+        end
     end)
 end
 
