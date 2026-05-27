@@ -227,9 +227,11 @@ function AvatarEditorController:_addClassicItemTile(assetId: number, itemType: s
 		end,
 		removeCb = function()
 			LoadingScreenManager.show(self.avatarViewport)
+			--[[
 			if table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, assetId) then
 				return true
 			end
+			]]
 			local success = ClientCustomisationService.RemoveClassicItem(assetId, itemType)
 			if success then
 				self:RemoveClassicItemTile(itemType)
