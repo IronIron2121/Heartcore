@@ -28,13 +28,13 @@ local TopCategories: { TopCategoryEntry } = {
 			Enum.AvatarAssetType.Shirt,
 		},
 		bundleTypes = {},
-		subCategories = {
-			{ name = "Classic T-Shirts", assetType = Enum.AvatarAssetType.TShirt 	},
-			{ name = "Classic Shirts", assetType = Enum.AvatarAssetType.Shirt 		},
+		subCategories = {			
 			{ name = "T-Shirts", assetType = Enum.AvatarAssetType.TShirtAccessory 	},
 			{ name = "Shirts",   assetType = Enum.AvatarAssetType.ShirtAccessory	},
 			{ name = "Jackets",  assetType = Enum.AvatarAssetType.JacketAccessory  	},
 			{ name = "Sweaters", assetType = Enum.AvatarAssetType.SweaterAccessory	},
+			{ name = "Classic T-Shirts", assetType = Enum.AvatarAssetType.TShirt 	},
+			{ name = "Classic Shirts", assetType = Enum.AvatarAssetType.Shirt 		}
 		},
 	},
 	{
