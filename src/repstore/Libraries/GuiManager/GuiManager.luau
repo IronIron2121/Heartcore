@@ -231,7 +231,9 @@ local leftTransitionWing = guiScope:New "Frame" {
         guiScope:New "UIGradient" {
             Color = ColorSequence.new(
                 Color3.fromRGB(176, 183, 253), 
-                UI_CONSTANTS.TASTEMAKER_PURPLE)
+                UI_CONSTANTS.TASTEMAKER_PURPLE
+            ),
+            Offset = Vector2.new(5,0)
         }
     }
 }
@@ -260,6 +262,7 @@ local rightTransitionWing = guiScope:New "Frame" {
                 UI_CONSTANTS.TASTEMAKER_PURPLE,
                 Color3.fromRGB(176, 183, 253)
             ),
+            Offset = Vector2.new(5,0)
         }
     }
 }
