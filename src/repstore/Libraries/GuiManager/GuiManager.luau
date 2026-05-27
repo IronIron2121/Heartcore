@@ -229,7 +229,7 @@ local leftTransitionWing = guiScope:New "Frame" {
     [Children] = {
         guiScope:New "UIGradient" {
             Color = ColorSequence.new(
-                UI_CONSTANTS.COLOUR_WHITE,
+                Color3.fromRGB(176, 183, 253), 
                 UI_CONSTANTS.TASTEMAKER_PURPLE)
         }
     }
