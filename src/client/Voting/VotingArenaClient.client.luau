@@ -60,9 +60,9 @@ local function computeJudgeCFrame(): CFrame
 	if not judge or not leftC or not rightC then return CFrame.identity end
 
 	-- Camera sits 8 studs above JudgePlatform, looking at chest height of the challengers
-	local camPos = judge.Position + Vector3.new(0, 10, 12)
+	local camPos = judge.Position + Vector3.new(0, 6, 12)
 	local midpoint = (leftC.Position + rightC.Position) / 2
-	local lookAt = midpoint + Vector3.new(0, 10, 0)
+	local lookAt = midpoint + Vector3.new(0, 8, 0)
 	return CFrame.lookAt(camPos, lookAt)
 end
 
@@ -79,7 +79,7 @@ end
 
 -- ─── Activate / deactivate ──────────────────────────────────────────────────
 local function activate()
-	ClientCameraController.activate(computeJudgeCFrame())
+	ClientCameraController.activate(computeJudgeCFrame(), 55)
 end
 
 local function deactivate()
