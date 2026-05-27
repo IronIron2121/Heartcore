@@ -567,7 +567,7 @@ function GuiManager.doTransition(message: string)
         message = "Time to dress!"
     elseif message == GameStates.Intermission.name then
         -- text
-        message = "Intermission"
+        message = "And the winners are..."
     elseif message == GameStates.Voting.name then
         -- text
         message = "Time to Vote!"

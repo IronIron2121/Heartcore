@@ -164,7 +164,7 @@ local function InitialiseHuds()
 
             BaseImageButton(hudScope, {
                 name = "GameStateButton",
-                size = UDim2.fromScale(0.7,0.7),
+                size = UDim2.fromScale(1, 1.5),
                 layoutOrder = 1,
                 image = hudScope:Computed(function(use)
                     if use(GameStateValues.isDressing) then
