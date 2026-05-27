@@ -144,8 +144,8 @@ local Constants = {
 	
 	DEFAULT_CLASSIC_CLOTHING_IDS = {
 		["GraphicTShirt"] = 0,
-		["Shirt"] = 855779323,
-		["Pants"] = 855785499,
+		["Shirt"] = 0,
+		["Pants"] = 0,
 		["Face"] = 65724730
 	},
 	
