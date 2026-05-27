@@ -21,6 +21,7 @@ local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
 
 -- Modules
 local Constants = require(ReplicatedStorage.Constants)
+local GameStates = require(ReplicatedStorage.GameLoop.GameStates)
 local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
 local parseError = require(ReplicatedStorage.Utility.Fusion.Logging.parseError)
 local PlayerDisplayManager = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
@@ -114,14 +115,14 @@ local modalContainer = guiScope:New "Frame" {
 local tweenTime = Constants.TransitionTweenTime
 local transitionTime = Constants.TransitionTotalTime
 
-local messageValue = guiScope:Value("INITIAL_TEXT")
+local messageValue = guiScope:Value("")
 local messageLabel = guiScope:New "TextLabel" {
     Name = "textLabel",
     Size = UDim2.fromScale(1, 1),
     BackgroundTransparency = 1,
     AnchorPoint = Vector2.new(0.5, 0.5),
     Position = UDim2.fromScale(0.5, 0.5),
-    TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
     FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
     Text = messageValue,
     TextScaled = true,
@@ -131,8 +132,8 @@ local messageLabel = guiScope:New "TextLabel" {
             ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
             LineJoinMode = Enum.LineJoinMode.Round,
             Transparency = 0,
-            Color = UI_CONSTANTS.COLOUR_WHITE,
-            Thickness = 2,
+            Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
+            Thickness = 3,
         }
     }
 }
@@ -168,7 +169,7 @@ local messagePosition = guiScope:Value(
     messagePositions.OUT
 )
 local messageSizes = {
-    ['IN'] = UDim2.fromScale(0.8, 0.25),
+    ['IN'] = UDim2.fromScale(1, 0.5),
     ['OUT'] = UDim2.fromScale(0, 0)
 }
 local messageSize = guiScope:Value(messageSizes.OUT)
@@ -194,7 +195,7 @@ local messageContainer = guiScope:New "Frame" {
     ),
     Size = guiScope:Tween(
         messageSize,
-        TweenInfo.new(0.5, Enum.EasingStyle.Quad)
+        TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
     ),
     Rotation = guiScope:Tween(
         messageRotation,
@@ -229,7 +230,7 @@ local leftTransitionWing = guiScope:New "Frame" {
     [Children] = {
         guiScope:New "UIGradient" {
             Color = ColorSequence.new(
-                UI_CONSTANTS.COLOUR_WHITE,
+                Color3.fromRGB(176, 183, 253), 
                 UI_CONSTANTS.TASTEMAKER_PURPLE)
         }
     }
@@ -257,7 +258,7 @@ local rightTransitionWing = guiScope:New "Frame" {
         guiScope:New "UIGradient" {
             Color = ColorSequence.new(
                 UI_CONSTANTS.TASTEMAKER_PURPLE,
-                UI_CONSTANTS.COLOUR_WHITE
+                Color3.fromRGB(176, 183, 253)
             ),
         }
     }
@@ -561,6 +562,19 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
 end
 
 function GuiManager.doTransition(message: string)
+    if message == GameStates.Dressing.name then
+        -- text
+        message = "Time to dress!"
+    elseif message == GameStates.Intermission.name then
+        -- text
+        message = "Intermission"
+    elseif message == GameStates.Voting.name then
+        -- text
+        message = "Time to Vote!"
+    else
+        warn("Unhandled message at GuiManager.doTransition()", message)
+    end 
+
     -- Hide top bar
     messageValue:set(message)
     messagePosition:set(messagePositions.IN)
@@ -589,6 +603,8 @@ function GuiManager.doTransition(message: string)
         messageVisible:set(false)
         messagePosition:set(messagePositions.IN)
         messageSize:set(messageSizes.OUT)
+        messageValue:set("")
+
     end)
 end
 

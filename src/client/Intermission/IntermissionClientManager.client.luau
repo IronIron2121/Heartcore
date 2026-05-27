@@ -23,14 +23,14 @@ local winnersObs        = INTERMISSION_ZONE:WaitForChild("WINNER_OBSERVATION_POI
 -- ─── Camera ─────────────────────────────────────────────────────────────────
 
 local function computeResultsCFrame(): CFrame
-	local camPos = winnersObs.Position + Vector3.new(0, 10, 12)
-	local lookAt = winnersPodium.Position + Vector3.new(0, 10, 0)
+	local camPos = winnersObs.Position + Vector3.new(0, 6, 12)
+	local lookAt = winnersPodium.Position + Vector3.new(0, 8, 0)
 	return CFrame.lookAt(camPos, lookAt)
 end
 
 local function activate()
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
-	ClientCameraController.activate(computeResultsCFrame())
+	ClientCameraController.activate(computeResultsCFrame(), 55)
 	PlayerDisplayManager.HideAllDisplays()
 end
 
