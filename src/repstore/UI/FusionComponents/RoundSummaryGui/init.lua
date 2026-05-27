@@ -348,7 +348,7 @@ scope:New "Frame" {
 		-- Challenge rows
 		scope:New "Frame" {
 			LayoutOrder = 8,
-			Size = UDim2.fromScale(1, 0.25),
+			Size = UDim2.fromScale(1, 0.4),
 			BackgroundTransparency = 1,
 			[Children] = { challengeList },
 		},
