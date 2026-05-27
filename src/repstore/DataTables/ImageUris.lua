@@ -9,7 +9,7 @@
 
 local ImageUris = {}
 local assets = {
-	OutfitCatalogButton = "116118796974877",
+	OutfitCatalogButton = "139941028437891",
 	CloseButton = "80840559307041",
 	ConfirmButton = "137275759314686",
 	StopwatchIcon = "73600277679991",

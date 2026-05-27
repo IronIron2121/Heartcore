@@ -141,7 +141,7 @@ local function InitialiseHuds()
                 VerticalAlignment = Enum.VerticalAlignment.Center
             },
 
-            openDailyChallengesButton,
+            --openDailyChallengesButton,
             openWardrobeButton
         }
     } :: Frame
