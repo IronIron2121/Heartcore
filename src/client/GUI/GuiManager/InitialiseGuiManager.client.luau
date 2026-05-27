@@ -282,9 +282,11 @@ local function InitialiseHuds()
 
     hudScope:Observer(GameStateValues.stateName):onChange(function()
         RoundSummaryGui.hide()
+        
         while GuiManager.IsCentreActive() do
             GuiManager.PopCentre()
         end
+
         GuiManager.ForceHideCurrentConfiguration()
 
         GuiManager.doTransition(peek(GameStateValues.stateName))
