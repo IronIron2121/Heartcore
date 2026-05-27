@@ -311,6 +311,10 @@ Position = scope:Tween(
 - `coroutine.yield(timerThread)` does not pause another coroutine; it only yields the currently running thread
 - For countdown timers that transition game state on completion, defer the follow-up `transitionTo()` onto a new task before replacing/canceling the timer; otherwise the transition logic can end up trying to cancel the currently executing timer thread
 
+**Cached UI cleanup:**
+- Cached UI managers should create a per-entry Fusion scope and call `Fusion.doCleanup(scope)` when the cached parent is destroyed or explicitly cleaned up
+- Animation loops inside UI components must have an explicit stop path; avoid `while true do` loops unless they are intentionally process-lifetime tasks
+
 **Async loading pattern:**
 - To make GUI feel responsive, show the frame immediately (e.g. via GuiManager modal push), then `task.spawn` the heavy async work (API calls, model creation)
 - Show a loading screen via `LoadingScreenManager.show(container)` while loading, hide when done
