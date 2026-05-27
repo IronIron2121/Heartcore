@@ -76,9 +76,15 @@ local TopCategories: { TopCategoryEntry } = {
 			Enum.AvatarAssetType.WaistAccessory,
 			Enum.AvatarAssetType.ShoulderAccessory,
 			Enum.AvatarAssetType.BackAccessory,
+			Enum.AvatarAssetType.Hat,
+			Enum.AvatarAssetType.WaistAccessory,
+			Enum.AvatarAssetType.FaceAccessory
 		},
-		bundleTypes = {},
+		bundleTypes = {
+			Enum.BundleType.Shoes
+		},
 		subCategories = {
+			{ name = "Hat" ,		assetType = Enum.AvatarAssetType.Hat				},
 			{ name = "Neck",		assetType = Enum.AvatarAssetType.NeckAccessory   	},
 			{ name = "Waist", 		assetType = Enum.AvatarAssetType.WaistAccessory 	},
 			{ name = "Shoulder", 	assetType = Enum.AvatarAssetType.ShoulderAccessory 	},
