@@ -286,6 +286,9 @@ function DataManager.AddRankDisplayToCharacter(player: Player, character: Model?
 	RankLabel.LayoutOrder = 1
 	RankLabel.FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold)
 	RankLabel.Size = TEXT_LABEL_SIZE
+	local rankStroke = Instance.new("UIStroke", RankLabel)
+	rankStroke.Color = UI_CONSTANTS.TASTEMAKER_PINK
+	rankStroke.Thickness = 2
 
 	local playerLevel = DataManager.GetLevel(player)
 	local NameLabel = Instance.new("TextLabel", BillboardGui)
@@ -293,12 +296,16 @@ function DataManager.AddRankDisplayToCharacter(player: Player, character: Model?
 	NameLabel.Text = player.Name .. " (Lv. " .. playerLevel .. ")"
 	NameLabel.TextColor3 = Color3.new(1, 1, 1)
 	NameLabel.TextStrokeColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE
-	NameLabel.TextStrokeTransparency = 0
+	NameLabel.TextStrokeTransparency = 1
 	NameLabel.TextScaled = true
 	NameLabel.BackgroundTransparency = 1
 	NameLabel.LayoutOrder = 2
 	NameLabel.FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold)
 	NameLabel.Size = TEXT_LABEL_SIZE
+	
+	local labelStroke = Instance.new("UIStroke", NameLabel)
+	labelStroke.Color = UI_CONSTANTS.TASTEMAKER_PURPLE
+	labelStroke.Thickness = 2
 
 	local humanoid = character:WaitForChild("Humanoid", 10) :: Humanoid
 	humanoid.NameDisplayDistance = 0
