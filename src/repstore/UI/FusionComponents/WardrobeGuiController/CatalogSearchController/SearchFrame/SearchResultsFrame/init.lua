@@ -49,7 +49,7 @@ function SearchResultsFrame(
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		ScrollBarThickness = 4,
-		ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+		ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PINK,
 
 		[Children] = {
 			gridLayout,

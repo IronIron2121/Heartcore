@@ -146,7 +146,7 @@ function CategoryFrame(
 				CanvasSize = UDim2.fromScale(0, 0),
 				ScrollingDirection = Enum.ScrollingDirection.X,
 				ScrollBarThickness = 3,
-				ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+				ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PINK,
 
 				[Children] = {
 					scope:New "UIListLayout" {
@@ -219,7 +219,7 @@ function CategoryFrame(
 				CanvasSize = UDim2.fromScale(0, 0),
 				ScrollingDirection = Enum.ScrollingDirection.X,
 				ScrollBarThickness = 3,
-				ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+				ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PINK,
 
 				[Children] = {
 					scope:New "UIListLayout" {

@@ -13,7 +13,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 --Constants
-local COLOUR_SELECTED = UI_CONSTANTS.COLOUR_GREY
+local COLOUR_SELECTED = UI_CONSTANTS.TASTEMAKER_PINK
 local DEFAULT_COLOUR = UI_CONSTANTS.TASTEMAKER_PURPLE
 local HOVER_SCALE = 1.2 
 
@@ -35,6 +35,8 @@ function CategoryButton(
 		visible: UsedAs<boolean>?,
 		textSize: UsedAs<number>?,
 		textColor3: UsedAs<Color3>?,
+		textStrokeColor3: UsedAs<Color3>?,
+		textStrokeTransparency: UsedAs<number>?
 	}
 ): TextButton
 	local playerIsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
@@ -48,7 +50,7 @@ function CategoryButton(
 		if selected then
 			return UI_CONSTANTS.COLOUR_WHITE
 		elseif hovering then
-			return UI_CONSTANTS.TASTEMAKER_PURPLE:Lerp(UI_CONSTANTS.COLOUR_BLACK, 0.25)
+			return UI_CONSTANTS.TASTEMAKER_PURPLE:Lerp(UI_CONSTANTS.TASTEMAKER_GREEN, 0.25)
 		else
 			return UI_CONSTANTS.TASTEMAKER_PURPLE
 		end
@@ -92,13 +94,13 @@ function CategoryButton(
 		TextScaled = true,
 		TextWrapped = true,
 		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
-		BackgroundColor3 = backgroundColorSpring,
+		BackgroundColor3 = UI_CONSTANTS.COLOUR_WHITE,
 		BackgroundTransparency = 1,
 		Visible = if props.visible ~= nil then props.visible else true,
 		BorderSizePixel = 0,
 		TextSize = props.textSize or 20,
 		TextXAlignment = Enum.TextXAlignment.Left,
-
+		
 		[OnEvent "Activated"] = function()
 			if props.onActivated then
 				props.onActivated()
