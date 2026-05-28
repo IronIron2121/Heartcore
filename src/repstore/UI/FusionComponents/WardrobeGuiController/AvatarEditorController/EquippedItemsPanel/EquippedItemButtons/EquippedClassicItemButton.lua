@@ -195,11 +195,11 @@ function EquippedClassicItemButton(
 				Name = "RemoveButton",
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.fromScale(0, 0.5),
-				Size = UDim2.fromScale(0.4, 0.4),
+				Size = UDim2.fromScale(0.5, 0.5),
 				ZIndex = 3,
 				BackgroundTransparency = 1,
 				ImageTransparency = backgroundTransparencySpring,
-				Image = ImageUris.TrashButton,
+				Image = ImageUris.CloseButton,
 				Active = not peek(isDefaultItem),
 				Visible = not peek(isDefaultItem),
 

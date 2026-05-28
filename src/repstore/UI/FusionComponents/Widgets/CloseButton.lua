@@ -58,7 +58,7 @@ local function CloseButton(
 		Position = props.position or UDim2.fromScale(1, 1),
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		ZIndex = props.zIndex or 3, 
-		Size = props.size or UDim2.fromScale(0.1,0.1),
+		Size = props.size or UDim2.fromScale(0.2,0.2),
 		BackgroundTransparency = 1,
 		Transparency = 1,
 		

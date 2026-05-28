@@ -26,8 +26,8 @@ local function FtuePop(scope: Fusion.Scope)
         onClick = function()
             GuiManager.PopCentre()
         end,
-        position = UDim2.fromScale(1.03, 0),
-        anchorPoint = Vector2.new(1,0)
+        position = UDim2.fromScale(0.98, 0.02),
+        anchorPoint = Vector2.new(0.5,0.5)
     })
 
     local ftuePop = scope:New "Frame" {

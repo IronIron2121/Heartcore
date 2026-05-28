@@ -10,7 +10,7 @@
 local ImageUris = {}
 local assets = {
 	OutfitCatalogButton = "139941028437891",
-	CloseButton = "80840559307041",
+	CloseButton = "80352400443696",
 	ConfirmButton = "137275759314686",
 	StopwatchIcon = "73600277679991",
 	RobuxIcon = "81055682730978",
