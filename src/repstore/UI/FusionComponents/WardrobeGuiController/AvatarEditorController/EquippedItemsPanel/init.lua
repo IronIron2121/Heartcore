@@ -63,7 +63,7 @@ function EquippedItemsPanel(
 		BackgroundTransparency = UI_CONSTANTS.TRANSPARENCY_TRANSLUCENT,
 		BorderSizePixel = 0,
 		ScrollBarThickness = 4,
-		ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PINK,
+		ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_GREEN, 
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		Parent = equippedItemsContainer,

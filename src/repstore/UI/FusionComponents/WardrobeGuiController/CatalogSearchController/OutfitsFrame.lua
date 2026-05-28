@@ -164,7 +164,7 @@ function OutfitsFrame(
 				CanvasSize = UDim2.fromScale(0, 0),
 				ScrollingDirection = Enum.ScrollingDirection.Y,
 				ScrollBarThickness = 4,
-				ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PINK,
+				ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 				
 				LayoutOrder = 2,
 

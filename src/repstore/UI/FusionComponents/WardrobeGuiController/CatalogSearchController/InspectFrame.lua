@@ -67,7 +67,7 @@ function InspectFrame(
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		ScrollBarThickness = 4,
-		ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PINK,
+		ScrollBarImageColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
 
 		[Children] = {
 			gridLayout,
