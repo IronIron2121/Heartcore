@@ -59,7 +59,8 @@ local ShowAllPromptsBindable   = BindablesFolder:WaitForChild("ShowAllPromptsBin
 local transitionCompletedEvent = BindablesFolder:WaitForChild("TransitionCompleted") :: BindableEvent
 
 -- Remotes
-local MarkMessageSeenRE = Remotes
+local MarkMessageSeenRE = Remotes.MarkMessageSeenRE
+
 -- Instances
 local localPlayer = Players.LocalPlayer
 
