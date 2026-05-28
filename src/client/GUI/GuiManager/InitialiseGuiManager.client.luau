@@ -107,6 +107,8 @@ task.spawn(function()
     initialLoadGui:Destroy()
 end)
 
+local controllers = {}
+
 local function InitialiseHuds()
     local hudScope = Fusion:scoped()
     local expHud = ExpHud(hudScope, { Size = UDim2.fromScale(1, 0.5) })
@@ -118,7 +120,8 @@ local function InitialiseHuds()
 			    GuiManager.PopCentre()
             else
                 -- We do this here rather than in the close button because otherwise players see the view change for a split second before the closing animation finishes
-                WardrobeGuiState.ResetView()
+                WardrobeGuiState.ResetView();
+                (controllers["CatalogSearchController"] :: any):OpenToTopCategory(nil)
                 GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
             end
         end
@@ -313,7 +316,6 @@ local function InitialiseModals()
     local ftuePop = FtuePop(modalScope)
 
     -- TODO: Find a more robust way of doing the below, this is vestigial code
-	local controllers = {}
 	controllers["CatalogSearchController"] = CatalogSearchController.new(catalogContainer, controllers, wardrobeContainer)
 	controllers["AvatarEditorController"] = AvatarEditorController.new(avatarContainer, controllers) 
     controllers["VotingGuiController"] = nil
