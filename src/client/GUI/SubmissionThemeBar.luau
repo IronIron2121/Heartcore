@@ -31,15 +31,15 @@ Players.PlayerRemoving:Connect(function()
     end)
 end)
 
-local highlightColor = "<font color=\"rgb(92, 95, 212)\">"
+local highlightColor = "<font color=\"rgb(65, 79, 249)\">"
 local strokeColor = "<stroke color=\"#FFFFFF\">"
 local closeStroke = "</stroke>"
 local closeFont = "</font>"
 
 local TimeColor = scope:Computed(function(use)
     return use(GameStateValues.secondsRemaining) > timeBound
-        and "<font color=\"rgb(89, 247, 128)\">"
-        or "<font color=\"rgb(255, 50, 50)\">"
+        and "<font color=\"rgb(74, 255, 246)\">"
+        or "<font color=\"rgb(255, 90, 236)\">"
 end)
 
 local labelSize = scope:Computed(function(use)
@@ -122,7 +122,7 @@ local function SubmissionThemeBar()
                 [Children] = {
                     scope:New "UIStroke"{
                         Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
-                        Thickness = 1,
+                        Thickness = 2,
                     }
                 }
             },

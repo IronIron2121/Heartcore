@@ -120,12 +120,19 @@ local function ExpHud(scope: Fusion.Scope, props: { Size: UsedAs<UDim2>? }?)
 		Text = rankText,
 		TextColor3 = Color3.new(1,1,1),
 		TextStrokeColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-		TextStrokeTransparency = 0,
+		TextStrokeTransparency = 1,
 		FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 		TextScaled = true,
 		TextXAlignment = "Left",
 		TextYAlignment = "Top",
-        ZIndex = 2
+        ZIndex = 2,
+
+		[Children] = {
+			scope:New "UIStroke" {
+				Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
+				Thickness = 2
+			}
+		}
 	} :: TextLabel
 	
 	local hudTopBar = scope:New "Frame" {
@@ -150,20 +157,20 @@ local function ExpHud(scope: Fusion.Scope, props: { Size: UsedAs<UDim2>? }?)
 				}
 			},
 
-			scope:New "TextLabel" {
-				Name = "TasteMeter",
-				Size = UDim2.fromScale(0.5,0.12),
-				Position = UDim2.fromScale(0.45,0.05),
-				BackgroundTransparency = 1,
-				Text = "Taste meter",
-				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
-				TextColor3 = Color3.fromRGB(130,194,144),
-				TextStrokeColor3 = UI_CONSTANTS.COLOUR_WHITE,
-				TextStrokeTransparency = 0,
-				TextScaled = true,
-				TextWrapped = false,
-				TextXAlignment = Enum.TextXAlignment.Left
-			},
+			-- scope:New "TextLabel" {
+			-- 	Name = "TasteMeter",
+			-- 	Size = UDim2.fromScale(0.5,0.12),
+			-- 	Position = UDim2.fromScale(0.45,0.05),
+			-- 	BackgroundTransparency = 1,
+			-- 	Text = "Taste meter",
+			-- 	FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+			-- 	TextColor3 = Color3.fromRGB(130,194,144),
+			-- 	TextStrokeColor3 = UI_CONSTANTS.COLOUR_WHITE,
+			-- 	TextStrokeTransparency = 0,
+			-- 	TextScaled = true,
+			-- 	TextWrapped = false,
+			-- 	TextXAlignment = Enum.TextXAlignment.Left
+			-- },
 
 			scope:New "Frame" {
 				Name = "rankContainer",

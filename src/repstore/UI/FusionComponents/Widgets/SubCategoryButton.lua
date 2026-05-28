@@ -13,7 +13,7 @@ local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 --Constants
-local COLOUR_SELECTED = UI_CONSTANTS.COLOUR_GREY
+local COLOUR_SELECTED = UI_CONSTANTS.TASTEMAKER_PINK
 local DEFAULT_COLOUR = UI_CONSTANTS.TASTEMAKER_PURPLE
 local HOVER_SCALE = 1.2 
 
@@ -34,6 +34,8 @@ function SubCategoryButton(
 		isSelected: UsedAs<boolean>?,
 		textSize: UsedAs<number>?,
 		textColor3: UsedAs<Color3>?,
+		textStrokeColor3: UsedAs<Color3>?,
+		textStrokeTransparency: UsedAs<number>?
 	}
 ): TextButton
 	local playerIsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
