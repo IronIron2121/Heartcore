@@ -39,6 +39,19 @@ type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
 type Computed<T>    = Fusion.Computed<T>
 
+
+
+-- Fusion Values
+local MESSAGE_ON_SCREEN_POSITION = UDim2.fromScale(0.5, 0.25)
+local MESSAGE_OFF_SCREEN_POSITION = UDim2.fromScale(0.5, -5)
+local messageActive = guiScope:Value(false)
+local messageText = guiScope:Value("")
+local messageCloseCallback: Value<() -> ()> = guiScope:Value(function() end)
+
+local messagePosition = guiScope:Computed(function(use)
+    return use(messageActive) and MESSAGE_ON_SCREEN_POSITION or MESSAGE_OFF_SCREEN_POSITION
+end)
+
 -- Bindables
 local HideAllPromptsBindable   = BindablesFolder:WaitForChild("HideAllPromptsBindable")
 local ShowAllPromptsBindable   = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
@@ -56,8 +69,7 @@ local ON_SCREEN_POSITION = UDim2.fromScale(0.5, 0.5)
 local TWEEN_LENGTH = 0.4
 local NOTIFICATION_OFF_SCREEN_POSITION = UDim2.fromScale(0.5, -5)
 
--- Variables
-local messageActive = guiScope:Value(false)
+
 
 
 --
@@ -112,6 +124,82 @@ local modalContainer = guiScope:New "Frame" {
     Size = UDim2.fromScale(1, 1),
     BackgroundTransparency = 1,
     Parent = ModalGui,
+}
+
+-- —— Message System ————————————————————————————————————————————————————————————————
+
+local messageTextLabel = guiScope:New "TextLabel" {
+    BackgroundTransparency = 1,
+    Name = "messageTextLabel",
+    Text = messageText,
+    FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
+    Size = UDim2.fromScale(1, 0.6),
+    TextScaled = true,
+    TextWrapped = true,
+    TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    TextSize = 50,
+    LayoutOrder = 1,
+}
+
+local messageCloseButton = FusionImageButton(guiScope, {
+    name = "messageCloseButton",
+    visible = true,
+    backgroundTransparency = 1,
+    image = ImageUris.CloseButton,
+    size = UDim2.fromScale(0.4, 0.4),
+    layoutOrder = 2,
+    onActivated = messageCloseCallback,
+})
+
+local messageContentFrame = guiScope:New "Frame" {
+    Name = "messageContentFrame",
+    BackgroundColor3 = Color3.new(1, 1, 1),
+    BackgroundTransparency = 0.2,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Position = UDim2.fromScale(0.5, 0.5),
+    ZIndex = 1,
+    Size = UDim2.fromScale(0.25, 0.15),
+    [Children] = {
+        messageTextLabel,
+        messageCloseButton,
+        guiScope:New "UIListLayout" {
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            FillDirection = Enum.FillDirection.Horizontal,
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            VerticalAlignment = Enum.VerticalAlignment.Center,
+        },
+        guiScope:New "UICorner" {
+            CornerRadius = UDim.new(0.05, 0)
+        },
+        guiScope:New "UIPadding" {
+            PaddingLeft = UDim.new(0.1, 0),
+            PaddingRight = UDim.new(0.1, 0),
+        }
+    }
+}
+local messageContainer = guiScope:New "Frame" {
+    Name = "messageContainer",
+    Visible = true,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    Position = guiScope:Spring(messagePosition, 10, 0.8),
+    ZIndex = 2,
+    Size = UDim2.fromScale(1, 1),
+    [Children] = {
+        messageContentFrame
+    }
+}
+
+local _MessageGui = guiScope:New "ScreenGui" {
+    Name = "MessageGui",
+    Enabled = true,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    IgnoreGuiInset = true,
+    DisplayOrder = 4,
+    Parent = PlayerGui,
+    [Children] = {
+        messageContainer,
+    }
 }
 
 -- —— Transitions ————————————————————————————————————————————————————————————————
@@ -259,7 +347,7 @@ local rightTransitionWing = guiScope:New "Frame" {
         }
     }
 }
-local transitionGui = guiScope:New "ScreenGui" {
+local _transitionGui = guiScope:New "ScreenGui" {
     Name = "TransitionGui", 
     Enabled = true,
     Parent = PlayerGui,
@@ -274,7 +362,7 @@ local transitionGui = guiScope:New "ScreenGui" {
 
 -- —— Modal ——————————————————————————————————————————————————————————————————————
 
-local BackgroundBlur = guiScope:New "BlurEffect" {
+local _BackgroundBlur = guiScope:New "BlurEffect" {
     Archivable = true,
     Name = "ModalBackgroundBlur",
     Parent = Lighting,
