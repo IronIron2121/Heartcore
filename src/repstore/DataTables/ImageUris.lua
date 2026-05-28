@@ -25,7 +25,7 @@ local assets = {
 	Submit = "138236657285503",
 	Vote = "111631712234137",
 	TopBarBG = "78848001203719",
-	TastemakerLogo = "95945400211645"
+	TastemakerLogo = "86635498903922"
 }
 
 setmetatable(ImageUris, {
