@@ -87,6 +87,8 @@ local function deactivate()
 	ArenaTimerHud.setVisible(false)
 	if CurrentStateName.Value ~= "Intermission" then
 		ClientCameraController.deactivate()
+	else
+		warn("Tried to deactivate but intermission was already active")
 	end
 end
 
