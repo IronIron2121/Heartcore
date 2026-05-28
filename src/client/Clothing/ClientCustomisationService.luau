@@ -121,9 +121,11 @@ function ClientCustomisationService.RemoveAllAccessories(): boolean
 end
 
 function ClientCustomisationService.RemoveClassicItem(assetId: number, itemType: string): boolean
+	--[[
 	if table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, assetId) then
 		return true 
 	end
+	]]
 
 	local success = callWithRetry(function()  
 		return PlayerRemovedClassicItem:FireServer(assetId, itemType)

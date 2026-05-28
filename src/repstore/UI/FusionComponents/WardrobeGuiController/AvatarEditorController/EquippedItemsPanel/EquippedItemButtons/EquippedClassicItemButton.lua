@@ -49,7 +49,8 @@ function EquippedClassicItemButton(
 		} :: Frame
 	end
 
-	local isDefaultItem = scope:Value(table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, props.itemId))
+	-- This was used when default clothing was not removeable but is now vestigial
+	-- local isDefaultItem = scope:Value(table.find(Constants.DEFAULT_CLASSIC_CLOTHING_IDS_TABLE, props.itemId))
 
 	-- Get product info
 	local success, productInfo = callWithRetry(function()
@@ -199,9 +200,9 @@ function EquippedClassicItemButton(
 				ZIndex = 3,
 				BackgroundTransparency = 1,
 				ImageTransparency = backgroundTransparencySpring,
-				Image = ImageUris.CloseButton,
-				Active = not peek(isDefaultItem),
-				Visible = not peek(isDefaultItem),
+				Image = ImageUris.TrashButton,
+				Active = true,
+				Visible = true,
 
 
 				[OnEvent "Activated"] = function()

@@ -232,7 +232,9 @@ local leftTransitionWing = guiScope:New "Frame" {
         guiScope:New "UIGradient" {
             Color = ColorSequence.new(
                 Color3.fromRGB(176, 183, 253), 
-                UI_CONSTANTS.TASTEMAKER_PURPLE)
+                UI_CONSTANTS.TASTEMAKER_PURPLE
+            ),
+            Offset = Vector2.new(5,0)
         }
     }
 }
@@ -261,6 +263,7 @@ local rightTransitionWing = guiScope:New "Frame" {
                 UI_CONSTANTS.TASTEMAKER_PURPLE,
                 Color3.fromRGB(176, 183, 253)
             ),
+            Offset = Vector2.new(5,0)
         }
     }
 }
@@ -562,22 +565,24 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
     return registeredModals[modalName]
 end
 
-function GuiManager.doTransition(message: string)
-    if message == GameStates.Dressing.name then
+function GuiManager.doTransition(phaseName: string)
+
+    local screenMessage: string
+    if phaseName == GameStates.Dressing.name then
         -- text
-        message = "Time to dress!"
-    elseif message == GameStates.Intermission.name then
+        screenMessage = "Time to dress!"
+    elseif phaseName == GameStates.Intermission.name then
         -- text
-        message = "Intermission"
-    elseif message == GameStates.Voting.name then
+        screenMessage = "And the winners are..."
+    elseif phaseName == GameStates.Voting.name then
         -- text
-        message = "Time to Vote!"
+        screenMessage = "Time to Vote!"
     else
-        warn("Unhandled message at GuiManager.doTransition()", message)
+        warn("Unhandled message at GuiManager.doTransition()", phaseName)
     end 
 
     -- Hide top bar
-    messageValue:set(message)
+    messageValue:set(screenMessage)
     messagePosition:set(messagePositions.IN)
     leftWingPos:set(leftWingPositions.IN)
     rightWingPos:set(rightWingPositions.IN)
@@ -596,7 +601,7 @@ function GuiManager.doTransition(message: string)
     messagePosition:set(messagePositions.OUT)
     messageSize:set(messageSizes.OUT)
 
-    transitionCompletedEvent:Fire(message)
+    transitionCompletedEvent:Fire(phaseName)
 
     task.defer(function()
         task.wait(tweenTime)

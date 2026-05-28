@@ -16,10 +16,9 @@ type Value<T> = Fusion.Value<T>
 type UsedAs<T> = Fusion.UsedAs<T>
 --
 
-local scope = Fusion:scoped()
-
 type CacheEntry = {
 	frame: Frame,
+	scope: Fusion.Scope,
 	visible: Value<boolean>,
 }
 
@@ -27,11 +26,28 @@ local cache: { [GuiBase]: CacheEntry } = {}
 
 local LoadingScreenManager = {}
 
+local function cleanup(parent: GuiBase)
+	local entry = cache[parent]
+	if not entry then
+		return
+	end
+
+	cache[parent] = nil
+	Fusion.doCleanup(entry.scope)
+end
+
 function LoadingScreenManager.show(parent: GuiBase, props: {transparency: number?, text: UsedAs<string>?, cornered: boolean?, onSkipped	: () -> ()?}?)
 	local entry = cache[parent]
 	if not entry then
-		local visible = scope:Value(true)
-		local frame = LoadingScreen(scope, {
+		local loadingScope = Fusion:scoped()
+		local visible = loadingScope:Value(true)
+		local parentDestroyingConnection = parent.Destroying:Connect(function()
+			cleanup(parent)
+		end)
+
+		table.insert(loadingScope, parentDestroyingConnection)
+
+		local frame = LoadingScreen(loadingScope, {
 			size = UDim2.fromScale(1, 1),
 			backgroundColor = UI_CONSTANTS.COLOUR_WHITE,
 			visible = visible,
@@ -43,7 +59,11 @@ function LoadingScreenManager.show(parent: GuiBase, props: {transparency: number
 			onSkipped = props and props.onSkipped or nil
 		})
 
-		cache[parent] = { frame = frame, visible = visible }
+		cache[parent] = {
+			frame = frame,
+			scope = loadingScope,
+			visible = visible,
+		}
 	else
 		entry.visible:set(true)
 	end
@@ -54,6 +74,10 @@ function LoadingScreenManager.hide(parent: GuiBase)
 	if entry then
 		entry.visible:set(false)
 	end
+end
+
+function LoadingScreenManager.cleanup(parent: GuiBase)
+	cleanup(parent)
 end
 
 return LoadingScreenManager

@@ -44,8 +44,10 @@ end
 
 TransitionCompleted.Event:Connect(function(stateName: string)
 	if stateName == "Intermission" then
+		print("In intermission, in intermission client manager")
 		activate()
-		-- TODO: push XP results GUI here
 		task.delay(5, deactivate)
+	else
+		warn(stateName, "at Intermission client manager")
 	end
 end)
