@@ -150,20 +150,20 @@ local function ExpHud(scope: Fusion.Scope, props: { Size: UsedAs<UDim2>? }?)
 				}
 			},
 
-			scope:New "TextLabel" {
-				Name = "TasteMeter",
-				Size = UDim2.fromScale(0.5,0.12),
-				Position = UDim2.fromScale(0.45,0.05),
-				BackgroundTransparency = 1,
-				Text = "Taste meter",
-				FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
-				TextColor3 = Color3.fromRGB(130,194,144),
-				TextStrokeColor3 = UI_CONSTANTS.COLOUR_WHITE,
-				TextStrokeTransparency = 0,
-				TextScaled = true,
-				TextWrapped = false,
-				TextXAlignment = Enum.TextXAlignment.Left
-			},
+			-- scope:New "TextLabel" {
+			-- 	Name = "TasteMeter",
+			-- 	Size = UDim2.fromScale(0.5,0.12),
+			-- 	Position = UDim2.fromScale(0.45,0.05),
+			-- 	BackgroundTransparency = 1,
+			-- 	Text = "Taste meter",
+			-- 	FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+			-- 	TextColor3 = Color3.fromRGB(130,194,144),
+			-- 	TextStrokeColor3 = UI_CONSTANTS.COLOUR_WHITE,
+			-- 	TextStrokeTransparency = 0,
+			-- 	TextScaled = true,
+			-- 	TextWrapped = false,
+			-- 	TextXAlignment = Enum.TextXAlignment.Left
+			-- },
 
 			scope:New "Frame" {
 				Name = "rankContainer",

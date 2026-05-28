@@ -65,7 +65,7 @@ function ExpBar(
 	local expBarSize = scope:Tween(
 		scope:Computed(function(use)
 			local progress = ExpConfig.getProgress(use(expFusion), use(levelFusion))
-			return UDim2.fromScale(progress * MAX_BAR_SCALE, 0.16)
+			return UDim2.fromScale(progress * MAX_BAR_SCALE, 0.06)
 		end),
 		TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	)
@@ -85,28 +85,28 @@ function ExpBar(
 				Visible = true,
 				AnchorPoint = props.anchorPoint or Vector2.new(0, 0.5),
 				Position = props.position or UDim2.fromScale(0, 0.5),
-				Size = props.size or UDim2.fromScale(1, 1),
+				Size = props.size or UDim2.fromScale(1, 2),
 				BackgroundTransparency = 1,
 				ZIndex = 2,
 
 				[Children] = {
 					scope:New "UIAspectRatioConstraint" {
-						AspectRatio = 3,
+						AspectRatio = 1,
 					},
 
 					scope:New "Frame" {
 						Name = "ProgressFill",
 						AnchorPoint = Vector2.new(0, 0.5),
 						Size = expBarSize,
-						Position = UDim2.fromScale(0.2, 0.47),
+						Position = UDim2.fromScale(0.2, 0.51),
 						BackgroundColor3 = Color3.new(1, 1, 1),
 						ZIndex = 1,
 
 						[Children] = {
 							scope:New "UIGradient" {
 								Color = ColorSequence.new(
-									Color3.fromRGB(24, 107, 79),
-									Color3.fromRGB(130, 194, 144)
+									Color3.fromRGB(65, 79, 249),
+									Color3.fromRGB(74, 255, 246)
 								),
 							},
 
