@@ -298,6 +298,7 @@ local function InitialiseHuds()
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
         elseif peek(GameStateValues.isDressing) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+            GuiManager.QueueMessage("TestMessage", "This is a message being sent to test if integration has been successful")
         end
     end)
 

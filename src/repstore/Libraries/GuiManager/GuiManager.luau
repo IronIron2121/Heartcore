@@ -23,7 +23,6 @@ local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
 local Constants = require(ReplicatedStorage.Constants)
 local GameStates = require(ReplicatedStorage.GameLoop.GameStates)
 local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
-local parseError = require(ReplicatedStorage.Utility.Fusion.Logging.parseError)
 local PlayerDisplayManager = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
 local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
 local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -56,6 +55,10 @@ local OFF_SCREEN_POSITION = UDim2.fromScale(0.5, 3)
 local ON_SCREEN_POSITION = UDim2.fromScale(0.5, 0.5)
 local TWEEN_LENGTH = 0.4
 local NOTIFICATION_OFF_SCREEN_POSITION = UDim2.fromScale(0.5, -5)
+
+-- Variables
+local messageActive = guiScope:Value(false)
+
 
 --
 
@@ -113,7 +116,6 @@ local modalContainer = guiScope:New "Frame" {
 
 -- —— Transitions ————————————————————————————————————————————————————————————————
 local tweenTime = Constants.TransitionTweenTime
-local transitionTime = Constants.TransitionTotalTime
 
 local messageValue = guiScope:Value("")
 local messageLabel = guiScope:New "TextLabel" {
@@ -175,15 +177,6 @@ local messageSizes = {
 local messageSize = guiScope:Value(messageSizes.OUT)
 
 local messageRotation = guiScope:Value(0)
-
-task.spawn(function()
-    while true do
-        messageRotation:set(10)
-        task.wait(0.5)
-        messageRotation:set(-10)
-        task.wait(0.5)
-    end
-end)
 
 local messageContainer = guiScope:New "Frame" {
     Name = "messageContainer",
@@ -478,6 +471,28 @@ function GuiManager.PushNotificationCentre(notificationName: string, message: st
     notificationActive:set(true)
 end
 
+function GuiManager.PushMessageCentre(messageName: string, message: string, closeCb: (() -> ())?)
+    if peek(messageActive) then
+        warn("Message already active!")
+        return
+    end
+    messageText:set(message)
+    messageCloseCallback:set(function()
+        MarkMessageSeenRE:FireServer(messageName)
+        GuiManager.PopMessage()
+        if closeCb then closeCb() end
+    end)
+    messageActive:set(true)
+end
+
+function GuiManager.QueueMessage(messageName: string, message: string, closeCb: (() -> ())?)
+    if peek(CentreActive) then
+        table.insert(messageQueue, {messageName = messageName, message = message, closeCb = closeCb})
+    else
+        GuiManager.PushMessageCentre(messageName, message, closeCb)
+    end
+end
+
 function GuiManager.PopNotification()
     notificationActive:set(false)
 end
@@ -565,6 +580,15 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
 end
 
 function GuiManager.doTransition(phaseName: string)
+    local transitioning = true
+    task.spawn(function()
+        while transitioning do
+            messageRotation:set(10)
+            task.wait(0.5)
+            messageRotation:set(-10)
+            task.wait(0.5)
+        end
+    end)
 
     local screenMessage: string
     if phaseName == GameStates.Dressing.name then
@@ -575,6 +599,7 @@ function GuiManager.doTransition(phaseName: string)
         screenMessage = "And the winners are..."
     elseif phaseName == GameStates.Voting.name then
         -- text
+        GuiManager.QueueMessage("VoteTutorial", "Click on a player to vote for them!")
         screenMessage = "Time to Vote!"
     else
         warn("Unhandled message at GuiManager.doTransition()", phaseName)
@@ -609,7 +634,7 @@ function GuiManager.doTransition(phaseName: string)
         messagePosition:set(messagePositions.IN)
         messageSize:set(messageSizes.OUT)
         messageValue:set("")
-
+        transitioning = false
     end)
 end
 
