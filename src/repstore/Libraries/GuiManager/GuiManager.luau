@@ -125,6 +125,7 @@ local messageLabel = guiScope:New "TextLabel" {
     TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
     FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
     Text = messageValue,
+    TextWrapped = false,
     TextScaled = true,
     ZIndex = 1,
     [Children] = {
@@ -132,7 +133,7 @@ local messageLabel = guiScope:New "TextLabel" {
             ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
             LineJoinMode = Enum.LineJoinMode.Round,
             Transparency = 0,
-            Color = UI_CONSTANTS.TASTEMAKER_PURPLE,
+            Color = UI_CONSTANTS.TASTEMAKER_GREEN,
             Thickness = 3,
         }
     }
