@@ -10,23 +10,24 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Lighting          = game:GetService("Lighting")
 local Players           = game:GetService("Players")
-local StarterPlayer = game:GetService("StarterPlayer")
+local StarterPlayer     = game:GetService("StarterPlayer")
 
 -- Folders
-local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
-local Utility   = ReplicatedStorage:WaitForChild("Utility")
-local UI            = ReplicatedStorage:WaitForChild("UI")
-local Widgets       = UI.FusionComponents.Widgets
-local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
+local BindablesFolder   = ReplicatedStorage:WaitForChild("Bindables")
+local Utility           = ReplicatedStorage:WaitForChild("Utility")
+local UI                = ReplicatedStorage:WaitForChild("UI")
+local Widgets           = UI.FusionComponents.Widgets
+local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
+local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
-local Constants = require(ReplicatedStorage.Constants)
-local GameStates = require(ReplicatedStorage.GameLoop.GameStates)
-local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
-local PlayerDisplayManager = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
-local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
-local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
-local Types         = require(Utility.Types)
+local Constants             = require(ReplicatedStorage.Constants)
+local GameStates            = require(ReplicatedStorage.GameLoop.GameStates)
+local Children              = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
+local PlayerDisplayManager  = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
+local ImageUris             = require(DataTables:WaitForChild("ImageUris"))
+local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
+local Types                 = require(Utility.Types)
 
 -- UI Modules
 local FusionImageButton = require(Widgets.FusionImageButton)
@@ -39,24 +40,26 @@ type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
 type Computed<T>    = Fusion.Computed<T>
 
-
-
 -- Fusion Values
-local MESSAGE_ON_SCREEN_POSITION = UDim2.fromScale(0.5, 0.25)
-local MESSAGE_OFF_SCREEN_POSITION = UDim2.fromScale(0.5, -5)
-local messageActive = guiScope:Value(false)
-local messageText = guiScope:Value("")
+local MESSAGE_ON_SCREEN_POSITION            = UDim2.fromScale(0.5, 0.25)
+local MESSAGE_OFF_SCREEN_POSITION           = UDim2.fromScale(0.5, -5)
+local messageActive                         = guiScope:Value(false)
+local messageText                           = guiScope:Value("")
 local messageCloseCallback: Value<() -> ()> = guiScope:Value(function() end)
 
 local messagePosition = guiScope:Computed(function(use)
     return use(messageActive) and MESSAGE_ON_SCREEN_POSITION or MESSAGE_OFF_SCREEN_POSITION
 end)
 
+local messageQueue: {{messageName: string, message: string, closeCb: (() -> ())?}} = {}
+
 -- Bindables
 local HideAllPromptsBindable   = BindablesFolder:WaitForChild("HideAllPromptsBindable")
 local ShowAllPromptsBindable   = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
 local transitionCompletedEvent = BindablesFolder:WaitForChild("TransitionCompleted") :: BindableEvent
 
+-- Remotes
+local MarkMessageSeenRE = Remotes
 -- Instances
 local localPlayer = Players.LocalPlayer
 
@@ -68,9 +71,6 @@ local OFF_SCREEN_POSITION = UDim2.fromScale(0.5, 3)
 local ON_SCREEN_POSITION = UDim2.fromScale(0.5, 0.5)
 local TWEEN_LENGTH = 0.4
 local NOTIFICATION_OFF_SCREEN_POSITION = UDim2.fromScale(0.5, -5)
-
-
-
 
 --
 
@@ -571,6 +571,13 @@ function GuiManager.PushMessageCentre(messageName: string, message: string, clos
         if closeCb then closeCb() end
     end)
     messageActive:set(true)
+end
+
+
+function GuiManager.PopMessage()
+    messageActive:set(false)
+    messageText:set("")
+    messageCloseCallback:set(function() end)
 end
 
 function GuiManager.QueueMessage(messageName: string, message: string, closeCb: (() -> ())?)

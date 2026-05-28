@@ -334,4 +334,22 @@ function DataManager.UpdatePlayerDisplay(player: Player)
 	DataManager.UpdateLevelDisplay(player)
 end
 
+function DataManager.HasSeenMessage(player: Player, messageName: string): boolean
+	local profile = DataManager.Profiles[player]
+	if not profile then return false end
+	return profile.Data.SeenMessages[messageName] == true
+end
+
+function DataManager.MarkMessageSeen(player: Player, messageName: string)
+	local profile = DataManager.Profiles[player]
+	if not profile then return end
+	profile.Data.SeenMessages[messageName] = true
+end
+
+function DataManager.ResetSeenMessages(player: Player)
+	local profile = DataManager.Profiles[player]
+	if not profile then return end
+	table.clear(profile.Data.SeenMessages)
+end
+
 return DataManager
