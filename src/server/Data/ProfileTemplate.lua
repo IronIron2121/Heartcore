@@ -23,6 +23,7 @@ local ProfileTemplate = {
     },
     
     LastChallengeResetTime = 0,
+    SeenMessages = {} :: {[string]: boolean},
 
 }
 

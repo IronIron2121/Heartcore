@@ -10,24 +10,24 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Lighting          = game:GetService("Lighting")
 local Players           = game:GetService("Players")
-local StarterPlayer = game:GetService("StarterPlayer")
+local StarterPlayer     = game:GetService("StarterPlayer")
 
 -- Folders
-local BindablesFolder = ReplicatedStorage:WaitForChild("Bindables")
-local Utility   = ReplicatedStorage:WaitForChild("Utility")
-local UI            = ReplicatedStorage:WaitForChild("UI")
-local Widgets       = UI.FusionComponents.Widgets
-local DataTables    = ReplicatedStorage:WaitForChild("DataTables")
+local BindablesFolder   = ReplicatedStorage:WaitForChild("Bindables")
+local Utility           = ReplicatedStorage:WaitForChild("Utility")
+local UI                = ReplicatedStorage:WaitForChild("UI")
+local Widgets           = UI.FusionComponents.Widgets
+local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
+local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
-local Constants = require(ReplicatedStorage.Constants)
-local GameStates = require(ReplicatedStorage.GameLoop.GameStates)
-local Children = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
-local parseError = require(ReplicatedStorage.Utility.Fusion.Logging.parseError)
-local PlayerDisplayManager = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
-local ImageUris     = require(DataTables:WaitForChild("ImageUris"))
-local UI_CONSTANTS  = require(Utility:WaitForChild("UI_CONSTANTS"))
-local Types         = require(Utility.Types)
+local Constants             = require(ReplicatedStorage.Constants)
+local GameStates            = require(ReplicatedStorage.GameLoop.GameStates)
+local Children              = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
+local PlayerDisplayManager  = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
+local ImageUris             = require(DataTables:WaitForChild("ImageUris"))
+local UI_CONSTANTS          = require(Utility:WaitForChild("UI_CONSTANTS"))
+local Types                 = require(Utility.Types)
 
 -- UI Modules
 local FusionImageButton = require(Widgets.FusionImageButton)
@@ -40,10 +40,26 @@ type UsedAs<T>      = Fusion.UsedAs<T>
 type Value<T>       = Fusion.Value<T>
 type Computed<T>    = Fusion.Computed<T>
 
+-- Fusion Values
+local MESSAGE_ON_SCREEN_POSITION            = UDim2.fromScale(0.5, 0.25)
+local MESSAGE_OFF_SCREEN_POSITION           = UDim2.fromScale(0.5, -5)
+local messageActive                         = guiScope:Value(false)
+local messageText                           = guiScope:Value("")
+local messageCloseCallback: Value<() -> ()> = guiScope:Value(function() end)
+
+local messagePosition = guiScope:Computed(function(use)
+    return use(messageActive) and MESSAGE_ON_SCREEN_POSITION or MESSAGE_OFF_SCREEN_POSITION
+end)
+
+local messageQueue: {{messageName: string, message: string, closeCb: (() -> ())?}} = {}
+
 -- Bindables
 local HideAllPromptsBindable   = BindablesFolder:WaitForChild("HideAllPromptsBindable")
 local ShowAllPromptsBindable   = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
 local transitionCompletedEvent = BindablesFolder:WaitForChild("TransitionCompleted") :: BindableEvent
+
+-- Remotes
+local MarkMessageSeenRE = Remotes.MarkMessageSeenRE
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -111,9 +127,84 @@ local modalContainer = guiScope:New "Frame" {
     Parent = ModalGui,
 }
 
+-- —— Message System ————————————————————————————————————————————————————————————————
+
+local messageTextLabel = guiScope:New "TextLabel" {
+    BackgroundTransparency = 1,
+    Name = "messageTextLabel",
+    Text = messageText,
+    FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
+    Size = UDim2.fromScale(1, 0.6),
+    TextScaled = true,
+    TextWrapped = true,
+    TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    TextSize = 50,
+    LayoutOrder = 1,
+}
+
+local messageCloseButton = FusionImageButton(guiScope, {
+    name = "messageCloseButton",
+    visible = false,
+    backgroundTransparency = 1,
+    image = ImageUris.CloseButton,
+    size = UDim2.fromScale(0.4, 0.4),
+    layoutOrder = 2,
+    onActivated = messageCloseCallback,
+})
+
+local messageContentFrame = guiScope:New "Frame" {
+    Name = "messageContentFrame",
+    BackgroundColor3 = Color3.new(1, 1, 1),
+    BackgroundTransparency = 0.2,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Position = UDim2.fromScale(0.5, 0.5),
+    ZIndex = 1,
+    Size = UDim2.fromScale(0.25, 0.15),
+    [Children] = {
+        messageTextLabel,
+        --messageCloseButton,
+        guiScope:New "UIListLayout" {
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            FillDirection = Enum.FillDirection.Horizontal,
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            VerticalAlignment = Enum.VerticalAlignment.Center,
+        },
+        guiScope:New "UICorner" {
+            CornerRadius = UDim.new(0.05, 0)
+        },
+        guiScope:New "UIPadding" {
+            PaddingLeft = UDim.new(0.1, 0),
+            PaddingRight = UDim.new(0.1, 0),
+        }
+    }
+}
+local messageContainer = guiScope:New "Frame" {
+    Name = "messageContainer",
+    Visible = true,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    Position = guiScope:Spring(messagePosition, 10, 0.8),
+    ZIndex = 2,
+    Size = UDim2.fromScale(1, 1),
+    [Children] = {
+        messageContentFrame
+    }
+}
+
+local _MessageGui = guiScope:New "ScreenGui" {
+    Name = "MessageGui",
+    Enabled = true,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    IgnoreGuiInset = true,
+    DisplayOrder = 4,
+    Parent = PlayerGui,
+    [Children] = {
+        messageContainer,
+    }
+}
+
 -- —— Transitions ————————————————————————————————————————————————————————————————
 local tweenTime = Constants.TransitionTweenTime
-local transitionTime = Constants.TransitionTotalTime
 
 local messageValue = guiScope:Value("")
 local messageLabel = guiScope:New "TextLabel" {
@@ -162,12 +253,12 @@ local veilFrame = guiScope:New "Frame" {
 
 
 local messageVisible = guiScope:Value(false)
-local messagePositions = {
+local transitionMessagePositions = {
     ['IN'] = UDim2.fromScale(0.5, 0.5),
     ['OUT'] = UDim2.fromScale(0.5, -0.5)
 }
-local messagePosition = guiScope:Value(
-    messagePositions.OUT
+local transitionMessagePosition = guiScope:Value(
+    transitionMessagePositions.OUT
 )
 local messageSizes = {
     ['IN'] = UDim2.fromScale(1, 0.5),
@@ -177,21 +268,12 @@ local messageSize = guiScope:Value(messageSizes.OUT)
 
 local messageRotation = guiScope:Value(0)
 
-task.spawn(function()
-    while true do
-        messageRotation:set(10)
-        task.wait(0.5)
-        messageRotation:set(-10)
-        task.wait(0.5)
-    end
-end)
-
 local messageContainer = guiScope:New "Frame" {
     Name = "messageContainer",
     BackgroundTransparency = 1,
     AnchorPoint = Vector2.new(0.5, 0.5),
     Position = guiScope:Tween(
-        messagePosition, 
+        transitionMessagePosition, 
         TweenInfo.new(0.5)
     ),
     Size = guiScope:Tween(
@@ -267,7 +349,7 @@ local rightTransitionWing = guiScope:New "Frame" {
         }
     }
 }
-local transitionGui = guiScope:New "ScreenGui" {
+local _transitionGui = guiScope:New "ScreenGui" {
     Name = "TransitionGui", 
     Enabled = true,
     Parent = PlayerGui,
@@ -282,7 +364,7 @@ local transitionGui = guiScope:New "ScreenGui" {
 
 -- —— Modal ——————————————————————————————————————————————————————————————————————
 
-local BackgroundBlur = guiScope:New "BlurEffect" {
+local _BackgroundBlur = guiScope:New "BlurEffect" {
     Archivable = true,
     Name = "ModalBackgroundBlur",
     Parent = Lighting,
@@ -479,6 +561,37 @@ function GuiManager.PushNotificationCentre(notificationName: string, message: st
     notificationActive:set(true)
 end
 
+function GuiManager.PushMessageCentre(messageName: string, message: string, closeCb: (() -> ())?)
+    if peek(messageActive) then
+        warn("Message already active!")
+        return
+    end
+    messageText:set(message)
+    MarkMessageSeenRE:FireServer(messageName)
+    messageActive:set(true)
+    messageCloseCallback:set(function()
+        GuiManager.PopMessage()
+        if closeCb then closeCb() end
+    end)
+
+    task.delay(10, peek(messageCloseCallback))
+end
+
+
+function GuiManager.PopMessage()
+    messageActive:set(false)
+    messageText:set("")
+    messageCloseCallback:set(function() end)
+end
+
+function GuiManager.QueueMessage(messageName: string, message: string, closeCb: (() -> ())?)
+    if peek(CentreActive) then
+        table.insert(messageQueue, {messageName = messageName, message = message, closeCb = closeCb})
+    else
+        GuiManager.PushMessageCentre(messageName, message, closeCb)
+    end
+end
+
 function GuiManager.PopNotification()
     notificationActive:set(false)
 end
@@ -566,6 +679,15 @@ function GuiManager.GetRegisteredModal(modalName: string): {guiObject: GuiObject
 end
 
 function GuiManager.doTransition(phaseName: string)
+    local transitioning = true
+    task.spawn(function()
+        while transitioning do
+            messageRotation:set(10)
+            task.wait(0.5)
+            messageRotation:set(-10)
+            task.wait(0.5)
+        end
+    end)
 
     local screenMessage: string
     if phaseName == GameStates.Dressing.name then
@@ -583,11 +705,16 @@ function GuiManager.doTransition(phaseName: string)
 
     -- Hide top bar
     messageValue:set(screenMessage)
-    messagePosition:set(messagePositions.IN)
+    transitionMessagePosition:set(transitionMessagePositions.IN)
     leftWingPos:set(leftWingPositions.IN)
     rightWingPos:set(rightWingPositions.IN)
 
     task.wait(tweenTime)
+
+    if phaseName == GameStates.Voting.name then
+        -- text
+        GuiManager.QueueMessage("VoteTutorial", "Click on a player to vote for them!")
+    end
 
     veilSize:set(veilSizes.OUT)
     messageSize:set(messageSizes.IN)
@@ -595,10 +722,10 @@ function GuiManager.doTransition(phaseName: string)
 
     task.wait(tweenTime)
 
-    messagePosition:set(messagePositions.OUT)
+    transitionMessagePosition:set(transitionMessagePositions.OUT)
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
-    messagePosition:set(messagePositions.OUT)
+    transitionMessagePosition:set(transitionMessagePositions.OUT)
     messageSize:set(messageSizes.OUT)
 
     transitionCompletedEvent:Fire(phaseName)
@@ -607,10 +734,10 @@ function GuiManager.doTransition(phaseName: string)
         task.wait(tweenTime)
         veilSize:set(veilSizes.IN)
         messageVisible:set(false)
-        messagePosition:set(messagePositions.IN)
+        transitionMessagePosition:set(transitionMessagePositions.IN)
         messageSize:set(messageSizes.OUT)
         messageValue:set("")
-
+        transitioning = false
     end)
 end
 
