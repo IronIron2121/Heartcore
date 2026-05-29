@@ -349,6 +349,43 @@ local rightTransitionWing = guiScope:New "Frame" {
         }
     }
 }
+
+local countdownText = guiScope:Value("3")
+local countdownColor = guiScope:Value(Color3.new(1,0.2,0.2))
+local countdownVisible = guiScope:Value(false)
+local countdownSize = guiScope:Value(UDim2.fromScale(0.25, 0.25))
+local countdownLabel = guiScope:New "TextLabel" {
+    Name = "countdownLabel",
+    BackgroundTransparency = 0,
+    Text = countdownText,
+    Size = guiScope:Tween(countdownSize),
+    BackgroundColor3 = countdownColor,
+    Visible = countdownVisible,
+
+    [Children] = {
+        guiScope:New "UICorner" {
+            CornerRadius = UDim.new(1, 0)
+        },
+
+        guiScope:New "UIAspectRatioConstraint" {
+            AspectRatio = 1,
+            DominantAxis = Enum.DominantAxis.Width,
+            AspectType = Enum.AspectType.FitWithinMaxSize
+        }
+    }
+}
+
+local countdownContainer = guiScope:New "Frame" {
+    Name = "countdownContainer",
+    BackgroundTransparency = 1,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Size = UDim2.fromOffset(1, 1),
+    Position = UDim2.fromScale(0.5, 0.5),
+    [Children] = {
+        countdownLabel
+    }
+}
+
 local _transitionGui = guiScope:New "ScreenGui" {
     Name = "TransitionGui", 
     Enabled = true,
@@ -358,7 +395,8 @@ local _transitionGui = guiScope:New "ScreenGui" {
     [Children] = {
         leftTransitionWing,
         rightTransitionWing,
-        messageContainer
+        messageContainer,
+        countdownContainer
     }
 }
 
@@ -699,6 +737,7 @@ function GuiManager.doTransition(phaseName: string)
     elseif phaseName == GameStates.Voting.name then
         -- text
         screenMessage = "Time to Vote!"
+        countdownVisible:set(true)
     else
         warn("Unhandled message at GuiManager.doTransition()", phaseName)
     end 
@@ -730,8 +769,11 @@ function GuiManager.doTransition(phaseName: string)
 
     transitionCompletedEvent:Fire(phaseName)
 
+
+
     task.defer(function()
         task.wait(tweenTime)
+        countdownVisible:set(false)
         veilSize:set(veilSizes.IN)
         messageVisible:set(false)
         transitionMessagePosition:set(transitionMessagePositions.IN)
