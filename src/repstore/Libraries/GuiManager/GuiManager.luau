@@ -230,26 +230,7 @@ local messageLabel = guiScope:New "TextLabel" {
     }
 }
 
-local veilSizes = {
-    ['IN'] = UDim2.fromScale(1, 1),
-    ['OUT'] = UDim2.fromScale(0, 1)
-}
 
-local veilSize = guiScope:Value(
-    veilSizes.IN
-)
-local veilFrame = guiScope:New "Frame" {
-    Name = "veilFrame",
-    Size = guiScope:Tween(
-        veilSize,
-        TweenInfo.new(tweenTime)
-    ),
-    AnchorPoint = Vector2.new(1, 0.5),
-    Position = UDim2.fromScale(1, 0.5),
-    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
-    BackgroundTransparency = 0,
-    ZIndex = 2
-}
 
 
 local messageVisible = guiScope:Value(false)
@@ -268,10 +249,11 @@ local messageSize = guiScope:Value(messageSizes.OUT)
 
 local messageRotation = guiScope:Value(0)
 
-local messageContainer = guiScope:New "Frame" {
-    Name = "messageContainer",
+local transitionMessageContainer = guiScope:New "Frame" {
+    Name = "transitionMessageContainer",
     BackgroundTransparency = 1,
     AnchorPoint = Vector2.new(0.5, 0.5),
+    ZIndex = 2,
     Position = guiScope:Tween(
         transitionMessagePosition, 
         TweenInfo.new(0.5)
@@ -286,7 +268,6 @@ local messageContainer = guiScope:New "Frame" {
     ),
     Visible = messageVisible,
     [Children] = {
-        --veilFrame,
         messageLabel
     }
 }
@@ -309,6 +290,7 @@ local leftTransitionWing = guiScope:New "Frame" {
     AnchorPoint = Vector2.new(1, 0.5),
     Size = UDim2.fromScale(0.5, 1),
     Position = leftWingTween,
+    ZIndex = 2,
 
     [Children] = {
         guiScope:New "UIGradient" {
@@ -339,6 +321,7 @@ local rightTransitionWing = guiScope:New "Frame" {
     AnchorPoint = Vector2.new(0, 0.5),
     Size = UDim2.fromScale(0.5, 1),
     Position = rightWingTween,
+    Zindex = 2,
     [Children] = {
         guiScope:New "UIGradient" {
             Color = ColorSequence.new(
@@ -381,6 +364,7 @@ local countdownContainer = guiScope:New "Frame" {
     AnchorPoint = Vector2.new(0.5, 0.5),
     Size = UDim2.fromOffset(1, 1),
     Position = UDim2.fromScale(0.5, 0.5),
+    ZIndex = 1,
     [Children] = {
         countdownLabel
     }
@@ -395,7 +379,7 @@ local _transitionGui = guiScope:New "ScreenGui" {
     [Children] = {
         leftTransitionWing,
         rightTransitionWing,
-        messageContainer,
+        transitionMessageContainer,
         countdownContainer
     }
 }
@@ -755,7 +739,6 @@ function GuiManager.doTransition(phaseName: string)
         GuiManager.QueueMessage("VoteTutorial", "Click on a player to vote for them!")
     end
 
-    veilSize:set(veilSizes.OUT)
     messageSize:set(messageSizes.IN)
     messageVisible:set(true)
 
@@ -774,7 +757,6 @@ function GuiManager.doTransition(phaseName: string)
     task.defer(function()
         task.wait(tweenTime)
         countdownVisible:set(false)
-        veilSize:set(veilSizes.IN)
         messageVisible:set(false)
         transitionMessagePosition:set(transitionMessagePositions.IN)
         messageSize:set(messageSizes.OUT)
