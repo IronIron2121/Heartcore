@@ -171,6 +171,8 @@ local Constants = {
 		78
 	},
 
+	VOTING_PREAMBLE_LENGTH = 3,
+
 	QUERY_ATTEMPTS = 3,
 
 	MEMORYSTORE_STORE_DURATION = 600, -- 10 minutes

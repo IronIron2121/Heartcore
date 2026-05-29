@@ -233,7 +233,7 @@ local messageLabel = guiScope:New "TextLabel" {
 
 
 
-local messageVisible = guiScope:Value(false)
+local transitionMessageVisible = guiScope:Value(false)
 local transitionMessagePositions = {
     ['IN'] = UDim2.fromScale(0.5, 0.5),
     ['OUT'] = UDim2.fromScale(0.5, -0.5)
@@ -266,7 +266,7 @@ local transitionMessageContainer = guiScope:New "Frame" {
         messageRotation,
         TweenInfo.new(2, Enum.EasingStyle.Quad)
     ),
-    Visible = messageVisible,
+    Visible = transitionMessageVisible,
     [Children] = {
         messageLabel
     }
@@ -321,7 +321,7 @@ local rightTransitionWing = guiScope:New "Frame" {
     AnchorPoint = Vector2.new(0, 0.5),
     Size = UDim2.fromScale(0.5, 1),
     Position = rightWingTween,
-    Zindex = 2,
+    ZIndex = 2,
     [Children] = {
         guiScope:New "UIGradient" {
             Color = ColorSequence.new(
@@ -333,17 +333,24 @@ local rightTransitionWing = guiScope:New "Frame" {
     }
 }
 
-local countdownText = guiScope:Value("3")
-local countdownColor = guiScope:Value(Color3.new(1,0.2,0.2))
-local countdownVisible = guiScope:Value(false)
-local countdownSize = guiScope:Value(UDim2.fromScale(0.25, 0.25))
+local countdownText     = guiScope:Value("3")
+local countdownColor    = guiScope:Value(Color3.new(1, 0.2, 0.2))
+local countdownVisible  = guiScope:Value(false)
+local countdownSize     = guiScope:Value(UDim2.fromScale(0.25, 0.25))
+local countdownRotation = guiScope:Value(0)
 local countdownLabel = guiScope:New "TextLabel" {
     Name = "countdownLabel",
     BackgroundTransparency = 0,
     Text = countdownText,
-    Size = guiScope:Tween(countdownSize),
+    Size = guiScope:Spring(countdownSize, 14, 0.55),
+    Rotation = guiScope:Spring(countdownRotation, 14, 0.55),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Position = UDim2.fromScale(0.5, 0.5),
     BackgroundColor3 = countdownColor,
+    TextColor3 = Color3.new(1, 1, 1),
     Visible = countdownVisible,
+    TextScaled = true,
+    FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
 
     [Children] = {
         guiScope:New "UICorner" {
@@ -362,7 +369,7 @@ local countdownContainer = guiScope:New "Frame" {
     Name = "countdownContainer",
     BackgroundTransparency = 1,
     AnchorPoint = Vector2.new(0.5, 0.5),
-    Size = UDim2.fromOffset(1, 1),
+    Size = UDim2.fromScale(1, 1),
     Position = UDim2.fromScale(0.5, 0.5),
     ZIndex = 1,
     [Children] = {
@@ -710,21 +717,19 @@ function GuiManager.doTransition(phaseName: string)
             task.wait(0.5)
         end
     end)
+    -- —— PRE-TRANSITION ——————————————————————————————————————————————————————————————————————
 
     local screenMessage: string
     if phaseName == GameStates.Dressing.name then
-        -- text
         screenMessage = "Time to dress!"
+
     elseif phaseName == GameStates.Intermission.name then
-        -- text
         screenMessage = "And the winners are..."
     elseif phaseName == GameStates.Voting.name then
-        -- text
         screenMessage = "Time to Vote!"
-        countdownVisible:set(true)
     else
         warn("Unhandled message at GuiManager.doTransition()", phaseName)
-    end 
+    end
 
     -- Hide top bar
     messageValue:set(screenMessage)
@@ -733,18 +738,22 @@ function GuiManager.doTransition(phaseName: string)
     rightWingPos:set(rightWingPositions.IN)
 
     task.wait(tweenTime)
+    -- —— MID-TRANSITION ——————————————————————————————————————————————————————————————————————
 
     if phaseName == GameStates.Voting.name then
-        -- text
+        -- Text
         GuiManager.QueueMessage("VoteTutorial", "Click on a player to vote for them!")
+    elseif phaseName == GameStates.Dressing.name then
+        countdownText:set("3")
+        countdownVisible:set(true)
     end
 
     messageSize:set(messageSizes.IN)
-    messageVisible:set(true)
+    transitionMessageVisible:set(true)
 
     task.wait(tweenTime)
+    -- —— POST-TRANSITION ——————————————————————————————————————————————————————————————————————
 
-    transitionMessagePosition:set(transitionMessagePositions.OUT)
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
     transitionMessagePosition:set(transitionMessagePositions.OUT)
@@ -752,12 +761,41 @@ function GuiManager.doTransition(phaseName: string)
 
     transitionCompletedEvent:Fire(phaseName)
 
+    if phaseName == GameStates.Dressing.name then
+        task.defer(function()
+            local humanoid = (localPlayer.Character :: Model?)
+                and (localPlayer.Character :: Model):FindFirstChildOfClass("Humanoid")
+            local savedWalkSpeed = humanoid and humanoid.WalkSpeed or 16
+            local savedJumpPower = humanoid and humanoid.JumpPower or 50
+            if humanoid then
+                humanoid.WalkSpeed = 0
+                humanoid.JumpPower = 0
+            end
 
+            for ticks = Constants.VOTING_PREAMBLE_LENGTH, 1, -1 do
+                countdownText:set(tostring(ticks))
+                countdownSize:set(UDim2.fromScale(0.4, 0.4))
+                countdownRotation:set(15)
+                task.delay(0.08, function()
+                    countdownSize:set(UDim2.fromScale(0.25, 0.25))
+                    countdownRotation:set(0)
+                end)
+                task.wait(1)
+            end
+
+            if humanoid then
+                humanoid.WalkSpeed = savedWalkSpeed
+                humanoid.JumpPower = savedJumpPower
+            end
+            countdownVisible:set(false)
+            countdownSize:set(UDim2.fromScale(0.25, 0.25))
+            countdownRotation:set(0)
+        end)
+    end
 
     task.defer(function()
         task.wait(tweenTime)
-        countdownVisible:set(false)
-        messageVisible:set(false)
+        transitionMessageVisible:set(false)
         transitionMessagePosition:set(transitionMessagePositions.IN)
         messageSize:set(messageSizes.OUT)
         messageValue:set("")
