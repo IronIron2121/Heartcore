@@ -197,7 +197,7 @@ local challengeList = scope:New "ScrollingFrame" {
 	AutomaticCanvasSize = Enum.AutomaticSize.Y,
 	BackgroundTransparency = 1,
 	ScrollBarThickness = 4,
-		Color3 = Color3.new(1, 1, 1),
+	BackgroundColor3 = Color3.new(1, 1, 1),
 	[Children] = {
 		scope:New "UIListLayout" {
 			Padding = UDim.new(0, 6),
