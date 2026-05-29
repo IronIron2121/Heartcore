@@ -108,7 +108,6 @@ function CatalogSearchController:_initialiseSearchFrame()
         if self.isLoadingMore or peek(self.editorsPickSelected) or not self.SearchResultsFrame or peek(self.searchResults).isFinished then 
 			return 
 		end
-		warn("Loading more!") 
         self.isLoadingMore = true
         
         -- Load next page
@@ -117,7 +116,6 @@ function CatalogSearchController:_initialiseSearchFrame()
         end)
         
         if success then
-			warn("making new tiles!")
 			local numChildren = #self.SearchResultsFrame:GetChildren()
 			for index, itemDetails in ipairs(peek(self.searchResults):GetCurrentPage()) do
 				local newTile = FusionItemTile(self.scope, {
