@@ -144,7 +144,7 @@ local messageTextLabel = guiScope:New "TextLabel" {
 
 local messageCloseButton = FusionImageButton(guiScope, {
     name = "messageCloseButton",
-    visible = true,
+    visible = false,
     backgroundTransparency = 1,
     image = ImageUris.CloseButton,
     size = UDim2.fromScale(0.4, 0.4),
@@ -162,7 +162,7 @@ local messageContentFrame = guiScope:New "Frame" {
     Size = UDim2.fromScale(0.25, 0.15),
     [Children] = {
         messageTextLabel,
-        messageCloseButton,
+        --messageCloseButton,
         guiScope:New "UIListLayout" {
             SortOrder = Enum.SortOrder.LayoutOrder,
             FillDirection = Enum.FillDirection.Horizontal,
@@ -252,12 +252,12 @@ local veilFrame = guiScope:New "Frame" {
 
 
 local messageVisible = guiScope:Value(false)
-local messagePositions = {
+local transitionMessagePositions = {
     ['IN'] = UDim2.fromScale(0.5, 0.5),
     ['OUT'] = UDim2.fromScale(0.5, -0.5)
 }
-local messagePosition = guiScope:Value(
-    messagePositions.OUT
+local transitionMessagePosition = guiScope:Value(
+    transitionMessagePositions.OUT
 )
 local messageSizes = {
     ['IN'] = UDim2.fromScale(1, 0.5),
@@ -272,7 +272,7 @@ local messageContainer = guiScope:New "Frame" {
     BackgroundTransparency = 1,
     AnchorPoint = Vector2.new(0.5, 0.5),
     Position = guiScope:Tween(
-        messagePosition, 
+        transitionMessagePosition, 
         TweenInfo.new(0.5)
     ),
     Size = guiScope:Tween(
@@ -566,12 +566,14 @@ function GuiManager.PushMessageCentre(messageName: string, message: string, clos
         return
     end
     messageText:set(message)
+    MarkMessageSeenRE:FireServer(messageName)
+    messageActive:set(true)
     messageCloseCallback:set(function()
-        MarkMessageSeenRE:FireServer(messageName)
         GuiManager.PopMessage()
         if closeCb then closeCb() end
     end)
-    messageActive:set(true)
+
+    task.delay(10, peek(messageCloseCallback))
 end
 
 
@@ -695,7 +697,6 @@ function GuiManager.doTransition(phaseName: string)
         screenMessage = "And the winners are..."
     elseif phaseName == GameStates.Voting.name then
         -- text
-        GuiManager.QueueMessage("VoteTutorial", "Click on a player to vote for them!")
         screenMessage = "Time to Vote!"
     else
         warn("Unhandled message at GuiManager.doTransition()", phaseName)
@@ -703,11 +704,16 @@ function GuiManager.doTransition(phaseName: string)
 
     -- Hide top bar
     messageValue:set(screenMessage)
-    messagePosition:set(messagePositions.IN)
+    transitionMessagePosition:set(transitionMessagePositions.IN)
     leftWingPos:set(leftWingPositions.IN)
     rightWingPos:set(rightWingPositions.IN)
 
     task.wait(tweenTime)
+
+    if phaseName == GameStates.Voting.name then
+        -- text
+        GuiManager.QueueMessage("VoteTutorial", "Click on a player to vote for them!")
+    end
 
     veilSize:set(veilSizes.OUT)
     messageSize:set(messageSizes.IN)
@@ -715,10 +721,10 @@ function GuiManager.doTransition(phaseName: string)
 
     task.wait(tweenTime)
 
-    messagePosition:set(messagePositions.OUT)
+    transitionMessagePosition:set(transitionMessagePositions.OUT)
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
-    messagePosition:set(messagePositions.OUT)
+    transitionMessagePosition:set(transitionMessagePositions.OUT)
     messageSize:set(messageSizes.OUT)
 
     transitionCompletedEvent:Fire(phaseName)
@@ -727,7 +733,7 @@ function GuiManager.doTransition(phaseName: string)
         task.wait(tweenTime)
         veilSize:set(veilSizes.IN)
         messageVisible:set(false)
-        messagePosition:set(messagePositions.IN)
+        transitionMessagePosition:set(transitionMessagePositions.IN)
         messageSize:set(messageSizes.OUT)
         messageValue:set("")
         transitioning = false
