@@ -45,28 +45,47 @@ function Frame(
         parent: UsedAs<GuiBase>?
     }
 ): Frame
+    local visible = if props.visible == nil then true else props.visible
+    local destroyed = false
+
     -- Create a state value for rotation
     local rotationValue = scope:Value(0)
+    local spinThread: thread? = nil
 
     -- Star icon rotation anim
     local function startSpinLoop()
-        task.spawn(function()
-            while peek(props.visible) do
+        if spinThread then
+            return
+        end
+
+        spinThread = task.spawn(function()
+            while not destroyed and peek(visible) do
                 rotationValue:set(peek(rotationValue) + 359)
                 task.wait(1)
             end
+
+            spinThread = nil
         end)
     end
 
+    local function stopSpinLoop()
+        if spinThread then
+            task.cancel(spinThread)
+            spinThread = nil
+        end
+    end
+
     -- Start immediately if already visible
-    if peek(props.visible) then
+    if peek(visible) then
         startSpinLoop()
     end
 
     -- Re-start on future visibility changes
-    scope:Observer(props.visible):onChange(function()
-        if peek(props.visible) then
+    scope:Observer(visible):onChange(function()
+        if peek(visible) then
             startSpinLoop()
+        else
+            stopSpinLoop()
         end
     end)
 
@@ -75,19 +94,53 @@ function Frame(
 
     -- Logo rotation anim
     local logoRotation = scope:Value(0)
+    local logoThread: thread? = nil
 
-    task.spawn(function()
-    while true do
-        logoRotation:set(20)
-        task.wait(0.5)
-        logoRotation:set(-20)
-        task.wait(0.5)
+    local function startLogoLoop()
+        if logoThread or not props.onSkipped then
+            return
+        end
+
+        logoThread = task.spawn(function()
+            while not destroyed and peek(visible) do
+                logoRotation:set(20)
+                task.wait(0.5)
+                logoRotation:set(-20)
+                task.wait(0.5)
+            end
+
+            logoThread = nil
+        end)
     end
-end)
+
+    local function stopLogoLoop()
+        if logoThread then
+            task.cancel(logoThread)
+            logoThread = nil
+        end
+    end
+
+    if peek(visible) then
+        startLogoLoop()
+    end
+
+    scope:Observer(visible):onChange(function()
+        if peek(visible) then
+            startLogoLoop()
+        else
+            stopLogoLoop()
+        end
+    end)
+
+    table.insert(scope, function()
+        destroyed = true
+        stopSpinLoop()
+        stopLogoLoop()
+    end)
 
     local loadingScreen = scope:New "Frame" {
         Name = props.name or "LoadingFrame",
-        Visible = props.visible or true,
+        Visible = visible,
         AnchorPoint = props.anchorPoint or Vector2.new(0.5,0.5),
         Position = props.position or UDim2.fromScale(0.5,0.5),
         Size = props.size or UDim2.fromScale(0.3, 0.3),
