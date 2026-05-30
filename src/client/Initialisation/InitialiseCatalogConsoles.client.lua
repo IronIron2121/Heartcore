@@ -11,6 +11,7 @@ local UserInputService = game:GetService("UserInputService")
 local Bindables = ReplicatedStorage:WaitForChild("Bindables")
 
 -- Modules
+local UI_CONSTANTS = require(ReplicatedStorage.Utility.UI_CONSTANTS)
 local Constants = require(ReplicatedStorage:WaitForChild("Constants"))
 
 -- Remotes / Bindables
@@ -55,7 +56,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
 	local billboard = Instance.new("BillboardGui", allPrompts)
 	billboard.Name = "CustomCatalogPrompt"
 	billboard.Adornee = consoleBase
-	billboard.Size = UDim2.new(0, 120, 0, 35)
+	billboard.Size = UDim2.new(0, 120 * 2, 0, 35 * 2)
 	billboard.StudsOffset = Vector3.new(0, 2, 0)
 	billboard.AlwaysOnTop = true
 	billboard.Active = true
@@ -63,10 +64,18 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
 
 	local frame = Instance.new("Frame")
 	frame.Size = UDim2.new(1, 0, 1, 0)
-	frame.BackgroundColor3 = Color3.fromRGB(90, 47, 243)
-	frame.BackgroundTransparency = 0.3
+	frame.BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_GREEN
+	frame.BackgroundTransparency = 0.2
 	frame.BorderSizePixel = 0
 	frame.Parent = billboard
+
+	-- Padding
+	local padding = Instance.new("UIPadding")
+	padding.Parent = frame
+	padding.PaddingBottom = UDim.new(0.1,0)
+	padding.PaddingLeft = UDim.new(0.1,0)
+	padding.PaddingRight = UDim.new(0.1,0)
+	padding.PaddingTop = UDim.new(0.1,0)
 	
 	-- Rounded corners
 	local corner = Instance.new("UICorner")
@@ -86,7 +95,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
 	button.BackgroundTransparency = 1
 	button.TextColor3 = Color3.fromRGB(255, 255, 255)
 	button.Font = Enum.Font.FredokaOne
-	button.TextSize = 15
+	button.TextScaled = true
 	button.Text = ""
     button.TextWrapped = true
 	button.AutoButtonColor = false
