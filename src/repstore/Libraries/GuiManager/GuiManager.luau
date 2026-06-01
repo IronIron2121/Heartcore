@@ -21,6 +21,7 @@ local DataTables        = ReplicatedStorage:WaitForChild("DataTables")
 local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
 
 -- Modules
+local CONFIGURATION_NAMES = require(script.Parent.CONFIGURATION_NAMES)
 local Constants             = require(ReplicatedStorage.Constants)
 local GameStates            = require(ReplicatedStorage.GameLoop.GameStates)
 local Children              = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
@@ -56,7 +57,7 @@ local messageQueue: {{messageName: string, message: string, closeCb: (() -> ())?
 -- Bindables
 local HideAllPromptsBindable   = BindablesFolder:WaitForChild("HideAllPromptsBindable")
 local ShowAllPromptsBindable   = BindablesFolder:WaitForChild("ShowAllPromptsBindable")
-local transitionCompletedEvent = BindablesFolder:WaitForChild("TransitionCompleted") :: BindableEvent
+local TransitionCompleted = BindablesFolder:WaitForChild("TransitionCompleted") :: BindableEvent
 
 -- Remotes
 local MarkMessageSeenRE = Remotes.MarkMessageSeenRE
@@ -333,6 +334,7 @@ local rightTransitionWing = guiScope:New "Frame" {
     }
 }
 
+
 local countdownText     = guiScope:Value("3")
 local countdownColor    = guiScope:Value(Color3.new(1, 0.2, 0.2))
 local countdownVisible  = guiScope:Value(false)
@@ -350,7 +352,7 @@ local countdownLabel = guiScope:New "TextLabel" {
     TextColor3 = Color3.new(1, 1, 1),
     Visible = countdownVisible,
     TextScaled = true,
-    FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+    LayoutOrder = 2,
 
     [Children] = {
         guiScope:New "UICorner" {
@@ -361,9 +363,32 @@ local countdownLabel = guiScope:New "TextLabel" {
             AspectRatio = 1,
             DominantAxis = Enum.DominantAxis.Width,
             AspectType = Enum.AspectType.FitWithinMaxSize
+        },
+
+    }
+}
+
+local roundStartsLabel = guiScope:New "TextLabel" {
+    Name = "roundStartsLabel",
+    TextScaled = true,
+    Size = UDim2.fromScale(0.45, 0.10),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    LayoutOrder = 1,
+    Text = "Round starts in...",
+    Visible = countdownVisible,
+    FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
+    Position = UDim2.fromScale(0.5, 0.25),
+    TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
+    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+
+    [Children] = {
+        guiScope:New "UICorner" {
+            CornerRadius = UDim.new(0.25)
+
         }
     }
 }
+
 
 local countdownContainer = guiScope:New "Frame" {
     Name = "countdownContainer",
@@ -373,6 +398,8 @@ local countdownContainer = guiScope:New "Frame" {
     Position = UDim2.fromScale(0.5, 0.5),
     ZIndex = 1,
     [Children] = {
+
+        roundStartsLabel,
         countdownLabel
     }
 }
@@ -759,14 +786,14 @@ function GuiManager.doTransition(phaseName: string)
     transitionMessagePosition:set(transitionMessagePositions.OUT)
     messageSize:set(messageSizes.OUT)
 
-    transitionCompletedEvent:Fire(phaseName)
+    TransitionCompleted:Fire(phaseName)
 
     if phaseName == GameStates.Dressing.name then
         task.defer(function()
-            local humanoid = (localPlayer.Character :: Model?)
-                and (localPlayer.Character :: Model):FindFirstChildOfClass("Humanoid")
-            local savedWalkSpeed = humanoid and humanoid.WalkSpeed or 16
-            local savedJumpPower = humanoid and humanoid.JumpPower or 50
+            local humanoid = (localPlayer.Character :: Model?) and (localPlayer.Character :: Model):FindFirstChildOfClass("Humanoid")
+            local savedWalkSpeed = humanoid and humanoid.WalkSpeed or Constants.DEFAULT_WALK_SPEED
+            local savedJumpPower = humanoid and humanoid.JumpPower or Constants.DEFAULT_JUMP_POWER
+
             if humanoid then
                 humanoid.WalkSpeed = 0
                 humanoid.JumpPower = 0
@@ -791,6 +818,7 @@ function GuiManager.doTransition(phaseName: string)
             countdownSize:set(UDim2.fromScale(0.25, 0.25))
             countdownRotation:set(0)
         end)
+            
     end
 
     task.defer(function()

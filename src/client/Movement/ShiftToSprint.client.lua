@@ -2,7 +2,9 @@
 
 -- Services
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local Constants = require(ReplicatedStorage.Constants)
 
 -- Instances
 local localPlayer = Players.LocalPlayer
@@ -17,6 +19,6 @@ end)
 
 UserInputService.InputEnded:Connect(function(input)
 	if input.KeyCode == Enum.KeyCode.LeftShift then
-		Humanoid.WalkSpeed = 40
+		Humanoid.WalkSpeed = Constants.DEFAULT_WALK_SPEED
 	end
 end)

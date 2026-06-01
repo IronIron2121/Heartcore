@@ -212,8 +212,10 @@ local Constants = {
 		['RIGHT'] = "rightSide"
 	},
 
-	DEBUG_MODE = true
+	DEBUG_MODE = true,
 
+	DEFAULT_WALK_SPEED = 40,
+	DEFAULT_JUMP_POWER = 50
 
 }
 
