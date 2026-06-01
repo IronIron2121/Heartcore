@@ -49,7 +49,7 @@ local function PlayerThumbnail(
 	props: {
 		player: Player,
 		targetSlot: VoteSlot,
-		size: UsedAs<UDim2>?,
+		size: UsedAs<UDim2>?, 
 		parent: GuiObject,
 		onClickCb: (() -> ())?,
 	}

@@ -72,7 +72,7 @@ local function OpenWardrobeButton(
 			isHeldDown:set(true)
 		end,
 		
-		[OnEvent "MouseButton1Up"] = function()
+		[OnEvent "MouseButton1Up"] = function() 
 			isHeldDown:set(false)
 		end,
 		
