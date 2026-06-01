@@ -817,6 +817,8 @@ function GuiManager.doTransition(phaseName: string)
             countdownVisible:set(false)
             countdownSize:set(UDim2.fromScale(0.25, 0.25))
             countdownRotation:set(0)
+            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+
         end)
             
     end
