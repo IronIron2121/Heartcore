@@ -297,7 +297,7 @@ local function InitialiseHuds()
         if peek(GameStateValues.isVoting) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
         elseif peek(GameStateValues.isDressing) then
-            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+            --GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
         end
     end)
 
