@@ -200,7 +200,7 @@ function EquippedClassicItemButton(
 				ZIndex = 3,
 				BackgroundTransparency = 1,
 				ImageTransparency = backgroundTransparencySpring,
-				Image = ImageUris.TrashButton,
+				Image = ImageUris.CloseButton,
 				Active = true,
 				Visible = true,
 
