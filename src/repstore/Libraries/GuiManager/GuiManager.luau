@@ -113,7 +113,6 @@ local ModalGui = guiScope:New "ScreenGui" {
     IgnoreGuiInset = false,
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
     DisplayOrder = 2
-
 } :: ScreenGui
 
 local blurSize: Computed<number> = guiScope:Computed(function(use) 
@@ -231,9 +230,6 @@ local messageLabel = guiScope:New "TextLabel" {
         }
     }
 }
-
-
-
 
 local transitionMessageVisible = guiScope:Value(false)
 local transitionMessagePositions = {
@@ -390,7 +386,6 @@ local roundStartsLabel = guiScope:New "TextLabel" {
     }
 }
 
-
 local countdownContainer = guiScope:New "Frame" {
     Name = "countdownContainer",
     BackgroundTransparency = 1,
@@ -420,7 +415,6 @@ local _transitionGui = guiScope:New "ScreenGui" {
 }
 
 -- —— Modal ——————————————————————————————————————————————————————————————————————
-
 local _BackgroundBlur = guiScope:New "BlurEffect" {
     Archivable = true,
     Name = "ModalBackgroundBlur",
@@ -431,7 +425,6 @@ local _BackgroundBlur = guiScope:New "BlurEffect" {
 
 
 -- —— Notification Manager————————————————————————————————————————————————————————
-
 local notificationActive = guiScope:Value(false)
 
 local notificationPosition = guiScope:Computed(function(use)
