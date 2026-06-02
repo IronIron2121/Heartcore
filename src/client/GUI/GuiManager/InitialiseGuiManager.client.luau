@@ -232,7 +232,7 @@ local function InitialiseHuds()
     local GameLoopConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
         topMiddle = { Object = submissionThemeBar, AlwaysOn = true },
-        topRight = { Object = topRightContainer, AlwaysOn = true },
+        topRight = { Object = topRightContainer, AlwaysOn = false },
         middleRight = nil,
         bottomLeft = nil,
         bottomMiddle = { Object = voteBar, AlwaysOn = false },
@@ -290,7 +290,8 @@ local function InitialiseHuds()
             GuiManager.PopCentre()
         end
 
-        GuiManager.ForceHideCurrentConfiguration()
+        --GuiManager.ForceHideCurrentConfiguration()
+        GuiManager.HideCurrentConfiguration()
 
         GuiManager.doTransition(peek(GameStateValues.stateName))
         
