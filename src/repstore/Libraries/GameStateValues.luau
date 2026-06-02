@@ -24,6 +24,7 @@ CurrentStateName.Changed:Connect(function(newValue)
 end)
 
 CurrentThemeName.Changed:Connect(function(newValue)
+	print("Theme just changed to ", newValue)
 	themeName:set(newValue)
 end)
 

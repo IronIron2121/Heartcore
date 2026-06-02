@@ -24,6 +24,7 @@ local Remotes           = ReplicatedStorage:WaitForChild("Remotes")
 local CONFIGURATION_NAMES = require(script.Parent.CONFIGURATION_NAMES)
 local Constants             = require(ReplicatedStorage.Constants)
 local GameStates            = require(ReplicatedStorage.GameLoop.GameStates)
+local GameStateValues = require(ReplicatedStorage.Libraries.GameStateValues)
 local Children              = require(ReplicatedStorage.Utility.Fusion.Instances.Children)
 local PlayerDisplayManager  = require(StarterPlayer.StarterPlayerScripts.GUI.PlayerDisplayManager)
 local ImageUris             = require(DataTables:WaitForChild("ImageUris"))
@@ -779,6 +780,16 @@ function GuiManager.doTransition(phaseName: string)
     transitionMessageVisible:set(true)
 
     task.wait(tweenTime)
+
+
+    if phaseName == GameStates.Dressing.name then
+        messageSize:set(messageSizes.OUT)
+        task.wait(tweenTime)
+        messageValue:set("Theme is: " .. peek(GameStateValues.themeName))
+        messageSize:set(messageSizes.IN)
+        task.wait(tweenTime * 2)
+    end
+
     -- —— POST-TRANSITION ——————————————————————————————————————————————————————————————————————
 
     leftWingPos:set(leftWingPositions.OUT)
