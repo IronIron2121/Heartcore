@@ -26,7 +26,8 @@ local GameState = StarterPlayerScripts.GameState
 local ClientGUI = StarterPlayerScripts.GUI
 
 -- Modules
-local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager) 
+local Constants = require(ReplicatedStorage.Constants)
+local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local WardrobeGuiState = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.WardrobeGuiState)
 local OpenDailyChallengeGuiButton = require(FusionComponents:WaitForChild("OpenDailyChallengeGuiButton"))
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
@@ -232,7 +233,7 @@ local function InitialiseHuds()
     local GameLoopConfig = GuiConfiguration.new({
         ConfigurationName = CONFIGURATION_NAMES.GameLoopConfig,
         topMiddle = { Object = submissionThemeBar, AlwaysOn = true },
-        topRight = { Object = topRightContainer, AlwaysOn = true },
+        topRight = { Object = topRightContainer, AlwaysOn = false },
         middleRight = nil,
         bottomLeft = nil,
         bottomMiddle = { Object = voteBar, AlwaysOn = false },
@@ -285,19 +286,25 @@ local function InitialiseHuds()
 
     hudScope:Observer(GameStateValues.stateName):onChange(function()
         RoundSummaryGui.hide()
-        
+
         while GuiManager.IsCentreActive() do
             GuiManager.PopCentre()
         end
 
-        GuiManager.ForceHideCurrentConfiguration()
+        GuiManager.HideCurrentConfiguration()
 
         GuiManager.doTransition(peek(GameStateValues.stateName))
-        
+
         if peek(GameStateValues.isVoting) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
         elseif peek(GameStateValues.isDressing) then
-            --GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+            GameLoopConfig.bottomMiddleEnabled:set(false)
+            GameLoopConfig.bottomRightEnabled:set(false)
+            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+            task.delay(Constants.VOTING_PREAMBLE_LENGTH, function()
+                GameLoopConfig.bottomMiddleEnabled:set(true)
+                GameLoopConfig.bottomRightEnabled:set(true) 
+            end)
         end
     end)
 
