@@ -30,7 +30,6 @@ local STATES = require(GameLoop.GameStates)
 
 local timerThread: thread? = nil
 
-
 local THEMES = {
 	"Y2K",
 	"Cottagecore",
