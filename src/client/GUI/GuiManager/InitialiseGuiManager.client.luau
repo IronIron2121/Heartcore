@@ -73,6 +73,7 @@ local modalScope = Fusion:scoped()
 
 -- ### --- INITIAL LOADING SCREEN --- ### -- 
 task.spawn(function()
+
     local initialLoadGui = modalScope:New "ScreenGui" {
         Parent = Players.LocalPlayer.PlayerGui,
         DisplayOrder = 9999,
@@ -112,6 +113,11 @@ end)
 local controllers = {}
 
 local function InitialiseHuds()
+    local hideIntermissionBottomRight = modalScope:Value(
+        function()
+
+        end
+    )
     local hudScope = Fusion:scoped()
     local expHud = ExpHud(hudScope, { Size = UDim2.fromScale(1, 0.5) })
     local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
@@ -197,8 +203,10 @@ local function InitialiseHuds()
                     if peek(GameStateValues.isDressing) then
                         if not peek(PlayerSubmissionState.cooldown) then
                             PlayerSubmittedOutfitRF:InvokeServer()
+                            peek(hideIntermissionBottomRight)()
                         end
                     end
+                    
                 end,
 
                 [Children] = {
@@ -272,6 +280,12 @@ local function InitialiseHuds()
         bottomRight = nil,
     })
 
+    hideIntermissionBottomRight:set(
+        function()
+            GameLoopConfig.bottomRightEnabled:set(false)
+        end
+    )
+
     GuiManager.RegisterConfiguration(GameLoopConfig)
     GuiManager.RegisterConfiguration(FtueConfig)
     GuiManager.RegisterConfiguration(VotingHudConfig)
@@ -301,6 +315,8 @@ local function InitialiseHuds()
 
         if peek(GameStateValues.isVoting) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
+            GameLoopConfig.bottomRightEnabled:set(true) -- Re-enable from submit button callback
+
         elseif peek(GameStateValues.isDressing) then
 
             GameLoopConfig.bottomMiddleEnabled:set(false)
@@ -311,6 +327,7 @@ local function InitialiseHuds()
                 GameLoopConfig.topMiddleEnabled:set(true)
                 GameLoopConfig.bottomMiddleEnabled:set(true)
                 GameLoopConfig.bottomRightEnabled:set(true) 
+                
             end)
         end
     end)
