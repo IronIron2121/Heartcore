@@ -833,6 +833,10 @@ function GuiManager.doTransition(phaseName: string)
         transitionMessagePosition:set(transitionMessagePositions.IN)
         messageSize:set(messageSizes.OUT)
         messageValue:set("")
+        GuiManager.QueueMessage(
+            "dress_tutorial", 
+            "Go to each catalog station to build your fit."
+        )
         transitioning = false
     end)
 end
