@@ -315,6 +315,8 @@ local function InitialiseHuds()
 
         if peek(GameStateValues.isVoting) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
+            GameLoopConfig.bottomRightEnabled:set(true) -- Re-enable from submit button callback
+
         elseif peek(GameStateValues.isDressing) then
 
             GameLoopConfig.bottomMiddleEnabled:set(false)
@@ -325,6 +327,7 @@ local function InitialiseHuds()
                 GameLoopConfig.topMiddleEnabled:set(true)
                 GameLoopConfig.bottomMiddleEnabled:set(true)
                 GameLoopConfig.bottomRightEnabled:set(true) 
+                
             end)
         end
     end)
