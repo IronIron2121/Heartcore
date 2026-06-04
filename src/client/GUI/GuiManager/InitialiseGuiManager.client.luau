@@ -3,6 +3,7 @@
 -- Services
 local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
+local Preloaded = game:GetService("Preloaded")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
@@ -279,6 +280,7 @@ local function InitialiseHuds()
     if peek(GameStateValues.isIntermission) then
         GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.IntermissionConfig)
     elseif peek(GameStateValues.isDressing) then
+
         GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
     elseif peek(GameStateValues.isVoting) then
         GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
@@ -293,15 +295,20 @@ local function InitialiseHuds()
 
         GuiManager.HideCurrentConfiguration()
 
+        IntermissionConfig.topMiddleEnabled:set(false)
         GuiManager.doTransition(peek(GameStateValues.stateName))
+
 
         if peek(GameStateValues.isVoting) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
         elseif peek(GameStateValues.isDressing) then
+
             GameLoopConfig.bottomMiddleEnabled:set(false)
             GameLoopConfig.bottomRightEnabled:set(false)
+            IntermissionConfig.topMiddleEnabled:set(true)
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
             task.delay(Constants.VOTING_PREAMBLE_LENGTH, function()
+                GameLoopConfig.topMiddleEnabled:set(true)
                 GameLoopConfig.bottomMiddleEnabled:set(true)
                 GameLoopConfig.bottomRightEnabled:set(true) 
             end)

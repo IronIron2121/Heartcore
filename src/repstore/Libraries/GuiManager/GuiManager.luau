@@ -822,6 +822,10 @@ function GuiManager.doTransition(phaseName: string)
             countdownSize:set(UDim2.fromScale(0.25, 0.25))
             countdownRotation:set(0)
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+            GuiManager.QueueMessage(
+                "dress_tutorial", 
+                "Go to each catalog station to build your fit."
+            )
 
         end)
             
@@ -833,10 +837,7 @@ function GuiManager.doTransition(phaseName: string)
         transitionMessagePosition:set(transitionMessagePositions.IN)
         messageSize:set(messageSizes.OUT)
         messageValue:set("")
-        GuiManager.QueueMessage(
-            "dress_tutorial", 
-            "Go to each catalog station to build your fit."
-        )
+
         transitioning = false
     end)
 end

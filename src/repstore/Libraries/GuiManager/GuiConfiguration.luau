@@ -207,8 +207,7 @@ function GuiConfiguration.new(props: {
     } :: Frame
     
     self.TopMiddlePosition = self.scope:Computed(function(use)
-        local slotOn = use(self.topMiddleEnabled :: UsedAs<boolean>)
-        local visible = use(self.Enabled) and not use(self.ForceHidden) and slotOn and (topMiddleAlwaysOn or use(self.ModalVisible))
+        local visible = use(self.Enabled) and not use(self.ForceHidden) and use(self.topMiddleEnabled) and (topMiddleAlwaysOn or use(self.ModalVisible))
         return visible and SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].InPosition or SLOT_LAYOUTS[Constants.GUI_SLOT_NAMES.TopMiddle].OutPosition
     end)
     self.TopMiddle = self.scope:New "Frame" {
