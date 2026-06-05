@@ -11,6 +11,7 @@ local DataTables 	= ReplicatedStorage:WaitForChild("DataTables")
 local Utility 		= ReplicatedStorage:WaitForChild("Utility")
 
 -- Modules
+local GameStateValues = require(ReplicatedStorage.Libraries.GameStateValues)
 local UI_CONSTANTS 	= require(Utility:WaitForChild("UI_CONSTANTS"))
 local ImageUris 	= require(DataTables:WaitForChild("ImageUris"))
 local Fusion 		= require(Utility:WaitForChild("Fusion"))
@@ -81,6 +82,9 @@ function EquippedItemButton(
 
 	-- Buy button toggle logic
 	local function toggleBuyButton()
+		if not peek(GameStateValues.isIntermission) then
+			return
+		end
 		isToggled:set(true)
 		task.spawn(function()
 			task.wait(BUY_BUTTON_DISPLAY_TIME)
