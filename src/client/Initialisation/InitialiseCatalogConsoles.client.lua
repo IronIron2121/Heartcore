@@ -42,6 +42,7 @@ end
 
 -- Create custom GUI when proximity prompt appears
 local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
+	print("Setting up custom GUI")
 	prompt.Style = Enum.ProximityPromptStyle.Custom
 	prompt.ActionText = "" -- hide Roblox default
 	prompt.ObjectText = ""
@@ -143,7 +144,8 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
 	end
 
 	local function updateLabel()
-		local action = consoleBase.Name
+		print("Updating label", consoleBase.Name)
+		print(UserInputService:GetLastInputType())
 		local keyText = ""
 
 		if UserInputService.GamepadEnabled then
@@ -153,6 +155,8 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
 		elseif UserInputService.TouchEnabled then
 			keyText = "[Tap]"
 		end
+
+		local action = "Browse " .. consoleBase.Name .. " " .. keyText
 
 		button.Text = action
 	end
