@@ -13,6 +13,7 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
+local GameStateValues = require(ReplicatedStorage.Libraries.GameStateValues)
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -102,6 +103,7 @@ props: {
 	local priceVal
 	local isOffSale = scope:Value(false)
 
+
 	if props.itemDetails.IsOffSale and props.itemDetails.IsOffSale == true or props.itemDetails.IsPurchasable == false then
 		priceVal = "Off-Sale"
 		isOffSale:set(true)
@@ -113,7 +115,11 @@ props: {
 
 	local buttonsVisible = scope:Computed(function(use)
 		if use(isActivated) or use(isHovering) then
-			return true
+			if use(GameStateValues.isIntermission) then
+				return true
+			else
+				return false
+			end
 		else
 			return false
 		end
@@ -127,9 +133,28 @@ props: {
 		isActivated:set(false)
 	end
 
+	local onTryOnCallback = function()
+		deactivate()
+		if props.onTryCb then
+			props.onTryCb()
+		end
+
+		if props.pushLoad then
+			props.pushLoad()
+		end
+
+		ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType or "", props.itemDetails.ItemType)
+
+		if props.popLoad then
+			props.popLoad()
+		end
+	end
+
 	local function toggleActivationCallback(): ()
 		if peek(isActivated) then
 			return
+		elseif not peek(GameStateValues.isIntermission) then
+			onTryOnCallback()
 		end
 		activate()
 		task.wait(CONFIG.ACTIVATION_DURATION)
@@ -262,22 +287,7 @@ props: {
 
 							TryButton(scope, {
 								layoutOrder = 1,
-								onTryonCallback = function()
-									deactivate()
-									if props.onTryCb then
-										props.onTryCb()
-									end
-
-									if props.pushLoad then
-										props.pushLoad()
-									end
-
-									ClientCustomisationService.AddItem(props.itemDetails.Id, props.itemDetails.AssetType or props.itemDetails.BundleType or "", props.itemDetails.ItemType)
-
-									if props.popLoad then
-										props.popLoad()
-									end
-								end
+								onTryonCallback = onTryOnCallback
 							}),  
 
 							BuyButton(scope, {
@@ -304,6 +314,9 @@ props: {
 			PriceLabel(scope, {
 				layoutOrder = 2,
 				text = priceVal,
+				visible = scope:Computed(function(use)
+					return use(GameStateValues.isIntermission)
+				end)
 			}),
 		}
 	}
