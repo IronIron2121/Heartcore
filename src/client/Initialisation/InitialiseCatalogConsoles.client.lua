@@ -145,7 +145,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
 
 	local function updateLabel()
 		print("Updating label", consoleBase.Name)
-		local action = "Browse " .. consoleBase.Name .. " [E]"
+		print(UserInputService:GetLastInputType())
 		local keyText = ""
 
 		if UserInputService.GamepadEnabled then
@@ -155,6 +155,8 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
 		elseif UserInputService.TouchEnabled then
 			keyText = "[Tap]"
 		end
+
+		local action = "Browse " .. consoleBase.Name .. " " .. keyText
 
 		button.Text = action
 	end
@@ -191,7 +193,7 @@ local function initialiseCatalogConsole(ConsoleBase: Part)
         consolePrompt.MaxActivationDistance = 10
         consolePrompt.RequiresLineOfSight = false
 		consolePrompt.Triggered:Connect(function(a0: Player)
-			PlayerTriggeredCatalogConsole:Fire(ConsoleBase.Name)w
+			PlayerTriggeredCatalogConsole:Fire(ConsoleBase.Name)
 
 		end)
         
