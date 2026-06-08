@@ -22,7 +22,7 @@ local BundleFilterCategories = require(DataTables:WaitForChild("BundleFilterCate
 local TopCategories = require(DataTables:WaitForChild("TopCategories"))
 local WardrobeGuiState = require(WardrobeGuiController:WaitForChild("WardrobeGuiState"))
 local FusionItemTile = require(Widgets:WaitForChild("FusionItemTile"))
-local EditorsPick = require(DataTables:WaitForChild("EditorsPick"))
+local ArtistCatalog = require(DataTables:WaitForChild("ArtistCatalog"))
 
 -- Fusion Components
 local Fusion = require(Utility:WaitForChild("Fusion"))
@@ -75,8 +75,7 @@ function CatalogSearchController:Initialise()
 	self:_initialiseCategoryFrame()
 	self:_initialiseInspectFrame()
 
-	EditorsPick.initialiseItemDetails()
- 	self.editorsPickCallback()
+	task.spawn(ArtistCatalog.initialise)
 end
 
 function CatalogSearchController:_initialiseCategoryFrame()
@@ -92,8 +91,8 @@ function CatalogSearchController:_initialiseCategoryFrame()
 		searchAssetCategories = self.searchAssetCategories, 
 		searchBundleCategories = self.searchBundleCategories, 
 		searchCallback = self.searchCallback,
-		editorsPickCallback = self.editorsPickCallback,
-		editorsPickSelected   = self.editorsPickSelected,
+		artistCallback = self.artistCallback,
+		artistSelected = self.artistSelected,
 		allowedTopCategories  = self.allowedTopCategories,
 		selectedTopCategory   = self.selectedTopCategory,
 		currentSubCategories  = self.currentSubCategories,
@@ -105,7 +104,7 @@ function CatalogSearchController:_initialiseSearchFrame()
     self.isLoadingMore = false
     
     self.loadMoreCallback = function()
-        if self.isLoadingMore or peek(self.editorsPickSelected) or not self.SearchResultsFrame or peek(self.searchResults).isFinished then 
+        if self.isLoadingMore or peek(self.artistSelected) or not self.SearchResultsFrame or peek(self.searchResults).isFinished then
 			return 
 		end
         self.isLoadingMore = true
@@ -143,7 +142,7 @@ function CatalogSearchController:_initialiseSearchFrame()
         self.isLoadingMore = false
     end
 
-	self.editorsPickSelected = self.scope:Value(false)
+	self.artistSelected = self.scope:Value(false)
 
 	self.searchCallback = function(keyword: string?)
 		if not peek(self.searchText) or (peek(self.searchText) == Constants.SEARCH_PLACEHOLDER) then
@@ -157,7 +156,7 @@ function CatalogSearchController:_initialiseSearchFrame()
 			return
 		end
 
-		self.editorsPickSelected:set(false)
+		self.artistSelected:set(false)
 		
 		self.clearCatalogCallback()
 
@@ -202,15 +201,17 @@ function CatalogSearchController:_initialiseSearchFrame()
 		end
 	end
 
-	self.editorsPickCallback = function()
+	self.artistCallback = function(artistName: string?)
 		if not self.SearchResultsFrame then
 			warn("SearchResultsFrame not ready yet")
 			return
 		end
 
 		self.clearCatalogCallback()
+		self.artistSelected:set(true)
 
-		for index, itemDetails in ipairs(EditorsPick.itemDetails) do
+		local items = ArtistCatalog.getItems(artistName, peek(self.searchAssetCategories))
+		for index, itemDetails in ipairs(items) do
 			local newTile = FusionItemTile(self.scope, {
 				itemDetails = itemDetails,
 				layoutOrder = index,
@@ -224,15 +225,10 @@ function CatalogSearchController:_initialiseSearchFrame()
 				end,
 				popLoad = function()
 					LoadingScreenManager.hide(self.parentFrame.Parent.Parent)
-				end
+				end,
 			})
 			newTile.Parent = self.SearchResultsFrame
 		end
-
-		self.searchBundleCategories:set({})
-		self.searchAssetCategories:set({})
-
-		self.editorsPickSelected:set(true)
 	end
 
 	self.clearCatalogCallback = function()
@@ -304,7 +300,11 @@ function CatalogSearchController:OpenToTopCategory(categoryName: string?)
 		self.searchAssetCategories:set(AssetFilterCategories.getAllAssetTypes())
 		self.searchBundleCategories:set(BundleFilterCategories.getAllRobloxBundleTypes())
 	end
-	task.spawn(self.searchCallback)
+	if categoryName == "Artists" then
+		task.spawn(self.artistCallback, nil)
+	else
+		task.spawn(self.searchCallback)
+	end
 end
 
 function CatalogSearchController:Cleanup()

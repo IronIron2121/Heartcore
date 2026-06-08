@@ -95,11 +95,28 @@ local TopCategories: { TopCategoryEntry } = {
 	},
 	{
 		name = "Dresses & Skirts",
-		assetTypes = { 
-			Enum.AvatarAssetType.DressSkirtAccessory 
+		assetTypes = {
+			Enum.AvatarAssetType.DressSkirtAccessory
 		},
 		bundleTypes = {},
 		subCategories = {},
+	},
+	{
+		name = "Artists",
+		assetTypes = {},
+		bundleTypes = {},
+		subCategories = {
+			{ name = "0207" },
+			{ name = "Aurora" },
+			{ name = "CHAOS RECORDS" },
+			{ name = "GLASS ANIMALS" },
+			{ name = "ISLAND RECORDS" },
+			{ name = "Jazzy" },
+			{ name = "KISS" },
+			{ name = "SIGRID" },
+			{ name = "STORMZY" },
+			{ name = "TLDP" },
+		},
 	},
 
 }
