@@ -89,20 +89,16 @@ local function CloseButton(
 				Image = ImageUris.CloseButton,
 				Size = UDim2.fromScale(1,1),
 				BackgroundTransparency = 1,
-				ImageColor3 = scope:Spring(
+				Rotation = scope:Spring(
 					scope:Computed(function(use)
-						local baseColor = use(isToggled) and COLOUR_BG_TOGGLED or COLOUR_BG_NOT_TOGGLED
-						
-						if use(isHeldDown) then
-							return baseColor:Lerp(COLOUR_ORANGE, 0.8)
-						elseif use(isHovering) then
-							return baseColor:Lerp(COLOUR_ORANGE, 0.25)
-						else 
-							return baseColor
+						if use(isHovering) then
+							return 30
+						else
+							return 0
 						end
 					end),
 					BG_FADE_SPEED
-				), 
+				),
 			},
 			
 			scope:New "UIAspectRatioConstraint" {

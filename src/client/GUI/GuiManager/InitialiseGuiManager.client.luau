@@ -167,13 +167,13 @@ local function InitialiseHuds()
         BackgroundTransparency = 1,
 
         [Children] = {
-            hudScope:New "UIListLayout" {
-                Padding = UDim.new(0.15, 0),
-                FillDirection = Enum.FillDirection.Horizontal,
-                SortOrder = Enum.SortOrder.LayoutOrder,
-                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                VerticalAlignment = Enum.VerticalAlignment.Center
-            },
+            -- hudScope:New "UIListLayout" {
+            --     Padding = UDim.new(0.15, 0),
+            --     FillDirection = Enum.FillDirection.Horizontal,
+            --     SortOrder = Enum.SortOrder.LayoutOrder,
+            --     HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            --     VerticalAlignment = Enum.VerticalAlignment.Center
+            -- },
 
             BaseImageButton(hudScope, {
                 name = "GameStateButton",
