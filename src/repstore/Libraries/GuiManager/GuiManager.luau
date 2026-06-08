@@ -292,11 +292,11 @@ local leftTransitionWing = guiScope:New "Frame" {
 
     [Children] = {
         guiScope:New "UIGradient" {
-            Color = ColorSequence.new(
-                Color3.fromRGB(176, 183, 253), 
-                UI_CONSTANTS.TASTEMAKER_PURPLE
-            ),
-            Offset = Vector2.new(5,0)
+            Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(176, 183, 253)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(114,119,224)),
+                ColorSequenceKeypoint.new(1, UI_CONSTANTS.TASTEMAKER_PURPLE)
+            }
         }
     }
 }
@@ -322,11 +322,11 @@ local rightTransitionWing = guiScope:New "Frame" {
     ZIndex = 2,
     [Children] = {
         guiScope:New "UIGradient" {
-            Color = ColorSequence.new(
-                UI_CONSTANTS.TASTEMAKER_PURPLE,
-                Color3.fromRGB(176, 183, 253)
-            ),
-            Offset = Vector2.new(5,0)
+            Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, UI_CONSTANTS.TASTEMAKER_PURPLE),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(114,119,224)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(176, 183, 253))
+            }
         }
     }
 }
