@@ -27,6 +27,7 @@ local GameState = StarterPlayerScripts.GameState
 local ClientGUI = StarterPlayerScripts.GUI
 
 -- Modules
+local PointerManager = require(StarterPlayer.StarterPlayerScripts.GUI.PointerManager)
 local Constants = require(ReplicatedStorage.Constants)
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local WardrobeGuiState = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.WardrobeGuiState)
@@ -55,6 +56,7 @@ local UI_CONSTANTS = require(Utility.UI_CONSTANTS)
 local peek = require(FusionUtility.State.peek)
 local ImageUris = require(DataTables.ImageUris) 
 local FtuePop = require(ClientGUI.FtuePop)
+local FTUEManager = require(StarterPlayerScripts.FTUE.FTUEManager)
 local Fusion = require(FusionUtility)
 
 local VotingZone = workspace:WaitForChild("VOTING_ZONE")
@@ -313,6 +315,8 @@ local function InitialiseHuds()
         GuiManager.doTransition(peek(GameStateValues.stateName))
 
 
+        FTUEManager.endRound()
+
         if peek(GameStateValues.isVoting) then
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.VotingConfig)
             GameLoopConfig.bottomRightEnabled:set(true) -- Re-enable from submit button callback
@@ -323,11 +327,12 @@ local function InitialiseHuds()
             GameLoopConfig.bottomRightEnabled:set(false)
             IntermissionConfig.topMiddleEnabled:set(true)
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+            FTUEManager.startRound()
             task.delay(Constants.VOTING_PREAMBLE_LENGTH, function()
                 GameLoopConfig.topMiddleEnabled:set(true)
                 GameLoopConfig.bottomMiddleEnabled:set(true)
-                GameLoopConfig.bottomRightEnabled:set(true) 
-                
+                GameLoopConfig.bottomRightEnabled:set(true)
+
             end)
         end
     end)
@@ -361,6 +366,7 @@ local function InitialiseModals()
 
     local PlayerTriggeredCatalogConsole = Bindables:WaitForChild("PlayerTriggeredCatalogConsole")
     PlayerTriggeredCatalogConsole.Event:Connect(function(categoryName: string)
+        FTUEManager.onCatalogOpened(categoryName)
         WardrobeGuiState.ResetView()
         controllers["CatalogSearchController"]:OpenToTopCategory(categoryName)
         GuiManager.PushCentreByName(MODAL_NAMES.WARDROBE_GUI)
@@ -371,7 +377,7 @@ local function initialiseGuiManager()
     InitialiseModals()
     InitialiseHuds()
     GuiManager.SetLoaded()
-    GuiManager.PushCentreByName(MODAL_NAMES.FTUE_GUI)
+    -- GuiManager.PushCentreByName(MODAL_NAMES.FTUE_GUI)
 end
 
 initialiseGuiManager()

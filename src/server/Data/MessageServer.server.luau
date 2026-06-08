@@ -22,5 +22,6 @@ IsMessageSeenRF.OnServerInvoke = function(player: Player, messageName: string): 
 end
 
 MarkMessageSeenRE.OnServerEvent:Connect(function(player: Player, messageName: string)
+    print("Received message to mark ", messageName, "seen for player", player.Name)
     DataManager.MarkMessageSeen(player, messageName)
 end)
