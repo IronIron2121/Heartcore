@@ -349,7 +349,11 @@ end
 
 function DataManager.MarkMessageSeen(player: Player, messageName: string)
 	local profile = DataManager.Profiles[player]
-	if not profile then return end
+	if not profile then 
+		warn("No profile at MarkMessageSeen") 
+		return 
+	end
+	print("Marking message ", messageName, "seen")
 	profile.Data.SeenMessages[messageName] = true
 end
 
