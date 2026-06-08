@@ -333,7 +333,7 @@ local rightTransitionWing = guiScope:New "Frame" {
 
 
 local countdownText     = guiScope:Value("3")
-local countdownColor    = guiScope:Value(Color3.new(1, 0.2, 0.2))
+local countdownColor    = guiScope:Value(UI_CONSTANTS.TASTEMAKER_PINK)
 local countdownVisible  = guiScope:Value(false)
 local countdownSize     = guiScope:Value(UDim2.fromScale(0.25, 0.25))
 local countdownRotation = guiScope:Value(0)
@@ -349,6 +349,7 @@ local countdownLabel = guiScope:New "TextLabel" {
     TextColor3 = Color3.new(1, 1, 1),
     Visible = countdownVisible,
     TextScaled = true,
+    FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
     LayoutOrder = 2,
 
     [Children] = {
@@ -376,12 +377,19 @@ local roundStartsLabel = guiScope:New "TextLabel" {
     FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Bold),
     Position = UDim2.fromScale(0.5, 0.25),
     TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
-    BackgroundColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+    BackgroundTransparency = 1,
 
     [Children] = {
         guiScope:New "UICorner" {
             CornerRadius = UDim.new(0.25)
 
+        },
+        guiScope:New "UIStroke" {
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+            LineJoinMode = Enum.LineJoinMode.Round,
+            Transparency = 0,
+            Color = UI_CONSTANTS.TASTEMAKER_PINK,
+            Thickness = 3,
         }
     }
 }
