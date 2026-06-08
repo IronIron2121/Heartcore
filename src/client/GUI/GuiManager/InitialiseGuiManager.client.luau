@@ -27,6 +27,7 @@ local GameState = StarterPlayerScripts.GameState
 local ClientGUI = StarterPlayerScripts.GUI
 
 -- Modules
+local PointerManager = require(StarterPlayer.StarterPlayerScripts.GUI.PointerManager)
 local Constants = require(ReplicatedStorage.Constants)
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local WardrobeGuiState = require(ReplicatedStorage.UI.FusionComponents.WardrobeGuiController.WardrobeGuiState)
