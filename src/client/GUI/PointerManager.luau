@@ -34,7 +34,8 @@ function Pointer.startBeam(target: BasePart)
 end
 
 function Pointer.endBeam()
-    beam.Attachment1 = nil
+    beam.Enabled = false
+    targetAttachment.Parent = script
 end
 
 function Pointer.HideBeam()

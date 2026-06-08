@@ -144,8 +144,6 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
 	end
 
 	local function updateLabel()
-		print("Updating label", consoleBase.Name)
-		print(UserInputService:GetLastInputType())
 		local keyText = ""
 
 		if UserInputService.GamepadEnabled then
