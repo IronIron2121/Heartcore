@@ -353,8 +353,20 @@ function DataManager.MarkMessageSeen(player: Player, messageName: string)
 		warn("No profile at MarkMessageSeen") 
 		return 
 	end
+
 	print("Marking message ", messageName, "seen")
 	profile.Data.SeenMessages[messageName] = true
+end
+
+function DataManager.MarkMessageUnseen(player: Player, messageName: string)
+	local profile = DataManager.Profiles[player]
+	if not profile then
+		warn("No profile at MarkMessageUnseen")
+		return
+	end
+
+	print("Marking message ", messageName, "unseen")
+	profile.Data.SeenMessages[messageName] = false
 end
 
 function DataManager.ResetSeenMessages(player: Player)
