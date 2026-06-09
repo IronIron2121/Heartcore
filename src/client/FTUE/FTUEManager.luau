@@ -23,6 +23,7 @@ local FTUE_STEPS: { { name: string, msg: string } } = {
     { name = "Dresses & Skirts", msg = "Equip a dress" },
     { name = "Tops", msg = "Equip a top" },
     { name = "Bottoms", msg = "Equip some bottoms" },
+    { name = "Artists", msg = "Get an item from our artists"},
     { name = "Hair", msg = "Get a new hairdo" },
     { name = "Accessories", msg = "Time to accessorise" },
 }

@@ -10,7 +10,6 @@ local savedCameraCFrame: CFrame         	= CFrame.identity
 local defaultFov: number 					= 70
 
 function ClientCameraController.activate(cframe: CFrame, fov: number?)
-	print("ACTIVATING camera view")
 	local camera = workspace.CurrentCamera
 	savedCameraType   = camera.CameraType
 	savedCameraCFrame = camera.CFrame
