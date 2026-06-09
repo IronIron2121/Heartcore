@@ -632,7 +632,7 @@ function GuiManager.PushMessageCentre(messageName: string, message: string, clos
         if closeCb then closeCb() end
     end)
 
-    task.delay(10, peek(messageCloseCallback))
+    task.delay(5, peek(messageCloseCallback))
 end
 
 

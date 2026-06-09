@@ -49,23 +49,35 @@ function ImageButton(
 	local isHovering = scope:Value(false)
 	local isHeldDown = scope:Value(false)
 
-	local imageColor = props.imageColor3 or UI_CONSTANTS.COLOUR_WHITE
+	-- local imageColor = props.imageColor3 or UI_CONSTANTS.COLOUR_WHITE
 
-	local imageColorSpring = scope:Spring(
-		scope:Computed(function(use)
-			local baseColor = use(imageColor)
+	-- local imageColorSpring = scope:Spring(
+	-- 	scope:Computed(function(use)
+	-- 		local baseColor = use(imageColor)
 
-			if use(isHeldDown) then
-				return baseColor:Lerp(COLOUR_ORANGE, 0.8)
-			elseif use(isHovering) then
-				return baseColor:Lerp(COLOUR_ORANGE, 0.25)
-			else
-				return baseColor
-			end
-		end),
-		20,
-		1
-	)
+	-- 		if use(isHeldDown) then
+	-- 			return baseColor:Lerp(COLOUR_ORANGE, 0.8)
+	-- 		elseif use(isHovering) then
+	-- 			return baseColor:Lerp(COLOUR_ORANGE, 0.25)
+	-- 		else
+	-- 			return baseColor
+	-- 		end
+	-- 	end),
+	-- 	20,
+	-- 	1
+	-- )
+
+
+	-- local rotationSpring = scope:Spring(
+	-- 	scope:Computed(function(use)
+	-- 		if use(isHovering) then
+	-- 			return 30
+	-- 		else
+	-- 			return 0
+	-- 		end
+	-- 	end),
+	-- 	20
+	-- )
 
 	local button = scope:New "ImageButton" {
 		Name = props.name or "ImageButton",
@@ -75,7 +87,7 @@ function ImageButton(
 		AnchorPoint = props.anchorPoint or Vector2.new(0.5, 0.5),
 		Position = props.position or UDim2.fromScale(0.5, 0.5),
 		Size = props.size or UDim2.fromScale(0.5, 0.5),
-		ImageColor3 = imageColorSpring,
+		--ImageColor3 = imageColorSpring,
 		BackgroundTransparency = 1,
 		LayoutOrder = props.layoutOrder or 1,
 		ZIndex = props.zIndex or 1,
@@ -102,6 +114,17 @@ function ImageButton(
 			isHovering:set(false)
 			isHeldDown:set(false)
 		end,
+
+		Rotation = scope:Spring(
+					scope:Computed(function(use)
+						if use(isHovering) then
+							return 30
+						else
+							return 0
+						end
+					end),
+					BG_FADE_SPEED
+				),
 
 		[Children] = {
 			scope:New "UIAspectRatioConstraint" {
