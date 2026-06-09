@@ -195,6 +195,11 @@ local Constants = {
         ["BottomRight"] = "BottomRight",
     },
 
+	MESSAGE_KEYS = {
+		["FTUE_KEY"] = "ftueCompleted"
+
+	},
+
 	WARDROBE_GUI_STATES = {
 		InspectFrame = "if",
 	},

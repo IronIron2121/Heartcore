@@ -17,15 +17,14 @@ local peek = Fusion.peek
 
 --
 
-local FTUE_KEY = "ftueCompleted"
 
-local FTUE_STEPS: { { name: string } } = {
-    { name = "Body" },
-    { name = "Dresses & Skirts" },
-    { name = "Tops" },
-    { name = "Bottoms" },
-    { name = "Hair" },
-    { name = "Accessories" },
+local FTUE_STEPS: { { name: string, msg: string } } = {
+    { name = "Body", msg = "Equip a body"},
+    { name = "Dresses & Skirts", msg = "Equip a dress" },
+    { name = "Tops", msg = "Equip a top" },
+    { name = "Bottoms", msg = "Equip some bottoms" },
+    { name = "Hair", msg = "Get a new hairdo" },
+    { name = "Accessories", msg = "Time to accessorise" },
 }
 
 local FTUEManager = {}
@@ -36,7 +35,7 @@ local ftueCompleted = false
 local ftueCheckDone = false
 
 task.spawn(function()
-    ftueCompleted = IsMessageSeenRF:InvokeServer(FTUE_KEY)
+    ftueCompleted = IsMessageSeenRF:InvokeServer(Constants.MESSAGE_KEYS.FTUE_KEY)
     ftueCheckDone = true
     print("FTUE completed?", ftueCompleted)
 end)
@@ -48,6 +47,12 @@ local function showBeamForStep()
         if (part :: BasePart).Name == step.name then
             PointerManager.startBeam(part :: BasePart)
             PointerManager.ShowBeam()
+            GuiManager.QueueMessage(
+                step.name, 
+                step.msg,
+                nil,
+                2
+            )
             return
         end
     end
@@ -76,7 +81,7 @@ function FTUEManager.onCatalogOpened(consoleName: string)
         print("FTUE COMPLETE!")
         active = false
         PointerManager.endBeam()
-        MarkMessageSeenRE:FireServer(FTUE_KEY)
+        MarkMessageSeenRE:FireServer(Constants.MESSAGE_KEYS.FTUE_KEY)
         ftueCompleted = true
     end
 end

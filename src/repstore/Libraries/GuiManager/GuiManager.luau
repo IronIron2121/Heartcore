@@ -520,7 +520,7 @@ local notificationMessageContainer = guiScope:New "Frame" {
             HorizontalAlignment = Enum.HorizontalAlignment.Center,
             VerticalAlignment = Enum.VerticalAlignment.Center,
         },
-        guiScope:New "UICorner" {
+        guiScope:New "UICorner" { 
             CornerRadius = UDim.new(0.05, 0)
         },
         guiScope:New "UIPadding" {
@@ -619,7 +619,7 @@ function GuiManager.PushNotificationCentre(notificationName: string, message: st
     notificationActive:set(true)
 end
 
-function GuiManager.PushMessageCentre(messageName: string, message: string, closeCb: (() -> ())?)
+function GuiManager.PushMessageCentre(messageName: string, message: string, closeCb: (() -> ())?, messageLength: number?)
     if peek(messageActive) then
         warn("Message already active!")
         return
@@ -632,7 +632,7 @@ function GuiManager.PushMessageCentre(messageName: string, message: string, clos
         if closeCb then closeCb() end
     end)
 
-    task.delay(5, peek(messageCloseCallback))
+    task.delay(messageLength or 5, peek(messageCloseCallback))
 end
 
 
@@ -642,11 +642,21 @@ function GuiManager.PopMessage()
     messageCloseCallback:set(function() end)
 end
 
-function GuiManager.QueueMessage(messageName: string, message: string, closeCb: (() -> ())?)
+function GuiManager.QueueMessage(messageName: string, message: string, closeCb: (() -> ())?, messageLength: number?)
     if peek(CentreActive) then
-        table.insert(messageQueue, {messageName = messageName, message = message, closeCb = closeCb})
+        table.insert(messageQueue, {
+            messageName = messageName, 
+            message = message, 
+            closeCb = closeCb, 
+            messageLength = messageLength
+        })
     else
-        GuiManager.PushMessageCentre(messageName, message, closeCb)
+        GuiManager.PushMessageCentre(
+            messageName, 
+            message, 
+            closeCb, 
+            messageLength
+        )
     end
 end
 

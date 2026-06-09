@@ -9,11 +9,13 @@ local Remotes               = ReplicatedStorage:WaitForChild("Remotes")
 local DataFolder            = ServerScriptService:WaitForChild("Data")
 
 -- Modules
+local Constants             = require(ReplicatedStorage.Constants)
 local DataManager           = require(DataFolder.DataManager)
 
 -- Remotes
 local IsMessageSeenRF       = Remotes.IsMessageSeenRF
 local MarkMessageSeenRE     = Remotes.MarkMessageSeenRE
+local ResetFtueRE           = Remotes.ResetFtueRE
 
 --
 
@@ -22,6 +24,9 @@ IsMessageSeenRF.OnServerInvoke = function(player: Player, messageName: string): 
 end
 
 MarkMessageSeenRE.OnServerEvent:Connect(function(player: Player, messageName: string)
-    print("Received message to mark ", messageName, "seen for player", player.Name)
     DataManager.MarkMessageSeen(player, messageName)
+end)
+
+ResetFtueRE.OnServerEvent:Connect(function(player: Player, ...)
+    DataManager.MarkMessageUnseen(player, Constants.MESSAGE_KEYS.FTUE_KEY)
 end)
