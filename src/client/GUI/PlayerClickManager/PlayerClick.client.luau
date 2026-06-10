@@ -24,7 +24,7 @@ local OnEvent       = Fusion.OnEvent
 local localPlayer = Players.LocalPlayer
 local hoverHighlight = Instance.new("Highlight", script)
 hoverHighlight.Name = "Hover_Highlight"
-hoverHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_PURPLE
+hoverHighlight.FillColor = UI_CONSTANTS.TASTEMAKER_GREEN
 
 -- Constants
 local CLICK_DETECTOR_NAME = "OD"
