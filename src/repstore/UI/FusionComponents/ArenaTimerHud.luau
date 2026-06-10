@@ -20,7 +20,7 @@ local timerVisible = scope:Value(false)
 
 local timerColor = scope:Computed(function(use)
 	return use(timerCount) <= 3
-		and Color3.fromRGB(255, 80, 80)
+		and UI_CONSTANTS.TASTEMAKER_PINK
 		or  UI_CONSTANTS.TASTEMAKER_PURPLE
 end)
 
