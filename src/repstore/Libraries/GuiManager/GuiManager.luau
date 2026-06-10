@@ -207,9 +207,12 @@ local _MessageGui = guiScope:New "ScreenGui" {
 -- —— Transitions ————————————————————————————————————————————————————————————————
 local tweenTime = Constants.TransitionTweenTime
 
+local minTTextSize = 1
+local maxTTextSize = 100
+local transitionTextSize = guiScope:Value(minTTextSize)
 local messageValue = guiScope:Value("")
 local messageLabel = guiScope:New "TextLabel" {
-    Name = "textLabel",
+    Name = "transitionTextLabel",
     Size = UDim2.fromScale(1, 1),
     BackgroundTransparency = 1,
     AnchorPoint = Vector2.new(0.5, 0.5),
@@ -217,8 +220,9 @@ local messageLabel = guiScope:New "TextLabel" {
     TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
     FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
     Text = messageValue,
+    TextSize = guiScope:Tween(transitionTextSize),
     TextWrapped = false,
-    TextScaled = true,
+    TextScaled = false,
     ZIndex = 1,
     [Children] = {
         guiScope:New "UIStroke" {
@@ -337,9 +341,10 @@ local countdownColor    = guiScope:Value(UI_CONSTANTS.TASTEMAKER_PINK)
 local countdownVisible  = guiScope:Value(false)
 local countdownSize     = guiScope:Value(UDim2.fromScale(0.25, 0.25))
 local countdownRotation = guiScope:Value(0)
+local countdownTransparency = guiScope:Value(1)
 local countdownLabel = guiScope:New "TextLabel" {
     Name = "countdownLabel",
-    BackgroundTransparency = 0,
+    BackgroundTransparency = countdownTransparency,
     Text = countdownText,
     Size = guiScope:Spring(countdownSize, 14, 0.55),
     Rotation = guiScope:Spring(countdownRotation, 14, 0.55),
@@ -402,7 +407,6 @@ local countdownContainer = guiScope:New "Frame" {
     Position = UDim2.fromScale(0.5, 0.5),
     ZIndex = 1,
     [Children] = {
-
         roundStartsLabel,
         countdownLabel
     }
@@ -643,7 +647,7 @@ function GuiManager.PopMessage()
 end
 
 function GuiManager.QueueMessage(messageName: string, message: string, closeCb: (() -> ())?, messageLength: number?)
-    if peek(CentreActive) then
+    if peek(CentreActive) or peek(messageActive) then
         table.insert(messageQueue, {
             messageName = messageName, 
             message = message, 
@@ -788,24 +792,27 @@ function GuiManager.doTransition(phaseName: string)
     end
 
     messageSize:set(messageSizes.IN)
+    transitionTextSize:set(maxTTextSize)
     transitionMessageVisible:set(true)
 
     task.wait(tweenTime)
 
 
     if phaseName == GameStates.Dressing.name then
+        transitionTextSize:set(minTTextSize)
         messageSize:set(messageSizes.OUT)
         task.wait(tweenTime)
         messageValue:set("Theme is: " .. peek(GameStateValues.themeName))
         messageSize:set(messageSizes.IN)
+        transitionTextSize:set(maxTTextSize)
         task.wait(tweenTime * 2)
     end
 
     -- —— POST-TRANSITION ——————————————————————————————————————————————————————————————————————
-
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
     transitionMessagePosition:set(transitionMessagePositions.OUT)
+    transitionTextSize:set(minTTextSize)
     messageSize:set(messageSizes.OUT)
 
     TransitionCompleted:Fire(phaseName)
@@ -821,15 +828,29 @@ function GuiManager.doTransition(phaseName: string)
                 humanoid.JumpPower = 0
             end
 
-            for ticks = Constants.VOTING_PREAMBLE_LENGTH, 1, -1 do
-                countdownText:set(tostring(ticks))
+            local waitTime
+            for ticks = Constants.DRESSING_PREAMBLE_LENGTH, 1, -1 do
+                if ticks == 5 then
+                    waitTime = 1.5
+                    countdownTransparency:set(1)
+                    countdownText:set("Ready?")
+                elseif ticks == 1 then
+                    waitTime = 0.5
+                    countdownTransparency:set(1)
+                    countdownText:set("Go!")
+                else
+                    waitTime = 1
+                    countdownTransparency:set(0)
+                    countdownText:set(tostring(ticks - 1))
+                end
+
                 countdownSize:set(UDim2.fromScale(0.4, 0.4))
                 countdownRotation:set(15)
                 task.delay(0.08, function()
                     countdownSize:set(UDim2.fromScale(0.25, 0.25))
                     countdownRotation:set(0)
                 end)
-                task.wait(1)
+                task.wait(waitTime)
             end
 
             if humanoid then
@@ -839,11 +860,6 @@ function GuiManager.doTransition(phaseName: string)
             countdownVisible:set(false)
             countdownSize:set(UDim2.fromScale(0.25, 0.25))
             countdownRotation:set(0)
-            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
-            GuiManager.QueueMessage(
-                "dress_tutorial", 
-                "Go to each catalog station to build your fit."
-            )
 
         end)
             

@@ -39,8 +39,8 @@ function CategoryFrame(
 		searchAssetCategories: Fusion.Value<{Enum.AvatarAssetType}>,
 		searchBundleCategories: Fusion.Value<{Enum.BundleType}>,
 		searchCallback: () -> (),
-		editorsPickCallback: () -> (),
-		editorsPickSelected: Fusion.Value<boolean>,
+		artistCallback: (artistName: string?) -> (),
+		artistSelected: Fusion.Value<boolean>,
 		allowedTopCategories: Fusion.Value<{string}?>?,
 		selectedTopCategory: Fusion.Value<string?>,
 		currentSubCategories: Fusion.Value<{ TopCategories.SubCategoryEntry }>,
@@ -52,7 +52,7 @@ function CategoryFrame(
 	local selectedSubCategory  = scope:Value(nil :: string?)
 
 	local allSelected = scope:Computed(function(use)
-		return use(props.selectedTopCategory) == nil and not use(props.editorsPickSelected)
+		return use(props.selectedTopCategory) == nil and not use(props.artistSelected)
 	end)
 
 	-- ─── Helpers ─────────────────────────────────────────────────────────
@@ -63,6 +63,7 @@ function CategoryFrame(
 		props.currentSubCategories:set({})
 		props.searchAssetCategories:set({})
 		props.searchBundleCategories:set({})
+		props.artistSelected:set(false)
 		props.searchCallback()
 	end
 
@@ -70,26 +71,35 @@ function CategoryFrame(
 		props.selectedTopCategory:set(entry.name)
 		selectedSubCategory:set(nil)
 		props.currentSubCategories:set(entry.subCategories)
-		props.editorsPickSelected:set(false)
-		props.searchAssetCategories:set(entry.assetTypes)
-		props.searchBundleCategories:set(entry.bundleTypes)
-		props.searchCallback()
+		props.artistSelected:set(false)
+		if entry.name == "Artists" then
+			-- Keep the console's asset type filter; don't override it
+			props.artistCallback(nil)
+		else
+			props.searchAssetCategories:set(entry.assetTypes)
+			props.searchBundleCategories:set(entry.bundleTypes)
+			props.searchCallback()
+		end
 	end
 
 	local function selectSubCategory(entry: TopCategories.SubCategoryEntry)
 		selectedSubCategory:set(entry.name)
-		props.searchAssetCategories:set(entry.assetType and { entry.assetType } or {})
-		props.searchBundleCategories:set(entry.bundleType and { entry.bundleType } or {})
-		props.searchCallback()
+		if peek(props.selectedTopCategory) == "Artists" then
+			props.artistCallback(entry.name)
+		else
+			props.searchAssetCategories:set(entry.assetType and { entry.assetType } or {})
+			props.searchBundleCategories:set(entry.bundleType and { entry.bundleType } or {})
+			props.searchCallback()
+		end
 	end
 
-	-- Reactive filtered list of top categories (all four, or restricted set)
+	-- Reactive filtered list of top categories. "Artists" is always visible.
 	local visibleTopCategories = scope:Computed(function(use)
 		local allowed = props.allowedTopCategories and use(props.allowedTopCategories)
 		if not allowed then return TopCategories end
 		local filtered: { TopCategories.TopCategoryEntry } = {}
 		for _, entry in TopCategories do
-			if table.find(allowed, entry.name) then
+			if table.find(allowed, entry.name) or entry.name == "Artists" then
 				table.insert(filtered, entry)
 			end
 		end
@@ -172,25 +182,6 @@ function CategoryFrame(
 						end),
 					}),
 
-					CategoryButton(scope, {
-						text = "Editor's Pick",
-						size = UI_CONSTANTS.CATEGORY_BUTTON_SIZE,
-						layoutOrder = 2,
-						isSelected = props.editorsPickSelected,
-						visible = scope:Computed(function(use)
-							return not (props.allowedTopCategories and use(props.allowedTopCategories))
-						end),
-						onActivated = function()
-							if peek(props.editorsPickSelected) then
-								selectAll()
-							else
-								props.selectedTopCategory:set(nil)
-								selectedSubCategory:set(nil)
-								props.currentSubCategories:set({})
-								props.editorsPickCallback()
-							end
-						end,
-					}),
 
 					scope:ForValues(visibleTopCategories, function(use, innerScope, entry)
 						local isSelected = innerScope:Computed(function(use)

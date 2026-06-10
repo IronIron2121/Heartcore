@@ -121,7 +121,7 @@ local function InitialiseHuds()
     )
     local hudScope = Fusion:scoped()
     local expHud = ExpHud(hudScope, { Size = UDim2.fromScale(1, 0.5) })
-    local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
+    --local openDailyChallengesButton = OpenDailyChallengeGuiButton(hudScope)
     
     local openWardrobeButton = OpenWardrobeButton(hudScope, {
         onClick = function()
@@ -326,12 +326,18 @@ local function InitialiseHuds()
             GameLoopConfig.bottomRightEnabled:set(false)
             IntermissionConfig.topMiddleEnabled:set(true)
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
-            FTUEManager.startRound()
-            task.delay(Constants.VOTING_PREAMBLE_LENGTH, function()
+
+            task.delay(Constants.DRESSING_PREAMBLE_LENGTH, function()
                 GameLoopConfig.topMiddleEnabled:set(true)
                 GameLoopConfig.bottomMiddleEnabled:set(true)
                 GameLoopConfig.bottomRightEnabled:set(true)
-
+                GuiManager.QueueMessage(
+                    "dress_tutorial", 
+                    "Go to each catalog station to build your fit.",
+                    nil,
+                    3
+                )
+                FTUEManager.startRound()
             end)
         end
     end)

@@ -143,6 +143,7 @@ local function setupCustomPromptUI(prompt: ProximityPrompt, consoleBase: Part)
 		end
 	end
 
+	-- Update label based on player's current input
 	local function updateLabel()
 		local keyText = ""
 
