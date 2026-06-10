@@ -171,7 +171,7 @@ local Constants = {
 		78
 	},
 
-	VOTING_PREAMBLE_LENGTH = 3,
+	DRESSING_PREAMBLE_LENGTH = 5,
 
 	QUERY_ATTEMPTS = 3,
 

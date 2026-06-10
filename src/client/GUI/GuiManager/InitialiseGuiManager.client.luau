@@ -327,7 +327,7 @@ local function InitialiseHuds()
             IntermissionConfig.topMiddleEnabled:set(true)
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
 
-            task.delay(Constants.VOTING_PREAMBLE_LENGTH, function()
+            task.delay(Constants.DRESSING_PREAMBLE_LENGTH, function()
                 GameLoopConfig.topMiddleEnabled:set(true)
                 GameLoopConfig.bottomMiddleEnabled:set(true)
                 GameLoopConfig.bottomRightEnabled:set(true)

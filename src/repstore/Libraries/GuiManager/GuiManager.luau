@@ -341,9 +341,10 @@ local countdownColor    = guiScope:Value(UI_CONSTANTS.TASTEMAKER_PINK)
 local countdownVisible  = guiScope:Value(false)
 local countdownSize     = guiScope:Value(UDim2.fromScale(0.25, 0.25))
 local countdownRotation = guiScope:Value(0)
+local countdownTransparency = guiScope:Value(1)
 local countdownLabel = guiScope:New "TextLabel" {
     Name = "countdownLabel",
-    BackgroundTransparency = 0,
+    BackgroundTransparency = countdownTransparency,
     Text = countdownText,
     Size = guiScope:Spring(countdownSize, 14, 0.55),
     Rotation = guiScope:Spring(countdownRotation, 14, 0.55),
@@ -827,15 +828,29 @@ function GuiManager.doTransition(phaseName: string)
                 humanoid.JumpPower = 0
             end
 
-            for ticks = Constants.VOTING_PREAMBLE_LENGTH, 1, -1 do
-                countdownText:set(tostring(ticks))
+            local waitTime
+            for ticks = Constants.DRESSING_PREAMBLE_LENGTH, 1, -1 do
+                if ticks == 5 then
+                    waitTime = 1.5
+                    countdownTransparency:set(1)
+                    countdownText:set("Ready?")
+                elseif ticks == 1 then
+                    waitTime = 0.5
+                    countdownTransparency:set(1)
+                    countdownText:set("Go!")
+                else
+                    waitTime = 1
+                    countdownTransparency:set(0)
+                    countdownText:set(tostring(ticks - 1))
+                end
+
                 countdownSize:set(UDim2.fromScale(0.4, 0.4))
                 countdownRotation:set(15)
                 task.delay(0.08, function()
                     countdownSize:set(UDim2.fromScale(0.25, 0.25))
                     countdownRotation:set(0)
                 end)
-                task.wait(1)
+                task.wait(waitTime)
             end
 
             if humanoid then
