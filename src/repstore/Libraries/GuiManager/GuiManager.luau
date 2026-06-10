@@ -842,6 +842,9 @@ function GuiManager.doTransition(phaseName: string)
                     waitTime = 1
                     countdownTransparency:set(0)
                     countdownText:set(tostring(ticks - 1))
+                    local tickColour = ticks == 4 and UI_CONSTANTS.INVALID_RED or ticks == 3 and UI_CONSTANTS.COLOUR_ORANGE or Color3.new(0,1, 0)
+                    countdownColor:set(tickColour)
+
                 end
 
                 countdownSize:set(UDim2.fromScale(0.4, 0.4))
