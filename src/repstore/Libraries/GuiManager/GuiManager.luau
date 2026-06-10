@@ -207,9 +207,12 @@ local _MessageGui = guiScope:New "ScreenGui" {
 -- —— Transitions ————————————————————————————————————————————————————————————————
 local tweenTime = Constants.TransitionTweenTime
 
+local minTTextSize = 1
+local maxTTextSize = 100
+local transitionTextSize = guiScope:Value(minTTextSize)
 local messageValue = guiScope:Value("")
 local messageLabel = guiScope:New "TextLabel" {
-    Name = "textLabel",
+    Name = "transitionTextLabel",
     Size = UDim2.fromScale(1, 1),
     BackgroundTransparency = 1,
     AnchorPoint = Vector2.new(0.5, 0.5),
@@ -217,8 +220,9 @@ local messageLabel = guiScope:New "TextLabel" {
     TextColor3 = UI_CONSTANTS.COLOUR_WHITE,
     FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
     Text = messageValue,
+    TextSize = guiScope:Tween(transitionTextSize),
     TextWrapped = false,
-    TextScaled = true,
+    TextScaled = false,
     ZIndex = 1,
     [Children] = {
         guiScope:New "UIStroke" {
@@ -402,7 +406,6 @@ local countdownContainer = guiScope:New "Frame" {
     Position = UDim2.fromScale(0.5, 0.5),
     ZIndex = 1,
     [Children] = {
-
         roundStartsLabel,
         countdownLabel
     }
@@ -643,7 +646,7 @@ function GuiManager.PopMessage()
 end
 
 function GuiManager.QueueMessage(messageName: string, message: string, closeCb: (() -> ())?, messageLength: number?)
-    if peek(CentreActive) then
+    if peek(CentreActive) or peek(messageActive) then
         table.insert(messageQueue, {
             messageName = messageName, 
             message = message, 
@@ -788,24 +791,27 @@ function GuiManager.doTransition(phaseName: string)
     end
 
     messageSize:set(messageSizes.IN)
+    transitionTextSize:set(maxTTextSize)
     transitionMessageVisible:set(true)
 
     task.wait(tweenTime)
 
 
     if phaseName == GameStates.Dressing.name then
+        transitionTextSize:set(minTTextSize)
         messageSize:set(messageSizes.OUT)
         task.wait(tweenTime)
         messageValue:set("Theme is: " .. peek(GameStateValues.themeName))
         messageSize:set(messageSizes.IN)
+        transitionTextSize:set(maxTTextSize)
         task.wait(tweenTime * 2)
     end
 
     -- —— POST-TRANSITION ——————————————————————————————————————————————————————————————————————
-
     leftWingPos:set(leftWingPositions.OUT)
     rightWingPos:set(rightWingPositions.OUT)
     transitionMessagePosition:set(transitionMessagePositions.OUT)
+    transitionTextSize:set(minTTextSize)
     messageSize:set(messageSizes.OUT)
 
     TransitionCompleted:Fire(phaseName)
@@ -839,11 +845,6 @@ function GuiManager.doTransition(phaseName: string)
             countdownVisible:set(false)
             countdownSize:set(UDim2.fromScale(0.25, 0.25))
             countdownRotation:set(0)
-            GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
-            GuiManager.QueueMessage(
-                "dress_tutorial", 
-                "Go to each catalog station to build your fit."
-            )
 
         end)
             

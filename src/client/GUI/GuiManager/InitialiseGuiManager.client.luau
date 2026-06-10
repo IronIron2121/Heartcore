@@ -326,6 +326,10 @@ local function InitialiseHuds()
             GameLoopConfig.bottomRightEnabled:set(false)
             IntermissionConfig.topMiddleEnabled:set(true)
             GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.GameLoopConfig)
+            GuiManager.QueueMessage(
+                "dress_tutorial", 
+                "Go to each catalog station to build your fit."
+            )
             FTUEManager.startRound()
             task.delay(Constants.VOTING_PREAMBLE_LENGTH, function()
                 GameLoopConfig.topMiddleEnabled:set(true)
