@@ -34,6 +34,7 @@ local function createDropdownDisplay(
 		Name = "DropdownDisplay",
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		IgnoreGuiInset = true,
+		DisplayOrder = 6,
 
 		[Children] = {
 			-- Input sink (click outside to close)

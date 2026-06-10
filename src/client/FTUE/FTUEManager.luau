@@ -79,7 +79,6 @@ function FTUEManager.onCatalogOpened(consoleName: string)
     if consoleName ~= FTUE_STEPS[currentStep].name then return end
     currentStep += 1
     if currentStep > #FTUE_STEPS then
-        print("FTUE COMPLETE!")
         active = false
         PointerManager.endBeam()
         MarkMessageSeenRE:FireServer(Constants.MESSAGE_KEYS.FTUE_KEY)
