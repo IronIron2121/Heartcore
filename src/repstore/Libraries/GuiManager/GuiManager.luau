@@ -17,9 +17,9 @@ type ModalEntry = {
 	callback: ((any?) -> ())?,
 }
 
-local TWEEN_LENGTH = 0.25
+local TWEEN_LENGTH = 0.4
 local ON_SCREEN_POSITION = UDim2.fromScale(0.5, 0.5)
-local OFF_SCREEN_POSITION = UDim2.fromScale(0.5, 1.65)
+local OFF_SCREEN_POSITION = UDim2.fromScale(0.5, 3)
 
 local guiScope = Fusion:scoped()
 local localPlayer = Players.LocalPlayer
@@ -41,7 +41,7 @@ local modalPosition = guiScope:Computed(function(use)
 end)
 
 local blurSize = guiScope:Computed(function(use)
-	return if use(centreActive) then 16 else 0
+	return if use(centreActive) then 24 else 0
 end)
 
 local hudContainer = guiScope:New "ScreenGui" {

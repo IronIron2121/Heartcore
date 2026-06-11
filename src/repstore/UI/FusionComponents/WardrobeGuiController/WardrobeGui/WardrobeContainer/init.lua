@@ -32,8 +32,8 @@ return function(scope: Fusion.Scope)
 		BackgroundTransparency = 1,
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 		BorderSizePixel = 0,
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromScale(0.95, 0.9),
+		Position = UDim2.fromScale(0.5, 0.4),
+		Size = UDim2.fromScale(0.95, 0.8), 
 		
 		[Children] = {
             CloseButton(scope, {

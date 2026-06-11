@@ -231,6 +231,15 @@ After making a correction that reveals a recurring or non-obvious mistake, updat
 
 ## Common Gotchas
 
+**Catalog button HUD wiring:**
+- The catalog button is hidden by the `GuiConfiguration` slot system, not by wiring it directly to `GuiManager.GetCentreActiveValue()`
+- Keep `OpenWardrobeButton` inside a HUD frame registered as `middleRight` on the active config; `GuiManager.PushCentreByName()` calls `HideCurrentConfiguration()`, and `PopCentre()` calls `ShowCurrentConfiguration()`
+- When stripping game-loop code, preserve `GuiConfiguration` slot behavior (`Enabled`, `ModalVisible`, `ForceHidden`, per-slot enabled Values, and reparent-on-`Enable()`) if any catalog HUD button still needs to slide/hide around modals
+
+**Modal manager geometry:**
+- Preserve the original modal container resting geometry: on-screen at `UDim2.fromScale(0.5, 0.5)`, off-screen at `UDim2.fromScale(0.5, 3)`, with the delay matching the modal tween length
+- Do not shorten the off-screen position when stripping systems; the modal can hang visibly near the edge of the viewport during close/open transitions
+
 **Watch for typo:** `odtfitId` → `outfitId` (avoid this common mistake)
 
 **Roblox API:**

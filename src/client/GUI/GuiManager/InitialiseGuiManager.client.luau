@@ -2,12 +2,13 @@
 
 -- Catalog-only GUI bootstrap for a plain baseplate project.
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
+local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiController")
 
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
@@ -15,13 +16,13 @@ local AvatarEditorController = require(WardrobeGuiController.AvatarEditorControl
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
 local WardrobeGuiState = require(WardrobeGuiController.WardrobeGuiState)
 local OpenWardrobeButton = require(FusionComponents.OpenWardrobeButton)
-local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
-local MODAL_NAMES = require(ReplicatedStorage.Libraries.GuiManager.MODAL_NAMES)
+local CONFIGURATION_NAMES = require(GuiManagerLibrary.CONFIGURATION_NAMES)
+local GuiConfiguration = require(GuiManagerLibrary.GuiConfiguration)
+local GuiManager = require(GuiManagerLibrary.GuiManager)
+local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 
 local Children = Fusion.Children
-
-local localPlayer = Players.LocalPlayer
 local modalScope = Fusion:scoped()
 local hudScope = Fusion:scoped()
 local controllers: {[string]: any} = {}
@@ -55,28 +56,36 @@ local function initialiseHud()
 		onClick = openCatalog,
 	})
 
-	hudScope:New "ScreenGui" {
-		Name = "CatalogHud",
-		DisplayOrder = 10,
-		IgnoreGuiInset = true,
-		Parent = localPlayer:WaitForChild("PlayerGui"),
-		ResetOnSpawn = false,
-		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+	local buttonsFrame = hudScope:New "Frame" {
+		Name = "CatalogButtonsFrame",
+		AnchorPoint = Vector2.new(1, 0.5),
+		BackgroundTransparency = 1,
+		Position = UDim2.fromScale(1, 0.5),
+		Size = UDim2.fromScale(1, 1),
 
 		[Children] = {
-			hudScope:New "Frame" {
-				Name = "CatalogButtonContainer",
-				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundTransparency = 1,
-				Position = UDim2.fromScale(0.975, 0.5),
-				Size = UDim2.fromOffset(96, 96),
-
-				[Children] = {
-					openWardrobeButton,
-				},
+			hudScope:New "UIListLayout" {
+				FillDirection = Enum.FillDirection.Vertical,
+				HorizontalAlignment = Enum.HorizontalAlignment.Center,
+				Padding = UDim.new(0.15, 0),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
 			},
+
+			openWardrobeButton,
 		},
 	}
+
+	local catalogConfig = GuiConfiguration.new({
+		ConfigurationName = CONFIGURATION_NAMES.CatalogConfig,
+		middleRight = {
+			Object = buttonsFrame,
+			AlwaysOn = false,
+		},
+	})
+
+	GuiManager.RegisterConfiguration(catalogConfig)
+	GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.CatalogConfig)
 end
 
 initialiseModals()
