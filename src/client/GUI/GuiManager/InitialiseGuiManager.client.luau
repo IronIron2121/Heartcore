@@ -335,7 +335,7 @@ local function InitialiseHuds()
                     "dress_tutorial", 
                     "Go to each catalog station to build your fit.",
                     nil,
-                    3
+                    4
                 )
                 FTUEManager.startRound()
             end)
