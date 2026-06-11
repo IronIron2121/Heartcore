@@ -18,6 +18,23 @@ export type TopCategoryEntry = {
 
 local TopCategories: { TopCategoryEntry } = {
 	{
+		name = "Artists",
+		assetTypes = {},
+		bundleTypes = {},
+		subCategories = {
+			{ name = "0207" },
+			{ name = "Aurora" },
+			{ name = "CHAOS RECORDS" },
+			{ name = "GLASS ANIMALS" },
+			{ name = "ISLAND RECORDS" },
+			{ name = "Jazzy" },
+			{ name = "KISS" },
+			{ name = "SIGRID" },
+			{ name = "STORMZY" },
+			{ name = "TLDP" },
+		},
+	},
+	{
 		name = "Tops",
 		assetTypes = {
 			Enum.AvatarAssetType.TShirtAccessory,
@@ -101,23 +118,7 @@ local TopCategories: { TopCategoryEntry } = {
 		bundleTypes = {},
 		subCategories = {},
 	},
-	{
-		name = "Artists",
-		assetTypes = {},
-		bundleTypes = {},
-		subCategories = {
-			{ name = "0207" },
-			{ name = "Aurora" },
-			{ name = "CHAOS RECORDS" },
-			{ name = "GLASS ANIMALS" },
-			{ name = "ISLAND RECORDS" },
-			{ name = "Jazzy" },
-			{ name = "KISS" },
-			{ name = "SIGRID" },
-			{ name = "STORMZY" },
-			{ name = "TLDP" },
-		},
-	},
+
 
 }
 

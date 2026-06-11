@@ -11,20 +11,7 @@ local ImageUris = {}
 local assets = {
 	OutfitCatalogButton = "139941028437891",
 	CloseButton = "80352400443696",
-	ConfirmButton = "137275759314686",
-	StopwatchIcon = "73600277679991",
 	RobuxIcon = "81055682730978",
-	ExpBar = "103356501814362",
-	ClaimButton = "140623730526268",
-	ClaimedButton = "71218500167955",
-	DailyChallengeButton = "93273619202001",
-	VoteButton = "137550678558366",
-	TrashButton = "72654613290117",
-	ViewportBackground = "75117962948738",
-	ViewportBG = "118393578077171",
-	Submit = "85381357674732",
-	Vote = "111631712234137",
-	TopBarBG = "78848001203719",
 	TastemakerLogo = "135120895273906"
 }
 
