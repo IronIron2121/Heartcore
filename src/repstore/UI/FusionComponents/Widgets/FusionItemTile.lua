@@ -13,7 +13,6 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
-local GameStateValues = require(ReplicatedStorage.Libraries.GameStateValues)
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
@@ -114,15 +113,7 @@ props: {
 	end
 
 	local buttonsVisible = scope:Computed(function(use)
-		if use(isActivated) or use(isHovering) then
-			if use(GameStateValues.isIntermission) then
-				return true
-			else
-				return false
-			end
-		else
-			return false
-		end
+		return use(isActivated) or use(isHovering)
 	end)
 	
 	local function activate(): ()
@@ -153,9 +144,8 @@ props: {
 	local function toggleActivationCallback(): ()
 		if peek(isActivated) then
 			return
-		elseif not peek(GameStateValues.isIntermission) then
-			onTryOnCallback()
 		end
+
 		activate()
 		task.wait(CONFIG.ACTIVATION_DURATION)
 		deactivate()
@@ -314,9 +304,7 @@ props: {
 			PriceLabel(scope, {
 				layoutOrder = 2,
 				text = priceVal,
-				visible = scope:Computed(function(use)
-					return use(GameStateValues.isIntermission)
-				end)
+				visible = true,
 			}),
 		}
 	}

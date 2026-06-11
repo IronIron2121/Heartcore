@@ -4,8 +4,6 @@
 
 -- Services
 local RepStore = game:GetService("ReplicatedStorage")
-local AvatarEditorService = game:GetService("AvatarEditorService")
-local MarketplaceService = game:GetService("MarketplaceService")
 
 -- Folders
 local Remotes = RepStore:WaitForChild("Remotes")
@@ -20,33 +18,8 @@ local PlayerPurchasedCurrentOutfit = Remotes:WaitForChild("PlayerPurchasedCurren
 local PlayerSavedTastemakerOutfit = Remotes:WaitForChild("PlayerSavedTastemakerOutfit")
 local PlayerSavedInspectedOutfit = Remotes:WaitForChild("PlayerSavedInspectedOutfit")
 local GetPlayerTastemakerOutfits = Remotes:WaitForChild("GetPlayerTastemakerOutfits")
-local PlayerPurchasedOutfit = Remotes:WaitForChild("PlayerPurchasedOutfit")
-
--- Variables
-local isCurrentlyPurchasing = false
 
 --
-
--- TODO:
-local function playerPurchasedOutfit(player: Player, outfitId: number)
-	isCurrentlyPurchasing = true
-	local outfitDetails = AvatarEditorService:GetOutfitDetails(outfitId)
-	
-	for _, asset in ipairs(outfitDetails["Assets"]) do
-		
-		local success, result = pcall(function()
-			return MarketplaceService:GetProductInfo(asset["Id"], Enum.InfoType.Asset)
-		end)
-		
-		if success then 
-			print(result) 
-		else 
-			print("None here") 
-		end
-	end
-	
-	isCurrentlyPurchasing = false
-end
 
 local function playerPurchasedCurrentOutfit(player: Player, shoppingCart: {Type: Enum.MarketplaceProductType, itemId: number})
 	ServerOutfitService.PlayerPurchasedCurrentOutfit(player, shoppingCart)
@@ -75,4 +48,3 @@ GetPlayerTastemakerOutfits.OnServerInvoke = getPlayerTastemakerOutfits
 
 PlayerSavedInspectedOutfit.OnServerEvent:Connect(playerSavedInspectedOutfit)
 PlayerSavedTastemakerOutfit.OnServerEvent:Connect(playerSavedTastemakerOutfit)
-PlayerPurchasedOutfit.OnServerEvent:Connect(playerPurchasedOutfit)

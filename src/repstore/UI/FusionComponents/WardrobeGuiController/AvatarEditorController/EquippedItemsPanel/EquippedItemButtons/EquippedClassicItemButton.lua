@@ -15,7 +15,6 @@ local UI_CONSTANTS 	= require(Utility:WaitForChild("UI_CONSTANTS"))
 local ImageUris 	= require(DataTables:WaitForChild("ImageUris"))
 local Fusion 		= require(Utility:WaitForChild("Fusion"))
 local Constants 	= require(ReplicatedStorage.Constants)
-local GameStateValues = require(ReplicatedStorage.Libraries.GameStateValues)
 local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 
 -- Fusion
@@ -102,9 +101,6 @@ function EquippedClassicItemButton(
 
 	-- Buy button toggle logic
 	local function toggleBuyButton()
-		if not peek(GameStateValues.isIntermission) then
-			return
-		end
 		task.spawn(function()
 			isToggled:set(true)
 			task.wait(BUY_BUTTON_DISPLAY_TIME)

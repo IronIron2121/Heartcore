@@ -15,7 +15,6 @@ local Widgets = FusionComponents:WaitForChild("Widgets")
 
 -- Modules
 local ClientCustomisationService = require(StarterPlayer.StarterPlayerScripts.Clothing.ClientCustomisationService)
-local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local LoadingScreenManager = require(ReplicatedStorage.Libraries.LoadingScreenManager)
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local ClientOutfitService = require(Utility:WaitForChild("ClientOutfitService"))

@@ -53,7 +53,7 @@ local function OpenWardrobeButton(
 		LayoutOrder = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		ZIndex = 0, 
-		Size = UDim2.fromScale(0.5,0.5),
+		Size = UDim2.fromScale(1,1),
 		AutomaticSize = Enum.AutomaticSize.X,
 		
 		Transparency = 1,
@@ -87,6 +87,8 @@ local function OpenWardrobeButton(
 		[Children] = {
 			scope:New "ImageLabel" {
 				Image = ImageUris.OutfitCatalogButton,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromScale(0.5, 0.5),
 				Size = UDim2.fromScale(1, 1),
 				BackgroundTransparency = 1,
 				Rotation = scope:Spring(
