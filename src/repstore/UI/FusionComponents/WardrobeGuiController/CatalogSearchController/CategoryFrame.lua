@@ -93,13 +93,12 @@ function CategoryFrame(
 		end
 	end
 
-	-- Reactive filtered list of top categories. "Artists" is always visible.
 	local visibleTopCategories = scope:Computed(function(use)
 		local allowed = props.allowedTopCategories and use(props.allowedTopCategories)
 		if not allowed then return TopCategories end
 		local filtered: { TopCategories.TopCategoryEntry } = {}
 		for _, entry in TopCategories do
-			if table.find(allowed, entry.name) or entry.name == "Artists" then
+			if table.find(allowed, entry.name) then
 				table.insert(filtered, entry)
 			end
 		end
