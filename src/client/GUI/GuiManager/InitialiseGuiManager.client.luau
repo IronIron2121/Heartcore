@@ -4,6 +4,8 @@
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterPlayer 	= game:GetService("StarterPlayer")
+local StarterPlayerScripts = StarterPlayer.StarterPlayerScripts
 
 -- Folders
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
@@ -13,6 +15,8 @@ local FusionComponents = UI:WaitForChild("FusionComponents")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiController")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local GUI = StarterPlayerScripts:WaitForChild("GUI")
+
 
 -- Modules
 local Constants = require(ReplicatedStorage.Constants)
@@ -28,6 +32,7 @@ local GuiConfiguration = require(GuiManagerLibrary.GuiConfiguration)
 local GuiManager = require(GuiManagerLibrary.GuiManager)
 local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local FtuePop = require(GUI.FtuePop) 
 
 -- Remotes
 local PlayerTeleportedToPlaceRE = Remotes.PlayerTeleportedToPlaceRE
@@ -51,6 +56,8 @@ end
 
 local function initialiseModals()
 	local wardrobeContainer, avatarContainer, catalogContainer = WardrobeContainer(modalScope)
+    local ftuePop = FtuePop(modalScope)
+
 
 	controllers.CatalogSearchController = CatalogSearchController.new(catalogContainer, controllers, wardrobeContainer)
 	controllers.AvatarEditorController = AvatarEditorController.new(avatarContainer, controllers)
@@ -59,6 +66,7 @@ local function initialiseModals()
 	controllers.CatalogSearchController:Initialise()
 
 	GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer)
+	GuiManager.RegisterModal(MODAL_NAMES.FTUE_GUI, wardrobeContainer)
 end
 
 local function initialiseHud()
@@ -125,6 +133,8 @@ local function initialiseHud()
 
 	GuiManager.RegisterConfiguration(catalogConfig)
 	GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.CatalogConfig)
+    GuiManager.PushCentreByName(MODAL_NAMES.FTUE_GUI)
+
 end
 
 initialiseModals()

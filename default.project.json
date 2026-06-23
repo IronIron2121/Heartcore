@@ -4,56 +4,20 @@
     "$className": "DataModel",
 
     "ReplicatedStorage": {
-      "$className": "ReplicatedStorage",
-      "$path": "src/repstore"
+        "$className": "ReplicatedStorage",
+        "$path": "src/repstore"
     },
 
     "ServerScriptService": {
       "$className": "ServerScriptService",
-
-      "ServerCustomisationServer": {
-        "$path": "src/server/Player/ServerCustomisationServer.server.lua"
-      },
-
-      "ServerOutfitService": {
-        "$path": "src/server/Player/ServerOutfitService.server.lua"
-      }
+      "$path": "src/server"
     },
 
     "StarterPlayer": {
-      "$className": "StarterPlayer",
-
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
-
-        "Clothing": {
-          "$className": "Folder",
-
-          "ClientCustomisationService": {
-            "$path": "src/client/Clothing/ClientCustomisationService.luau"
-          }
-        },
-
-        "GUI": {
-          "$className": "Folder",
-
-          "GuiManager": {
-            "$className": "Folder",
-
-            "InitialiseGuiManager": {
-              "$path": "src/client/GUI/GuiManager/InitialiseGuiManager.client.luau"
-            }
-          }
-        },
-
-        "Mannequins": {
-          "$className": "Folder",
-
-          "Inspector": {
-            "$path": "src/client/Mannequins/Inspector"
-          }
-        }
-      }
+        "$path": "src/client" 
+      } 
     },
 
     "Lighting": {
@@ -69,7 +33,6 @@
         "Technology": "Voxel"
       }
     },
-
     "SoundService": {
       "$properties": {
         "RespectFilteringEnabled": true
