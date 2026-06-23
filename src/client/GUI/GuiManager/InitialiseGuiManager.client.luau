@@ -22,6 +22,7 @@ local GUI = StarterPlayerScripts:WaitForChild("GUI")
 local Constants = require(ReplicatedStorage.Constants)
 local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
 local FusionImageButton = require(ReplicatedStorage.UI.FusionComponents.FusionImageButton)
+local callWithRetry = require(ReplicatedStorage.Utility.callWithRetry)
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
 local AvatarEditorController = require(WardrobeGuiController.AvatarEditorController)
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
@@ -106,7 +107,9 @@ local function initialiseHud()
                 "MAIN_MENU",
                 "Are you sure you want to return to the main menu?" , 
                 function()
-                    PlayerTeleportedToPlaceRE:FireServer(Constants.PLACE_IDS.MainMenu)     
+                    callWithRetry(function()
+						return PlayerTeleportedToPlaceRE:FireServer(Constants.PLACE_IDS.MainMenu)
+					end)
                 end
             )
         end,

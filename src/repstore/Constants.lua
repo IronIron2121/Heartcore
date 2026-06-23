@@ -172,7 +172,7 @@ local Constants = {
 	},
 
 	PLACE_IDS = {
-		MainMenu = nil
+		MainMenu = 139003195245869
 	},
 
 	DRESSING_PREAMBLE_LENGTH = 5,
