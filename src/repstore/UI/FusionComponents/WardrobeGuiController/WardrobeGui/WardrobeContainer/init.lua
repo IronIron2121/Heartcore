@@ -15,7 +15,6 @@ local AvatarContainer = require(script:WaitForChild("AvatarContainer"))
 local CatalogContainer = require(script:WaitForChild("CatalogContainer")) 
 local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
 
-
 -- Fusion
 local Fusion = require(Utility:WaitForChild("Fusion"))
 local Children = Fusion.Children
