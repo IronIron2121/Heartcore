@@ -171,6 +171,10 @@ local Constants = {
 		78
 	},
 
+	PLACE_IDS = {
+		MainMenu = nil
+	},
+
 	DRESSING_PREAMBLE_LENGTH = 5,
 
 	QUERY_ATTEMPTS = 3,

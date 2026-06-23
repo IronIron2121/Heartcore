@@ -2,15 +2,22 @@
 
 -- Catalog-only GUI bootstrap for a plain baseplate project.
 
+-- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+-- Folders
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
 local UI = ReplicatedStorage:WaitForChild("UI")
 local FusionComponents = UI:WaitForChild("FusionComponents")
 local GuiManagerLibrary = Libraries:WaitForChild("GuiManager")
 local WardrobeGuiController = FusionComponents:WaitForChild("WardrobeGuiController")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
+-- Modules
+local Constants = require(ReplicatedStorage.Constants)
+local ImageUris = require(ReplicatedStorage.DataTables.ImageUris)
+local FusionImageButton = require(ReplicatedStorage.UI.FusionComponents.FusionImageButton)
 local CatalogSearchController = require(WardrobeGuiController.CatalogSearchController)
 local AvatarEditorController = require(WardrobeGuiController.AvatarEditorController)
 local WardrobeContainer = require(WardrobeGuiController.WardrobeGui.WardrobeContainer)
@@ -21,6 +28,9 @@ local GuiConfiguration = require(GuiManagerLibrary.GuiConfiguration)
 local GuiManager = require(GuiManagerLibrary.GuiManager)
 local MODAL_NAMES = require(GuiManagerLibrary.MODAL_NAMES)
 local Fusion = require(Utility:WaitForChild("Fusion"))
+
+-- Remotes
+local PlayerTeleportedToPlaceRE = Remotes.PlayerTeleportedToPlaceRE
 
 local Children = Fusion.Children
 local modalScope = Fusion:scoped()
@@ -76,12 +86,41 @@ local function initialiseHud()
 		},
 	}
 
+
+	local homeButton = FusionImageButton(hudScope, {
+        anchorPoint = Vector2.new(0.5, 0.5),
+        position = UDim2.fromScale(0.5, 0.5),
+        image = ImageUris.HomeButton,
+        size = UDim2.fromScale(1, 0.5),
+        backgroundTransparency = 1,
+        onActivated = function()
+            GuiManager.PushNotificationCentre(
+                "MAIN_MENU",
+                "Are you sure you want to return to the main menu?" , 
+                function()
+                    PlayerTeleportedToPlaceRE:FireServer(Constants.PLACE_IDS.MainMenu)     
+                end
+            )
+        end,
+        children = {
+            hudScope:New "UIAspectRatioConstraint" {
+                AspectRatio = 1,
+                AspectType = Enum.AspectType.FitWithinMaxSize,
+                DominantAxis = Enum.DominantAxis.Width
+            }        
+        }
+	}) 
+
 	local catalogConfig = GuiConfiguration.new({
 		ConfigurationName = CONFIGURATION_NAMES.CatalogConfig,
 		middleRight = {
 			Object = buttonsFrame,
 			AlwaysOn = false,
 		},
+		middleLeft = {
+			Object = homeButton,
+			AlwaysOn = false
+		}
 	})
 
 	GuiManager.RegisterConfiguration(catalogConfig)
