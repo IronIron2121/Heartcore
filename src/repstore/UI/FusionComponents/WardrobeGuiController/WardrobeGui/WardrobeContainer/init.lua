@@ -14,7 +14,6 @@ local GuiManager = require(ReplicatedStorage.Libraries.GuiManager.GuiManager)
 local AvatarContainer = require(script:WaitForChild("AvatarContainer"))
 local CatalogContainer = require(script:WaitForChild("CatalogContainer")) 
 local CloseButton   = require(Widgets:WaitForChild("CloseButton"))
-local LoadingScreen = require(Widgets:WaitForChild("LoadingScreen"))
 
 
 -- Fusion
@@ -32,7 +31,7 @@ return function(scope: Fusion.Scope)
 		BackgroundTransparency = 1,
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 		BorderSizePixel = 0,
-		Position = UDim2.fromScale(0.5, 0.4),
+		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromScale(0.95, 0.8), 
 		
 		[Children] = {

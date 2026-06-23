@@ -64,7 +64,7 @@ local function initialiseModals()
 
 	controllers.AvatarEditorController:Initialise()
 	controllers.CatalogSearchController:Initialise()
-
+ 
 	GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer)
 	GuiManager.RegisterModal(MODAL_NAMES.FTUE_GUI, ftuePop)
 end
