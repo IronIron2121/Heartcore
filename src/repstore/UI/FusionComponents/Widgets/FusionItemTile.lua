@@ -289,7 +289,7 @@ props: {
 								bundleType = props.itemDetails.BundleType or nil,
 								layoutOrder = 2,  
 								isOffSale = isOffSale,
-								text = "PURCHASE",
+								text = "BUY",
 								onPurchaseCallback = function()
 									deactivate()
 									if props.onPurchaseCb then
