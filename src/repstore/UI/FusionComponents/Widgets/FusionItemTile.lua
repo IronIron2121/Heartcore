@@ -112,14 +112,10 @@ props: {
 		priceVal = tostring(props.itemDetails.Price)
 	end
 
-	--[[
 	local buttonsVisible = scope:Computed(function(use)
 		return use(isActivated) or use(isHovering)
 	end)
-	]]
 
-	local buttonsVisible = scope:Value(false)
-	
 	local function activate(): ()
 		isActivated:set(true)
 	end
@@ -283,7 +279,8 @@ props: {
 
 							TryButton(scope, {
 								layoutOrder = 1,
-								onTryonCallback = onTryOnCallback
+								onTryonCallback = onTryOnCallback,
+								text = "EQUIP"
 							}),  
 
 							BuyButton(scope, {
@@ -292,6 +289,7 @@ props: {
 								bundleType = props.itemDetails.BundleType or nil,
 								layoutOrder = 2,  
 								isOffSale = isOffSale,
+								text = "BUY",
 								onPurchaseCallback = function()
 									deactivate()
 									if props.onPurchaseCb then
