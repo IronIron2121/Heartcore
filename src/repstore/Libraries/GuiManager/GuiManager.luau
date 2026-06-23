@@ -6,8 +6,15 @@ local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local DataTables = ReplicatedStorage:WaitForChild("DataTables")
+local UI = ReplicatedStorage:WaitForChild("UI")
 local Utility = ReplicatedStorage:WaitForChild("Utility")
+local FusionComponents = UI:WaitForChild("FusionComponents")
+
 local Fusion = require(Utility:WaitForChild("Fusion"))
+local FusionImageButton = require(FusionComponents:WaitForChild("FusionImageButton"))
+local ImageUris = require(DataTables:WaitForChild("ImageUris"))
+local UI_CONSTANTS = require(Utility:WaitForChild("UI_CONSTANTS"))
 
 local Children = Fusion.Children
 local peek = Fusion.peek
@@ -20,6 +27,7 @@ type ModalEntry = {
 local TWEEN_LENGTH = 0.4
 local ON_SCREEN_POSITION = UDim2.fromScale(0.5, 0.5)
 local OFF_SCREEN_POSITION = UDim2.fromScale(0.5, 3)
+local NOTIFICATION_OFF_SCREEN_POSITION = UDim2.fromScale(0.5, -5)
 
 local guiScope = Fusion:scoped()
 local localPlayer = Players.LocalPlayer
@@ -79,11 +87,144 @@ local _modalBlur = guiScope:New "BlurEffect" {
 }
 
 local notificationActive = guiScope:Value(false)
-local notificationText = guiScope:Value("")
-local yesCallback = guiScope:Value(function() end)
-local noCallback = guiScope:Value(function() end)
 
-local notificationGui = guiScope:New "ScreenGui" {
+local notificationPosition = guiScope:Computed(function(use)
+	return if use(notificationActive) then ON_SCREEN_POSITION else NOTIFICATION_OFF_SCREEN_POSITION
+end)
+
+local notificationText = guiScope:Value("")
+
+local notificationTextLabel = guiScope:New "TextLabel" {
+	BackgroundColor3 = Color3.new(0, 0, 0),
+	BackgroundTransparency = 1,
+	FontFace = Font.new(UI_CONSTANTS.DEFAULT_FONT, Enum.FontWeight.Regular),
+	Name = "notificationTextLabel",
+	Size = UDim2.fromScale(1, 0.5),
+	Text = notificationText,
+	TextColor3 = UI_CONSTANTS.TASTEMAKER_PURPLE,
+	TextScaled = true,
+	TextSize = 50,
+	TextWrapped = true,
+
+	[Children] = {
+		guiScope:New "UICorner" {
+			CornerRadius = UDim.new(0.05, 0),
+		},
+
+		guiScope:New "UIStroke" {
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+			Color = UI_CONSTANTS.TASTEMAKER_GREEN,
+			Thickness = 3,
+		},
+	},
+}
+
+local yesCallback = guiScope:Value(function()
+	warn("No callback currently assigned to YES button")
+end)
+
+local notificationYesButton = FusionImageButton(guiScope, {
+	name = "notificationYesButton",
+	backgroundTransparency = 1,
+	image = ImageUris.ConfirmButton,
+	onActivated = yesCallback,
+	position = UDim2.fromScale(0.35, 0.5),
+	size = UDim2.fromScale(0.5, 0.5),
+	visible = true,
+})
+
+local noCallback = guiScope:Value(function()
+	print("No callback currently assigned to no button")
+end)
+
+local notificationNoButton = FusionImageButton(guiScope, {
+	name = "notificationNoButton",
+	backgroundTransparency = 1,
+	image = ImageUris.CloseButton,
+	onActivated = noCallback,
+	position = UDim2.fromScale(0.65, 0.5),
+	size = UDim2.fromScale(0.5, 0.5),
+	visible = true,
+})
+
+local notificationButtonContainer = guiScope:New "Frame" {
+	Name = "notificationButtonContainer",
+	BackgroundTransparency = 1,
+	LayoutOrder = 2,
+	Size = UDim2.fromScale(1, 0.5),
+	Visible = true,
+
+	[Children] = {
+		notificationYesButton,
+		notificationNoButton,
+	},
+}
+
+local notificationMessageContainer = guiScope:New "Frame" {
+	Name = "NotificationMessageContainer",
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	BackgroundColor3 = Color3.new(1, 1, 1),
+	BackgroundTransparency = 0.2,
+	LayoutOrder = 2,
+	Position = UDim2.fromScale(0.5, 0.5),
+	Size = UDim2.fromScale(0.3, 0.3),
+	ZIndex = 1,
+
+	[Children] = {
+		notificationTextLabel,
+		notificationButtonContainer,
+
+		guiScope:New "UIListLayout" {
+			FillDirection = Enum.FillDirection.Vertical,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+		},
+
+		guiScope:New "UICorner" {
+			CornerRadius = UDim.new(0.05, 0),
+		},
+
+		guiScope:New "UIPadding" {
+			PaddingLeft = UDim.new(0.1, 0),
+			PaddingRight = UDim.new(0.1, 0),
+		},
+	},
+}
+
+local notificationContainer = guiScope:New "Frame" {
+	Name = "notificationContainer",
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	BackgroundTransparency = 1,
+	LayoutOrder = 1,
+	Position = guiScope:Spring(notificationPosition, 10, 0.8),
+	Size = UDim2.fromScale(1, 1),
+	Visible = true,
+	ZIndex = 2,
+
+	[Children] = {
+		notificationMessageContainer,
+	},
+}
+
+local inputSinkTransparency = guiScope:Computed(function(use)
+	return if use(notificationActive) then 0.4 else 1
+end)
+
+local notificationInputSink = guiScope:New "Frame" {
+	Name = "notificationInputSink",
+	Active = notificationActive,
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	BackgroundColor3 = Color3.new(0, 0, 0),
+	BackgroundTransparency = guiScope:Tween(inputSinkTransparency, TweenInfo.new(TWEEN_LENGTH, Enum.EasingStyle.Quad)),
+	LayoutOrder = 1,
+	Position = ON_SCREEN_POSITION,
+	Size = UDim2.fromScale(1, 1),
+	Visible = notificationActive,
+	ZIndex = 1,
+}
+
+local _notificationGui = guiScope:New "ScreenGui" {
 	Name = "NotificationGui",
 	DisplayOrder = 30,
 	Enabled = true,
@@ -92,116 +233,13 @@ local notificationGui = guiScope:New "ScreenGui" {
 	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 
 	[Children] = {
-		guiScope:New "Frame" {
-			Name = "InputSink",
-			Active = notificationActive,
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			BackgroundColor3 = Color3.new(0, 0, 0),
-			BackgroundTransparency = 0.35,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromScale(1, 1),
-			Visible = notificationActive,
-			ZIndex = 1,
-		},
-
-		guiScope:New "Frame" {
-			Name = "NotificationPanel",
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			BackgroundColor3 = Color3.new(1, 1, 1),
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromScale(0.32, 0.22),
-			Visible = notificationActive,
-			ZIndex = 2,
-
-			[Children] = {
-				guiScope:New "UICorner" {
-					CornerRadius = UDim.new(0, 8),
-				},
-
-				guiScope:New "UIPadding" {
-					PaddingBottom = UDim.new(0, 16),
-					PaddingLeft = UDim.new(0, 16),
-					PaddingRight = UDim.new(0, 16),
-					PaddingTop = UDim.new(0, 16),
-				},
-
-				guiScope:New "UIListLayout" {
-					FillDirection = Enum.FillDirection.Vertical,
-					HorizontalAlignment = Enum.HorizontalAlignment.Center,
-					Padding = UDim.new(0, 12),
-					SortOrder = Enum.SortOrder.LayoutOrder,
-					VerticalAlignment = Enum.VerticalAlignment.Center,
-				},
-
-				guiScope:New "TextLabel" {
-					BackgroundTransparency = 1,
-					LayoutOrder = 1,
-					Size = UDim2.fromScale(1, 0.55),
-					Text = notificationText,
-					TextColor3 = Color3.fromRGB(48, 42, 77),
-					TextScaled = true,
-					TextWrapped = true,
-				},
-
-				guiScope:New "Frame" {
-					BackgroundTransparency = 1,
-					LayoutOrder = 2,
-					Size = UDim2.fromScale(1, 0.3),
-
-					[Children] = {
-						guiScope:New "UIListLayout" {
-							FillDirection = Enum.FillDirection.Horizontal,
-							HorizontalAlignment = Enum.HorizontalAlignment.Center,
-							Padding = UDim.new(0, 12),
-							SortOrder = Enum.SortOrder.LayoutOrder,
-							VerticalAlignment = Enum.VerticalAlignment.Center,
-						},
-
-						guiScope:New "TextButton" {
-							BackgroundColor3 = Color3.fromRGB(91, 83, 207),
-							LayoutOrder = 1,
-							Size = UDim2.fromScale(0.35, 0.8),
-							Text = "Yes",
-							TextColor3 = Color3.new(1, 1, 1),
-
-							[Fusion.OnEvent "Activated"] = function()
-								notificationActive:set(false)
-								peek(yesCallback)()
-							end,
-
-							[Children] = {
-								guiScope:New "UICorner" {
-									CornerRadius = UDim.new(0, 6),
-								},
-							},
-						},
-
-						guiScope:New "TextButton" {
-							BackgroundColor3 = Color3.fromRGB(232, 232, 241),
-							LayoutOrder = 2,
-							Size = UDim2.fromScale(0.35, 0.8),
-							Text = "No",
-							TextColor3 = Color3.fromRGB(48, 42, 77),
-
-							[Fusion.OnEvent "Activated"] = function()
-								notificationActive:set(false)
-								peek(noCallback)()
-							end,
-
-							[Children] = {
-								guiScope:New "UICorner" {
-									CornerRadius = UDim.new(0, 6),
-								},
-							},
-						},
-					},
-				},
-			},
-		},
+		notificationContainer,
+		notificationInputSink,
 	},
 }
 
 local GuiManager = {}
+local hiddenNotifications: {[string]: boolean} = {}
 
 function GuiManager.IsLoaded(): boolean
 	return isLoaded
@@ -229,11 +267,12 @@ function GuiManager.GetRegisteredModal(modalName: string): ModalEntry
 end
 
 function GuiManager.PushCentreByName(modalName: string, params: any?)
-	if not isLoaded then
+	while not isLoaded do
 		warn("Still initialising GUI")
-		return
+		task.wait(2)
 	end
 
+	print("Out!")
 	local modalToPush = registeredModals[modalName]
 	assert(modalToPush, "Attempt to push unregistered modal " .. modalName)
 
@@ -344,14 +383,34 @@ function GuiManager.GetCurrentConfigurationNameValue()
 end
 
 function GuiManager.PushNotificationCentre(
-	_notificationName: string,
+	notificationName: string,
 	message: string,
-	onConfirm: () -> (),
-	onCancel: (() -> ())?
+	yesCb: () -> (),
+	noCb: (() -> ())?,
+	_showAgain: boolean?
 )
+	if hiddenNotifications[notificationName] then
+		return
+	end
+
+	if peek(notificationActive) then
+		warn("Notification already active!")
+		return
+	end
+
 	notificationText:set(message)
-	yesCallback:set(onConfirm)
-	noCallback:set(onCancel or function() end)
+	yesCallback:set(function()
+		GuiManager.PopNotification()
+		GuiManager.ResetNotificationDetails()
+		yesCb()
+	end)
+	noCallback:set(function()
+		GuiManager.PopNotification()
+		GuiManager.ResetNotificationDetails()
+		if noCb then
+			noCb()
+		end
+	end)
 	notificationActive:set(true)
 end
 

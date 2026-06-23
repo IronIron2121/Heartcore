@@ -112,9 +112,13 @@ props: {
 		priceVal = tostring(props.itemDetails.Price)
 	end
 
+	--[[
 	local buttonsVisible = scope:Computed(function(use)
 		return use(isActivated) or use(isHovering)
 	end)
+	]]
+
+	local buttonsVisible = scope:Value(false)
 	
 	local function activate(): ()
 		isActivated:set(true)
@@ -144,6 +148,8 @@ props: {
 	local function toggleActivationCallback(): ()
 		if peek(isActivated) then
 			return
+		else
+			onTryOnCallback()
 		end
 
 		activate()
@@ -153,7 +159,7 @@ props: {
 	
 	local backgroundColorSpring = scope:Spring(
 		scope:Computed(function(use)
-			if use(isActivated) or use(isHovering) then
+			if use(isHovering) then
 				return COLOUR_HOVER
 			else
 				return COLOUR_WHITE
