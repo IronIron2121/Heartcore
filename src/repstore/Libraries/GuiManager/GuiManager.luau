@@ -267,11 +267,12 @@ function GuiManager.GetRegisteredModal(modalName: string): ModalEntry
 end
 
 function GuiManager.PushCentreByName(modalName: string, params: any?)
-	if not isLoaded then
+	while not isLoaded do
 		warn("Still initialising GUI")
-		return
+		task.wait(2)
 	end
 
+	print("Out!")
 	local modalToPush = registeredModals[modalName]
 	assert(modalToPush, "Attempt to push unregistered modal " .. modalName)
 

@@ -66,7 +66,7 @@ local function initialiseModals()
 	controllers.CatalogSearchController:Initialise()
 
 	GuiManager.RegisterModal(MODAL_NAMES.WARDROBE_GUI, wardrobeContainer)
-	GuiManager.RegisterModal(MODAL_NAMES.FTUE_GUI, wardrobeContainer)
+	GuiManager.RegisterModal(MODAL_NAMES.FTUE_GUI, ftuePop)
 end
 
 local function initialiseHud()
@@ -133,10 +133,10 @@ local function initialiseHud()
 
 	GuiManager.RegisterConfiguration(catalogConfig)
 	GuiManager.DisplayConfiguration(CONFIGURATION_NAMES.CatalogConfig)
+	GuiManager.SetLoaded()
     GuiManager.PushCentreByName(MODAL_NAMES.FTUE_GUI)
 
 end
 
 initialiseModals()
 initialiseHud()
-GuiManager.SetLoaded()
