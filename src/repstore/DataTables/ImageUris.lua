@@ -15,6 +15,8 @@ local assets = {
 	CloseButton 		= "80352400443696",
 	ConfirmButton 		= "89968616523764",
 	RobuxIcon 			= "81055682730978",
+	AuraLogo 			= "90201692488235",
+	AuraClose			= "104076997168622"
 }
 
 setmetatable(ImageUris, {

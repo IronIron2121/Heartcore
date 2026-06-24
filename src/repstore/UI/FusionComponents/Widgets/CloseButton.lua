@@ -40,6 +40,7 @@ local function CloseButton(
 		strokeThickness: UsedAs<number>?,
 		cornerRadius: UsedAs<UDim>?,
 		zIndex: UsedAs<number>?,
+		image: UsedAs<string>?,
 	}
 )
     local Toggled = scope:Value(false)
@@ -86,7 +87,7 @@ local function CloseButton(
 
         [Children] = {
 			scope:New "ImageLabel" {
-				Image = ImageUris.CloseButton,
+				Image = props.image or ImageUris.CloseButton,
 				Size = UDim2.fromScale(1,1),
 				BackgroundTransparency = 1,
 				Rotation = scope:Spring(
