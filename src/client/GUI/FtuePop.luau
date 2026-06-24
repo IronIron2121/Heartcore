@@ -35,7 +35,7 @@ local function FtuePop(scope: Fusion.Scope)
         Size = UDim2.fromScale(0.5,0.9),
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.fromScale(0.5, 0.5),
-        BackgroundTransparency = 0.3,
+        BackgroundTransparency = 0,
         
         [Children] = {
             closeButton,
