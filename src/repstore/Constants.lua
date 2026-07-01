@@ -172,7 +172,7 @@ local Constants = {
 	},
 
 	PLACE_IDS = {
-		MainMenu = 139003195245869
+		MainMenu = 105171565737608
 	},
 
 	DRESSING_PREAMBLE_LENGTH = 5,
@@ -201,7 +201,6 @@ local Constants = {
 
 	MESSAGE_KEYS = {
 		["FTUE_KEY"] = "ftueCompleted"
-
 	},
 
 	WARDROBE_GUI_STATES = {
@@ -221,7 +220,7 @@ local Constants = {
 		['RIGHT'] = "rightSide"
 	},
 
-	DEBUG_MODE = true,
+	DEBUG_MODE = false,
 
 	DEFAULT_WALK_SPEED = 40,
 	DEFAULT_JUMP_POWER = 50
