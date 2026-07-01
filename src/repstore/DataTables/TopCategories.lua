@@ -22,6 +22,7 @@ local TopCategories: { TopCategoryEntry } = {
 		assetTypes = {},
 		bundleTypes = {},
 		subCategories = {
+			{ name = "AU/RA" },
 			{ name = "0207" },
 			{ name = "Aurora" },
 			{ name = "CHAOS RECORDS" },
